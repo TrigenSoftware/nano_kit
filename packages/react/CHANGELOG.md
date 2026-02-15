@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.3](https://github.com/TrigenSoftware/nano_kit/compare/react@1.0.0-alpha.3...react@1.0.0-alpha.3) (2026-02-15)
+
+### Features
+
+* rename to [@nano](https://github.com/nano)_kit/react ([e360b42](https://github.com/TrigenSoftware/nano_kit/commit/e360b42ccbf1be6067a93278fef3080869753607))
+
+### Performance Improvements
+
+* disable minification ([3d6ad47](https://github.com/TrigenSoftware/nano_kit/commit/3d6ad47eb8cca42002d71f865cd6d136f9eada5a))
+
 ## 1.0.0-alpha.3 (2025-11-15)
 
 ### Features

@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.5](https://github.com/TrigenSoftware/nano_kit/compare/agera@1.0.0-alpha.4...agera@1.0.0-alpha.5) (2026-02-15)
+
+### Features
+
+* new batch api, observer methods ([41d98ad](https://github.com/TrigenSoftware/nano_kit/commit/41d98adac431df8c8267cc894631d7bb8a31002b))
+* sync with alien-signals v3 ([e66fdf4](https://github.com/TrigenSoftware/nano_kit/commit/e66fdf435f361e0b915870448fa542988ac0ead6))
+
+### Bug Fixes
+
+* fix signal mount escaping ([9496e4f](https://github.com/TrigenSoftware/nano_kit/commit/9496e4f7878d8f5ed54f24834c88a032bc267540))
+* noMount usage fix ([ffb688c](https://github.com/TrigenSoftware/nano_kit/commit/ffb688c93a9a353db69bb1321fba29b430cd0c38))
+* onMounted no defer listener ([46bc8fa](https://github.com/TrigenSoftware/nano_kit/commit/46bc8fa3e97eff5b3e9df3539581bbcaba3a8539))
+
 ## [1.0.0-alpha.4](https://github.com/TrigenSoftware/nano_kit/compare/agera@1.0.0-alpha.3...agera@1.0.0-alpha.4) (2025-11-17)
 
 ### Bug Fixes

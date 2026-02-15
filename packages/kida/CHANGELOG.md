@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.6](https://github.com/TrigenSoftware/nano_kit/compare/kida@1.0.0-alpha.5...kida@1.0.0-alpha.6) (2026-02-15)
+
+### Features
+
+* map -> object, signals map api, tasks minor rework, destroy function for onStart and onStop ([91d1683](https://github.com/TrigenSoftware/nano_kit/commit/91d1683cfec08de0f88c6ee53ff0f01dee24a20e))
+* move extra methods to [@nano](https://github.com/nano)_kit/store ([5cf1645](https://github.com/TrigenSoftware/nano_kit/commit/5cf16451758f1cc08b0b3856f55664f45e4f3525))
+
+### Bug Fixes
+
+* fix child getter to return empty value if parent is empty ([5c258ec](https://github.com/TrigenSoftware/nano_kit/commit/5c258ecfb53032ca3b10ae3e9d44547d77f1f942))
+* isolate injection ([54d4952](https://github.com/TrigenSoftware/nano_kit/commit/54d4952893c7e2d608ac6a97481bd342b6ce77b2))
+
+### Performance Improvements
+
+* disable minification ([3d6ad47](https://github.com/TrigenSoftware/nano_kit/commit/3d6ad47eb8cca42002d71f865cd6d136f9eada5a))
+
 ## [1.0.0-alpha.5](https://github.com/TrigenSoftware/nano_kit/compare/kida@1.0.0-alpha.4...kida@1.0.0-alpha.5) (2025-11-17)
 
 ### Bug Fixes

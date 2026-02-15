@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.1](https://github.com/TrigenSoftware/nano_kit/compare/react-router@1.0.0-alpha.1...react-router@1.0.0-alpha.1) (2026-02-15)
+
+### Features
+
+* rename to [@nano](https://github.com/nano)_kit/react-router ([eef5cc5](https://github.com/TrigenSoftware/nano_kit/commit/eef5cc529bbb762c381837f8b86a4815ba077d3c))
+
+### Performance Improvements
+
+* disable minification ([3d6ad47](https://github.com/TrigenSoftware/nano_kit/commit/3d6ad47eb8cca42002d71f865cd6d136f9eada5a))
+
 ## 1.0.0-alpha.1 (2025-11-15)
 
 ### Features
