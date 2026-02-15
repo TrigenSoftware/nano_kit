@@ -1,7 +1,7 @@
 {
   "name": "nanoviews",
   "type": "module",
-  "version": "1.0.0-alpha.4",
+  "version": "1.0.0-alpha.5",
   "description": "A small Direct DOM library for creating user interfaces.",
   "author": "dangreen",
   "license": "MIT",

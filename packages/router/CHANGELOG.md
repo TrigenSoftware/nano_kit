@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.4](https://github.com/TrigenSoftware/nano_kit/compare/router@1.0.0-alpha.4...router@1.0.0-alpha.4) (2026-02-15)
+
+### Features
+
+* rename to [@nano](https://github.com/nano)_kit/router ([6cafa79](https://github.com/TrigenSoftware/nano_kit/commit/6cafa7973aa904ca53627d6b9d28a528be0857de))
+
+### Performance Improvements
+
+* disable minification ([3d6ad47](https://github.com/TrigenSoftware/nano_kit/commit/3d6ad47eb8cca42002d71f865cd6d136f9eada5a))
+
 ## [1.0.0-alpha.4](https://github.com/TrigenSoftware/nano_kit/compare/router@1.0.0-alpha.3...router@1.0.0-alpha.4) (2025-11-17)
 
 ### Features
