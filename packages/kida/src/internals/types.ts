@@ -16,6 +16,8 @@ export type AnyCollection = Record<number | string, any>
 
 export type EmptyValue = undefined | null | void
 
+export type FalsyValue = EmptyValue | false | '' | 0
+
 export type PickNonEmptyValue<T> = T extends EmptyValue ? never : T
 
 export type PickEmptyValue<T> = T extends EmptyValue ? T : never

@@ -2,6 +2,7 @@ import type {
   AnyFn,
   AnyObject,
   EmptyValue,
+  FalsyValue,
   Destroy,
   MaybeDestroy,
   EffectCallback,
@@ -15,10 +16,9 @@ export type {
   MaybeDestroy,
   AnyFn,
   AnyObject,
-  EmptyValue
+  EmptyValue,
+  FalsyValue
 }
-
-export type FalsyValue = EmptyValue | false | '' | 0
 
 export type Primitive = string | number | boolean | EmptyValue
 
