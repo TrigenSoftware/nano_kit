@@ -66,7 +66,7 @@ export function persistence(storage: Storage | null, lifetime: number): ClientSe
       ) {
         const entry = untracked(superGet.bind(this, key))
 
-        if (entry && !entry.loading && !revLocked(entry.rev)) {
+        if (entry && !entry.loading && !entry.error && !revLocked(entry.rev)) {
           void this.task(storage!.set(key, entry, this.persistenceLifetime!))
         }
       }
