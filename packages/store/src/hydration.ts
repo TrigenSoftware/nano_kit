@@ -25,6 +25,10 @@ export type Hydrator = (key: string, setter: (value: unknown) => void) => void
 
 const HydratedMode = 1 << ExternalModesBase
 
+function toMap(dehydrated: [string, unknown][] | Map<string, unknown>) {
+  return dehydrated instanceof Map ? dehydrated : new Map(dehydrated)
+}
+
 /**
  * Create a hydrator from a static dehydrated snapshot.
  * @param dehydrated - The dehydrated data as an array of key-value pairs or a Map.
@@ -36,7 +40,7 @@ export function hydrator(
   dehydrated: [string, unknown][] | Map<string, unknown>,
   parent?: Hydrator | null
 ): Hydrator {
-  const dehydratedMap = new Map<string, unknown>(dehydrated)
+  const dehydratedMap = toMap(dehydrated)
 
   return (key, setter) => {
     if (dehydratedMap.has(key)) {
@@ -60,7 +64,7 @@ export function activeHydrator(
   $dehydrated: Accessor<[string, unknown][] | Map<string, unknown>>,
   parent?: Hydrator | null
 ): Hydrator {
-  const $dehydratedMap = computed(() => new Map<string, unknown>($dehydrated()))
+  const $dehydratedMap = computed(() => toMap($dehydrated()))
 
   return (key, setter) => {
     effect(() => {
