@@ -20,7 +20,8 @@ export default [
       }
     },
     rules: {
-      'no-multi-assign': 'off'
+      'no-multi-assign': 'off',
+      'consistent-return': 'off'
     }
   }
 ]

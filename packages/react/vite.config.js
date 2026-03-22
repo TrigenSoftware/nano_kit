@@ -9,15 +9,25 @@ export default defineConfig({
     lib: {
       formats: ['es'],
       entry: {
-        index: './src/index.tsx'
+        index: './src/index.ts'
       }
     },
     rollupOptions: {
-      external: [
-        'react',
-        'react/jsx-runtime',
-        '@nano_kit/store'
-      ]
+      external: id => /^(react|@nano_kit)\/?/.test(id),
+      output: {
+        manualChunks(id, meta) {
+          const { code } = meta.getModuleInfo(id)
+
+          if (/^\s*['"]use client['"]/.test(code)) {
+            return 'client'
+          }
+        },
+        banner(chunk) {
+          if (chunk.name === 'client') {
+            return `'use client';`
+          }
+        }
+      }
     },
     sourcemap: true,
     minify: false,

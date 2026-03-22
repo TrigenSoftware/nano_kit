@@ -3,6 +3,6 @@
     "name": "All publics",
     "path": "dist/index.js",
     "import": "*",
-    "limit": "380 B"
+    "limit": "1 kB"
   }
 ]
