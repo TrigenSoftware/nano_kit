@@ -14,10 +14,12 @@ import {
 } from 'kida'
 import { TasksRunner$ } from './tasks.js'
 import {
-  Dehydrated$,
+  Hydrator$,
   hydratable,
   dehydrate,
-  isHydrated
+  isHydrated,
+  hydrator,
+  activeHydrator
 } from './hydration.js'
 
 interface User {
@@ -69,7 +71,7 @@ describe('store', () => {
         }
       })
       const context = new InjectionContext([
-        provide(Dehydrated$, new Map(dehydrated))
+        provide(Hydrator$, hydrator(dehydrated))
       ])
       const { $user } = run(context, () => inject(User$))
 
@@ -85,7 +87,7 @@ describe('store', () => {
         }
       })
       const context = new InjectionContext([
-        provide(Dehydrated$, new Map(dehydrated))
+        provide(Hydrator$, hydrator(dehydrated))
       ])
       const { $user } = run(context, () => inject(User$))
 
@@ -96,6 +98,40 @@ describe('store', () => {
       })
 
       expect(isHydrated($user)).toBe(false)
+    })
+
+    it('should re-hydrate when snapshot signal changes with activeHydrator', () => {
+      const $snapshot = signal<[string, unknown][]>(Object.entries({
+        user: {
+          name: 'John'
+        }
+      }))
+      const context = new InjectionContext([
+        provide(Hydrator$, activeHydrator($snapshot))
+      ])
+      const { $user } = run(context, () => inject(User$))
+
+      expect($user()).toEqual({
+        name: 'John'
+      })
+      expect(isHydrated($user)).toBe(true)
+
+      $user({
+        name: 'Stale'
+      })
+
+      expect(isHydrated($user)).toBe(false)
+
+      $snapshot(Object.entries({
+        user: {
+          name: 'Jane'
+        }
+      }))
+
+      expect($user()).toEqual({
+        name: 'Jane'
+      })
+      expect(isHydrated($user)).toBe(true)
     })
   })
 })

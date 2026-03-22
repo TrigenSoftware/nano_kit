@@ -6,7 +6,7 @@ import {
 } from 'vitest'
 import {
   type TasksPool,
-  Dehydrated$,
+  Hydrator$,
   Hydratables$,
   InjectionContext,
   effect,
@@ -14,7 +14,8 @@ import {
   tasksRunner,
   waitTasks,
   run,
-  provide
+  provide,
+  hydrator
 } from '@nano_kit/store'
 import { queryKey } from '../cache.js'
 import { tasks } from '../ClientContext.js'
@@ -147,7 +148,7 @@ describe('query', () => {
 
         const { query } = client(
           tasks(tasksRunner(tasksPool)),
-          hydratable(dehydrated)
+          hydratable(hydrator(dehydrated))
         )
         const [$post] = query(PostKey, [signal(1)], getPost)
         const off = effect(() => {
@@ -166,7 +167,7 @@ describe('query', () => {
         off()
       })
 
-      it('should use Dehydrated$ from context', () => {
+      it('should use Hydrator$ from context', () => {
         const dehydrated = new Map()
         const serialized = [
           [
@@ -190,7 +191,7 @@ describe('query', () => {
         dehydrated.set('@nano_kit/query', serialized)
 
         const context = new InjectionContext([
-          provide(Dehydrated$, dehydrated)
+          provide(Hydrator$, hydrator(dehydrated))
         ])
         const { query } = run(context, () => client(
           tasks(tasksRunner(tasksPool)),

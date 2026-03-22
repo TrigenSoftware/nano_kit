@@ -2,7 +2,8 @@ import {
   type Accessor,
   InjectionContext,
   provide,
-  Dehydrated$
+  Hydrator$,
+  hydrator
 } from '@nano_kit/store'
 import {
   type MatchRef,
@@ -35,11 +36,11 @@ declare global {
 }
 
 /**
- * Retrieves the dehydrated state from the global window object and returns it as a Map.
- * @returns A Map containing the dehydrated state.
+ * Retrieves the dehydrated state from the global window object and returns its hydrator function.
+ * @returns A data hydrator function.
  */
-export function dehydrated() {
-  return new Map(window.__DEHYDRATED__ || [])
+export function hydrate() {
+  return hydrator(window.__DEHYDRATED__ || [])
 }
 
 /**
@@ -55,7 +56,7 @@ export async function ready(options: ReadyOptions) {
   const [$location, navigation] = browserNavigation(routes)
   const $page = router($location, pages)
   const context = new InjectionContext([
-    provide(Dehydrated$, dehydrated()),
+    provide(Hydrator$, hydrate()),
     provide(Location$, $location),
     provide(Navigation$, navigation),
     provide(Page$, $page),

@@ -1,6 +1,7 @@
 import {
   type AnyAccessor,
-  Dehydrated$,
+  type Hydrator,
+  Hydrator$,
   Hydratables$,
   inject
 } from '@nano_kit/store'
@@ -47,27 +48,26 @@ function deserialize(cache: CacheMap, serialized: SerializedShardedMap) {
 
 /**
  * Make client cache hydratable.
- * Without arguments, it will try to inject dehydrated data and hydratables map from context.
- * @param dehydrated - Optional dehydrated data to use for hydration.
- * @param hydratables - Optional map to store accessor with serialized cache.
+ * Without arguments, it will try to inject {@link Hydrator$} and {@link Hydratables$} from the injection context.
+ * @param hydrator - Optional hydrator to use for rehydrating the cache. Pass `null` to skip hydration and only register for dehydration.
+ * @param hydratables - Optional map to register the cache serializer for dehydration.
  * @returns The client setting function.
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function hydratable(
-  dehydrated?: Map<string, unknown> | null,
+  hydrator?: Hydrator | null,
   hydratables?: Map<string, AnyAccessor> | null
 ): ClientSetting {
   return (ctx: HydratableContext) => {
     if (!ctx.hydratable) {
-      const finalDehydrated = dehydrated === undefined
-        ? inject(Dehydrated$)
-        : dehydrated
+      const hydrate = hydrator === undefined
+        ? inject(Hydrator$)
+        : hydrator
 
-      if (finalDehydrated) {
-        if (finalDehydrated.has(id)) {
-          deserialize(ctx.cache, finalDehydrated.get(id) as SerializedShardedMap)
-          finalDehydrated.delete(id)
-        }
+      if (hydrate) {
+        hydrate(id, (value) => {
+          deserialize(ctx.cache, value as SerializedShardedMap)
+        })
       } else {
         const finalHydratables = hydratables === undefined
           ? inject(Hydratables$)
