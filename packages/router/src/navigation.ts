@@ -94,7 +94,7 @@ function createMatcher(routes: Routes) {
 // For SSR purposes, create matcher once
 const matcherCache = new WeakMap<Routes, ReturnType<typeof createMatcher>>()
 
-function createCachedMatcher(routes: Routes) {
+export function createCachedMatcher(routes: Routes) {
   let matcher = matcherCache.get(routes)
 
   if (!matcher) {
