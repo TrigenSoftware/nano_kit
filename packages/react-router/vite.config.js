@@ -13,13 +13,12 @@ export default defineConfig({
       }
     },
     rollupOptions: {
-      external: [
-        'react',
-        'react/jsx-runtime',
-        '@nano_kit/store',
-        '@nano_kit/router',
-        '@nano_kit/react'
-      ]
+      external: id => /^(react|@nano_kit)\/?/.test(id),
+      output: {
+        banner() {
+          return `'use client';`
+        }
+      }
     },
     sourcemap: true,
     minify: false,
