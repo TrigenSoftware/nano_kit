@@ -192,6 +192,21 @@ describe('kida', () => {
         expect(context.has(B)).toBe(true)
       })
 
+      it('should use child context when injecting transitive dependency from child context', () => {
+        const x = {}
+        const y = {}
+        const A$ = vi.fn(() => x)
+        const B$ = vi.fn(() => inject(A$))
+        const outer = new InjectionContext([[A$, x]])
+        const inner = new InjectionContext([[A$, y]], outer)
+        const value = inject(B$, inner)
+
+        expect(value).toBe(y)
+        expect(B$).toHaveBeenCalledTimes(1)
+        expect(inner.has(B$)).toBe(true)
+        expect(inner.get(B$)).toBe(y)
+      })
+
       it('should ignore defer scope', () => {
         const context = new InjectionContext()
         const destroy = vi.fn()

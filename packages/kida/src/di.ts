@@ -16,7 +16,7 @@ export class InjectionContext extends Map<InjectionFactory, unknown> {
 
   constructor(
     providers?: InjectionProvider[],
-    parent?: Map<InjectionFactory, unknown>
+    parent?: InjectionContext
   ) {
     super()
 
@@ -30,15 +30,15 @@ export class InjectionContext extends Map<InjectionFactory, unknown> {
     }
   }
 
-  override get<T>(factory: InjectionFactory<T>): T {
+  override get<T>(factory: InjectionFactory<T>, ctx = this): T {
     if (this.has(factory)) {
       return super.get(factory) as T
     }
 
     const parent = this.#parent
     const value = parent
-      ? parent.get(factory) as T
-      : run(this, factory)
+      ? parent.get(factory, ctx)
+      : run(ctx, factory)
 
     this.set(factory, value)
 
