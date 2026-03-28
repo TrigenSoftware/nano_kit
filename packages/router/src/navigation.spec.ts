@@ -6,8 +6,7 @@ import {
 } from 'vitest'
 import {
   browserNavigation,
-  virtualNavigation,
-  routeParam
+  virtualNavigation
 } from './navigation.js'
 
 describe('router', () => {
@@ -319,108 +318,6 @@ describe('router', () => {
         expect($location()).toMatchObject({
           route: 'about',
           params: {}
-        })
-      })
-
-      describe('routeParam', () => {
-        it('should extract and parse route parameters', () => {
-          const [$location, navigation] = virtualNavigation('/', {
-            user: '/users/:id/:category'
-          })
-
-          navigation.push('/users/123/tech')
-
-          const $id = routeParam($location, 'id')
-          const $category = routeParam($location, 'category')
-
-          expect($id()).toBe('123')
-          expect($category()).toBe('tech')
-        })
-
-        it('should parse parameter with custom parser', () => {
-          const [$location, navigation] = virtualNavigation('/', {
-            user: '/users/:id/:page/:active'
-          })
-
-          navigation.push('/users/123/5/true')
-
-          const $id = routeParam($location, 'id', Number)
-          const $page = routeParam($location, 'page', value => (!value ? 0 : parseInt(value)))
-          const $active = routeParam($location, 'active', value => value === 'true')
-
-          expect($id()).toBe(123)
-          expect($page()).toBe(5)
-          expect($active()).toBe(true)
-        })
-
-        it('should handle missing parameters gracefully', () => {
-          const [$location, navigation] = virtualNavigation('/', {
-            user: '/users/:id'
-          })
-
-          navigation.push('/users/123')
-
-          const $missing = routeParam($location, 'missing' as any)
-
-          expect($missing()).toBeUndefined()
-        })
-
-        it('should update when route changes', () => {
-          const [$location, navigation] = virtualNavigation('/', {
-            user: '/users/:id'
-          })
-
-          navigation.push('/users/123')
-
-          const $id = routeParam($location, 'id', Number)
-
-          expect($id()).toBe(123)
-
-          navigation.push('/users/456')
-          expect($id()).toBe(456)
-        })
-
-        it('should parse with complex transformations', () => {
-          const [$location, navigation] = virtualNavigation('/', {
-            search: '/search/:tags'
-          })
-
-          navigation.push('/search/javascript,typescript,react')
-
-          const $tags = routeParam($location, 'tags', value => value?.split(',') || [])
-
-          expect($tags()).toEqual([
-            'javascript',
-            'typescript',
-            'react'
-          ])
-
-          navigation.push('/search/vue,angular')
-          expect($tags()).toEqual(['vue', 'angular'])
-        })
-
-        it('should handle empty string parameters', () => {
-          const [$location, navigation] = virtualNavigation('/', {
-            page: '/page/:optional?'
-          })
-
-          navigation.push('/page')
-
-          const $optional = routeParam($location, 'optional')
-
-          expect($optional()).toBe('')
-        })
-
-        it('should work with wildcard parameters', () => {
-          const [$location, navigation] = virtualNavigation('/', {
-            files: '/files/*'
-          })
-
-          navigation.push('/files/documents/report.pdf')
-
-          const $wildcard = routeParam($location, 'wildcard')
-
-          expect($wildcard()).toBe('documents/report.pdf')
         })
       })
     })

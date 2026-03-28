@@ -1,7 +1,4 @@
 import {
-  type KeysOf,
-  type ValueOfKey,
-  type ReadableSignal,
   type WritableSignal,
   atIndex,
   onMount,
@@ -11,7 +8,6 @@ import {
   batch,
   updateList,
   action,
-  computed,
   untracked,
   mountable
 } from '@nano_kit/store'
@@ -22,8 +18,7 @@ import type {
 import type {
   Navigation,
   RouteLocation,
-  RouteLocationRecord,
-  RouteMatch
+  RouteLocationRecord
 } from './navigation.types.js'
 import {
   PopHistoryAction,
@@ -311,26 +306,3 @@ export function virtualNavigation<const R extends Routes = {}>(
   return [record(readonly($location)), navigation]
 }
 
-/**
- * Computed signal for a specific route parameter.
- * @param $location - Current location signal.
- * @param key - Parameter key to extract.
- * @param parser - Optional parser function for the parameter value.
- * @returns Computed signal of the parameter value.
- */
-/* @__NO_SIDE_EFFECTS__ */
-export function routeParam<
-  const R extends Routes,
-  M extends RouteMatch<R> = RouteMatch<R>,
-  K extends KeysOf<M['params']> = KeysOf<M['params']>,
-  V extends ValueOfKey<M['params'], K> = ValueOfKey<M['params'], K>,
-  T = V | undefined
->(
-  $location: RouteLocationRecord<R>,
-  key: K,
-  parser: (value: NoInfer<V> | undefined) => T = _ => _ as unknown as T
-): ReadableSignal<T> {
-  const { $params } = $location as RouteLocationRecord<{}>
-
-  return computed(() => parser(($params() as Record<K, V>)[key]))
-}

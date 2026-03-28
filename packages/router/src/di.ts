@@ -1,15 +1,18 @@
 import {
   type Accessor,
+  InjectionContext,
   DependencyNotFound,
-  inject
+  inject,
+  provide
 } from '@nano_kit/store'
 import type {
   AppRoutes,
-  AppComponent
+  AppComponent,
+  AppNavigation
 } from './di.types.js'
-import type {
-  Navigation,
-  RouteLocationRecord
+import {
+  type RouteLocationRecord,
+  virtualNavigation
 } from './navigation.js'
 import type {
   MatchRef,
@@ -19,6 +22,7 @@ import {
   type Paths,
   buildPaths
 } from './paths.js'
+import type { Routes } from './types.js'
 
 export * from './di.types.js'
 
@@ -32,7 +36,7 @@ export function Location$(): RouteLocationRecord<AppRoutes> {
 /**
  * Global injection token for the navigation API.
  */
-export function Navigation$(): Navigation<AppRoutes> {
+export function Navigation$(): AppNavigation {
   throw new DependencyNotFound('Navigation$')
 }
 
@@ -58,4 +62,23 @@ export function Paths$(): Paths<AppRoutes> {
   const navigation = inject(Navigation$)
 
   return buildPaths(navigation.routes)
+}
+
+/**
+ * Creates an injection context with the provided virtual navigation,
+ * @returns Injection context with Location$ and Navigation$ provided.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function virtualNavigationContext<const R extends Routes = {}>(
+  initialPath = '/',
+  routes: R = {} as R
+): InjectionContext {
+  const [$location, navigation] = virtualNavigation(initialPath, routes)
+  const context = new InjectionContext([
+    provide(Location$, $location),
+    // Suppress conflict with AppRoutes
+    provide(Navigation$, navigation as unknown as AppNavigation)
+  ])
+
+  return context
 }
