@@ -30,17 +30,20 @@ export class InjectionContext extends Map<InjectionFactory, unknown> {
     }
   }
 
-  override get<T>(factory: InjectionFactory<T>, ctx = this): T {
+  override get<T>(factory: InjectionFactory<T>): T
+
+  override get<T>(factory: InjectionFactory<T>, find: true): T | undefined
+
+  override get<T>(factory: InjectionFactory<T>, find?: boolean): T | undefined {
     if (this.has(factory)) {
       return super.get(factory) as T
     }
 
-    const parent = this.#parent
-    const value = parent
-      ? parent.get(factory, ctx)
-      : run(ctx, factory)
+    let value = this.#parent?.get(factory, true)
 
-    this.set(factory, value)
+    if (!find) {
+      this.set(factory, value ??= run(this, factory))
+    }
 
     return value
   }

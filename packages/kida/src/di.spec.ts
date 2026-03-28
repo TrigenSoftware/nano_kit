@@ -117,7 +117,7 @@ describe('kida', () => {
         expect(factory).toHaveBeenCalledTimes(0)
       })
 
-      it('should define dependency in root context', () => {
+      it('should define dependency only in nearest context', () => {
         const factory = vi.fn(() => 42)
         const root = new InjectionContext()
         const child = new InjectionContext(undefined, root)
@@ -137,7 +137,7 @@ describe('kida', () => {
         expect(app).toHaveBeenCalledTimes(1)
         expect(childApp).toHaveBeenCalledTimes(1)
         expect(factory).toHaveBeenCalledTimes(1)
-        expect(root.has(factory)).toBe(true)
+        expect(root.has(factory)).toBe(false)
         expect(child.has(factory)).toBe(true)
       })
 
