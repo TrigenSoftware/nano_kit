@@ -9,7 +9,8 @@ import type { ClientSetting } from '../client.types.js'
 import type { ClientContext } from '../ClientContext.js'
 import type {
   CacheMap,
-  CacheEntry
+  CacheEntry,
+  SerializedCacheEntry
 } from '../CacheStorage.types.js'
 import { setShardedMapKey } from '../map.js'
 
@@ -17,9 +18,31 @@ interface HydratableContext extends ClientContext {
   hydratable?: boolean
 }
 
-type SerializedShardedMap = [string, string, CacheEntry][]
+type SerializedShardedMap = [string, string, SerializedCacheEntry][]
 
 const id = '@nano_kit/query'
+
+function mapEntry(
+  entry: CacheEntry,
+  map: StringConstructor
+): SerializedCacheEntry
+
+function mapEntry(
+  entry: SerializedCacheEntry,
+  map: NumberConstructor
+): CacheEntry
+
+function mapEntry(
+  entry: CacheEntry | SerializedCacheEntry,
+  map: StringConstructor | NumberConstructor
+) {
+  return {
+    ...entry,
+    rev: map(entry.rev),
+    dedupes: map(entry.dedupes),
+    expires: map(entry.expires)
+  }
+}
 
 function serialize(cache: CacheMap) {
   const serialized: SerializedShardedMap = []
@@ -29,7 +52,7 @@ function serialize(cache: CacheMap) {
       const value = $signal?.()
 
       if (value !== undefined) {
-        serialized.push([shardKey, key, value])
+        serialized.push([shardKey, key, mapEntry(value, String)])
       }
     })
   })
@@ -42,7 +65,7 @@ function deserialize(cache: CacheMap, serialized: SerializedShardedMap) {
     setShardedMapKey(cache, {
       shard,
       key
-    }, value)
+    }, mapEntry(value, Number))
   })
 }
 
@@ -60,12 +83,12 @@ export function hydratable(
 ): ClientSetting {
   return (ctx: HydratableContext) => {
     if (!ctx.hydratable) {
-      const hydrate = hydrator === undefined
+      const finalHydrator = hydrator === undefined
         ? inject(Hydrator$)
         : hydrator
 
-      if (hydrate) {
-        hydrate(id, (value) => {
+      if (finalHydrator) {
+        finalHydrator.pull(id, (value) => {
           deserialize(ctx.cache, value as SerializedShardedMap)
         })
       } else {

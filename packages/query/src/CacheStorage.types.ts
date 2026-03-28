@@ -13,6 +13,12 @@ export interface CacheEntry<T = unknown> {
   loading: boolean
 }
 
+export interface SerializedCacheEntry extends Omit<CacheEntry, 'rev' | 'dedupes' | 'expires'> {
+  rev: string
+  dedupes: string
+  expires: string
+}
+
 export type CacheMap = ShardedSignalsMap<string, string, CacheEntry>
 
 export interface CacheShardKey<

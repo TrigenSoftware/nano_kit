@@ -15,7 +15,7 @@ import {
   waitTasks,
   run,
   provide,
-  hydrator
+  StaticHydrator
 } from '@nano_kit/store'
 import { queryKey } from '../cache.js'
 import { tasks } from '../ClientContext.js'
@@ -63,9 +63,9 @@ describe('query', () => {
             'post',
             '[1]',
             {
-              rev: expect.any(Number),
-              dedupes: expect.any(Number),
-              expires: expect.any(Number),
+              rev: expect.any(String),
+              dedupes: expect.any(String),
+              expires: expect.any(String),
               data: {
                 id: 1,
                 title: 'First Post',
@@ -106,9 +106,9 @@ describe('query', () => {
             'post',
             '[1]',
             {
-              rev: expect.any(Number),
-              dedupes: expect.any(Number),
-              expires: expect.any(Number),
+              rev: expect.any(String),
+              dedupes: expect.any(String),
+              expires: expect.any(String),
               data: {
                 id: 1,
                 title: 'First Post',
@@ -124,31 +124,32 @@ describe('query', () => {
       })
 
       it('should deserialize cache from dehydrated map', () => {
-        const dehydrated = new Map()
-        const serialized = [
+        const dehydrated: any = [
           [
-            'post',
-            '[1]',
-            {
-              rev: 1,
-              dedupes: Date.now() + 60000,
-              expires: Date.now() + 60000,
-              data: {
-                id: 1,
-                title: 'Cached Post',
-                content: 'Cached Content'
-              },
-              error: null,
-              loading: false
-            }
+            '@nano_kit/query',
+            [
+              [
+                'post',
+                '[1]',
+                {
+                  rev: 1,
+                  dedupes: Date.now() + 60000,
+                  expires: Date.now() + 60000,
+                  data: {
+                    id: 1,
+                    title: 'Cached Post',
+                    content: 'Cached Content'
+                  },
+                  error: null,
+                  loading: false
+                }
+              ]
+            ]
           ]
         ]
-
-        dehydrated.set('@nano_kit/query', serialized)
-
         const { query } = client(
           tasks(tasksRunner(tasksPool)),
-          hydratable(hydrator(dehydrated))
+          hydratable(new StaticHydrator(dehydrated))
         )
         const [$post] = query(PostKey, [signal(1)], getPost)
         const off = effect(() => {
@@ -162,36 +163,36 @@ describe('query', () => {
           title: 'Cached Post',
           content: 'Cached Content'
         })
-        expect(dehydrated.has('@nano_kit/query')).toBe(false)
 
         off()
       })
 
       it('should use Hydrator$ from context', () => {
-        const dehydrated = new Map()
-        const serialized = [
+        const dehydrated: any = [
           [
-            'post',
-            '[2]',
-            {
-              rev: 1,
-              dedupes: Date.now() + 60000,
-              expires: Date.now() + 60000,
-              data: {
-                id: 2,
-                title: 'Injected Post',
-                content: 'Injected Content'
-              },
-              error: null,
-              loading: false
-            }
+            '@nano_kit/query',
+            [
+              [
+                'post',
+                '[2]',
+                {
+                  rev: 1,
+                  dedupes: Date.now() + 60000,
+                  expires: Date.now() + 60000,
+                  data: {
+                    id: 2,
+                    title: 'Injected Post',
+                    content: 'Injected Content'
+                  },
+                  error: null,
+                  loading: false
+                }
+              ]
+            ]
           ]
         ]
-
-        dehydrated.set('@nano_kit/query', serialized)
-
         const context = new InjectionContext([
-          provide(Hydrator$, hydrator(dehydrated))
+          provide(Hydrator$, new StaticHydrator(dehydrated))
         ])
         const { query } = run(context, () => client(
           tasks(tasksRunner(tasksPool)),
@@ -209,7 +210,6 @@ describe('query', () => {
           title: 'Injected Post',
           content: 'Injected Content'
         })
-        expect(dehydrated.has('@nano_kit/query')).toBe(false)
 
         off()
       })
