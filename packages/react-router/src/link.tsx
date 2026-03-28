@@ -24,8 +24,8 @@ import type {
   LinkSettings
 } from './link.types.js'
 import {
-  useNavigation$,
-  usePaths$
+  useNavigation,
+  usePaths
 } from './hooks.js'
 
 /* @__NO_SIDE_EFFECTS__ */
@@ -86,7 +86,7 @@ function createLinkComponent<R extends Routes>(
       usePreload
     } = settings
     const paths = usePaths()
-    const path = to && paths[to] as string | ((params: unknown) => string) | undefined
+    const path = (to && paths[to]) as string | ((params: unknown) => string) | undefined
     const href = hrefProp ?? (path && (
       typeof path === 'function'
         ? path(params)
@@ -121,7 +121,7 @@ export function useListenLinks<R extends Routes = Routes>(navigation: Navigation
  * Should be used inside injection context with navigation provided.
  */
 export function useListenLinks$() {
-  const navigation = useNavigation$()
+  const navigation = useNavigation()
 
   useListenLinks(navigation)
 }
@@ -170,7 +170,7 @@ export function LinkSettings$(): LinkSettings {
   const navigation = inject(Navigation$)
 
   return {
-    onClick: onLinkClick.bind(navigation)
+    onClick: onLinkClick.bind(navigation as unknown as Navigation)
   }
 }
 
@@ -192,5 +192,5 @@ export function useLinkComponentPreload$(preloadByDefault = false) {
  */
 export const Link = /* @__PURE__ */ createLinkComponent<AppRoutes>(
   () => useInject(LinkSettings$),
-  () => usePaths$()
+  () => usePaths()
 )

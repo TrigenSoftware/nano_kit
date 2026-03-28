@@ -22,8 +22,6 @@ import {
 } from '@nano_kit/router'
 import type { PageComponent } from './types.js'
 
-export * from '@nano_kit/router'
-
 const OutletContext = /* @__PURE__ */ createContext<Accessor<PageComponent | null>>(() => null)
 
 /**
@@ -76,8 +74,6 @@ export function router<R extends Routes, K extends keyof R & string>(
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function usePage($page: Accessor<PageRef<PageComponent> | null>) {
-  // const $component = useMemo(() => computed(() => $page()?.default), [$page])
-
   return useSignal($page)?.default
 }
 
