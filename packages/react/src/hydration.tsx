@@ -3,10 +3,9 @@ import {
   type InjectionProvider,
   type FalsyValue,
   Hydrator$,
-  provide,
-  activeHydrator,
-  hydrator,
-  signal
+  StaticHydrator,
+  ActiveHydrator,
+  provide
 } from '@nano_kit/store'
 import { useMemo } from 'react'
 import {
@@ -29,9 +28,7 @@ export interface HydrationProviderProps extends InjectionContextProps {
 
 /**
  * Provide hydrated data to child components using a active hydrator.
- * Suitable for RSC streaming — the dehydrated snapshot is stored in a signal
- * and re-applied whenever the `dehydrated` prop changes between renders.
- * Falls back to the parent {@link Hydrator$} when a key is not found.
+ * Suitable for RSC streaming — the dehydrated snapshot can be re-applied whenever the `dehydrated` prop changes between renders.
  */
 export function HydrationProvider({
   dehydrated,
@@ -39,24 +36,18 @@ export function HydrationProvider({
   children
 }: HydrationProviderProps) {
   const currentContext = useInjectionContext()
-  const [$dehydrated, hydrate] = useMemo(() => {
-    const $dehydrated = signal<[string, unknown][]>([])
-    const parent = currentContext?.has(Hydrator$) ? currentContext.get(Hydrator$) : null
-    const hydrate = activeHydrator($dehydrated, parent)
-
-    return [$dehydrated, hydrate] as const
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  const hydrator = useMemo(() => currentContext?.get(Hydrator$, true) || new ActiveHydrator(), [])
 
   if (dehydrated) {
-    $dehydrated(dehydrated)
+    hydrator.push!(dehydrated)
   }
 
   return (
     <InjectionContextProvider
       context={[
         ...context,
-        provide(Hydrator$, hydrate)
+        provide(Hydrator$, hydrator)
       ]}
     >
       {children}
@@ -68,31 +59,22 @@ export function HydrationProvider({
  * Provide hydrated data to child components using a static hydrator.
  * Hydration is applied only once from the initial `dehydrated` value.
  * Suitable for classic SSR where the snapshot is known at first render and never changes.
- * Falls back to the parent {@link Hydrator$} when a key is not found.
+ * Should be used once in the tree, nested usage is not supported and may lead to unexpected results.
+ * For nested hydration use {@link HydrationProvider} instead.
  */
-export function InitialHydrationProvider({
+export function StaticHydrationProvider({
   dehydrated,
   context = [],
   children
 }: HydrationProviderProps) {
-  const currentContext = useInjectionContext()
-  const hydrate = useMemo(() => {
-    if (!dehydrated) {
-      return null
-    }
-
-    const parent = currentContext?.has(Hydrator$) ? currentContext.get(Hydrator$) : null
-    const hydrate = hydrator(dehydrated, parent)
-
-    return hydrate
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  const hydrator = useMemo(() => dehydrated && new StaticHydrator(dehydrated), [])
 
   return (
     <InjectionContextProvider
       context={
-        hydrate
-          ? [...context, provide(Hydrator$, hydrate)]
+        hydrator
+          ? [...context, provide(Hydrator$, hydrator)]
           : context
       }
     >

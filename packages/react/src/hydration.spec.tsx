@@ -18,7 +18,7 @@ import {
 } from './core.js'
 import {
   HydrationProvider,
-  InitialHydrationProvider
+  StaticHydrationProvider
 } from './hydration.js'
 
 function Signal$() {
@@ -88,13 +88,13 @@ describe('react', () => {
       })
     })
 
-    describe('InitialHydrationProvider', () => {
+    describe('StaticHydrationProvider', () => {
       it('should hydrate on mount', () => {
         const { container } = render(
           <InjectionContextProvider>
-            <InitialHydrationProvider dehydrated={[['value', 'hello']]}>
+            <StaticHydrationProvider dehydrated={[['value', 'hello']]}>
               <Test/>
-            </InitialHydrationProvider>
+            </StaticHydrationProvider>
           </InjectionContextProvider>
         )
 
@@ -104,9 +104,9 @@ describe('react', () => {
       it('should not re-hydrate on re-render', () => {
         const { container, rerender } = render(
           <InjectionContextProvider>
-            <InitialHydrationProvider dehydrated={[['value', 'first']]}>
+            <StaticHydrationProvider dehydrated={[['value', 'first']]}>
               <Test/>
-            </InitialHydrationProvider>
+            </StaticHydrationProvider>
           </InjectionContextProvider>
         )
 
@@ -115,9 +115,9 @@ describe('react', () => {
         act(() => {
           rerender(
             <InjectionContextProvider>
-              <InitialHydrationProvider dehydrated={[['value', 'second']]}>
+              <StaticHydrationProvider dehydrated={[['value', 'second']]}>
                 <Test/>
-              </InitialHydrationProvider>
+              </StaticHydrationProvider>
             </InjectionContextProvider>
           )
         })
@@ -128,9 +128,9 @@ describe('react', () => {
       it('should skip hydration when dehydrated is falsy', () => {
         const { container } = render(
           <InjectionContextProvider>
-            <InitialHydrationProvider dehydrated={null}>
+            <StaticHydrationProvider dehydrated={null}>
               <Test/>
-            </InitialHydrationProvider>
+            </StaticHydrationProvider>
           </InjectionContextProvider>
         )
 

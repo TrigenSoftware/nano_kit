@@ -69,12 +69,21 @@ export function useInject<T>(factory: InjectionFactory<T>): T {
 }
 
 /**
+ * Create a hook to subscribe to a signal value.
+ * @param getter - The function to get the signal.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function signalHook<T>(getter: () => Accessor<T>): () => T {
+  return () => useSignal(getter())
+}
+
+/**
  * Create a hook to inject a dependency.
  * @param factory - The factory function to create or get the dependency.
  * @returns A hook function to get the dependency.
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function hook<T>(factory: InjectionFactory<T>): () => T {
+export function injectHook<T>(factory: InjectionFactory<T>): () => T {
   return () => useInject(factory)
 }
 

@@ -1,7 +1,7 @@
 import { isFunction } from '@nano_kit/store'
 
 /** A plain object representing HTTP headers as key-value string pairs. */
-export type AnyHeadersRecord = Record<string, string>
+export type AnyHeadersRecord = Record<string, string | string[] | undefined>
 
 /** A headers object with a `get` method, compatible with the `Headers` Web API. */
 export interface AnyHeadersMap {

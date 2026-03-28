@@ -15,9 +15,9 @@ import {
   useSignal
 } from './core.js'
 import {
-  flightDehydrate,
-  DehydrationProvider,
-  InitialDehydrationProvider
+  serverDehydrate,
+  Dehydration,
+  StaticDehydration
 } from './dehydration.js'
 
 function Value$() {
@@ -37,9 +37,9 @@ function Test() {
 
 describe('react', () => {
   describe('dehydration', () => {
-    describe('flightDehydrate', () => {
+    describe('serverDehydrate', () => {
       it('should dehydrate stores', async () => {
-        const dehydrated = await flightDehydrate(() => [
+        const dehydrated = await serverDehydrate(() => [
           hydratable('count', signal(42))
         ])
 
@@ -47,10 +47,9 @@ describe('react', () => {
       })
     })
 
-    describe('DehydrationProvider', () => {
+    describe('Dehydration', () => {
       it('should hydrate children with pre-dehydrated data', async () => {
-        const jsx = await DehydrationProvider({
-          stores: () => [],
+        const jsx = await Dehydration({
           dehydrated: [['value', 'hello']],
           children: (
             <InjectionContextProvider>
@@ -64,7 +63,7 @@ describe('react', () => {
       })
 
       it('should dehydrate stores and hydrate children', async () => {
-        const jsx = await DehydrationProvider({
+        const jsx = await Dehydration({
           stores: () => {
             const $value = inject(Value$)
 
@@ -84,10 +83,9 @@ describe('react', () => {
       })
     })
 
-    describe('InitialDehydrationProvider', () => {
+    describe('InitialDehydration', () => {
       it('should hydrate children when not flight', async () => {
-        const jsx = await InitialDehydrationProvider({
-          stores: () => [],
+        const jsx = await StaticDehydration({
           flight: false,
           dehydrated: [['value', 'hello']],
           children: (
@@ -102,7 +100,7 @@ describe('react', () => {
       })
 
       it('should dehydrate stores when not flight and no pre-dehydrated data', async () => {
-        const jsx = await InitialDehydrationProvider({
+        const jsx = await StaticDehydration({
           stores: () => {
             const $value = inject(Value$)
 
@@ -123,7 +121,7 @@ describe('react', () => {
       })
 
       it('should skip hydration when flight', async () => {
-        const jsx = await InitialDehydrationProvider({
+        const jsx = await StaticDehydration({
           stores: () => [],
           flight: true,
           dehydrated: [['value', 'hello']],
