@@ -25,6 +25,7 @@ export default [
       'symbol-description': 'off',
       'no-multi-assign': 'off',
       'no-return-assign': 'off',
+      'max-classes-per-file': 'off',
       '@typescript-eslint/unified-signatures': 'off',
       '@typescript-eslint/no-redundant-type-constituents': 'off',
       '@typescript-eslint/no-use-before-define': 'off'

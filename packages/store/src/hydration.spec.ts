@@ -18,8 +18,8 @@ import {
   hydratable,
   dehydrate,
   isHydrated,
-  hydrator,
-  activeHydrator
+  StaticHydrator,
+  ActiveHydrator
 } from './hydration.js'
 
 interface User {
@@ -71,7 +71,7 @@ describe('store', () => {
         }
       })
       const context = new InjectionContext([
-        provide(Hydrator$, hydrator(dehydrated))
+        provide(Hydrator$, new StaticHydrator(dehydrated))
       ])
       const { $user } = run(context, () => inject(User$))
 
@@ -87,7 +87,7 @@ describe('store', () => {
         }
       })
       const context = new InjectionContext([
-        provide(Hydrator$, hydrator(dehydrated))
+        provide(Hydrator$, new StaticHydrator(dehydrated))
       ])
       const { $user } = run(context, () => inject(User$))
 
@@ -101,13 +101,16 @@ describe('store', () => {
     })
 
     it('should re-hydrate when snapshot signal changes with activeHydrator', () => {
-      const $snapshot = signal<[string, unknown][]>(Object.entries({
+      const hydrator = new ActiveHydrator()
+
+      hydrator.push(Object.entries({
         user: {
           name: 'John'
         }
       }))
+
       const context = new InjectionContext([
-        provide(Hydrator$, activeHydrator($snapshot))
+        provide(Hydrator$, hydrator)
       ])
       const { $user } = run(context, () => inject(User$))
 
@@ -122,7 +125,7 @@ describe('store', () => {
 
       expect(isHydrated($user)).toBe(false)
 
-      $snapshot(Object.entries({
+      hydrator.push(Object.entries({
         user: {
           name: 'Jane'
         }

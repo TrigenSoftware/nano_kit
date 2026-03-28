@@ -1,88 +1,96 @@
 import {
   type AnyAccessor,
   type AnyWritableSignal,
-  type Accessor,
   ExternalModesBase,
   start,
   InjectionContext,
   run,
   inject,
   observe,
-  computed,
-  effect
+  effect,
+  signal,
+  trigger
 } from 'kida'
 import {
   TasksPool$,
   waitTasks
 } from './tasks.js'
 
-/**
- * A function that hydrates a signal by key, calling the setter with the stored value.
- * @param key - The id of the signal to hydrate.
- * @param setter - A callback that receives the stored value and applies it to the signal.
- */
-export type Hydrator = (key: string, setter: (value: unknown) => void) => void
+export interface Hydrator {
+  /**
+   * Pull a dehydrated value by key and pass it to the receiver function.
+   * @param key - The key of the value to pull.
+   * @param receiver - The function to receive the pulled value.
+   */
+  pull(key: string, receiver: (value: unknown) => void): void
+  /**
+   * Push dehydrated key-value pairs to the hydrator.
+   * @param dehydrated - The key-value pairs to push.
+   */
+  push?(dehydrated: [string, unknown][]): void
+}
 
 const HydratedMode = 1 << ExternalModesBase
 
-function toMap(dehydrated: [string, unknown][] | Map<string, unknown>) {
-  return dehydrated instanceof Map ? dehydrated : new Map(dehydrated)
-}
-
 /**
- * Create a hydrator from a static dehydrated snapshot.
- * @param dehydrated - The dehydrated data as an array of key-value pairs or a Map.
- * @param parent - An optional parent hydrator to fall back to when the key is not found.
- * @returns The hydrator function.
+ * Hydrator for static dehydrated data.
  */
-/* @__NO_SIDE_EFFECTS__ */
-export function hydrator(
-  dehydrated: [string, unknown][] | Map<string, unknown>,
-  parent?: Hydrator | null
-): Hydrator {
-  const dehydratedMap = toMap(dehydrated)
+export class StaticHydrator implements Hydrator {
+  readonly #$map: Map<string, unknown>
 
-  return (key, setter) => {
-    if (dehydratedMap.has(key)) {
-      setter(dehydratedMap.get(key))
-      dehydratedMap.delete(key)
-    } else if (parent) {
-      parent(key, setter)
+  constructor(
+    dehydrated: [string, unknown][]
+  ) {
+    this.#$map = new Map(dehydrated)
+  }
+
+  pull(
+    key: string,
+    receiver: (value: unknown) => void
+  ) {
+    const map = this.#$map
+
+    if (map.has(key)) {
+      receiver(map.get(key))
+      map.delete(key)
     }
   }
 }
 
 /**
- * Create a hydrator from a reactive dehydrated snapshot.
- * Re-runs hydration whenever the snapshot signal changes.
- * @param $dehydrated - A signal holding the dehydrated data.
- * @param parent - An optional parent hydrator to fall back to when the key is not found.
- * @returns The hydrator function.
+ * Hydrator for dynamic dehydrated data that can be pushed after creation.
  */
-/* @__NO_SIDE_EFFECTS__ */
-export function activeHydrator(
-  $dehydrated: Accessor<[string, unknown][] | Map<string, unknown>>,
-  parent?: Hydrator | null
-): Hydrator {
-  const $dehydratedMap = computed(() => toMap($dehydrated()))
+export class ActiveHydrator implements Hydrator {
+  readonly #$map = signal(new Map<string, unknown>())
 
-  return (key, setter) => {
+  pull(
+    key: string,
+    receiver: (value: unknown) => void
+  ) {
     effect(() => {
-      const dehydratedMap = $dehydratedMap()
+      const map = this.#$map()
 
-      if (dehydratedMap.has(key)) {
-        setter(dehydratedMap.get(key))
-        dehydratedMap.delete(key)
-      } else if (parent) {
-        parent(key, setter)
+      if (map.has(key)) {
+        receiver(map.get(key))
+        map.delete(key)
+      }
+    })
+  }
+
+  push(dehydrated: [string, unknown][]) {
+    trigger(() => {
+      const map = this.#$map()
+
+      for (const [key, value] of dehydrated) {
+        map.set(key, value)
       }
     })
   }
 }
 
 /**
- * Injection token for data hydrator function.
- * @returns The data hydrator function.
+ * Injection token for data hydrator.
+ * @returns The data hydrator.
  */
 export function Hydrator$(): Hydrator | null {
   return null
@@ -103,10 +111,10 @@ export function Hydratables$(): Map<string, AnyAccessor> | null {
  * @returns The signal.
  */
 export function hydratable<T extends AnyWritableSignal>(id: string, $signal: T): T {
-  const hydrate = inject(Hydrator$)
+  const hydrator = inject(Hydrator$)
 
-  if (hydrate) {
-    hydrate(id, (value) => {
+  if (hydrator) {
+    hydrator.pull(id, (value) => {
       $signal(value)
 
       if (!isHydrated($signal)) {
