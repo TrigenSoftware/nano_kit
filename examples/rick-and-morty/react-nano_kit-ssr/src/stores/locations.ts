@@ -14,14 +14,14 @@ import { Params$ } from './router'
 
 export function Locations$() {
   const { query } = inject(Client$)
-  const { $page } = inject(Params$)
+  const { $locationsPage } = inject(Params$)
   const [
     $locations,
     $locationsError,
     $locationsLoading
   ] = query<[page: number], Page<Location>>(
     queryKey('locations'),
-    [$page],
+    [$locationsPage],
     async (page) => {
       if (page === 0) {
         return {

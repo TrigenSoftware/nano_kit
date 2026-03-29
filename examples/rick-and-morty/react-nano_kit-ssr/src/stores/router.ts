@@ -1,7 +1,8 @@
 import { inject } from '@nano_kit/store'
 import {
+  forRoute,
   Location$,
-  routeParam,
+  param,
   searchParam,
   searchParams
 } from '@nano_kit/router'
@@ -9,23 +10,29 @@ import {
 export const routes = {
   home: '/',
   characters: '/characters',
-  character: '/character/:characterId',
+  character: '/character/:id',
   locations: '/locations',
-  location: '/location/:locationId',
+  location: '/location/:id',
   episodes: '/episodes',
-  episode: '/episode/:episodeId'
+  episode: '/episode/:id'
 } as const
 
 export function Params$() {
   const $location = inject(Location$)
   const $searchParams = searchParams($location)
+  const $id = param($location, 'id', v => (v ? Number(v) : null))
   const $page = searchParam($searchParams, 'page', v => (v ? Number(v) : 1))
-  const $characterId = routeParam($location, 'characterId', v => (v ? Number(v) : null))
-  const $locationId = routeParam($location, 'locationId', v => (v ? Number(v) : null))
-  const $episodeId = routeParam($location, 'episodeId', v => (v ? Number(v) : null))
+  const $characterId = forRoute($location, 'character', $id, null)
+  const $locationId = forRoute($location, 'location', $id, null)
+  const $episodeId = forRoute($location, 'episode', $id, null)
+  const $charactersPage = forRoute($location, 'characters', $page, 1)
+  const $locationsPage = forRoute($location, 'locations', $page, 1)
+  const $episodesPage = forRoute($location, 'episodes', $page, 1)
 
   return {
-    $page,
+    $charactersPage,
+    $locationsPage,
+    $episodesPage,
     $characterId,
     $locationId,
     $episodeId

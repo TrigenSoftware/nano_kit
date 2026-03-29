@@ -1,6 +1,6 @@
 /* DISCLAIMER! VIBECODED! */
 import { useSignal } from '@nano_kit/react'
-import { $page } from '#src/stores/router'
+import { $episodesPage } from '#src/stores/router'
 import {
   $episodes,
   $episodesError,
@@ -23,7 +23,7 @@ export function Episodes() {
   const episodesPage = useSignal($episodes)
   const error = useSignal($episodesError)
   const loading = useSignal($episodesLoading)
-  const currentPage = useSignal($page)
+  const currentPage = useSignal($episodesPage)
 
   if (loading || !episodesPage) {
     return (

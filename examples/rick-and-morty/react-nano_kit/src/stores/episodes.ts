@@ -13,7 +13,7 @@ import {
 import {
   $characterId,
   $episodeId,
-  $page
+  $episodesPage
 } from './router'
 import { $character } from './characters'
 
@@ -23,7 +23,7 @@ export const [
   $episodesLoading
 ] = query<[page: number], Page<Episode>>(
   queryKey('episodes'),
-  [$page],
+  [$episodesPage],
   async (page) => {
     if (page === 0) {
       return {

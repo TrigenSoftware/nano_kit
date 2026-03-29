@@ -1,6 +1,6 @@
 /* DISCLAIMER! VIBECODED! */
 import clsx from 'clsx'
-import { usePaths$ } from '@nano_kit/react-router'
+import { usePaths } from '@nano_kit/react-router'
 import { type Character } from '#src/services/api'
 import styles from './CharacterCard.module.css'
 
@@ -9,9 +9,9 @@ export interface CharacterCardProps {
 }
 
 export function CharacterCard({ character }: CharacterCardProps) {
-  const paths = usePaths$()
+  const paths = usePaths()
   const characterUrl = paths.character({
-    characterId: character.id.toString()
+    id: character.id
   })
 
   return (

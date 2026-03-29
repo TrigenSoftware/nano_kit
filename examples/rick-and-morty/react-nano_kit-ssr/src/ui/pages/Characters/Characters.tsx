@@ -33,7 +33,7 @@ function formatPageLabel(page: number) {
 }
 
 export default function Characters() {
-  const { $page } = useInject(Params$)
+  const { $charactersPage } = useInject(Params$)
   const {
     $characters,
     $charactersError,
@@ -42,7 +42,7 @@ export default function Characters() {
   const charactersPage = useSignal($characters)
   const error = useSignal($charactersError)
   const loading = useSignal($charactersLoading)
-  const currentPage = useSignal($page)
+  const currentPage = useSignal($charactersPage)
 
   if (error) {
     return (

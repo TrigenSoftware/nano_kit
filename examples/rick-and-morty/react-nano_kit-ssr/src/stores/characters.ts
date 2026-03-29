@@ -19,14 +19,14 @@ import { Episode$ } from './episodes'
 
 export function Characters$() {
   const { query } = inject(Client$)
-  const { $page } = inject(Params$)
+  const { $charactersPage } = inject(Params$)
   const [
     $characters,
     $charactersError,
     $charactersLoading
   ] = query<[page: number], Page<Character>>(
     queryKey('characters'),
-    [$page],
+    [$charactersPage],
     async (page) => {
       if (page === 0) {
         return {

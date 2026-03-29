@@ -11,7 +11,7 @@ import {
 } from './query'
 import {
   $locationId,
-  $page
+  $locationsPage
 } from './router'
 
 export const [
@@ -20,7 +20,7 @@ export const [
   $locationsLoading
 ] = query<[page: number], Page<Location>>(
   queryKey('locations'),
-  [$page],
+  [$locationsPage],
   async (page) => {
     if (page === 0) {
       return {

@@ -1,5 +1,5 @@
 /* DISCLAIMER! VIBECODED! */
-import { usePaths$ } from '@nano_kit/react-router'
+import { usePaths } from '@nano_kit/react-router'
 import { type Episode } from '#src/services/api'
 import styles from './EpisodeCard.module.css'
 
@@ -8,13 +8,13 @@ export interface EpisodeCardProps {
 }
 
 export function EpisodeCard({ episode }: EpisodeCardProps) {
-  const paths = usePaths$()
+  const paths = usePaths()
 
   return (
     <article className={styles.card}>
       <a
         href={paths.episode({
-          episodeId: episode.id.toString()
+          id: episode.id
         })}
         className={styles.link}
       >

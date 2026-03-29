@@ -33,14 +33,14 @@ function formatPageLabel(page: number) {
 }
 
 export default function Locations() {
-  const { $page } = useInject(Params$)
+  const { $locationsPage } = useInject(Params$)
   const {
     $locations,
     $locationsError,
     $locationsLoading
   } = useInject(Locations$)
   const locationsPage = useSignal($locations)
-  const currentPage = useSignal($page)
+  const currentPage = useSignal($locationsPage)
   const error = useSignal($locationsError)
   const loading = useSignal($locationsLoading)
 

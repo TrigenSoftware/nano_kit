@@ -10,7 +10,7 @@ export interface CharacterCardProps {
 
 export function CharacterCard({ character }: CharacterCardProps) {
   const characterUrl = paths.character({
-    characterId: character.id.toString()
+    id: character.id
   })
 
   return (

@@ -1,6 +1,6 @@
 /* DISCLAIMER! VIBECODED! */
 import { useSignal } from '@nano_kit/react'
-import { $page } from '#src/stores/router'
+import { $locationsPage } from '#src/stores/router'
 import {
   $locations,
   $locationsError,
@@ -21,7 +21,7 @@ function formatPageLabel(page: number) {
 
 export function Locations() {
   const locationsPage = useSignal($locations)
-  const currentPage = useSignal($page)
+  const currentPage = useSignal($locationsPage)
   const error = useSignal($locationsError)
   const loading = useSignal($locationsLoading)
 

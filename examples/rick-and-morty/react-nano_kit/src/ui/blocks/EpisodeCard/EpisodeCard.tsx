@@ -12,7 +12,7 @@ export function EpisodeCard({ episode }: EpisodeCardProps) {
     <article className={styles.card}>
       <a
         href={paths.episode({
-          episodeId: episode.id.toString()
+          id: episode.id
         })}
         className={styles.link}
       >

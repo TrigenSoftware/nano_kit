@@ -9,7 +9,7 @@ export interface LocationCardProps {
 
 export function LocationCard({ location }: LocationCardProps) {
   const locationUrl = paths.location({
-    locationId: location.id.toString()
+    id: location.id
   })
 
   return (

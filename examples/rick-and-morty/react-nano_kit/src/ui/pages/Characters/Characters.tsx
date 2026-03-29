@@ -1,6 +1,6 @@
 /* DISCLAIMER! VIBECODED! */
 import { useSignal } from '@nano_kit/react'
-import { $page } from '#src/stores/router'
+import { $charactersPage } from '#src/stores/router'
 import {
   $characters,
   $charactersError,
@@ -23,7 +23,7 @@ export function Characters() {
   const charactersPage = useSignal($characters)
   const error = useSignal($charactersError)
   const loading = useSignal($charactersLoading)
-  const currentPage = useSignal($page)
+  const currentPage = useSignal($charactersPage)
 
   if (error) {
     return (

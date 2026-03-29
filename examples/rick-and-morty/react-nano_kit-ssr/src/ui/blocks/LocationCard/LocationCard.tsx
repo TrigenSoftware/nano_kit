@@ -1,5 +1,5 @@
 /* DISCLAIMER! VIBECODED! */
-import { usePaths$ } from '@nano_kit/react-router'
+import { usePaths } from '@nano_kit/react-router'
 import { type Location } from '#src/services/api'
 import styles from './LocationCard.module.css'
 
@@ -8,9 +8,9 @@ export interface LocationCardProps {
 }
 
 export function LocationCard({ location }: LocationCardProps) {
-  const paths = usePaths$()
+  const paths = usePaths()
   const locationUrl = paths.location({
-    locationId: location.id.toString()
+    id: location.id
   })
 
   return (

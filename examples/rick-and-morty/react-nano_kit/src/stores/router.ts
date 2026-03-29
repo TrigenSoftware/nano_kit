@@ -1,7 +1,8 @@
 import {
   browserNavigation,
   buildPaths,
-  routeParam,
+  forRoute,
+  param,
   searchParam,
   searchParams
 } from '@nano_kit/router'
@@ -9,23 +10,25 @@ import {
 const routes = {
   home: '/',
   characters: '/characters',
-  character: '/character/:characterId',
+  character: '/character/:id',
   locations: '/locations',
-  location: '/location/:locationId',
+  location: '/location/:id',
   episodes: '/episodes',
-  episode: '/episode/:episodeId'
+  episode: '/episode/:id'
 } as const
 
 export const [$location, navigation] = browserNavigation(routes)
 
-export const $searchParams = searchParams($location)
+const $searchParams = searchParams($location)
+const $id = param($location, 'id', v => (v ? Number(v) : null))
+const $page = searchParam($searchParams, 'page', v => (v ? Number(v) : 1))
 
-export const $page = searchParam($searchParams, 'page', v => (v ? Number(v) : 1))
+export const $characterId = forRoute($location, 'character', $id, null)
+export const $locationId = forRoute($location, 'location', $id, null)
+export const $episodeId = forRoute($location, 'episode', $id, null)
 
-export const $characterId = routeParam($location, 'characterId', v => (v ? Number(v) : null))
-
-export const $locationId = routeParam($location, 'locationId', v => (v ? Number(v) : null))
-
-export const $episodeId = routeParam($location, 'episodeId', v => (v ? Number(v) : null))
+export const $charactersPage = forRoute($location, 'characters', $page, 1)
+export const $locationsPage = forRoute($location, 'locations', $page, 1)
+export const $episodesPage = forRoute($location, 'episodes', $page, 1)
 
 export const paths = buildPaths(routes)

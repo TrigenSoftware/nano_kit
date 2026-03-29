@@ -33,7 +33,7 @@ function formatPageLabel(page: number) {
 }
 
 export default function Episodes() {
-  const { $page } = useInject(Params$)
+  const { $episodesPage } = useInject(Params$)
   const {
     $episodes,
     $episodesError,
@@ -42,7 +42,7 @@ export default function Episodes() {
   const episodesPage = useSignal($episodes)
   const error = useSignal($episodesError)
   const loading = useSignal($episodesLoading)
-  const currentPage = useSignal($page)
+  const currentPage = useSignal($episodesPage)
 
   if (error) {
     return (
