@@ -19,12 +19,14 @@ node_modules
 # Some caches
 .*cache
 .trash
+tsconfig.tsbuildinfo
 
 # Compiled dist
 dist
 package
 build
 .astro
+.next
 
 # Env files
 .env

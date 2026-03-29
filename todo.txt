@@ -1,6 +1,3 @@
-- hydration provider / etc? - @nano_kit/next @nano_kit/next-router integrations
-  https://github.com/effector/next
-
 - wildcard -> splat? shorter and easer to type
 - cookies / headers to store
 - cache handler
@@ -10,23 +7,26 @@
   https://universal-middleware.dev/middlewares/sirv
   https://github.com/lukeed/sirv/tree/main/packages/sirv#api
 
-- render to stream with data streaming
+- render to stream with data streaming?
 - @nano_kit/framework ?
 
-## Kida/Agera
+## Kida/Agera/Store
 
-- immutability helpers? / make work with $data facet more comfortable
+- serialize/deserialize for hydratable
+- immutability helpers? / make work with $data facet more comfort
 - injectable class?
 - lazy scope to start and stop methods? for example for resort in loop
 - later: resort effects
 
 ## 🔥🔥🔥 Query 🔥🔥🔥
 
+- serialize/deserialize for hydratable and persistent
 - map data / default data
 - synced cache between tabs
 
 ## Router
 
+- history length to accessor
 - add payload to push, replace to store it in location state, for example mark transition without scroll, instead of compare prev route and next
 - dynamic redirect in storesToPreload and static in pages structure
 - page status codes
@@ -42,10 +42,13 @@
 
 ## cookies
 
+## rpc
+
 ## Nanoviews
 
 - fix TruthyValueOrSignal type, return signal if signal, not accessor
 
+- check old version -> defer effects wroked bottom->top, now it works top -> bottom -> its ok for stores, not ok for views
 - wrap into untracked needed parts
 - for loop array or empty check for else
 - rework return slot$ to look like element/component? fn.prop is faster than {f,p}

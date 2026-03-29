@@ -14,6 +14,7 @@ onlyBuiltDependencies:
   - sharp
   - simple-git-hooks
 overrides:
+  '@nano_kit/next-router@*': workspace:^
   '@nano_kit/query@*': workspace:^
   '@nano_kit/react@*': workspace:^
   '@nano_kit/react-router@*': workspace:^

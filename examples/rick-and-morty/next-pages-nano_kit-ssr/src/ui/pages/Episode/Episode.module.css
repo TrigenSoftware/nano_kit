@@ -1,0 +1,74 @@
+/* DISCLAIMER! VIBECODED! */
+.container {
+  margin: 0 auto;
+  padding: 1rem;
+  min-height: 60vh;
+}
+
+/* Loading state */
+/* Error state */
+.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.error h2 {
+  color: #c62828;
+  font-size: 1.5rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.error p {
+  color: #757575;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Characters section */
+.charactersSection {
+  margin-top: 3rem;
+}
+
+.charactersTitle {
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin: 0 0 1.5rem 0;
+  color: #212121;
+}
+
+.charactersTitle a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.charactersTitle a:hover {
+  color: #1976d2;
+  text-decoration: underline;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .error p {
+    color: #bdbdbd;
+  }
+
+  .charactersTitle {
+    color: #e0e0e0;
+  }
+
+  .charactersTitle a:hover {
+    color: #42a5f5;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    padding: 0.75rem;
+  }
+}

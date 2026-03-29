@@ -1,0 +1,27 @@
+{
+  "name": "rick-and-morty-next-pages-nano_kit-ssr",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@nano_kit/next-router": "*",
+    "@nano_kit/query": "*",
+    "@nano_kit/react": "*",
+    "@nano_kit/router": "*",
+    "@nano_kit/store": "*",
+    "clsx": "^2.1.1",
+    "next": "^16.1.6",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.4",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^5.8.2"
+  }
+}
