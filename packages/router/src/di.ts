@@ -12,6 +12,7 @@ import type {
 } from './di.types.js'
 import {
   type RouteLocationRecord,
+  canGoBack,
   virtualNavigation
 } from './navigation.js'
 import type {
@@ -62,6 +63,17 @@ export function Paths$(): Paths<AppRoutes> {
   const navigation = inject(Navigation$)
 
   return buildPaths(navigation.routes)
+}
+
+/**
+ * Global injection token for the "can go back" accessor.
+ * @returns Accessor that returns true if back navigation is possible, false otherwise.
+ */
+export function CanGoBack$(): Accessor<boolean> {
+  const $location = inject(Location$)
+  const navigation = inject(Navigation$)
+
+  return canGoBack($location, navigation)
 }
 
 /**

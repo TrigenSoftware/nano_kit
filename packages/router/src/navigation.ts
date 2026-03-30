@@ -1,5 +1,6 @@
 import {
   type WritableSignal,
+  type Accessor,
   atIndex,
   onMount,
   readonly,
@@ -8,8 +9,9 @@ import {
   batch,
   updateList,
   action,
-  untracked,
-  mountable
+  mountable,
+  computed,
+  untracked
 } from '@nano_kit/store'
 import type {
   Location,
@@ -306,3 +308,20 @@ export function virtualNavigation<const R extends Routes = {}>(
   return [record(readonly($location)), navigation]
 }
 
+/**
+ * Determines if it's possible to navigate back in history.
+ * @param $location - Signal containing the current route location.
+ * @param navigation - Navigation instance to check history length.
+ * @returns Accessor that returns true if back navigation is possible, false otherwise.
+ */
+export function canGoBack<R extends Routes>(
+  $location: RouteLocationRecord<R>,
+  navigation: Navigation<R>
+): Accessor<boolean>
+
+export function canGoBack(
+  $location: RouteLocationRecord<Routes>,
+  navigation: Navigation
+) {
+  return computed(() => ($location(), navigation.length > 1))
+}

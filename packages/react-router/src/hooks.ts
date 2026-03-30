@@ -3,6 +3,7 @@ import {
   injectHook
 } from '@nano_kit/react'
 import {
+  CanGoBack$,
   Location$,
   Navigation$,
   Paths$
@@ -25,3 +26,9 @@ export const useNavigation = /* @__PURE__ */ injectHook(Navigation$)
  * @returns Object with path generators for each route
  */
 export const usePaths = /* @__PURE__ */ injectHook(Paths$)
+
+/**
+ * Subscribe to the "can go back" accessor from the injection context.
+ * @returns Accessor that returns true if back navigation is possible, false otherwise.
+ */
+export const useCanGoBack = /* @__PURE__ */ signalHook(injectHook(CanGoBack$))
