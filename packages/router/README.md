@@ -72,7 +72,7 @@ const HomePage = () => 'Welcome Home!'
 const UserPage = () => `User ID: ${$location().params.id}`
 const UserPostsPage = () => `Posts for User: ${$location().params.id}`
 const AdminLayout = ($page) => `Admin Layout: ${$page()}`
-const AdminPage = () => `Admin Page: ${$location().params.wildcard || 'dashboard'}`
+const AdminPage = () => `Admin Page: ${$location().params.splat || 'dashboard'}`
 const NotFoundPage = () => 'Page Not Found'
 
 /* Create router with pages and layouts */

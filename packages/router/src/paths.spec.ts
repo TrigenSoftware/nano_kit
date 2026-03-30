@@ -83,7 +83,7 @@ describe('router', () => {
       })).toBe('/search/react')
     })
 
-    it('should handle wildcard routes', () => {
+    it('should handle splat routes', () => {
       const routes = {
         files: '/files/*',
         api: '/api/v1/*'
@@ -94,18 +94,18 @@ describe('router', () => {
       expect(typeof paths.api).toBe('function')
 
       expect(paths.files({
-        wildcard: 'documents/report.pdf'
+        splat: 'documents/report.pdf'
       })).toBe('/files/documents/report.pdf')
       expect(paths.api({
-        wildcard: 'users/123/profile'
+        splat: 'users/123/profile'
       })).toBe('/api/v1/users/123/profile')
 
-      // Without wildcard parameter
+      // Without splat parameter
       expect(paths.files({
-        wildcard: ''
+        splat: ''
       })).toBe('/files')
       expect(paths.api({
-        wildcard: ''
+        splat: ''
       })).toBe('/api/v1')
     })
 
@@ -156,10 +156,10 @@ describe('router', () => {
 
       // Wildcard routes
       expect(paths.files({
-        wildcard: 'docs/readme.md'
+        splat: 'docs/readme.md'
       })).toBe('/files/docs/readme.md')
       expect(paths.api({
-        wildcard: 'users'
+        splat: 'users'
       })).toBe('/api/v1/users')
     })
 

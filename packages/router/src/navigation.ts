@@ -44,8 +44,8 @@ function createPatternRegex(pattern: string) {
       .replace(/\/\\:(\w+)\\\?/g, '(?:/(?<$1>(?<=/)[^/]+))?')
       // /:param -> /(?<param>[^/]+)
       .replace(/\/\\:(\w+)/g, '/(?<$1>[^/]+)')
-      // /* - > (?:/(?<wildcard>.+))?$
-      .replace(/\/\*$/g, '(?:/(?<wildcard>.+))?$')
+      // /* - > (?:/(?<splat>.+))?$
+      .replace(/\/\*$/g, '(?:/(?<splat>.+))?$')
   }/?$`, 'i')
 }
 

@@ -20,8 +20,8 @@ function partToFunction(part: string, i: number) {
       ? part
       : part === undefined
         ? (params: Record<string, string | number> = {}) => (
-          params.wildcard
-            ? `/${params.wildcard}`
+          params.splat
+            ? `/${params.splat}`
             : ''
         )
         : (params: Record<string, string | number> = {}) => (

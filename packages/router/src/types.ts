@@ -45,7 +45,7 @@ type PathToParams<PathArray, Value = string, Params = {}> = PathArray extends [
       : PathToParams<Rest, Value, Params & Record<Param, Value>>
     : Rest extends []
       ? First extends '*'
-        ? Params & { wildcard: Value }
+        ? Params & { splat: Value }
         : PathToParams<Rest, Value, Params>
       : PathToParams<Rest, Value, Params>
   : Params

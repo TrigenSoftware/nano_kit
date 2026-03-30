@@ -111,7 +111,7 @@ describe('router', () => {
         })
       })
 
-      it('should match wildcard routes', () => {
+      it('should match splat routes', () => {
         const [$location, navigation] = virtualNavigation('/', {
           files: '/files/*',
           api: '/api/*'
@@ -121,7 +121,7 @@ describe('router', () => {
         expect($location()).toMatchObject({
           route: 'files',
           params: {
-            wildcard: 'documents/report.pdf'
+            splat: 'documents/report.pdf'
           }
         })
 
@@ -129,7 +129,7 @@ describe('router', () => {
         expect($location()).toMatchObject({
           route: 'api',
           params: {
-            wildcard: 'v1/users/123'
+            splat: 'v1/users/123'
           }
         })
       })

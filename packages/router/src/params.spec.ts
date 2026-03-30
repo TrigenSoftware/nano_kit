@@ -102,16 +102,16 @@ describe('router', () => {
         expect($optional()).toBe('')
       })
 
-      it('should work with wildcard parameters', () => {
+      it('should work with splat parameters', () => {
         const [$location, navigation] = virtualNavigation('/', {
           files: '/files/*'
         })
 
         navigation.push('/files/documents/report.pdf')
 
-        const $wildcard = param($location, 'wildcard')
+        const $splat = param($location, 'splat')
 
-        expect($wildcard()).toBe('documents/report.pdf')
+        expect($splat()).toBe('documents/report.pdf')
       })
     })
 
