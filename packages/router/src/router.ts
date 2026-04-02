@@ -74,7 +74,10 @@ function isModule<C = unknown>(ref: unknown): ref is PageModule<C> {
   return (ref as PageModule<C>)?.default !== undefined
 }
 
-function getViewRefGetter<C>(page: C | PageModule<C> | PageModuleRef<C>): PageRefGetter<C> {
+function getViewRefGetter<C>(
+  page: C | PageModule<C> | PageModuleRef<C>,
+  extra?: Partial<PageModule<C>>
+): PageRefGetter<C> {
   let getter: PageRefGetter<C>
 
   if (isLoadable(page)) {
@@ -82,9 +85,11 @@ function getViewRefGetter<C>(page: C | PageModule<C> | PageModuleRef<C>): PageRe
   } else {
     const ref = isModule(page)
       ? {
+        ...extra,
         ...page
       }
       : {
+        ...extra,
         default: page
       }
 
@@ -171,7 +176,9 @@ export function notFound<const P>(
 ): PageMatchRef<null, P> {
   return {
     expected: null,
-    page: getViewRefGetter(page)
+    page: getViewRefGetter(page, {
+      statusCode: 404
+    })
   }
 }
 

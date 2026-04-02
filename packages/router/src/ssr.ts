@@ -92,7 +92,8 @@ function composeWithLayouts(
       Stores$: composeArrayFns(layout.Stores$, inner.Stores$),
       Head$: composeArrayFns(layout.Head$, inner.Head$),
       Cache$: composeCache(layout.Cache$, inner.Cache$),
-      __chunks: composeChunks(layout.__chunks, inner.__chunks)
+      __chunks: composeChunks(layout.__chunks, inner.__chunks),
+      statusCode: inner.statusCode ?? layout.statusCode
     }
   }
 

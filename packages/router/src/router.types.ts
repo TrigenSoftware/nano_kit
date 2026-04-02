@@ -49,6 +49,10 @@ export interface PageModule<V> {
    */
   __chunks?: string[]
   /**
+   * Response status code for the view. If not provided, the status code will be determined by the presence of the page component (200 if present, 404 if not).
+   */
+  statusCode?: number
+  /**
    * View component.
    */
   default: V | undefined
