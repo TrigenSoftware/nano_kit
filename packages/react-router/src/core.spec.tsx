@@ -15,7 +15,7 @@ import {
 import {
   router,
   Outlet,
-  usePage
+  usePageSignal
 } from './core.jsx'
 
 describe('react-router', () => {
@@ -40,7 +40,7 @@ describe('react-router', () => {
       ])
 
       function TestApp() {
-        const Page = usePage($page)
+        const Page = usePageSignal($page)
 
         return Page ? <Page/> : <div>Not Found</div>
       }
@@ -111,7 +111,7 @@ describe('react-router', () => {
         ])
 
         function TestApp() {
-          const Page = usePage($page)
+          const Page = usePageSignal($page)
 
           return Page ? <Page/> : <div>Not Found</div>
         }
@@ -217,7 +217,7 @@ describe('react-router', () => {
         ])
 
         function TestApp() {
-          const Page = usePage($page)
+          const Page = usePageSignal($page)
 
           return Page ? <Page/> : <div>Not Found</div>
         }

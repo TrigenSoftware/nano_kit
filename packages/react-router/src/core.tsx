@@ -73,7 +73,7 @@ export function router<R extends Routes, K extends keyof R & string>(
  * @returns Current page component or null if no match
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function usePage($page: Accessor<PageRef<PageComponent> | null>) {
+export function usePageSignal($page: Accessor<PageRef<PageComponent> | null>) {
   return useSignal($page)?.default
 }
 
@@ -83,10 +83,10 @@ export function usePage($page: Accessor<PageRef<PageComponent> | null>) {
  * @returns Current page component or null if no match
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function usePage$() {
+export function usePage() {
   const $page = useInject(Page$)
 
-  return usePage($page)
+  return usePageSignal($page)
 }
 
 /**
@@ -95,7 +95,7 @@ export function usePage$() {
  * @returns Rendered page component or null if no match
  */
 export function App() {
-  const Page = usePage$()
+  const Page = usePage()
 
   return Page && <Page/>
 }
@@ -104,7 +104,7 @@ export function App() {
  * Syncs the document head with the current page's head configuration.
  * @param $page - Signal containing the current page match reference
  */
-export function useSyncHead($page: Accessor<PageRef<unknown> | null>) {
+export function usePageSyncHead($page: Accessor<PageRef<unknown> | null>) {
   useEffect(() => syncHead($page), [$page])
 }
 
@@ -112,7 +112,7 @@ export function useSyncHead($page: Accessor<PageRef<unknown> | null>) {
  * Syncs the document head with the current page's head configuration within injection context.
  * Should be used inside injection context with page provided.
  */
-export function useSyncHead$() {
+export function useSyncHead() {
   const context = useInjectionContext()
   const $page = useInject(Page$)
 

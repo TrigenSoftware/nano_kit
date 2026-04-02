@@ -15,7 +15,7 @@ import {
 } from '@nano_kit/router'
 import {
   router,
-  usePage
+  usePageSignal
 } from './core.jsx'
 import { linkComponent } from './link.js'
 
@@ -49,7 +49,7 @@ describe('react-router', () => {
       ])
 
       function App() {
-        const Page = usePage($page)
+        const Page = usePageSignal($page)
 
         return Page && <Page/>
       }

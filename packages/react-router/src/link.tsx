@@ -1,7 +1,5 @@
 import {
-  type FocusEvent,
   type MouseEvent,
-  useCallback,
   useEffect
 } from 'react'
 import { inject } from '@nano_kit/store'
@@ -10,62 +8,23 @@ import {
   type Navigation,
   type Paths,
   type Routes,
-  type UnknownMatchRef,
   type AppRoutes,
   Navigation$,
-  Pages$,
-  loadPage,
   onLinkClick,
   listenLinks
 } from '@nano_kit/router'
-import type {
-  LinkProps,
-  UsePreloadProps,
-  LinkSettings
+import {
+  type LinkSettingsHook,
+  type LinkProps,
+  type LinkSettings
 } from './link.types.js'
 import {
   useNavigation,
   usePaths
 } from './hooks.js'
+import { useEventCallback } from './utils.js'
 
-/* @__NO_SIDE_EFFECTS__ */
-function createUsePreloadHook(
-  usePages: () => UnknownMatchRef[],
-  defaultSettings: Pick<LinkSettings, 'preloaded' | 'preloadByDefault'> = {}
-) {
-  return function usePreload(
-    {
-      onFocus,
-      onMouseEnter,
-      preload
-    }: UsePreloadProps,
-    to: string | undefined,
-    settings = defaultSettings
-  ) {
-    const pages = usePages()
-    const preloaded = settings.preloaded ??= new Set<string>()
-    const shouldPreload = preload ?? settings.preloadByDefault
-    const preloadCallback = useCallback(() => {
-      if (to && shouldPreload && !preloaded.has(to)) {
-        preloaded.add(to)
-        void loadPage(pages, to)
-      }
-    }, [to, preload])
-    const onFocusCallback = useCallback((event: FocusEvent) => {
-      preloadCallback()
-      onFocus?.(event)
-    }, [onFocus, preloadCallback])
-    const onMouseEnterCallback = useCallback((event: MouseEvent) => {
-      preloadCallback()
-      onMouseEnter?.(event)
-    }, [onMouseEnter, preloadCallback])
-
-    return {
-      onFocus: onFocusCallback,
-      onMouseEnter: onMouseEnterCallback
-    }
-  }
-}
+export * from './link.types.js'
 
 /* @__NO_SIDE_EFFECTS__ */
 function createLinkComponent<R extends Routes>(
@@ -74,16 +33,20 @@ function createLinkComponent<R extends Routes>(
 ) {
   return function Link<K extends keyof Routes>(props: LinkProps<Routes, K>) {
     const {
-      to,
-      href: hrefProp,
       onClick: onClickProp,
-      params,
-      ...restProps
+      ...hookProps
     } = props
+    const {
+      to,
+      params,
+      href: hrefProp,
+      preload,
+      ...elementProps
+    } = hookProps
     const settings = useSettings()
     const {
       onClick,
-      usePreload
+      hook
     } = settings
     const paths = usePaths()
     const path = (to && paths[to]) as string | ((params: unknown) => string) | undefined
@@ -92,27 +55,59 @@ function createLinkComponent<R extends Routes>(
         ? path(params)
         : path
     ))
-    const onClickCallback = useCallback((event: MouseEvent<HTMLAnchorElement>) => {
-      onClick(event)
+    const onClickCallback = useEventCallback((event: MouseEvent<HTMLAnchorElement>) => {
       onClickProp?.(event)
-    }, [onClick, onClickProp])
+
+      if (!event.defaultPrevented) {
+        onClick(event)
+      }
+    })
+
+    hookProps.href = href
 
     return (
       <a
         href={href}
         onClick={onClickCallback}
-        {...restProps}
-        {...usePreload?.(restProps, to, settings)}
+        {...elementProps}
+        {...hook?.(hookProps, settings)}
       />
     )
   }
+}
+
+function createLinkSettings<R extends Routes>(
+  navigation: Navigation<R>
+) {
+  const seen = new Set<LinkSettingsHook>()
+  const settings = {
+    onClick: onLinkClick.bind(navigation as unknown as Navigation),
+    addHook(hook: LinkSettingsHook) {
+      if (!seen.has(hook)) {
+        seen.add(hook)
+
+        const prevHook = settings.hook
+
+        if (prevHook) {
+          settings.hook = (props, settings) => ({
+            ...prevHook(props, settings),
+            ...hook(props, settings)
+          })
+        } else {
+          settings.hook = hook
+        }
+      }
+    }
+  } as LinkSettings
+
+  return settings
 }
 
 /**
  * Listen raw link clicks on the document to enable navigation without Link component.
  * @param navigation - Router navigation object
  */
-export function useListenLinks<R extends Routes = Routes>(navigation: Navigation<R>) {
+export function useNavigationListenLinks<R extends Routes = Routes>(navigation: Navigation<R>) {
   useEffect(() => listenLinks(navigation), [navigation])
 }
 
@@ -120,27 +115,10 @@ export function useListenLinks<R extends Routes = Routes>(navigation: Navigation
  * Listen raw link clicks on the document to enable navigation without Link component.
  * Should be used inside injection context with navigation provided.
  */
-export function useListenLinks$() {
+export function useListenLinks() {
   const navigation = useNavigation()
 
-  useListenLinks(navigation)
-}
-
-/**
- * Creates a preload hook for preloading pages on user interaction.
- * @param pages - Array of page and layout match references.
- * @param preloadByDefault - Whether to preload pages by default.
- * @returns Hook function to use for preloading pages.
- */
-/* @__NO_SIDE_EFFECTS__ */
-export function preloadable(
-  pages: UnknownMatchRef[],
-  preloadByDefault = false
-) {
-  return createUsePreloadHook(() => pages, {
-    preloaded: new Set<string>(),
-    preloadByDefault
-  })
+  useNavigationListenLinks(navigation)
 }
 
 /**
@@ -154,36 +132,19 @@ export function preloadable(
 export function linkComponent<R extends Routes>(
   navigation: Navigation<R>,
   paths: Paths<R>,
-  usePreload?: LinkSettings['usePreload']
+  hooks?: LinkSettingsHook[]
 ) {
-  const settings = {
-    onClick: onLinkClick.bind(navigation as unknown as Navigation),
-    usePreload
-  }
+  const settings = createLinkSettings(navigation)
+
+  hooks?.forEach(settings.addHook)
 
   return createLinkComponent(() => settings, () => paths)
 }
 
-export const usePreload$ = /* @__PURE__ */ createUsePreloadHook(() => useInject(Pages$))
-
 export function LinkSettings$(): LinkSettings {
   const navigation = inject(Navigation$)
 
-  return {
-    onClick: onLinkClick.bind(navigation as unknown as Navigation)
-  }
-}
-
-/**
- * Enable link preloading capabilities for Link component.
- * Should be used inside injection context with navigation and paths provided.
- * @param preloadByDefault - Whether to preload pages by default.
- */
-export function useLinkComponentPreload$(preloadByDefault = false) {
-  const settings = useInject(LinkSettings$)
-
-  settings.preloadByDefault = preloadByDefault
-  settings.usePreload = usePreload$
+  return createLinkSettings(navigation)
 }
 
 /**

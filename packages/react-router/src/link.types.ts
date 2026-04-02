@@ -1,6 +1,5 @@
 import type {
   AnchorHTMLAttributes,
-  FocusEvent,
   MouseEvent
 } from 'react'
 import type {
@@ -55,19 +54,13 @@ export type LinkProps<R extends Routes, K extends keyof R & string> = AnchorHTML
   href?: string
 })
 
-export interface UsePreloadProps {
-  onFocus?(event: FocusEvent): void
-  onMouseEnter?(event: MouseEvent): void
-  preload?: boolean
-}
+export type LinkSettingsHook<S extends LinkSettings = LinkSettings> = (
+  props: Partial<LinkProps<Routes, string>>,
+  settings: S
+) => Partial<AnchorHTMLAttributes<HTMLAnchorElement>>
 
 export interface LinkSettings {
   onClick(event: MouseEvent<HTMLAnchorElement>): void
-  preloadByDefault?: boolean
-  preloaded?: Set<string>
-  usePreload?(
-    props: UsePreloadProps,
-    to: string | undefined,
-    settings: Pick<LinkSettings, 'preloaded' | 'preloadByDefault'>
-  ): Pick<Required<UsePreloadProps>, 'onFocus' | 'onMouseEnter'>
+  addHook<S extends LinkSettings>(hook: LinkSettingsHook<S>): void
+  hook?: LinkSettingsHook
 }
