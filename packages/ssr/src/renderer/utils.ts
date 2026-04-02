@@ -1,9 +1,20 @@
-import type { HeadDescriptor } from '@nano_kit/router'
+import {
+  type HeadDescriptor,
+  type Location,
+  type PageRef,
+  PermanentReplaceHistoryAction
+} from '@nano_kit/router'
 import {
   type EmptyValue,
   get,
   isEmpty
 } from '@nano_kit/store'
+import {
+  FOUND_STATUS,
+  MOVED_PERMANENTLY_STATUS,
+  NOT_FOUND_STATUS,
+  SUCCESS_STATUS
+} from './constants.js'
 
 export function headDescriptorToHtml(descriptor: HeadDescriptor): string {
   const { tag } = descriptor
@@ -33,4 +44,26 @@ export function headDescriptorToHtml(descriptor: HeadDescriptor): string {
   }
 
   return html
+}
+
+export function responseStatus(
+  location: Location,
+  page: PageRef<unknown> | null
+): [number, string | null] {
+  const { action } = location
+
+  if (action) {
+    if (action === PermanentReplaceHistoryAction) {
+      return [MOVED_PERMANENTLY_STATUS, location.href]
+    }
+
+    return [FOUND_STATUS, location.href]
+  }
+
+  return [
+    page
+      ? page.statusCode ?? SUCCESS_STATUS
+      : NOT_FOUND_STATUS,
+    null
+  ]
 }

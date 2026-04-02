@@ -29,6 +29,7 @@ export interface RenderData {
   head: HeadDescriptor[]
   dehydrated: [string, unknown][]
   statusCode: number
+  redirect: string | null
   page: PageRef<unknown> | null
 }
 

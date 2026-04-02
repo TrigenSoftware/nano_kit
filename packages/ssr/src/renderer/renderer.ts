@@ -25,11 +25,9 @@ import type {
   RenderResult
 } from './renderer.types.js'
 import { Manifest } from './manifest.js'
+import { responseStatus } from './utils.js'
 
 export * from './renderer.types.js'
-
-const SUCCESS_STATUS = 200
-const NOT_FOUND_STATUS = 404
 
 /**
  * A base class for renderers. It provides methods to load the manifest, preload the pages, and render the view. The actual rendering logic should be implemented in the subclasses.
@@ -90,9 +88,12 @@ export abstract class Renderer extends Manifest {
       }
     }
 
+    const [statusCode, redirect] = responseStatus($location(), page)
+
     return {
       page,
-      statusCode: !page ? NOT_FOUND_STATUS : SUCCESS_STATUS, // Additionaly, should be set by page and location redirects
+      statusCode,
+      redirect,
       context,
       head,
       dehydrated
