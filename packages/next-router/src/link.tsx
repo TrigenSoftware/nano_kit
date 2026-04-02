@@ -1,5 +1,5 @@
 'use client'
-import NextLink, { type LinkProps as NextLinkProps } from 'next/link.js'
+import NextLink, { type LinkProps as NextLinkProps } from 'next/link'
 import type {
   AnchorHTMLAttributes,
   ReactNode,
@@ -47,7 +47,7 @@ export type LinkProps<R extends Routes, K extends keyof R & string> = NextLinkBa
 ) | {
   to?: never
   params?: never
-  href?: NextLinkProps<unknown>['href']
+  href: NextLinkProps<unknown>['href']
 })
 
 /**
@@ -63,14 +63,13 @@ export function Link<K extends keyof AppRoutes>(props: LinkProps<AppRoutes, K>) 
   } = props
   const paths = usePaths()
   const path = (to && paths[to]) as string | ((params: unknown) => string) | undefined
-  const href = hrefProp ?? (path && (
+  const href = (hrefProp ?? (path && (
     typeof path === 'function'
       ? path(params)
       : path
-  ))
+  )))!
 
   return (
-    // @ts-expect-error - ¯\＿(ツ)＿/¯
     <NextLink
       href={href}
       {...restProps}

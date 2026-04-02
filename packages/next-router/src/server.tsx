@@ -1,7 +1,7 @@
 import {
   redirect,
   RedirectType
-} from 'next/navigation.js'
+} from 'next/navigation'
 import { workUnitAsyncStorage } from 'next/dist/server/app-render/work-unit-async-storage.external.js'
 import { cache } from 'react'
 import {

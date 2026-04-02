@@ -3,7 +3,7 @@ import {
   useRouter,
   usePathname,
   useSearchParams
-} from 'next/navigation.js'
+} from 'next/navigation'
 import {
   useEffect,
   useLayoutEffect,
