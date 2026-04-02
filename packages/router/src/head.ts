@@ -18,9 +18,9 @@ import type {
   TitleValue,
   LangValue,
   DirValue,
-  LinkProps,
-  MetaProps,
-  ScriptProps,
+  LinkTagProps,
+  MetaTagProps,
+  ScriptTagProps,
   PseudoElement,
   GenericHeadTagDescriptor,
   LinkTagDescriptor,
@@ -204,7 +204,7 @@ function startElement(this: GenericHeadTagDescriptor, elements?: PseudoElement[]
  * @returns Link head descriptor.
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function link(props: LinkProps): LinkTagDescriptor {
+export function link(props: LinkTagProps): LinkTagDescriptor {
   return {
     tag: 'link',
     props,
@@ -218,7 +218,7 @@ export function link(props: LinkProps): LinkTagDescriptor {
  * @returns Meta head descriptor.
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function meta(props: MetaProps): MetaTagDescriptor {
+export function meta(props: MetaTagProps): MetaTagDescriptor {
   return {
     tag: 'meta',
     props,
@@ -232,7 +232,7 @@ export function meta(props: MetaProps): MetaTagDescriptor {
  * @returns Script head descriptor.
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function script(props: ScriptProps): ScriptTagDescriptor {
+export function script(props: ScriptTagProps): ScriptTagDescriptor {
   return {
     tag: 'script',
     props,

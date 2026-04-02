@@ -58,7 +58,7 @@ export type ReferrerPolicy =
 
 export type FetchPriority = 'high' | 'low' | 'auto'
 
-export interface LinkProps {
+export interface LinkTagProps {
   href?: ValueOrAccessor<string | EmptyValue>
   media?: ValueOrAccessor<string | EmptyValue>
   disabled?: ValueOrAccessor<boolean | EmptyValue>
@@ -85,7 +85,7 @@ export type ScriptType =
   | 'application/ld+json'
   | (string & {})
 
-export interface ScriptProps {
+export interface ScriptTagProps {
   src?: string | EmptyValue
   type?: ScriptType | EmptyValue
   async?: boolean | EmptyValue
@@ -98,7 +98,7 @@ export interface ScriptProps {
   code?: string | EmptyValue
 }
 
-export interface MetaProps {
+export interface MetaTagProps {
   content?: ValueOrAccessor<string | EmptyValue>
   media?: ValueOrAccessor<string | EmptyValue>
   charSet?: string | EmptyValue
@@ -129,17 +129,17 @@ export interface GenericHeadTagDescriptor {
 
 export interface LinkTagDescriptor extends GenericHeadTagDescriptor {
   tag: 'link'
-  props: LinkProps
+  props: LinkTagProps
 }
 
 export interface ScriptTagDescriptor extends GenericHeadTagDescriptor {
   tag: 'script'
-  props: ScriptProps
+  props: ScriptTagProps
 }
 
 export interface MetaTagDescriptor extends GenericHeadTagDescriptor {
   tag: 'meta'
-  props: MetaProps
+  props: MetaTagProps
 }
 
 export type HeadTagDescriptor = LinkTagDescriptor | ScriptTagDescriptor | MetaTagDescriptor

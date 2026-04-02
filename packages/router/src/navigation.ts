@@ -25,7 +25,8 @@ import type {
 import {
   PopHistoryAction,
   PushHistoryAction,
-  ReplaceHistoryAction
+  ReplaceHistoryAction,
+  PermanentReplaceHistoryAction
 } from './constants.js'
 import {
   composeMatchers,
@@ -242,7 +243,9 @@ export function virtualNavigation<const R extends Routes = {}>(
   const forward = () => go(1)
   const update = (location: RouteLocation<R> | null) => {
     if (location !== null) {
-      if (location.action === PushHistoryAction) {
+      const { action } = location
+
+      if (action === PushHistoryAction) {
         const activeIndex = $activeIndex()
         const nextIndex = activeIndex + 1
 
@@ -252,7 +255,7 @@ export function virtualNavigation<const R extends Routes = {}>(
           })
           $activeIndex(nextIndex)
         })
-      } else if (location.action === ReplaceHistoryAction) {
+      } else if (action === ReplaceHistoryAction || action === PermanentReplaceHistoryAction) {
         $location(location)
       }
     }
@@ -295,11 +298,11 @@ export function virtualNavigation<const R extends Routes = {}>(
         location
       )
     }),
-    replace: action((to) => {
+    replace: action((to, permanent) => {
       const location = $location()
 
       maybeUpdate(
-        updateLocation(location, to, ReplaceHistoryAction),
+        updateLocation(location, to, permanent ? PermanentReplaceHistoryAction : ReplaceHistoryAction),
         location
       )
     })

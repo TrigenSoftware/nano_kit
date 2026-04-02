@@ -17,7 +17,7 @@ export interface UrlUpdate {
   searchParams?: URLSearchParams
 }
 
-export type HistoryAction = 'push' | 'replace' | 'pop' | null
+export type HistoryAction = 'push' | 'replace' | 'pop' | 'permanent-replace' | null
 
 export interface Location extends UrlHrefObject {
   action: HistoryAction

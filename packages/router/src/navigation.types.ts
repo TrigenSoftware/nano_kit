@@ -68,6 +68,7 @@ export interface Navigation<R extends Routes = Routes> {
   /**
    * Navigate to a new URL by replacing the current entry in the history stack.
    * @param to - The target URL as a string or UrlUpdate object with partial URL components.
+   * @param permanent - If true, indicates that the replacement is permanent (e.g., for SEO purposes). This can be used to differentiate between temporary and permanent redirects in server-side rendering scenarios.
    */
-  replace(to: string | UrlUpdate): void
+  replace(to: string | UrlUpdate, permanent?: boolean): void
 }
