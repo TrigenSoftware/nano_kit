@@ -66,15 +66,15 @@
     "test:types": "tsc --noEmit",
     "test": "run -p lint test:unit test:types"
   },
-  "dependencies": {
-    "@nano_kit/react-router": "workspace:^"
-  },
   "peerDependencies": {
     "@nano_kit/react": "workspace:^",
     "@nano_kit/router": "workspace:^",
     "@nano_kit/store": "workspace:^",
     "next": "^16.0.0",
     "react": "^17.0.0 || ^18.0.0 || ^19.0.0"
+  },
+  "dependencies": {
+    "@nano_kit/react-router": "workspace:^"
   },
   "devDependencies": {
     "@nano_kit/react": "workspace:^",
