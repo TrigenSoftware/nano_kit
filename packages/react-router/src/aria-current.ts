@@ -21,7 +21,9 @@ export interface UseAriaCurrentSettings<R extends Routes> extends LinkSettings {
 }
 
 export interface UseAriaCurrentProps {
-  href?: string
+  'href'?: string
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  'aria-current'?: boolean | 'false' | 'true' | 'page' | 'step' | 'location' | 'date' | 'time' | undefined
 }
 
 export function defaultIsAriaCurrent<R extends Routes>(
@@ -37,7 +39,10 @@ function createAriaCurrent<R extends Routes>(
   isAriaCurrent?: IsAriaCurrent<R>
 ) {
   return function useAriaCurrent(
-    { href }: UseAriaCurrentProps,
+    {
+      href,
+      'aria-current': ariaCurrent
+    }: UseAriaCurrentProps,
     settings: UseAriaCurrentSettings<R>
   ) {
     const location = useLocation()
@@ -45,9 +50,11 @@ function createAriaCurrent<R extends Routes>(
     const finalIsAriaCurrent = settings.isAriaCurrent ?? isAriaCurrent ?? defaultIsAriaCurrent
 
     return {
-      'aria-current': finalIsAriaCurrent(url, location)
-        ? 'page' as const
-        : undefined
+      'aria-current': ariaCurrent ?? (
+        finalIsAriaCurrent(url, location)
+          ? 'page' as const
+          : undefined
+      )
     }
   }
 }

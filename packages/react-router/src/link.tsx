@@ -31,7 +31,7 @@ function createLinkComponent<R extends Routes>(
   useSettings: () => LinkSettings,
   usePaths: () => Paths<R>
 ) {
-  return function Link<K extends keyof Routes>(props: LinkProps<Routes, K>) {
+  return function Link<K extends keyof R & string>(props: LinkProps<R, K>) {
     const {
       onClick: onClickProp,
       ...hookProps

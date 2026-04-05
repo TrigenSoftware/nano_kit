@@ -2,6 +2,7 @@ import {
   type FocusEvent,
   type MouseEvent
 } from 'react'
+import { isFunction } from '@nano_kit/store'
 import { useInject } from '@nano_kit/react'
 import {
   type UnknownMatchRef,
@@ -71,10 +72,10 @@ function createUsePreloadHook(
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function preloadable(
-  pages: UnknownMatchRef[],
+  pages: UnknownMatchRef[] | (() => UnknownMatchRef[]),
   preloadByDefault = false
 ) {
-  return createUsePreloadHook(() => pages, preloadByDefault)
+  return createUsePreloadHook(isFunction(pages) ? pages : () => pages, preloadByDefault)
 }
 
 const usePreload = /* @__PURE__ */ createUsePreloadHook(() => useInject(Pages$))
