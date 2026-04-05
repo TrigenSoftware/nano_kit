@@ -1,7 +1,7 @@
 {
   "name": "@nano_kit/react",
   "type": "module",
-  "version": "1.0.0-alpha.5",
+  "version": "1.0.0",
   "description": "Seamless integration between @nano_kit/store signals, dependency injection and React components.",
   "author": "dangreen",
   "license": "MIT",
