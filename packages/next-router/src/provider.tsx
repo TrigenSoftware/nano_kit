@@ -13,7 +13,7 @@ import {
 } from '@nano_kit/router'
 import { useNextNavigation } from './hooks.js'
 
-export interface NextNavigationProviderProps<R extends Routes = {}> {
+export interface NextNavigationProviderProps<R extends Routes = Routes> {
   routes?: R
   children: ReactNode
 }
@@ -21,7 +21,7 @@ export interface NextNavigationProviderProps<R extends Routes = {}> {
 /**
  * Client-side navigation provider for Next.js.
  */
-export function NextNavigationProvider<const R extends Routes = {}>(
+export function NextNavigationProvider<const R extends Routes = Routes>(
   {
     routes,
     children
@@ -40,7 +40,7 @@ export function NextNavigationProvider<const R extends Routes = {}>(
   )
 }
 
-function InnerProvider<const R extends Routes = {}>(
+function InnerProvider<const R extends Routes = Routes>(
   {
     routes,
     children

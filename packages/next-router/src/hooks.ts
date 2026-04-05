@@ -29,11 +29,16 @@ import {
   updateLocation
 } from '@nano_kit/router'
 
-function useRouteLocation<const R extends Routes = {}>(
+function useRouteLocation<const R extends Routes = Routes>(
   routes: R = {} as R
 ) {
   const pathname = usePathname()
-  const search = useSearchParams().toString()
+  let search = ''
+
+  try {
+    search = useSearchParams().toString()
+  } catch {}
+
   const [
     $pathname,
     $search,
@@ -82,11 +87,9 @@ function useRouteLocation<const R extends Routes = {}>(
   useEffect(() => {
     const sync = () => $hash(location.hash)
 
-    window.addEventListener('popstate', sync)
     window.addEventListener('hashchange', sync)
 
     return () => {
-      window.removeEventListener('popstate', sync)
       window.removeEventListener('hashchange', sync)
     }
   }, [])
@@ -99,7 +102,7 @@ function useRouteLocation<const R extends Routes = {}>(
  * @param routes - Route definitions for the application.
  * @returns Tuple of location signal and navigation object.
  */
-export function useNextNavigation<const R extends Routes = {}>(
+export function useNextNavigation<const R extends Routes = Routes>(
   routes: R = {} as R
 ): [RouteLocationRecord<R>, Navigation<R>] {
   const [$location, $locationRecord, routerLocation] = useRouteLocation(routes)

@@ -1,4 +1,6 @@
+import { connection } from 'next/server'
 import {
+  permanentRedirect,
   redirect,
   RedirectType
 } from 'next/navigation'
@@ -12,6 +14,7 @@ import {
   Location$,
   Navigation$,
   PushHistoryAction,
+  PermanentReplaceHistoryAction,
   virtualNavigation
 } from '@nano_kit/router'
 import { getServerDehydrationContext } from '@nano_kit/react'
@@ -25,12 +28,29 @@ interface NextAsyncStorage {
     pathname: string
     search: string
   }
+  tags?: string[]
 }
 
 function getUrlFromAsyncStorage() {
   const store = workUnitAsyncStorage.getStore() as NextAsyncStorage | undefined
+  const url = store?.url
+  const tags = store?.tags
 
-  return `${store?.url?.pathname || ''}${store?.url?.search || ''}`
+  if (url) {
+    return `${url.pathname || ''}${url.search || ''}`
+  }
+
+  if (tags && tags.length > 1) {
+    const tag = tags.at(-1)!
+    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+    const prevTag = tags.at(-2)!
+
+    if (tag.replace(prevTag, '') !== 'index') {
+      return tag.substring(tag.indexOf('/'))
+    }
+  }
+
+  return '/'
 }
 
 /**
@@ -39,7 +59,7 @@ function getUrlFromAsyncStorage() {
  * @param routes - Route definitions for the application.
  * @returns Tuple of location signal and navigation object.
  */
-export const getServerNextNavigation = cache(<R extends Routes = {}>(
+export const getServerNextNavigation = cache(<R extends Routes = Routes>(
   routes: R = {} as R
 ): [RouteLocationRecord<R>, Navigation<R>] => {
   const url = getUrlFromAsyncStorage()
@@ -54,22 +74,35 @@ export const getServerNextNavigation = cache(<R extends Routes = {}>(
         ? RedirectType.push
         : RedirectType.replace
 
-      redirect(nextLocation.href, action)
+      if (nextLocation.action === PermanentReplaceHistoryAction) {
+        permanentRedirect(nextLocation.href, action)
+      } else {
+        redirect(nextLocation.href, action)
+      }
     }
   }
 
   return [$location, navigation]
 })
 
+export interface NextNavigationProps<R extends Routes = Routes> extends NextNavigationProviderProps<R> {
+  prerenderable?: boolean
+}
+
 /**
  * RSC component that sets up navigation on the server and hydrates it on the client.
  */
-export function NextNavigation<const R extends Routes = {}>(
+export async function NextNavigation<const R extends Routes = Routes>(
   {
     routes,
+    prerenderable,
     children
-  }: NextNavigationProviderProps<R>
+  }: NextNavigationProps<R>
 ) {
+  if (!prerenderable) {
+    await connection()
+  }
+
   const { context } = getServerDehydrationContext()
 
   if (!context.get(Location$, true) && !context.get(Navigation$, true)) {
