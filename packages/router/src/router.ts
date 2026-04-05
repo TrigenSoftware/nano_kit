@@ -100,6 +100,15 @@ function getViewRefGetter<C>(
 }
 
 /**
+ * Define a page module reference for explicit module handling.
+ * @param module - The page module to reference
+ * @returns The same page module reference for correct type inference
+ */
+export function asModule<P>(module: PageModule<P>): PageModule<P> {
+  return module
+}
+
+/**
  * Define a page match reference for route matching.
  * @param expected - The expected route name to match
  * @param page - The page module ref to return when matched
