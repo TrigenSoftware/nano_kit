@@ -45,7 +45,7 @@ export function ApplicationCard({
       <a
         className={cx(styles.link, mixins.focusOutline)}
         href={paths.application({
-          applicationId: id
+          id
         })}
         aria-label='View application details'
       >

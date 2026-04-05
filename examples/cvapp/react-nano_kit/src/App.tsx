@@ -3,14 +3,13 @@ import {
   page,
   layout,
   resetScroll,
-  useListenLinks,
+  useNavigationListenLinks,
   router,
-  usePage
+  usePageSignal
 } from '@nano_kit/react-router'
 import { useEffect } from 'react'
 import {
   $location,
-  $prevRoute,
   navigation
 } from './stores/router'
 import { Layout } from './pages/Layout'
@@ -26,15 +25,12 @@ const $page = router($location, [
 ])
 
 export function App() {
-  const Page = usePage($page)
+  const Page = usePageSignal($page)
 
-  useListenLinks(navigation)
+  useNavigationListenLinks(navigation)
 
   useEffect(() => effect((initial) => {
-    const shouldReset = (
-      $prevRoute() !== 'newApplication'
-      || $location.$route() !== 'application'
-    ) && !initial
+    const shouldReset = $location.$action() !== 'replace' && !initial
 
     if (shouldReset) {
       resetScroll()

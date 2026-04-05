@@ -1,17 +1,12 @@
 import {
-  useSignal,
-  useInject
-} from '@nano_kit/react'
-import {
-  Location$,
-  Paths$,
+  Link,
   Outlet,
-  useSyncHead$,
-  useListenLinks$,
+  useSyncHead,
+  useLinkComponentPreload,
+  useLinkComponentAriaCurrent,
   meta,
   title
 } from '@nano_kit/react-router'
-import clsx from 'clsx'
 import styles from './MainLayout.module.css'
 
 export function Head$() {
@@ -28,12 +23,9 @@ export function Head$() {
 }
 
 export default function MainLayout() {
-  const $location = useInject(Location$)
-  const paths = useInject(Paths$)
-  const { route } = useSignal($location)
-
-  useSyncHead$()
-  useListenLinks$()
+  useSyncHead()
+  useLinkComponentPreload(true)
+  useLinkComponentAriaCurrent()
 
   return (
     <div className={styles.app}>
@@ -45,24 +37,15 @@ export default function MainLayout() {
           </h1>
 
           <nav className={styles.nav}>
-            <a
-              href={paths.characters}
-              className={clsx(styles.navLink, route === 'characters' && styles.active)}
-            >
+            <Link to='characters' className={styles.navLink}>
               Characters
-            </a>
-            <a
-              href={paths.locations}
-              className={clsx(styles.navLink, route === 'locations' && styles.active)}
-            >
+            </Link>
+            <Link to='locations' className={styles.navLink}>
               Locations
-            </a>
-            <a
-              href={paths.episodes}
-              className={clsx(styles.navLink, route === 'episodes' && styles.active)}
-            >
+            </Link>
+            <Link to='episodes' className={styles.navLink}>
               Episodes
-            </a>
+            </Link>
           </nav>
         </div>
       </header>

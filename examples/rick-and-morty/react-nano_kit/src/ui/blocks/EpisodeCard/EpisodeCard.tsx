@@ -1,6 +1,6 @@
 /* DISCLAIMER! VIBECODED! */
 import { type Episode } from '#src/services/api'
-import { paths } from '#src/stores/router'
+import { Link } from '#src/ui/components/Link'
 import styles from './EpisodeCard.module.css'
 
 export interface EpisodeCardProps {
@@ -10,10 +10,11 @@ export interface EpisodeCardProps {
 export function EpisodeCard({ episode }: EpisodeCardProps) {
   return (
     <article className={styles.card}>
-      <a
-        href={paths.episode({
+      <Link
+        to='episode'
+        params={{
           id: episode.id
-        })}
+        }}
         className={styles.link}
       >
         <div className={styles.content}>
@@ -36,7 +37,7 @@ export function EpisodeCard({ episode }: EpisodeCardProps) {
             </div>
           </div>
         </div>
-      </a>
+      </Link>
     </article>
   )
 }

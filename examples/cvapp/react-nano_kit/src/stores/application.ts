@@ -62,8 +62,8 @@ export const [
   })
 
   if (!draft.id) {
-    navigation.push(paths.application({
-      applicationId: application.id
+    navigation.replace(paths.application({
+      id: application.id
     }))
   }
 }, [

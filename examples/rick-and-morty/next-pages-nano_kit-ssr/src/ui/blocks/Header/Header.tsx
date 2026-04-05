@@ -4,7 +4,7 @@ import { useSignal, useInject } from '@nano_kit/react'
 import {
   Location$,
   Paths$,
-  useListenLinks$
+  useListenLinks
 } from '@nano_kit/next-router'
 import clsx from 'clsx'
 import styles from './Header.module.css'
@@ -14,7 +14,7 @@ export function Header() {
   const paths = useInject(Paths$)
   const { route } = useSignal($location)
 
-  useListenLinks$()
+  useListenLinks()
 
   return (
     <header className={styles.header}>

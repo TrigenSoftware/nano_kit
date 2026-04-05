@@ -5,7 +5,6 @@ import { Hono } from 'hono'
 // eslint-disable-next-line import/no-useless-path-segments
 import { renderer } from './dist/renderer/index.js'
 
-const NOT_FOUND_STATUS = 404
 const app = new Hono()
 
 app.use(compress())
@@ -24,6 +23,12 @@ app.get('*', async (c) => {
   const started = Date.now()
   const result = await renderer.render(url)
 
+  if (result.redirect) {
+    console.log(`redirecting ${url} to ${result.redirect} with status ${result.statusCode} in ${Date.now() - started}ms`)
+
+    return c.redirect(result.redirect, result.statusCode)
+  }
+
   if (result.html !== null) {
     console.log(`rendered ${url} in ${Date.now() - started}ms`)
 
@@ -32,7 +37,7 @@ app.get('*', async (c) => {
 
   console.log(`route ${url} not found`)
 
-  return c.text('Not Found', NOT_FOUND_STATUS)
+  return c.text('Not Found', result.statusCode)
 })
 
 serve({

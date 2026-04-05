@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
+import { FlightDetector } from '@nano_kit/react'
 import { NextNavigation } from '@nano_kit/next-router'
 import { routes } from '@/stores/router'
 import { Header } from '@/ui/blocks/Header'
 import styles from './layout.module.css'
 import './globals.css'
-import { FlightDetector } from '@nano_kit/react'
 
 declare module '@nano_kit/router' {
   interface AppContext {
@@ -21,7 +21,10 @@ export default function RootLayout({ children }: {
 }) {
   return (
     <FlightDetector>
-      <NextNavigation routes={routes}>
+      <NextNavigation
+        routes={routes}
+        prerenderable
+      >
         <html lang='en'>
           <body>
             <div className={styles.app}>

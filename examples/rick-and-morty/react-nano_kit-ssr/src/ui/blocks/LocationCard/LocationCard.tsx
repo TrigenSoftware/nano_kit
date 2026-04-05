@@ -1,5 +1,5 @@
 /* DISCLAIMER! VIBECODED! */
-import { usePaths } from '@nano_kit/react-router'
+import { Link } from '@nano_kit/react-router'
 import { type Location } from '#src/services/api'
 import styles from './LocationCard.module.css'
 
@@ -8,14 +8,15 @@ export interface LocationCardProps {
 }
 
 export function LocationCard({ location }: LocationCardProps) {
-  const paths = usePaths()
-  const locationUrl = paths.location({
-    id: location.id
-  })
-
   return (
     <article className={styles.card}>
-      <a href={locationUrl} className={styles.link}>
+      <Link
+        to='location'
+        params={{
+          id: location.id
+        }}
+        className={styles.link}
+      >
         <div className={styles.content}>
           <h2 className={styles.name}>{location.name}</h2>
 
@@ -36,7 +37,7 @@ export function LocationCard({ location }: LocationCardProps) {
             </div>
           </div>
         </div>
-      </a>
+      </Link>
     </article>
   )
 }

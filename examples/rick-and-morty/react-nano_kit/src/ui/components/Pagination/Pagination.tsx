@@ -1,6 +1,7 @@
 /* DISCLAIMER! VIBECODED! */
 import { useMemo } from 'react'
 import clsx from 'clsx'
+import { Link } from '#src/ui/components/Link'
 import styles from './Pagination.module.css'
 
 export interface PaginationProps {
@@ -87,14 +88,14 @@ export function Pagination({
         {/* Previous button */}
         {current > 1 && (
           <li>
-            <a
+            <Link
               href={formatUrl(current - 1)}
               aria-label={previousLabel}
               className={clsx(styles.link, styles.prevNext)}
             >
               <span aria-hidden='true'>‹</span>
               <span className={styles.srOnly}>{previousLabel}</span>
-            </a>
+            </Link>
           </li>
         )}
 
@@ -103,9 +104,9 @@ export function Pagination({
           <li key={`${pageNumber}-${index}`}>
             {typeof pageNumber === 'number'
               ? (
-                <a
+                <Link
                   href={formatUrl(pageNumber)}
-                  aria-current={pageNumber === current ? 'page' : undefined}
+                  aria-current={pageNumber === current ? 'page' : false}
                   aria-label={formatPageLabel(pageNumber)}
                   className={clsx(
                     styles.link,
@@ -113,7 +114,7 @@ export function Pagination({
                   )}
                 >
                   {pageNumber}
-                </a>
+                </Link>
               )
               : (
                 <span
@@ -129,14 +130,14 @@ export function Pagination({
         {/* Next button */}
         {current < total && (
           <li>
-            <a
+            <Link
               href={formatUrl(current + 1)}
               aria-label={nextLabel}
               className={clsx(styles.link, styles.prevNext)}
             >
               <span aria-hidden='true'>›</span>
               <span className={styles.srOnly}>{nextLabel}</span>
-            </a>
+            </Link>
           </li>
         )}
       </ul>

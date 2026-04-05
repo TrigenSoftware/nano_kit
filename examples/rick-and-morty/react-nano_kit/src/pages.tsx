@@ -1,26 +1,15 @@
 import {
   layout,
   page,
-  asModule,
   loadable
 } from '@nano_kit/react-router'
-import { routes } from './stores/router'
 import { Spinner } from './ui/components/Spinner'
-import * as MainLayout from './ui/pages/MainLayout'
-import * as HomePage from './ui/pages/Home'
-import './app.css'
-
-declare module '@nano_kit/router' {
-  interface AppContext {
-    routes: typeof routes
-  }
-}
-
-export { routes }
+import { MainLayout } from './ui/pages/MainLayout'
+import HomePage from './ui/pages/Home'
 
 export const pages = [
   layout(MainLayout, [
-    page('home', asModule(HomePage)),
+    page('home', HomePage),
     page(
       'characters',
       loadable(

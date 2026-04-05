@@ -61,12 +61,12 @@
   color: #424242;
 }
 
-.navLink.active {
+.navLink[aria-current='page'] {
   background-color: #1976d2;
   color: white;
 }
 
-.navLink.active:hover {
+.navLink[aria-current='page']:hover {
   background-color: #1565c0;
 }
 
@@ -94,12 +94,12 @@
     color: #ffffff;
   }
 
-  .navLink.active {
+  .navLink[aria-current='page'] {
     background-color: #1976d2;
     color: white;
   }
 
-  .navLink.active:hover {
+  .navLink[aria-current='page']:hover {
     background-color: #1565c0;
   }
 }

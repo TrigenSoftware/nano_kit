@@ -1,15 +1,8 @@
-import { useSignal } from '@nano_kit/react'
 import { Outlet } from '@nano_kit/react-router'
-import clsx from 'clsx'
-import {
-  $location,
-  paths
-} from '#src/stores/router'
+import { Link } from '#src/ui/components/Link'
 import styles from './MainLayout.module.css'
 
 export function MainLayout() {
-  const { route } = useSignal($location)
-
   return (
     <div className={styles.app}>
       <header className={styles.header}>
@@ -20,24 +13,15 @@ export function MainLayout() {
           </h1>
 
           <nav className={styles.nav}>
-            <a
-              href={paths.characters}
-              className={clsx(styles.navLink, route === 'characters' && styles.active)}
-            >
+            <Link to='characters' className={styles.navLink}>
               Characters
-            </a>
-            <a
-              href={paths.locations}
-              className={clsx(styles.navLink, route === 'locations' && styles.active)}
-            >
+            </Link>
+            <Link to='locations' className={styles.navLink}>
               Locations
-            </a>
-            <a
-              href={paths.episodes}
-              className={clsx(styles.navLink, route === 'episodes' && styles.active)}
-            >
+            </Link>
+            <Link to='episodes' className={styles.navLink}>
               Episodes
-            </a>
+            </Link>
           </nav>
         </div>
       </header>

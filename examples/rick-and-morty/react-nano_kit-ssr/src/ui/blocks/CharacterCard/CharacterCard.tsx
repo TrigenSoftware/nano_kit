@@ -1,6 +1,6 @@
 /* DISCLAIMER! VIBECODED! */
 import clsx from 'clsx'
-import { usePaths } from '@nano_kit/react-router'
+import { Link } from '@nano_kit/react-router'
 import { type Character } from '#src/services/api'
 import styles from './CharacterCard.module.css'
 
@@ -9,14 +9,15 @@ export interface CharacterCardProps {
 }
 
 export function CharacterCard({ character }: CharacterCardProps) {
-  const paths = usePaths()
-  const characterUrl = paths.character({
-    id: character.id
-  })
-
   return (
     <article className={styles.card}>
-      <a href={characterUrl} className={styles.link}>
+      <Link
+        to='character'
+        params={{
+          id: character.id
+        }}
+        className={styles.link}
+      >
         <div className={styles.imageWrapper}>
           <img
             src={character.image}
@@ -63,7 +64,7 @@ export function CharacterCard({ character }: CharacterCardProps) {
             </div>
           </div>
         </div>
-      </a>
+      </Link>
     </article>
   )
 }

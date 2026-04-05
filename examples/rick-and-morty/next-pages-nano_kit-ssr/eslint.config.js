@@ -1,9 +1,11 @@
+import { globalIgnores } from 'eslint/config'
 import bundlerConfig from '@trigen/eslint-config/bundler'
 import tsConfig from '@trigen/eslint-config/typescript'
 import env from '@trigen/eslint-config/env'
 import rootConfig from '../../../eslint.config.js'
 
 export default [
+  globalIgnores(['next-env.d.ts']),
   ...rootConfig,
   ...bundlerConfig,
   ...tsConfig,
