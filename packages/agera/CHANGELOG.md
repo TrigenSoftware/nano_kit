@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0](https://github.com/TrigenSoftware/nano_kit/compare/agera@1.0.0-alpha.5...agera@1.0.0) (2026-04-05)
+
+### Features
+
+* export ExternalModesBase to create modes in external packages ([c8d0569](https://github.com/TrigenSoftware/nano_kit/commit/c8d0569a8b041b0ace3413a53fc935bd3c621eeb))
+
 ## [1.0.0-alpha.5](https://github.com/TrigenSoftware/nano_kit/compare/agera@1.0.0-alpha.4...agera@1.0.0-alpha.5) (2026-02-15)
 
 ### Features

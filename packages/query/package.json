@@ -1,7 +1,7 @@
 {
   "name": "@nano_kit/query",
   "type": "module",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0",
   "description": "A small and powerful remote data manager for @nano_kit/store state manager.",
   "author": "dangreen",
   "license": "MIT",
