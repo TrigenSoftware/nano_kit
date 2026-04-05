@@ -46,10 +46,9 @@ export function headDescriptorToHtml(descriptor: HeadDescriptor): string {
   return html
 }
 
-export function responseStatus(
-  location: Location,
-  page: PageRef<unknown> | null
-): [number, string | null] {
+export function responseRedirect(
+  location: Location
+): [number, string] | null {
   const { action } = location
 
   if (action) {
@@ -58,6 +57,19 @@ export function responseStatus(
     }
 
     return [FOUND_STATUS, location.href]
+  }
+
+  return null
+}
+
+export function responseStatus(
+  location: Location,
+  page: PageRef<unknown> | null
+): [number, string | null] {
+  const redirect = responseRedirect(location)
+
+  if (redirect) {
+    return redirect
   }
 
   return [

@@ -25,7 +25,10 @@ import type {
   RenderResult
 } from './renderer.types.js'
 import { Manifest } from './manifest.js'
-import { responseStatus } from './utils.js'
+import {
+  responseRedirect,
+  responseStatus
+} from './utils.js'
 
 export * from './renderer.types.js'
 
@@ -115,9 +118,24 @@ export abstract class Renderer extends Manifest {
    */
   async render(url: string): Promise<RenderResult> {
     const data = await this.data(url)
-    const html = data.page
-      ? `<!doctype html>${await this.renderToString(data)}`
-      : null
+    let html: string | null = null
+
+    if (!data.redirect && data.page) {
+      html = `<!doctype html>${await this.renderToString(data)}`
+
+      const maybeRedirect = responseRedirect(data.context.get(Location$)())
+
+      if (maybeRedirect) {
+        const [statusCode, redirect] = maybeRedirect
+
+        return {
+          ...data,
+          statusCode,
+          redirect,
+          html: null
+        }
+      }
+    }
 
     return {
       ...data,

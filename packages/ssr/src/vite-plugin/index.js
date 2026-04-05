@@ -147,7 +147,16 @@ export default function SsrPlugin(options, adapter) {
 
               const result = await renderer.render(url)
 
-              if (result.html !== null) {
+              if (result.redirect) {
+                logger.info(`redirecting ${url} to ${result.redirect} with status ${result.statusCode} in ${Date.now() - started}ms`, {
+                  timestamp: true
+                })
+
+                res.writeHead(result.statusCode, {
+                  Location: result.redirect
+                })
+                res.end()
+              } else if (result.html !== null) {
                 const html = await server.transformIndexHtml(url, result.html)
 
                 logger.info(`rendered ${url} in ${Date.now() - started}ms`, {
