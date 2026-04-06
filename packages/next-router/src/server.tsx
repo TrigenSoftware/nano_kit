@@ -105,7 +105,7 @@ export async function NextNavigation<const R extends Routes = Routes>(
 
   const { context } = getServerDehydrationContext()
 
-  if (!context.get(Location$, true) && !context.get(Navigation$, true)) {
+  if (!context.get(Location$, true)) {
     const [$location, navigation] = getServerNextNavigation(routes)
 
     context.set(Location$, $location)

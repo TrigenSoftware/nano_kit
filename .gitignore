@@ -27,6 +27,7 @@ package
 build
 .astro
 .next
+next-env.d.ts
 
 # Env files
 .env

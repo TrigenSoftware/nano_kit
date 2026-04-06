@@ -9,6 +9,7 @@ import {
   useLayoutEffect,
   useMemo
 } from 'react'
+import { useInjectionContext } from '@nano_kit/react'
 import {
   signal,
   record,
@@ -22,12 +23,30 @@ import {
   type RouteLocation,
   type Navigation,
   type Location,
+  Location$,
   PushHistoryAction,
   ReplaceHistoryAction,
   createCachedMatcher,
   createLocation,
   updateLocation
 } from '@nano_kit/router'
+
+const SEARCH_PARAMS_FALLBACK = '?__searchParamsFallback__=true'
+
+export function useShouldProvideNextNavigation() {
+  const context = useInjectionContext()
+  let isSearchParamsAvailable = true
+
+  try {
+    useSearchParams()
+  } catch {
+    isSearchParamsAvailable = false
+  }
+
+  const location = context?.get(Location$, true)
+
+  return !location || location.$search() === SEARCH_PARAMS_FALLBACK && isSearchParamsAvailable
+}
 
 function useRouteLocation<const R extends Routes = Routes>(
   routes: R = {} as R
@@ -37,7 +56,9 @@ function useRouteLocation<const R extends Routes = Routes>(
 
   try {
     search = useSearchParams().toString()
-  } catch {}
+  } catch {
+    search = SEARCH_PARAMS_FALLBACK
+  }
 
   const [
     $pathname,
