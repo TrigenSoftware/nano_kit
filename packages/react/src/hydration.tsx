@@ -19,11 +19,15 @@ export interface HydrationProviderProps extends InjectionContextProps {
    * Dehydrated data as an array of key-value pairs.
    * Pass a falsy value to skip hydration.
    */
-  dehydrated: [string, unknown][] | FalsyValue
+  dehydrated?: [string, unknown][] | FalsyValue
   /**
    * Additional injection providers to merge into the child context.
    */
   context?: InjectionProvider[]
+  /**
+   * Whether to reuse an existing InjectionContext or create a new one.
+   */
+  reuse?: boolean
 }
 
 /**
@@ -33,14 +37,21 @@ export interface HydrationProviderProps extends InjectionContextProps {
 export function HydrationProvider({
   dehydrated,
   context = [],
+  reuse,
   children
 }: HydrationProviderProps) {
   const currentContext = useInjectionContext()
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const hydrator = useMemo(() => currentContext?.get(Hydrator$, true) || new ActiveHydrator(), [])
+  const existingHydrator = useMemo(() => currentContext?.get(Hydrator$, true), [])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const hydrator = useMemo(() => existingHydrator || new ActiveHydrator(), [])
 
   if (dehydrated) {
     hydrator.push!(dehydrated)
+  }
+
+  if (existingHydrator && reuse) {
+    return children
   }
 
   return (
@@ -55,6 +66,8 @@ export function HydrationProvider({
   )
 }
 
+export interface StaticHydrationProviderProps extends Omit<HydrationProviderProps, 'reuse'> {}
+
 /**
  * Provide hydrated data to child components using a static hydrator.
  * Hydration is applied only once from the initial `dehydrated` value.
@@ -66,7 +79,7 @@ export function StaticHydrationProvider({
   dehydrated,
   context = [],
   children
-}: HydrationProviderProps) {
+}: StaticHydrationProviderProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const hydrator = useMemo(() => dehydrated && new StaticHydrator(dehydrated), [])
 

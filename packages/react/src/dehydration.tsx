@@ -78,6 +78,10 @@ export interface DehydrationProps extends InjectionContextProps {
    * Additional injection providers to merge into the child context.
    */
   context?: InjectionProvider[]
+  /**
+   * Whether to create a new InjectionContext for this dehydration or reuse an existing one from the context.
+   */
+  isolate?: boolean
 }
 
 /**
@@ -88,12 +92,14 @@ export async function Dehydration({
   stores,
   dehydrated,
   context,
+  isolate,
   children
 }: DehydrationProps) {
   return (
     <HydrationProvider
       dehydrated={dehydrated || stores && await serverDehydrate(stores)}
       context={context}
+      reuse={!isolate}
     >
       {children}
     </HydrationProvider>
@@ -131,6 +137,7 @@ export async function StaticDehydration({
   stores,
   dehydrated,
   context,
+  isolate,
   children
 }: StaticDehydrationProps) {
   const dctx = getServerDehydrationContext()
@@ -140,6 +147,7 @@ export async function StaticDehydration({
     <HydrationProvider
       dehydrated={isFlight ? null : dehydrated || stores && await serverDehydrate(stores)}
       context={context}
+      reuse={!isolate}
     >
       {children}
     </HydrationProvider>

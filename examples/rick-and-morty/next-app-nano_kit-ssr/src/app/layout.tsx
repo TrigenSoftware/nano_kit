@@ -1,5 +1,8 @@
 import type { Metadata } from 'next'
-import { FlightDetector } from '@nano_kit/react'
+import {
+  FlightDetector,
+  HydrationProvider
+} from '@nano_kit/react'
 import { NextNavigation } from '@nano_kit/next-router'
 import { routes } from '@/stores/router'
 import { Header } from '@/ui/blocks/Header'
@@ -25,16 +28,18 @@ export default function RootLayout({ children }: {
         routes={routes}
         prerenderable
       >
-        <html lang='en'>
-          <body>
-            <div className={styles.app}>
-              <Header />
-              <main className={styles.main}>
-                {children}
-              </main>
-            </div>
-          </body>
-        </html>
+        <HydrationProvider>
+          <html lang='en'>
+            <body>
+              <div className={styles.app}>
+                <Header />
+                <main className={styles.main}>
+                  {children}
+                </main>
+              </div>
+            </body>
+          </html>
+        </HydrationProvider>
       </NextNavigation>
     </FlightDetector>
   )
