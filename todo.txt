@@ -1,20 +1,7 @@
-- wildcard -> splat? shorter and easer to type
-- cookies / headers to store
-- cache handler
-- server cache
-- Compression
-  https://www.npmjs.com/package/vite-plugin-compression2
-  https://universal-middleware.dev/middlewares/sirv
-  https://github.com/lukeed/sirv/tree/main/packages/sirv#api
-
-- render to stream with data streaming?
-- @nano_kit/framework ?
-
 ## Kida/Agera/Store
 
 - serialize/deserialize for hydratable
 - immutability helpers? / make work with $data facet more comfort
-- injectable class?
 - lazy scope to start and stop methods? for example for resort in loop
 - later: resort effects
 
@@ -26,17 +13,24 @@
 
 ## Router
 
-- history length to accessor
-- add payload to push, replace to store it in location state, for example mark transition without scroll, instead of compare prev route and next
-- dynamic redirect in storesToPreload and static in pages structure
-- page status codes
 - onBeforeLeave / blocker https://reactrouter.com/api/hooks/useBlocker
 - scroll restoration ssr
 - loadable+react.lazy like util
 
 ## React Router
 
-- mark current/active links?
+## ssr
+
+- cache handler
+- prerender?
+- server cache
+- Compression
+  https://www.npmjs.com/package/vite-plugin-compression2
+  https://universal-middleware.dev/middlewares/sirv
+  https://github.com/lukeed/sirv/tree/main/packages/sirv#api
+
+- render to stream with data streaming?
+- @nano_kit/framework ?
 
 ## intl
 
@@ -89,7 +83,7 @@ for_($items)(
 - hmr
 - COMPILER to compete with svelte and solid
 
-### SSR
+### Nanoviews SSR
 
 - setAttribute
 - removeAttribute
