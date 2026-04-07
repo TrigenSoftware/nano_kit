@@ -76,7 +76,7 @@ const AdminPage = () => `Admin Page: ${$location().params.splat || 'dashboard'}`
 const NotFoundPage = () => 'Page Not Found'
 
 /* Create router with pages and layouts */
-const [$page] = router($location, [
+const $page = router($location, [
   page('home', HomePage),
   page('user', UserPage),
   page('posts', UserPostsPage),
@@ -88,7 +88,7 @@ const [$page] = router($location, [
 
 /* React to route changes (mounting $page triggers router) */
 const unsub = effect(() => {
-  const PageComponent = $page()
+  const PageComponent = $page().default
 
   console.log('Current page:', PageComponent())
   // Render PageComponent in your app

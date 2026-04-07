@@ -13,7 +13,10 @@ A lightweight, modular, and performant state management ecosystem for building m
 | [`@nano_kit/react`](packages/react#readme) | React bindings for @nano_kit/store. | [![NPM version][react-npm]][react-npm-url] | [![Dependencies status][react-deps]][react-deps-url] |
 | [`@nano_kit/router`](packages/router#readme) | Routing library, built on @nano_kit/store. | [![NPM version][router-npm]][router-npm-url] | [![Dependencies status][router-deps]][router-deps-url] |
 | [`@nano_kit/react-router`](packages/react-router#readme) | React bindings for @nano_kit/router. | [![NPM version][react-router-npm]][react-router-npm-url] | [![Dependencies status][react-router-deps]][react-router-deps-url] |
+| [`@nano_kit/next-router`](packages/next-router#readme) | Next.js integration for @nano_kit/router. | [![NPM version][next-router-npm]][next-router-npm-url] | [![Dependencies status][next-router-deps]][next-router-deps-url] |
 | [`@nano_kit/query`](packages/query#readme) | Data fetching and caching library, built on @nano_kit/store. | [![NPM version][query-npm]][query-npm-url] | [![Dependencies status][query-deps]][query-deps-url] |
+| [`@nano_kit/ssr`](packages/ssr#readme) | Base package for server-side rendering capabilities. | [![NPM version][ssr-npm]][ssr-npm-url] | [![Dependencies status][ssr-deps]][ssr-deps-url] |
+| [`@nano_kit/react-ssr`](packages/react-ssr#readme) | React adapter for server-side rendering capabilities. | [![NPM version][react-ssr-npm]][react-ssr-npm-url] | [![Dependencies status][react-ssr-deps]][react-ssr-deps-url] |
 
 <!-- nanoviews -->
 
@@ -71,6 +74,14 @@ A lightweight, modular, and performant state management ecosystem for building m
 [react-router-deps]: https://img.shields.io/librariesio/release/npm/%40nano_kit%2Freact-router
 [react-router-deps-url]: https://libraries.io/npm/%40nano_kit%2Freact-router
 
+<!-- next-router -->
+
+[next-router-npm]: https://img.shields.io/npm/v/%40nano_kit%2Fnext-router.svg
+[next-router-npm-url]: https://npmjs.com/package/@nano_kit/next-router
+
+[next-router-deps]: https://img.shields.io/librariesio/release/npm/%40nano_kit%2Fnext-router
+[next-router-deps-url]: https://libraries.io/npm/%40nano_kit%2Fnext-router
+
 <!-- query -->
 
 [query-npm]: https://img.shields.io/npm/v/%40nano_kit%2Fquery.svg
@@ -78,3 +89,19 @@ A lightweight, modular, and performant state management ecosystem for building m
 
 [query-deps]: https://img.shields.io/librariesio/release/npm/%40nano_kit%2Fquery
 [query-deps-url]: https://libraries.io/npm/%40nano_kit%2Fquery
+
+<!-- ssr -->
+
+[ssr-npm]: https://img.shields.io/npm/v/%40nano_kit%2Fssr.svg
+[ssr-npm-url]: https://npmjs.com/package/@nano_kit/ssr
+
+[ssr-deps]: https://img.shields.io/librariesio/release/npm/%40nano_kit%2Fssr
+[ssr-deps-url]: https://libraries.io/npm/%40nano_kit%2Fssr
+
+<!-- react-ssr -->
+
+[react-ssr-npm]: https://img.shields.io/npm/v/%40nano_kit%2Freact-ssr.svg
+[react-ssr-npm-url]: https://npmjs.com/package/@nano_kit/react-ssr
+
+[react-ssr-deps]: https://img.shields.io/librariesio/release/npm/%40nano_kit%2Freact-ssr
+[react-ssr-deps-url]: https://libraries.io/npm/%40nano_kit%2Freact-ssr

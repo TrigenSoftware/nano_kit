@@ -42,7 +42,8 @@ yarn add @nano_kit/store @nano_kit/router @nano_kit/react @nano_kit/react-router
 Basically, `@nano_kit/react-router` re-exports everything from `@nano_kit/router`, so you can use all base router functions:
 
 ```tsx
-import { browserNavigation, app, layout, page, loadable, Outlet } from '@nano_kit/react-router'
+import { createRoot } from 'react-dom/client'
+import { browserNavigation, page, layout, loadable, router, Outlet, usePageSignal } from '@nano_kit/react-router'
 import { MainLayout } from './MainLayout'
 
 /* Define routes config */
@@ -57,16 +58,39 @@ const [$location, navigation] = browserNavigation(routes)
 /* Define loader fallback */
 const Loader = () => <div>Loading...</div>
 
-/* Create App component */
-const App = app($location, [
+/* Create page signal */
+const $page = router($location, [
   layout(MainLayout, [
     page('home', loadable(() => import('./Home'), Loader)),
     page('user', loadable(() => import('./User'), Loader))
   ])
 ])
 
+/* Root component */
+function App() {
+  const Page = usePageSignal($page)
+
+  return Page ? <Page /> : null
+}
+
 /* Render App */
 createRoot(document.getElementById('root')!).render(<App />)
+```
+
+In `MainLayout`, use `Outlet` to render the matched child page:
+
+```tsx
+import { Outlet } from '@nano_kit/react-router'
+
+export function MainLayout() {
+  return (
+    <div className="layout">
+      <main>
+        <Outlet />
+      </main>
+    </div>
+  )
+}
 ```
 
 ## Documentation

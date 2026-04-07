@@ -85,8 +85,17 @@ import { renderer } from './dist/renderer/renderer.js'
 
 // Express example
 app.get('*', async (req, res) => {
-  const { html } = await renderer.render(req.url)
-  res.send(html)
+  const result = await renderer.render(req.url)
+
+  if (result.redirect) {
+    return res.redirect(result.statusCode, result.redirect)
+  }
+
+  if (result.html !== null) {
+    return res.status(result.statusCode).send(result.html)
+  }
+
+  res.status(result.statusCode).send('Not Found')
 })
 ```
 

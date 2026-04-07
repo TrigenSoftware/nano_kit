@@ -77,11 +77,7 @@ export function Admins() {
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
 <a href="#complex-data-types">Complex data types</a>
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-<a href="#extra-signals">Extra signals</a>
-<span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-<a href="#tasks">Tasks</a>
-<span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-<a href="#ssr">SSR</a>
+<a href="#dependency-injection">Dependency injection</a>
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
 <a href="#utils">Utils</a>
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
@@ -106,7 +102,7 @@ yarn add kida
 Signal is a basic store type. It stores a single value.
 
 ```ts
-import { signal } from 'agera'
+import { signal } from 'kida'
 
 const $count = signal(0)
 
@@ -176,7 +172,7 @@ stop() // stop all effects
 Also there is a possibility to create a defer scope.
 
 ```ts
-import { signal, deferScope, effectScope, effect } from 'agera'
+import { signal, deferScope, effectScope, effect } from 'kida'
 
 const $a = signal(0)
 const $b = signal(0)
@@ -445,6 +441,86 @@ There are also other methods to work with object maps:
 - `setKey($object, key, value)` - set value by key to the object signal.
 - `deleteKey($object, key)` - delete item by key from the object signal.
 
+## Dependency injection
+
+The dependency injection system enables modular architecture and makes testing easier by allowing dependencies to be easily replaced with mocks. It also plays a critical role in SSR scenarios by isolating state between requests.
+
+Use factory functions with `inject` to retrieve dependencies:
+
+```ts
+import { inject, signal, mountable, onMountEffect, action } from 'kida'
+
+/* Factory function that defines a user store */
+function User$() {
+  const $userId = signal(null)
+  const $user = mountable(signal(null))
+
+  const fetchUser = action(async (id) => {
+    if (typeof id !== 'number') {
+      $user(null)
+      return
+    }
+
+    const response = await fetch(`/user/${id}`)
+    const user = await response.json()
+
+    $user(user)
+  })
+
+  onMountEffect($user, () => {
+    fetchUser($userId())
+  })
+
+  return { $userId, $user }
+}
+```
+
+Call `inject(Factory$)` inside another factory to compose dependencies:
+
+```ts
+import { inject, signal } from 'kida'
+
+function App$() {
+  const { $user } = inject(User$)
+  // ...
+}
+```
+
+### `provide` / `InjectionContext` / `run`
+
+Use `provide` to override dependencies with custom values. Pass the providers to `InjectionContext` and run your code within it using `run`:
+
+```ts
+import { InjectionContext, provide, inject, run } from 'kida'
+
+function Theme$() {
+  return 'light'
+}
+
+const context = new InjectionContext([
+  provide(Theme$, 'dark')
+])
+
+run(context, () => {
+  const theme = inject(Theme$) // 'dark'
+})
+```
+
+This pattern is especially useful in tests to mock dependencies:
+
+```ts
+import { InjectionContext, provide, inject, run } from 'kida'
+
+const context = new InjectionContext([
+  provide(ApiClient$, mockApiClient)
+])
+
+run(context, () => {
+  const { $user } = inject(User$)
+  // $user will use mockApiClient
+})
+```
+
 ## Utils
 
 ### `isSignal`
@@ -513,6 +589,52 @@ effect(() => composeDestroys(
   windowResizeLogger($size)
 ))
 ```
+
+### `get`
+
+`get` method gets the value from the signal or returns the given value **without tracking** (untracked).
+
+```ts
+import { signal, get } from 'kida'
+
+get(signal(1)) // 1
+get(1) // 1
+```
+
+### `isEmpty`
+
+`isEmpty` checks if the value is `null` or `undefined`.
+
+```ts
+import { isEmpty } from 'kida'
+
+isEmpty(null) // true
+isEmpty(undefined) // true
+isEmpty(0) // false
+isEmpty('') // false
+```
+
+### `resolved`
+
+`resolved` accepts a promise or promise accessor and returns a `[$result, $error, $pending]` tuple of reactive signals. When the source changes, stale data is preserved while the new promise is pending, and the previous promise result is ignored.
+
+```ts
+import { signal, computed, resolved } from 'kida'
+
+function getPosition(options?: PositionOptions) {
+  return new Promise<GeolocationPosition>((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(resolve, reject, options)
+  })
+}
+
+const $highAccuracy = signal(false)
+const [$position, $error, $pending] = resolved(computed(() => getPosition({ enableHighAccuracy: $highAccuracy() })))
+```
+
+A falsy source resets all signals to their initial state (`data: undefined`, `error: undefined`, `pending: false`).
+
+> [!NOTE]
+> For remote data fetching with caching, request deduplication, cancellation, refetching, and other advanced features, consider using [`@nano_kit/query`](https://github.com/TrigenSoftware/nano_kit/tree/main/packages/query) instead.
 
 ## Why?
 
