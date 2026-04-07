@@ -1,7 +1,7 @@
 {
   "name": "@nano_kit/react-ssr",
   "type": "module",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha",
   "description": "A React adapter for server-side rendering capabilities in Nano Kit.",
   "author": "dangreen",
   "license": "MIT",
