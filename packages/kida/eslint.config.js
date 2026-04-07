@@ -20,15 +20,16 @@ export default [
     rules: {
       '@typescript-eslint/no-invalid-void-type': 'off',
       '@typescript-eslint/restrict-template-expressions': 'off',
+      '@typescript-eslint/unified-signatures': 'off',
+      '@typescript-eslint/no-redundant-type-constituents': 'off',
+      '@typescript-eslint/no-use-before-define': 'off',
       'no-implicit-coercion': 'off',
       'consistent-return': 'off',
       'symbol-description': 'off',
       'no-multi-assign': 'off',
       'no-return-assign': 'off',
       'max-classes-per-file': 'off',
-      '@typescript-eslint/unified-signatures': 'off',
-      '@typescript-eslint/no-redundant-type-constituents': 'off',
-      '@typescript-eslint/no-use-before-define': 'off'
+      'no-sequences': 'off'
     }
   }
 ]

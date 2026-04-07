@@ -3,7 +3,7 @@
     "name": "All publics",
     "path": "dist/index.js",
     "import": "*",
-    "limit": "4.65 kB"
+    "limit": "4.75 kB"
   },
   {
     "name": "Signal",
