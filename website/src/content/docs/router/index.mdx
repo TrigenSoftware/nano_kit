@@ -13,7 +13,7 @@ import logoDark from '../../../assets/ring-system_white.svg'
 <Image src={logoLight} alt='Four-pointed ring system star logo' width={128} height={128} class='dark:sl-hidden nk-brand-logo' />
 <Image src={logoDark} alt='Four-pointed ring system star logo' width={128} height={128} class='light:sl-hidden nk-brand-logo' />
 
-`@nano_kit/router` is a small and powerful router for [@nano_kit/store](/store) state manager.
+`@nano_kit/router` is a small and powerful router for the [@nano_kit/store](/store) state management library.
 
 - **Small**. Around 2 kB (minified & brotlied). Zero dependencies except [@nano_kit/store](/store).
 - **Type-safe**. Full TypeScript support with type inference for routes and parameters.
@@ -49,7 +49,7 @@ import { browserNavigation, router, page, layout, notFound } from '@nano_kit/rou
 const routes = {
   home: '/',
   user: '/users/:id',
-  userPosts: '/users/:id/posts',
+  posts: '/users/:id/posts',
   admin: '/admin/*'
 }
 
@@ -61,11 +61,11 @@ const HomePage = () => 'Welcome Home!'
 const UserPage = () => `User ID: ${$location().params.id}`
 const UserPostsPage = () => `Posts for User: ${$location().params.id}`
 const AdminLayout = ($page) => `Admin Layout: ${$page()}`
-const AdminPage = () => `Admin Page: ${$location().params.wildcard || 'dashboard'}`
+const AdminPage = () => `Admin Page: ${$location().params.splat || 'dashboard'}`
 const NotFoundPage = () => 'Page Not Found'
 
 /* Create router with pages and layouts */
-const [$page] = router($location, [
+const $page = router($location, [
   page('home', HomePage),
   page('user', UserPage),
   page('posts', UserPostsPage),
@@ -77,9 +77,9 @@ const [$page] = router($location, [
 
 /* React to route changes (mounting $page triggers router) */
 const unsub = effect(() => {
-  const PageComponent = $page()
+  const PageComponent = $page()?.default
 
-  console.log('Current page:', PageComponent())
+  console.log('Current page:', PageComponent?.())
   // Render PageComponent in your app
 })
 // Current page: Welcome Home!

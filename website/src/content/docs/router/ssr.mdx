@@ -1,137 +1,86 @@
 ---
 title: SSR
-description: "Learn how to use @nano_kit/router for server-side rendering (SSR)"
+description: "Learn how to use @nano_kit/router for server-side rendering (SSR)."
 sidebar:
   order: 4
 ---
 
-import { Aside } from '@astrojs/starlight/components'
+Server-side rendering with `@nano_kit/router` is handled by a dedicated SSR renderer package for your framework. The router itself provides the building blocks — page-level `Stores$` and `Head$` — while the adapter takes care of the server renderer and client hydration.
 
-<Aside type='caution'>SSR functionality is currently in **Alpha** stage. It is not fully implemented and the API may change in future releases.</Aside>
+For React, use [`@nano_kit/react-ssr`](/integrations/react-ssr).
 
-Server-Side Rendering (SSR) with `@nano_kit/router` involves code splitting, data prefetching, and state serialization.
+## Stores Data Dehydration
 
-## Code Splitting
+Export a `Stores$` function from a page module to declare which signals should be dehydrated on the server and rehydrated on the client. The SSR renderer discovers it automatically.
 
-The router supports strict code splitting using `loadable` (see [Advanced](/router/advanced#code-splitting)).
-
-In an SSR environment, handling asynchronous chunks requires specific synchronization:
-
-* **Server**: Before rendering, `loadPages` must be called to resolve all `loadable` routes. This ensures the router knows exactly which page to render without waiting during the render phase.
-* **Client**: Before hydration, `loadPage` must be called for the current route. This ensures the initial page chunk is downloaded and parsed, allowing the framework to hydrate the existing HTML correctly.
-
-## Stores Preloading
-
-When defining a page module, you can export a `storesToPreload` function alongside the default component export. This function returns an array of stores (signals) that need to be serialized for SSR.
-
-`loadable` automatically detects `storesToPreload` from the module exports.
+Mark individual signals as hydratable using `hydratable` from `@nano_kit/store`:
 
 ```tsx
-import { signal, serializable } from '@nano_kit/store'
+import { signal, hydratable } from '@nano_kit/store'
+import { useSignal } from '@nano_kit/react'
 
-/* Store that needs to be serialized */
-export const $data = serializable('homeData', signal({ text: 'Hello World' }))
+/* Tie the signal to a unique key for dehydration */
+export const $data = hydratable('homeData', signal({ text: 'Hello World' }))
 
-/* Export storesToPreload so the router can pick it up */
-export function storesToPreload() {
+export function Stores$() {
   return [$data]
 }
 
 export default function Home() {
-  return <h1>{$data().text}</h1>
+  const data = useSignal($data)
+
+  return <h1>{data.text}</h1>
 }
 ```
 
-## Server Entry
-
-On the server, efficient rendering involves:
-
-1. Loading all route definitions (`loadPages`).
-2. Creating a virtual navigation environment (`virtualNavigation`).
-3. Resolving the current `storesToPreload`.
-4. Creating a dependency injection context (`InjectionContext`).
-5. Waiting for async tasks and serializing state (`serialize`).
-6. Rendering the app with the serialized state injected into the HTML.
+For pages that use DI, `Stores$` is called within the request's `InjectionContext`, so you can use `inject()` inside it:
 
 ```tsx
-import { renderToString } from 'react-dom/server'
-import { InjectionContext, provide, serialize } from '@nano_kit/store'
-import {
-  virtualNavigation,
-  router,
-  loadPages
-} from '@nano_kit/router'
-import { Location$, Navigation$ } from './router'
-import { App, pages, StoresToPreload$ } from './App'
+import { inject, hydratable } from '@nano_kit/store'
+import { User$ } from './stores/user'
 
-// Ensure all lazy pages are loaded to resolve routes
-await loadPages(pages)
+export function Stores$() {
+  const { $user } = inject(User$)
 
-export async function ssr(url: string) {
-  /* Create virtual navigation */
-  const [$location, navigation] = virtualNavigation(url)
-  /* Create DI context overriding navigation tokens */
-  /* Location$, Navigation$ are tokens created in your app using browserNavigation$ */
-  const context = new InjectionContext([
-    provide(Location$, $location),
-    provide(Navigation$, navigation)
-  ])
-  /* Resolve storesToPreload from the context */
-  const storesToPreload = inject(StoresToPreload$, context)
-  /* Wait for data and serialize state */
-  const serialized = await serialize(storesToPreload, context)
-  /* Render app with serialized state injected into HTML */
-  const html = renderToString(
-    <>
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `window.__SERIALIZED__ = ${JSON.stringify(serialized)}`
-        }}
-      />
-      <InjectionContextProvider context={context}>
-        <App />
-      </InjectionContextProvider>
-    </>
-  )
-
-  return html
+  return [$user]
 }
 ```
 
-## Client Entry
+## Head Management
 
-On the client, hydration follows a similar pattern but uses `browserNavigation`:
-
-1.  Restore state from `window.__SERIALIZED__` (`Serialized$`).
-2.  Identify the current route (`Location$`).
-3.  Preload the specific page bundle (`loadPage`).
-4.  Hydrate the root with the context.
+Export a `Head$` function from a page module to declare per-page document metadata. See [Head Management](/router/advanced#head-management) for all available tag descriptors.
 
 ```tsx
-import { hydrateRoot } from 'react-dom/client'
-import { InjectionContext, provide, inject, Serialized$ } from '@nano_kit/store'
-import { loadPage } from '@nano_kit/router'
-import { Location$ } from './router'
-import { App, pages } from './App'
+import { title, meta } from '@nano_kit/router'
 
-async function browser() {
-  /* Create context with serialized state */
-  const context = new InjectionContext([
-    provide(Serialized$, window.__SERIALIZED__)
-  ])
-  /* Inject location to determine current route */
-  const $location = inject(Location$, context)
-
-  /* Load initial page bundle before hydration */
-  await loadPage(pages, $location().route)
-
-  hydrateRoot(
-    document.getElementById('root'),
-    <InjectionContextProvider context={context}>
-      <App />
-    </InjectionContextProvider>
-  )
+export function Head$() {
+  return [
+    title('Home — My App'),
+    meta({ name: 'description', content: 'Welcome to my app' })
+  ]
 }
 
-browser()
+export default function Home() { /* ... */ }
 ```
+
+`Head$` is also called within the request's `InjectionContext`, so you can use `inject()` inside it:
+
+```tsx
+import { inject } from '@nano_kit/store'
+import { title } from '@nano_kit/router'
+import { User$ } from './stores/user'
+
+export function Head$() {
+  const { $user } = inject(User$)
+
+  return [
+    title(() => `${$user().name} — My App`)
+  ]
+}
+```
+
+The SSR renderer reads `Head$` and injects the tags into the HTML response automatically.
+
+## Setting Up SSR
+
+The low-level setup (virtual navigation, renderer class, client hydration) is handled by the SSR renderer. See the [SSR renderer docs](/ssr) for a complete setup guide.

@@ -1,4 +1,7 @@
-## Kida/Agera/Store
+- guide
+- tweark colors on the website
+
+## Agera/Kida/Store
 
 - serialize/deserialize for hydratable
 - immutability helpers? / make work with $data facet more comfort
@@ -41,6 +44,7 @@
 ## Nanoviews
 
 - fix TruthyValueOrSignal type, return signal if signal, not accessor
+- restore effect attributes naming to name$ ?)
 
 - check old version -> defer effects wroked bottom->top, now it works top -> bottom -> its ok for stores, not ok for views
 - wrap into untracked needed parts

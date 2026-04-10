@@ -1,0 +1,216 @@
+---
+title: Getting Started
+description: "@nano_kit/ssr is the base package for server-side rendering in Nano Kit."
+sidebar:
+  order: 1
+---
+
+import { Steps, Tabs, TabItem, Code, Aside } from '@astrojs/starlight/components'
+
+`@nano_kit/ssr` is the base package for server-side rendering in Nano Kit. It provides the core rendering infrastructure — Vite manifest parsing, virtual navigation, store dehydration, and a Vite plugin — that adapter packages build on top of.
+
+<Aside>
+  If you are looking to add SSR to a React app, use [`@nano_kit/react-ssr`](/integrations/react-ssr) instead. This page is for authors building new framework adapters.
+</Aside>
+
+## Installation
+
+<Tabs syncKey='pkg'>
+  <TabItem label='pnpm' icon='pnpm'>
+    <Code frame='none' lang='bash' code='pnpm add @nano_kit/store @nano_kit/router @nano_kit/ssr' />
+  </TabItem>
+  <TabItem label='Yarn' icon='seti:yarn'>
+    <Code frame='none' lang='bash' code='yarn add @nano_kit/store @nano_kit/router @nano_kit/ssr' />
+  </TabItem>
+  <TabItem label='npm' icon='seti:npm'>
+    <Code frame='none' lang='bash' code='npm install @nano_kit/store @nano_kit/router @nano_kit/ssr' />
+  </TabItem>
+</Tabs>
+
+## App Index File
+
+Every SSR app needs a shared **index file** that exports `routes` and `pages`. This file is the single source of truth consumed by both the server renderer and the Vite plugin. It is also the right place to declare global TypeScript types for route names.
+
+```ts
+// src/index.ts
+import { page, layout, loadable } from '@nano_kit/router'
+import * as Layout from './Layout.js'
+
+export const routes = {
+  home: '/',
+  about: '/about',
+  user: '/users/:id'
+} as const
+
+export const pages = [
+  layout(Layout, [
+    page('home', loadable(() => import('./pages/Home.js'))),
+    page('about', loadable(() => import('./pages/About.js'))),
+    page('user', loadable(() => import('./pages/User.js')))
+  ])
+]
+
+declare module '@nano_kit/router' {
+  interface AppContext {
+    routes: typeof routes
+  }
+}
+```
+
+## Creating an Adapter
+
+An adapter consists of three parts: a **renderer**, a **client entry**, and a **Vite plugin**.
+
+<Steps>
+
+1. **Extend the Renderer**
+
+   Subclass `Renderer` from `@nano_kit/ssr/renderer` and implement the abstract `renderToString` method. Inject the framework-specific `compose` function from your router integration by passing it to `super()`.
+
+   ```js
+   // src/renderer/index.js
+   import { Renderer, headDescriptorToHtml, ROOT_ID } from '@nano_kit/ssr/renderer'
+   import { compose } from 'your-framework-router'
+   import { get } from '@nano_kit/store'
+
+   export class FrameworkRenderer extends Renderer {
+     constructor(options) {
+       super({ ...options, compose })
+     }
+
+     renderToString(data) {
+       let lang, dir, title, head = ''
+
+       data.head.forEach((descriptor) => {
+         if (descriptor.tag === 'lang') lang = get(descriptor.value) || undefined
+         else if (descriptor.tag === 'dir') dir = get(descriptor.value) || undefined
+         else if (descriptor.tag === 'title') title = get(descriptor.value) || undefined
+         else head += headDescriptorToHtml(descriptor)
+       })
+
+       if (title) head = `<title>${title}</title>${head}`
+
+       const body = yourFrameworkRenderToString(data.context)
+
+       return `<html lang="${lang}" dir="${dir}"><head>${head}</head><body><div id="${ROOT_ID}">${body}</div><script>${this.dehydratedScript(data.dehydrated)}</script></body></html>`
+     }
+   }
+   ```
+
+   Also provide a **default renderer template** that the Vite plugin uses when the user does not supply a custom one:
+
+   ```js
+   // src/renderer.js
+   import { FrameworkRenderer } from 'your-framework-ssr/renderer'
+   import { routes, pages } from 'virtual:app-index'
+
+   export const renderer = new FrameworkRenderer({
+     base: import.meta.env.BASE_URL,
+     manifestPath: import.meta.env.MANIFEST,
+     routes,
+     pages
+   })
+   ```
+
+2. **Create the Client Entry**
+
+   Wrap the base `ready` function from `@nano_kit/ssr/client`, injecting the framework-specific `router`:
+
+   ```js
+   // src/client/index.js
+   import { router } from 'your-framework-router'
+   import { ready as baseReady } from '@nano_kit/ssr/client'
+
+   export * from '@nano_kit/ssr/client'
+
+   export function ready(options) {
+     return baseReady({ ...options, router })
+   }
+   ```
+
+   Also provide a **default client template** that the Vite plugin uses when the user does not supply a custom one:
+
+   ```js
+   // src/client.js
+   import { ROOT_ID, ready } from 'your-framework-ssr/client'
+   import { routes, pages } from 'virtual:app-index'
+
+   ready({ routes, pages }).then((context) => {
+     // hydrate the app — framework-specific
+     yourFrameworkHydrate(document.getElementById(ROOT_ID), context)
+   })
+   ```
+
+3. **Create the Vite Plugin**
+
+   Pass a `SsrPluginAdapter` to the base `SsrPlugin` from `@nano_kit/ssr/vite-plugin`. The adapter tells the plugin how to load the default client and renderer templates:
+
+   ```js
+   // src/vite-plugin/index.js
+   import path from 'node:path'
+   import fs from 'node:fs/promises'
+   import SsrPlugin from '@nano_kit/ssr/vite-plugin'
+
+   const adapter = {
+     clientPath: 'virtual-client.js',
+     rendererPath: 'virtual-renderer.js',
+
+     loadClient() {
+       return fs.readFile(path.join(import.meta.dirname, '..', 'client.js'), 'utf-8')
+     },
+     loadRenderer() {
+       return fs.readFile(path.join(import.meta.dirname, '..', 'renderer.js'), 'utf-8')
+     }
+   }
+
+   export default function FrameworkSsrPlugin(options) {
+     return SsrPlugin(options, adapter)
+   }
+   ```
+
+   The plugin automatically handles building both the **client bundle** and the **SSR renderer bundle**.
+
+</Steps>
+
+## Usage in an App
+
+Once an adapter package is published, end users configure their project like this:
+
+```js
+// vite.config.js
+import { defineConfig } from 'vite'
+import ssr from 'your-framework-ssr/vite-plugin'
+
+export default defineConfig({
+  plugins: [ssr({ index: 'src/index.js' })]
+})
+```
+
+- **`vite dev`** — starts the development server with SSR rendering handled in-process via Vite's dev middleware.
+- **`vite build`** — produces two output directories: `dist/client/` (browser assets) and `dist/renderer/` (SSR renderer bundle).
+
+For production, you need to write your own HTTP server that imports the renderer bundle and serves the HTML:
+
+```js
+// server.js
+import { renderer } from './dist/renderer/index.js'
+
+app.get('*', async (req, res) => {
+  const result = await renderer.render(req.url)
+
+  if (result.redirect) {
+    return res.redirect(result.statusCode, result.redirect)
+  }
+
+  if (result.html !== null) {
+    return res.status(result.statusCode).send(result.html)
+  }
+
+  res.status(result.statusCode).send('Not Found')
+})
+```
+
+## Next Steps
+
+- [`@nano_kit/react-ssr`](/integrations/react-ssr) — The React adapter built with this package.
+- [Router SSR](/router/ssr) — [`Stores$`](/router/ssr#stores-data-dehydration), [`Head$`](/router/ssr#head-management), and other page-level SSR hooks.

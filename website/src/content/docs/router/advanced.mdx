@@ -15,7 +15,7 @@ Router provides built-in support for code splitting and lazy loading of pages us
 
 Defines a lazy-loaded component or page that is fetched only when needed. It accepts a module loader function (returning a promise) and an optional fallback view to display while loading.
 
-The loaded module must export a `default` component/view and optionally a `storesToPreload` function for data prefetching.
+The loaded module must export a `default` component/view and optionally a `Stores$` function for data prefetching and dehydration in SSR.
 
 ```ts
 import { router, loadable, page } from '@nano_kit/router'
@@ -23,9 +23,22 @@ import { router, loadable, page } from '@nano_kit/router'
 /* Fallback component */
 const Loader = () => 'Loading...'
 
-export const [$page, storesToPreload] = router($location, [
+export const $page = router($location, [
   page('home', loadable(() => import('./pages/Home.js'), Loader)),
   page('user', loadable(() => import('./pages/User.js'), Loader))
+])
+```
+
+### `asModule`
+
+`asModule` is a helper for explicit page module type inference. Use it when importing a module with `import * as` — TypeScript cannot infer the `default` export type from a namespace import without it.
+
+```ts
+import { page, asModule } from '@nano_kit/router'
+import * as HomePage from './pages/Home.js'
+
+const $page = router($location, [
+  page('home', asModule(HomePage))
 ])
 ```
 
@@ -43,7 +56,7 @@ await loadPage(routes, 'user')
 
 ### `loadPages`
 
-Loads the code for all defined pages in the route tree. This is commonly used in Server-Side Rendering (SSR) to ensure all async components are resolved before rendering the application.
+Loads the code for all defined pages in the route tree. This is commonly used in server-side rendering (SSR) to ensure all async components are resolved before rendering the application.
 
 ```ts
 import { loadPages } from '@nano_kit/router'
@@ -53,58 +66,77 @@ import { routes } from './routes.js'
 await loadPages(routes)
 ```
 
-## Dependency Injection
+## Head Management
 
-The router leverages `@nano_kit/store`'s Dependency Injection (DI) system to provide flexible navigation and routing capabilities. This is particularly useful for testing components in isolation or switching between browser and in-memory navigation environments (like SSR).
+The router ships with a reactive head management API for controlling document metadata (title, meta tags, link tags, scripts) on a per-page basis.
 
-### `browserNavigation$`
+### Page Module `Head$`
 
-Creates injection factories for browser-based navigation. It binds the router to the actual browser History API. Use this for the client-side application.
+Add a `Head$` factory to a page module to declare which head descriptors it provides. The router exposes it on the current `$page()` ref, where [`syncHead`](#synchead) can read and apply it.
 
 ```ts
+import { Location$, title, meta } from '@nano_kit/router'
 import { inject } from '@nano_kit/store'
-import { browserNavigation$ } from '@nano_kit/router'
 
-/* 1. Create injection tokens */
-export const [Location$, Navigation$] = browserNavigation$(routes)
+export function Head$() {
+  const $location = inject(Location$)
 
-/* 2. Inject location or navigation in your components/stores */
-const $location = inject(Location$)
-const navigation = inject(Navigation$)
+  return [
+    title(() => `User ${$location().params.id}`),
+    meta({ name: 'description', content: 'User profile page' })
+  ]
+}
+
+export default function UserPage() { /* ... */ }
 ```
 
-### `virtualNavigation$`
+### `syncHead`
 
-Creates injection factories for in-memory navigation. This is essential for:
-
-- **Testing**: Simulating navigation without a real browser window.
-- **SSR**: Handling requests on the server where `window` is not available.
-- **Non-DOM**: Environments like React Native.
+`syncHead` subscribes to the current page accessor and applies all head descriptors reactively. Call it once during app initialization.
 
 ```ts
-import { virtualNavigation$ } from '@nano_kit/router'
+import { syncHead } from '@nano_kit/router'
 
-/* Initialize virtual navigation starting at '/home' */
-const [Location$, Navigation$] = virtualNavigation$('/home', routes)
+const $page = router($location, pages)
+
+syncHead($page)
 ```
 
-### `router$`
-
-Creates injection factories for the router logic itself. It connects a `Location$` source to your page definitions and provides the current matching page and data preloading function.
+You can pass an optional `InjectionContext` as the second argument to resolve `Head$` factories with DI:
 
 ```ts
-import { router$ } from '@nano_kit/router'
-/* Location$ can come from browserNavigation$ or virtualNavigation$ */
-import { Location$ } from './router.js'
+syncHead($page, context)
+```
 
-/* Create page and preload injection tokens */
-export const [Page$, StoresPreload$] = router$(Location$, [
-  page('home', HomePage),
-  page('user', UserPage)
-])
+### Tag Descriptors
 
-/* Get the current page component/view */
-const $page = inject(Page$)
+| Function | Updates |
+|---|---|
+| `title($value)` | `<title>` in `<head>` |
+| `lang($value)` | `<html lang>` |
+| `dir($value)` | `<html dir>` |
+| `link(props)` | `<link>` in `<head>` |
+| `meta(props)` | `<meta>` in `<head>` |
+| `script(props)` | `<script>` in `<head>` |
+
+`title`, `lang`, and `dir` accept a plain value or a reactive accessor. For `link` and `meta`, only certain props support reactive accessors — the ones that are likely to change at runtime:
+
+- **`link`** — `href`, `media`, `disabled`, `title`
+- **`meta`** — `content`, `media`
+
+```ts
+import { title, lang, link, meta } from '@nano_kit/router'
+
+export function Head$() {
+  const $user = inject(User$)
+
+  return [
+    title(() => `${$user().name} — My App`),
+    lang('en'),
+    link({ rel: 'canonical', href: () => $user().profileUrl }),
+    meta({ property: 'og:title', content: () => $user().name })
+  ]
+}
 ```
 
 ## Scroll Management
@@ -113,7 +145,7 @@ Since scroll restoration and behavior can vary significantly between application
 
 ### `resetScroll`
 
-Resets the window scroll position to the top `(0, 0)`. Useful when navigating to a new page to ensure the user starts at the top.
+The router does not reset scroll automatically. Use `resetScroll` to move the window scroll position to the top `(0, 0)`, for example when navigating to a new page.
 
 ```ts
 import { onMountEffect } from '@nano_kit/store'
@@ -126,6 +158,27 @@ onMountEffect($route, () => {
   $route()
   resetScroll()
 })
+```
+
+To skip scroll resets for specific navigations, you can use the navigation action as part of your own scroll policy. For example, this pattern resets scroll for `push` navigations but keeps the current scroll position for `replace` navigations:
+
+```ts
+import { onMountEffect } from '@nano_kit/store'
+import { ReplaceHistoryAction, resetScroll } from '@nano_kit/router'
+
+const { $route, $action } = $location
+
+/* Reset scroll on route changes, except replace navigations */
+onMountEffect($route, () => {
+  $route()
+
+  if ($action() !== ReplaceHistoryAction) {
+    resetScroll()
+  }
+})
+
+/* Keeps the current scroll position with the effect above */
+navigation.replace('/characters?page=2')
 ```
 
 ### `scrollToAnchor`
@@ -279,4 +332,72 @@ const handleClick = onLinkClick.bind(navigation)
 function CustomLink({ href, children }) {
   return <a href={href} onClick={handleClick}>{children}</a>
 }
+```
+
+### `canGoBack`
+
+`canGoBack` returns an `Accessor<boolean>` that is `true` when back navigation is possible (i.e. the history stack has more than one entry).
+
+```ts
+import { inject } from '@nano_kit/store'
+import { canGoBack } from '@nano_kit/router'
+
+const [$location, navigation] = browserNavigation(routes)
+const $canGoBack = canGoBack($location, navigation)
+
+effect(() => {
+  console.log('Can go back:', $canGoBack())
+})
+/* Output: Can go back: false (initially) */
+
+navigation.push('/users')
+/* Output: Can go back: true */
+```
+
+## Dependency Injection
+
+The router provides global injection tokens for navigation state. Use them in stores or components to access routing data without passing signals as props.
+
+### Tokens
+
+- **`Location$`** - provides the current location signal. Token itself doesn't have a default value — it should be provided to the context by the app.
+- **`Navigation$`** - provides the navigation API. Like `Location$`, it should be provided by the app.
+- **`Page$`** - provides the current page reference from the router. Should be provided by the app.
+- **`Pages$`** - provides the array of page definitions passed to the router. Should be provided by the app.
+- **`Paths$`** - provides typed path builder functions derived from the navigation. Depends on `Navigation$`.
+- **`CanGoBack$`** - provides a boolean signal indicating if back navigation is possible. Depends on `Location$` and `Navigation$`.
+
+Not every token needs to be provided — it depends on your app's needs. For example, if you don't use path builders, you can skip providing `Paths$`.
+
+### `AppContext`
+
+The router uses TypeScript declaration merging to infer app-specific types across all tokens. Extend the `AppContext` interface in your project to enable typed params, paths, and components:
+
+```ts
+import type { routes } from './routes.js'
+import type { MyComponent } from './types.js'
+
+declare module '@nano_kit/router' {
+  interface AppContext {
+    routes: typeof routes // types Location$, Navigation$, Paths$
+    component: MyComponent // types Page$, Pages$
+  }
+}
+```
+
+- **`routes`** — must be `typeof yourRoutesObject`. Enables types for `Location$`, `Navigation$`, and `Paths$` tokens based on your route definitions.
+- **`component`** — your framework's component type (e.g. `() => ReactNode`). Enables typed `$page().default` in `Page$`.
+
+If `AppContext` is not extended, all tokens fall back to generic types.
+
+### `virtualNavigationContext`
+
+`virtualNavigationContext` creates an `InjectionContext` pre-configured with a virtual (in-memory) navigation. It is a shorthand for creating a context with `virtualNavigation` + `provide`. Useful for SSR and testing.
+
+```ts
+import { virtualNavigationContext } from '@nano_kit/router'
+import { routes } from './routes'
+
+const context = virtualNavigationContext('/users/123', routes)
+/* context already has Location$ and Navigation$ provided */
 ```

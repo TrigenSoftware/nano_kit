@@ -52,6 +52,7 @@ Navigation actions are also available as constants for reuse:
 
 - **`PushHistoryAction`** (`'push'`) — new entry added to history
 - **`ReplaceHistoryAction`** (`'replace'`) — current entry replaced
+- **`PermanentReplaceHistoryAction`** (`'permanent-replace'`) — used in SSR to signal a permanent redirect (301); on the client behaves as a regular replace
 - **`PopHistoryAction`** (`'pop'`) — navigation via back/forward buttons
 
 The `$location` signal is a record signal with individual properties that can be accessed separately:
@@ -99,11 +100,11 @@ console.log($location().params)   // { id: '123' }
 
 ### Route Parameters
 
-`routeParam` creates a computed signal for extracting a specific parameter from the current route. It automatically updates when the location changes.
+`param` creates a computed signal for extracting a specific route parameter. It automatically updates when the location changes.
 
 ```ts
 import { effect } from '@nano_kit/store'
-import { browserNavigation, routeParam } from '@nano_kit/router'
+import { browserNavigation, param } from '@nano_kit/router'
 
 const [$location, navigation] = browserNavigation({
   user: '/users/:id',
@@ -111,7 +112,7 @@ const [$location, navigation] = browserNavigation({
 })
 
 /* Extract 'id' parameter */
-const $userId = routeParam($location, 'id')
+const $userId = param($location, 'id')
 
 effect(() => {
   console.log('User ID:', $userId())
@@ -128,13 +129,13 @@ You can provide a parser function to transform the parameter value:
 
 ```ts
 /* Parse as number */
-const $userId = routeParam($location, 'id', Number)
+const $userId = param($location, 'id', Number)
 
 navigation.push('/users/123')
 console.log($userId()) // 123 (number)
 
 /* Custom parsing */
-const $slug = routeParam($location, 'slug', value => value ? value.split('-') : [])
+const $slug = param($location, 'slug', value => value ? value.split('-') : [])
 
 navigation.push('/posts/42/hello-world')
 console.log($slug()) // ['hello', 'world']
@@ -219,6 +220,35 @@ navigation.push('/?enabled=true')
 console.log($enabled()) // true (boolean)
 ```
 
+### Route-Scoped Signals
+
+`forRoute` creates a computed signal that only updates when the current route matches a specific route. When the route doesn't match it returns the previous value or a `fallback`. This prevents stale values from triggering effects when navigating away to a different route.
+
+```ts
+import { browserNavigation, searchParams, searchParam, forRoute } from '@nano_kit/router'
+
+const routes = {
+  characters: '/characters',
+  locations: '/locations',
+  episodes: '/episodes'
+} as const
+const [$location, navigation] = browserNavigation(routes)
+const $searchParams = searchParams($location)
+/* Shared ?page= param — updates on every route change */
+const $page = searchParam($searchParams, 'page', v => (v ? Number(v) : 1))
+/* Scoped to each route — only updates when that route is active */
+const $charactersPage = forRoute($location, 'characters', $page, 1)
+const $episodesPage = forRoute($location, 'episodes',   $page, 1)
+
+navigation.push('/characters?page=2')
+console.log($charactersPage()) // 2
+console.log($episodesPage())  // 1
+
+navigation.push('/episodes?page=3')
+console.log($charactersPage()) // 2 - unchanged because route doesn't match, will not trigger effects
+console.log($episodesPage())  // 3
+```
+
 ## Router
 
 The `router` maps routes to components or values, creating a reactive system that updates when the location changes with nested layouts support.
@@ -231,7 +261,7 @@ import { browserNavigation, router, page, layout, notFound } from '@nano_kit/rou
 const [$location, navigation] = browserNavigation({
   home: '/',
   user: '/users/:id',
-  userPosts: '/users/:id/posts',
+  posts: '/users/:id/posts',
   admin: '/admin/*'
 })
 
@@ -240,11 +270,11 @@ const HomePage = () => 'Welcome Home!'
 const UserPage = () => `User ID: ${$location().params.id}`
 const UserPostsPage = () => `Posts for User: ${$location().params.id}`
 const AdminLayout = ($page) => `Admin Layout: ${$page()}`
-const AdminPage = () => `Admin Page: ${$location().params.wildcard || 'dashboard'}`
+const AdminPage = () => `Admin Page: ${$location().params.splat || 'dashboard'}`
 const NotFoundPage = () => 'Page Not Found'
 
 /* Create router with pages and layouts */
-const [$page] = router($location, [
+const $page = router($location, [
   page('home', HomePage),
   page('user', UserPage),
   page('posts', UserPostsPage),
@@ -256,9 +286,9 @@ const [$page] = router($location, [
 
 /* React to route changes (mounting $page triggers router) */
 effect(() => {
-  const PageComponent = $page()
+  const PageComponent = $page()?.default
 
-  console.log('Current page:', PageComponent())
+  console.log('Current page:', PageComponent?.())
   // Render PageComponent in your app
 })
 // Current page: Welcome Home!
@@ -285,7 +315,7 @@ The `compose` function is **framework-specific** and determines how layouts wrap
 - **`$nested`** — signal containing the nested component
 - **`layout`** — the layout component
 
-Here is simple implementation for an example above:
+Here is a simple implementation for the example above:
 
 ```ts
 function compose($nested, layout) {
@@ -300,7 +330,7 @@ import { useSignal } from '@nano_kit/react'
 
 function composeLayoutFunction($nested, Layout) {
   return function Composed() {
-    const Nested = usSignal($nested)
+    const Nested = useSignal($nested)
 
     return (
       <Layout>
@@ -345,15 +375,15 @@ paths.user({ id: '123' })                     // '/users/123'
 paths.post({ id: '42', slug: 'hello-world' }) // '/posts/42/hello-world'
 paths.post({ id: '42' })                      // '/posts/42' (optional slug omitted)
 
-/* Wildcard routes */
-paths.files({ wildcard: 'docs/readme.md' })  // '/files/docs/readme.md'
+/* Splat routes */
+paths.files({ splat: 'docs/readme.md' })  // '/files/docs/readme.md'
 ```
 
 **Parameter encoding:** Values are automatically URL-encoded:
 
 ```ts
-paths.user({ id: 'hello world' })            // '/users/hello%20world'
-paths.files({ wildcard: 'a/b c/d+e.pdf' })   // '/files/a%2Fb%20c%2Fd%2Be.pdf'
+paths.user({ id: 'hello world' })           // '/users/hello%20world'
+paths.files({ splat: 'a/b c/d+e.pdf' })     // '/files/a%2Fb%20c%2Fd%2Be.pdf'
 ```
 
 ### listenLinks

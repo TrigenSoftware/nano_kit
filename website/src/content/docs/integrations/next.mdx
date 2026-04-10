@@ -1,0 +1,269 @@
+---
+title: Next.js
+description: "Use Nano Kit with Next.js via @nano_kit/react and @nano_kit/next-router."
+sidebar:
+  order: 4
+---
+
+import { Tabs, TabItem, Code } from '@astrojs/starlight/components'
+
+There is no dedicated package for Next.js apps. Use `@nano_kit/react` for signals, Dependency Injection, and hydration. If your app also uses `@nano_kit/router`, add `@nano_kit/next-router`.
+
+For detailed API reference, see the [React integration](/integrations/react) and [Next.js Router integration](/integrations/next-router).
+
+## Installation
+
+Install `@nano_kit/store` and `@nano_kit/react` for the base React integration. Add `@nano_kit/router` and `@nano_kit/next-router` only when you use Nano Kit router.
+
+<Tabs syncKey='pkg'>
+  <TabItem label='pnpm' icon='pnpm'>
+    <Code frame='none' lang='bash' code='pnpm add @nano_kit/store @nano_kit/react
+# If you use Nano Kit router:
+pnpm add @nano_kit/router @nano_kit/next-router' />
+  </TabItem>
+  <TabItem label='Yarn' icon='seti:yarn'>
+    <Code frame='none' lang='bash' code='yarn add @nano_kit/store @nano_kit/react
+# If you use Nano Kit router:
+yarn add @nano_kit/router @nano_kit/next-router' />
+  </TabItem>
+  <TabItem label='npm' icon='seti:npm'>
+    <Code frame='none' lang='bash' code='npm install @nano_kit/store @nano_kit/react
+# If you use Nano Kit router:
+npm install @nano_kit/router @nano_kit/next-router' />
+  </TabItem>
+</Tabs>
+
+## App Router
+
+In the App Router there are two different setups:
+
+- Flight dehydration: use [`Dehydration`](/integrations/react#dehydration) when server dehydration should run both on the initial request and on RSC flight navigations.
+- Static dehydration: use [`StaticDehydration`](/integrations/react#staticdehydration) when dehydration should run only on the initial full-page request. During client-side navigations, stores will fetch data in the browser instead of on the server.
+
+Both dehydration components can be nested and repeated. It is valid to dehydrate shared stores in a layout and page-specific stores in a page.
+
+### Flight Dehydration
+
+In this mode, [`FlightDetector`](/integrations/react#flightdetector) is not needed. Keep [`HydrationProvider`](/integrations/react#hydrationprovider) in the root layout. If you use `@nano_kit/router`, wrap the layout with [`NextNavigation`](/integrations/next-router#nextnavigation). Without the router, omit `NextNavigation`.
+
+```tsx
+import type { Metadata } from 'next'
+import { HydrationProvider } from '@nano_kit/react'
+import { NextNavigation } from '@nano_kit/next-router'
+import { routes } from '@/stores/router'
+
+/* Define global routes types */
+declare module '@nano_kit/router' {
+  interface AppContext {
+    routes: typeof routes
+  }
+}
+
+export const metadata: Metadata = {
+  title: 'My App'
+}
+
+export default function RootLayout({ children }: {
+  children: React.ReactNode
+}) {
+  return (
+    <NextNavigation routes={routes}>
+      <HydrationProvider>
+        <html lang='en'>
+          <body>{children}</body>
+        </html>
+      </HydrationProvider>
+    </NextNavigation>
+  )
+}
+```
+
+In page components, use `Dehydration`. If the page uses `@nano_kit/router`, wrap the dehydration boundary in its own `NextNavigation` so flight renders still receive the current navigation context.
+
+```tsx
+import { Dehydration } from '@nano_kit/react'
+import { NextNavigation } from '@nano_kit/next-router'
+import { routes } from '@/stores/router'
+import CharactersPage, { Stores$ } from '@/ui/pages/Characters'
+
+export default function Page() {
+  return (
+    <NextNavigation routes={routes}>
+      <Dehydration stores={Stores$}>
+        <CharactersPage />
+      </Dehydration>
+    </NextNavigation>
+  )
+}
+```
+
+If you do not use `@nano_kit/router`, render `Dehydration` directly without `NextNavigation`.
+
+### Static Dehydration
+
+In this mode, add [`FlightDetector`](/integrations/react#flightdetector) to the root layout so [`StaticDehydration`](/integrations/react#staticdehydration) can distinguish the initial full-page request from RSC flight navigations. Keep [`HydrationProvider`](/integrations/react#hydrationprovider) in the layout as well.
+
+If you use `@nano_kit/router`, wrap the layout with [`NextNavigation`](/integrations/next-router#nextnavigation). Without the router, omit `NextNavigation`.
+
+```tsx
+import type { Metadata } from 'next'
+import {
+  FlightDetector,
+  HydrationProvider
+} from '@nano_kit/react'
+import { NextNavigation } from '@nano_kit/next-router'
+import { routes } from '@/stores/router'
+
+/* Define global routes types */
+declare module '@nano_kit/router' {
+  interface AppContext {
+    routes: typeof routes
+  }
+}
+
+export const metadata: Metadata = {
+  title: 'My App'
+}
+
+export default function RootLayout({ children }: {
+  children: React.ReactNode
+}) {
+  return (
+    <FlightDetector>
+      <NextNavigation routes={routes}>
+        <HydrationProvider>
+          <html lang='en'>
+            <body>{children}</body>
+          </html>
+        </HydrationProvider>
+      </NextNavigation>
+    </FlightDetector>
+  )
+}
+```
+
+In page components, use [`StaticDehydration`](/integrations/react#staticdehydration). If the page uses `@nano_kit/router`, wrap the dehydration boundary in its own [`NextNavigation`](/integrations/next-router#nextnavigation).
+
+```tsx
+import { StaticDehydration } from '@nano_kit/react'
+import { NextNavigation } from '@nano_kit/next-router'
+import { routes } from '@/stores/router'
+import CharactersPage, { Stores$ } from '@/ui/pages/Characters'
+
+export default function Page() {
+  return (
+    <NextNavigation routes={routes}>
+      <StaticDehydration stores={Stores$}>
+        <CharactersPage />
+      </StaticDehydration>
+    </NextNavigation>
+  )
+}
+```
+
+If you do not use `@nano_kit/router`, render `StaticDehydration` directly without `NextNavigation`.
+
+## Pages Router
+
+In the Pages Router, the usual setup is:
+
+- [`HydrationProvider`](/integrations/react#hydrationprovider) in `_app.tsx`
+- [`dehydrate()`](/store/ssr#server-side-dehydration) or [`contextDehydrate()`](/store/ssr#server-side-dehydration) in `getServerSideProps`
+- [`NextNavigationProvider`](/integrations/next-router#nextnavigationprovider) when the app uses `@nano_kit/router`
+
+### `_app.tsx`
+
+If you use `@nano_kit/router`, wrap the app with [`NextNavigationProvider`](/integrations/next-router#nextnavigationprovider). Without the router, keep only [`HydrationProvider`](/integrations/react#hydrationprovider).
+
+```tsx
+import type { AppProps } from 'next/app'
+import { HydrationProvider } from '@nano_kit/react'
+import { NextNavigationProvider } from '@nano_kit/next-router'
+import { routes } from '@/stores/router'
+
+/* Define global routes types */
+declare module '@nano_kit/router' {
+  interface AppContext {
+    routes: typeof routes
+  }
+}
+
+export default function App({ Component, pageProps }: AppProps) {
+  return (
+    <NextNavigationProvider routes={routes}>
+      <HydrationProvider dehydrated={pageProps.dehydrated}>
+        <Component {...pageProps} />
+      </HydrationProvider>
+    </NextNavigationProvider>
+  )
+}
+```
+
+### `getServerSideProps`
+
+When you need server-prefetched store data, dehydrate stores in `getServerSideProps` and pass the snapshot through `pageProps.dehydrated`.
+
+If the page uses `@nano_kit/router`, create the dehydration context with [`virtualNavigationContext`](/integrations/next-router#pages-router).
+
+```tsx
+import type { GetServerSideProps } from 'next'
+import { dehydrate } from '@nano_kit/store'
+import { virtualNavigationContext } from '@nano_kit/next-router'
+import { routes } from '@/stores/router'
+import CharactersPage, { Stores$ } from '@/ui/pages/Characters'
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const dehydrated = await dehydrate(
+    Stores$,
+    virtualNavigationContext(context.resolvedUrl, routes)
+  )
+
+  return {
+    props: {
+      dehydrated
+    }
+  }
+}
+
+export default function Page() {
+  return <CharactersPage />
+}
+```
+
+If you want the Pages Router to behave like static dehydration in the App Router, use [`isFlight(context.req.headers)`](/integrations/react#isflight) and skip dehydration during client-side navigations. In that case, stores will fetch data in the browser instead of on the server.
+
+```tsx
+import type { GetServerSideProps } from 'next'
+import { dehydrate } from '@nano_kit/store'
+import { isFlight } from '@nano_kit/react'
+import { virtualNavigationContext } from '@nano_kit/next-router'
+import { routes } from '@/stores/router'
+import CharactersPage, { Stores$ } from '@/ui/pages/Characters'
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const dehydrated = !isFlight(context.req.headers) && await dehydrate(
+    Stores$,
+    virtualNavigationContext(context.resolvedUrl, routes)
+  )
+
+  return {
+    props: {
+      dehydrated
+    }
+  }
+}
+
+export default function Page() {
+  return <CharactersPage />
+}
+```
+
+Without `@nano_kit/router`, call `dehydrate(Stores$)` without `virtualNavigationContext`.
+
+## Which Package Does What?
+
+- `@nano_kit/react` handles React bindings, DI integration, [`HydrationProvider`](/integrations/react#hydrationprovider), [`Dehydration`](/integrations/react#dehydration), [`StaticDehydration`](/integrations/react#staticdehydration), and [`FlightDetector`](/integrations/react#flightdetector).
+- `@nano_kit/next-router` is only needed when the app uses `@nano_kit/router` inside Next.js.
+- `@nano_kit/router` remains the place where routes, pages, layouts, and navigation logic are declared.
+
+If you need API-level details for [`NextNavigation`](/integrations/next-router#nextnavigation), [`NextNavigationProvider`](/integrations/next-router#nextnavigationprovider), [`Link`](/integrations/next-router#link), or Pages Router helpers such as [`redirect()`](/integrations/next-router#redirect--notfound) and [`notFound()`](/integrations/next-router#redirect--notfound), see [Next.js Router integration](/integrations/next-router).

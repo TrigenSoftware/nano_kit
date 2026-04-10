@@ -1,44 +1,63 @@
 ---
 title: SSR
-description: "Learn how to use @nano_kit/store for server-side rendering (SSR)"
+description: "Learn how to use @nano_kit/store for server-side rendering (SSR)."
 sidebar:
   order: 4
 ---
 
 import { Aside } from '@astrojs/starlight/components'
 
-<Aside type='caution'>SSR functionality is currently in **Alpha** stage. It is not fully implemented and the API may change in future releases.</Aside>
+Server-side rendering (SSR) with stores requires isolating state per request and dehydrating data for client hydration. The Dependency Injection system ensures that each request gets its own signal instances, preventing state leakage between users.
 
-Server-Side Rendering (SSR) with stores requires isolating state per request and serializing data for client hydration. The dependency injection system ensures that each request gets its own signal instances, preventing state leakage between users.
+## Marking Signals for Hydration
 
-## Marking Signals for Serialization
-
-Use `serializable` to mark signals that should be included in the serialized output. This assigns a unique key to each signal for identification during hydration.
+Use `hydratable` to mark signals that should participate in dehydration/hydration. This assigns a unique key to each signal for later identification.
 
 ```ts
-import { signal, serializable, mountable } from '@nano_kit/store'
+import { signal, hydratable, mountable } from '@nano_kit/store'
 
 function User$() {
-  const $userId = serializable('userId', signal(null))
-  const $user = serializable('user', signal(null))
+  const $userId = hydratable('userId', signal(null))
+  const $user = hydratable('user', signal(null))
 
   return { $userId, $user }
 }
 ```
 
-When `serializable` is called during SSR on the server, it registers the signal in an internal map with its key. On the client, if hydration data exists for that key, the signal is immediately initialized with the hydrated value instead of the default.
+On the server, `hydratable` registers the signal in an internal map with its key. On the client, if dehydrated data exists for that key, the signal is immediately initialized with the hydrated value instead of the default.
+
+## Checking Hydration State
+
+Use `isHydrated` to check whether a signal has been populated from hydration data. The hydrated flag is cleared on the signal's first user-driven update.
+
+```ts
+import { isHydrated, onMountEffect } from '@nano_kit/store'
+
+function User$() {
+  /* ... */
+  onMountEffect($user, () => {
+    /* Subscribe to userId changes */
+    const userId = $userId()
+    /* Only fetch user data if it hasn't been hydrated from the server */
+    if (!isHydrated($user)) {
+      fetchUser(userId)
+    }
+  })
+  /* ... */
+}
+```
 
 ## Working with Tasks
 
-SSR requires waiting for all async operations to complete before serializing. Use `TasksRunner$` to create a task runner that automatically tracks async operations in `TasksPool$`.
+SSR requires waiting for all async operations to complete before dehydrating. Use `TasksRunner$` to create a task runner that automatically tracks async operations in `TasksPool$`.
 
 ```ts
-import { inject, signal, mountable, onMountEffect, action, TasksRunner$ } from '@nano_kit/store'
+import { inject, signal, hydratable, mountable, onMountEffect, action, TasksRunner$ } from '@nano_kit/store'
 
 function User$() {
   const task = inject(TasksRunner$)
-  const $userId = serializable('userId', signal(null))
-  const $user = serializable('user', mountable(signal(null)))
+  const $userId = hydratable('userId', signal(null))
+  const $user = hydratable('user', mountable(signal(null)))
 
   const fetchUser = action((id) => task(async () => {
     if (typeof id !== 'number') {
@@ -60,17 +79,23 @@ function User$() {
 }
 ```
 
-The `task` function wraps async operations and adds them to the task pool. The `serialize` function waits for all tasks in the pool to complete before extracting signal values.
+The `task` function wraps async operations and adds them to the tasks pool. The `dehydrate` function waits for all tasks in the pool to complete before extracting signal values.
 
-## Server-Side Serialization
+## Manual Hydration Flow
 
-On the server, use `serialize` to execute your store logic, wait for all async tasks to complete, and extract serialized signal values.
+<Aside>
+  Most apps do not need to call `dehydrate` or wire `Hydrator$` manually. Framework integrations such as [`@nano_kit/react-ssr`](/integrations/react-ssr) and the SSR/RSC helpers in [`@nano_kit/react`](/integrations/react#ssr) use these mechanisms under the hood. This manual flow is useful when you are building a custom SSR setup or want to understand how hydration works internally.
+</Aside>
+
+### Server-Side Dehydration
+
+On the server, use `dehydrate` to execute your store logic, wait for all async tasks to complete, and extract the dehydrated key-value pairs.
 
 ```ts
-import { serialize, inject } from '@nano_kit/store'
+import { dehydrate, inject } from '@nano_kit/store'
 
 /* Server-side handler */
-const serialized = await serialize(() => {
+const dehydrated = await dehydrate(() => {
   const { $userId, $user } = inject(User$)
 
   /* Set initial data */
@@ -80,37 +105,34 @@ const serialized = await serialize(() => {
   return [$user]
 })
 
-/* serialized = { userId: 1, user: { name: 'John', email: '...' } } */
+/* dehydrated = [['userId', 1], ['user', { name: 'John', email: '...' }]] */
 ```
 
-The `serialize` function:
+The `dehydrate` function:
 1. Creates an injection context with a task pool
 2. Runs your store factories within that context
 3. Starts effects to trigger `onMount` callbacks (which start async tasks)
 4. Waits for all tasks in `TasksPool$` to complete
-5. Extracts values from all signals marked with `serializable`
-6. Returns a plain object with serialized values
+5. Collects all signals marked with `hydratable`
+6. Returns the dehydrated key-value pairs
 
-## Client-Side Hydration
+If you also need access to the injection context (e.g. for additional SSR work), use `contextDehydrate` — it returns `[context, dehydrated]` instead.
 
-On the client, provide the serialized data using `Serialized$` injection token. When stores initialize, they'll use these values instead of defaults.
+### Client-Side Hydration
+
+On the client, pass the dehydrated data to a `StaticHydrator` and provide it via the `Hydrator$` injection token.
 
 ```tsx
-import { Serialized$, provide } from '@nano_kit/store'
+import { Hydrator$, StaticHydrator, provide } from '@nano_kit/store'
 import { InjectionContextProvider, useInject, useSignal } from '@nano_kit/react'
 
-/* Data from server */
-const serialized = {
-  userId: 1,
-  user: {
-    name: 'John'
-  }
-}
+/* Dehydrated data passed from the server (e.g. via a script tag or window variable) */
+const hydrator = new StaticHydrator(window.__DEHYDRATED__)
 
-/* Component that provides the injection context with serialized data */
+/* Component that provides the injection context with hydration data */
 function App() {
   return (
-    <InjectionContextProvider context={[provide(Serialized$, serialized)]}>
+    <InjectionContextProvider context={[provide(Hydrator$, hydrator)]}>
       <UserProfile />
     </InjectionContextProvider>
   )
@@ -125,4 +147,4 @@ function UserProfile() {
 }
 ```
 
-When `serializable` is called with the `Serialized$` data available in context, it checks if hydration data exists for the signal's key and immediately sets the signal's value. This allows the client to start with the same state that was computed on the server, avoiding flashes of loading states or mismatched content.
+`StaticHydrator` is a one-shot hydrator: it applies values from the initial dehydrated snapshot and discards them after use. For streaming SSR where chunks of dehydrated data arrive after the initial render, use `ActiveHydrator` instead — it exposes a `push(dehydrated)` method to feed additional data reactively.

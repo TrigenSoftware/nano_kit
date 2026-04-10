@@ -1,0 +1,179 @@
+---
+title: April Update
+description: SSR, hydration, and Next.js support land in Nano Kit's April update.
+---
+
+April's biggest update is server-side rendering.
+
+Nano Kit now has ready-to-use SSR for React apps through [`@nano_kit/react-ssr`](/integrations/react-ssr), plus Next.js support through [`@nano_kit/next-router`](/integrations/next-router). There is also a lower-level [`@nano_kit/ssr`](/ssr) package for building framework adapters.
+
+The goal is simple: keep application logic in the store layer, run it on the server when needed, dehydrate the result, and hydrate it back on the client without rebuilding the same data flow twice.
+
+## First-Class SSR
+
+For React apps, [`@nano_kit/react-ssr`](/integrations/react-ssr) is the main new package in this update. It gives Nano Kit a ready-to-use SSR setup for Vite + React projects, so the same router, stores, and queries can participate in the server render and then continue on the client.
+
+In practice, the setup starts with the plugin:
+
+```js
+import ssr from '@nano_kit/react-ssr/vite-plugin'
+
+export default {
+  plugins: [
+    ssr({ index: 'src/index.ts' })
+  ]
+}
+```
+
+The `index` file is the shared app definition used by both the browser bundle and the server renderer:
+
+```ts
+// src/index.ts
+import { asModule, page, layout, loadable } from '@nano_kit/react-router'
+import * as Layout from './Layout.jsx'
+
+export const routes = {
+  home: '/',
+  about: '/about',
+  user: '/users/:id'
+} as const
+
+export const pages = [
+  layout(asModule(Layout), [
+    page('home', loadable(() => import('./pages/Home.jsx'))),
+    page('about', loadable(() => import('./pages/About.jsx'))),
+    page('user', loadable(() => import('./pages/User.jsx')))
+  ])
+]
+
+declare module '@nano_kit/router' {
+  interface AppContext {
+    routes: typeof routes
+  }
+}
+```
+
+The plugin builds browser assets and a server renderer bundle. In development, it handles rendering through Vite, so you can work with SSR without writing a local server first.
+
+For production, it does not generate a complete HTTP server. You bring your own server, choose the runtime and middleware you want, serve `dist/client` as static assets, and call the generated renderer for application routes.
+
+For example, a small Hono server can look like this:
+
+```js
+import { serve } from '@hono/node-server'
+import { serveStatic } from '@hono/node-server/serve-static'
+import { Hono } from 'hono'
+import { renderer } from './dist/renderer/index.js'
+
+const app = new Hono()
+
+app.use(
+  `${renderer.base.replace(/(.)\/$/, '$1')}*`,
+  serveStatic({ root: './dist/client' })
+)
+
+app.get('*', async (c) => {
+  const result = await renderer.render(c.req.url)
+
+  if (result.redirect) {
+    return c.redirect(result.redirect, result.statusCode)
+  }
+
+  if (result.html !== null) {
+    return c.html(result.html, result.statusCode)
+  }
+
+  return c.text('Not Found', result.statusCode)
+})
+
+serve({ fetch: app.fetch, port: 5173 })
+```
+
+Under the hood, [`@nano_kit/react-ssr`](/integrations/react-ssr) is built on top of [`@nano_kit/ssr`](/ssr). That base package is mostly for adapter authors: it provides the shared renderer lifecycle, client readiness helpers, Vite manifest handling, and build plugin pieces.
+
+## Router-Aware SSR
+
+The router also gained SSR-ready page module hooks.
+
+Page modules can export [`Stores$`](/router/ssr#stores-data-dehydration) to declare which stores should be dehydrated, and [`Head$`](/router/ssr#head-management) to declare per-page document metadata.
+
+```tsx
+export function Stores$() {
+  return [$data]
+}
+
+export function Head$() {
+  return [
+    title('Home - My App')
+  ]
+}
+```
+
+The SSR renderer discovers these hooks automatically. You declare redirects, status codes, page modules, and head metadata close to the route, and the renderer uses them during server render.
+
+## Store and Query Hydration
+
+SSR support also adds hydration and dehydration tools for application data.
+
+In [`@nano_kit/store`](/store/ssr), signals can be marked with [`hydratable()`](/store/ssr#marking-signals-for-hydration), dehydrated on the server, and restored on the client.
+
+[`@nano_kit/query`](/query/ssr) now has SSR-specific settings too. The [`ssr()`](/query/ssr#ssr) setting combines task tracking and cache hydration: queries started during server render are tracked, awaited, dehydrated into the payload, and then reused on the client.
+
+```ts
+import { client, ssr } from '@nano_kit/query'
+
+export function Client$() {
+  return client(
+    ssr()
+  )
+}
+```
+
+After hydration, the browser can start from the server snapshot instead of repeating the same request immediately.
+
+## React Server Components and Next.js Support
+
+RSC runtimes can use server and client helpers from [`@nano_kit/react`](/integrations/react):
+
+- [`Dehydration`](/integrations/react#dehydration) for RSC-side store dehydration
+- [`StaticDehydration`](/integrations/react#staticdehydration) for initial-request-only dehydration
+- [`HydrationProvider`](/integrations/react#hydrationprovider) and [`StaticHydrationProvider`](/integrations/react#statichydrationprovider) for client hydration
+- [`FlightDetector`](/integrations/react#flightdetector) and [`isFlight()`](/integrations/react#isflight) for RSC flight request detection
+- [`serverDehydrate()`](/integrations/react#serverdehydrate--servercontextdehydrate) and [`serverContextDehydrate()`](/integrations/react#serverdehydrate--servercontextdehydrate) for lower-level control
+
+This update also adds [`@nano_kit/next-router`](/integrations/next-router), a Next.js integration for Nano Kit router.
+
+It works with both App Router and Pages Router:
+
+- [`NextNavigation`](/integrations/next-router#nextnavigation) creates request-aware navigation for App Router layouts and pages
+- [`NextNavigationProvider`](/integrations/next-router#nextnavigationprovider) provides client-side navigation in Pages Router
+- [`Link`](/integrations/next-router#link) wraps `next/link` while keeping typed route names and params
+- [`virtualNavigationContext()`](/integrations/next-router#pages-router) connects `getServerSideProps` with Nano Kit routing
+- Pages Router helpers handle [`redirect()`](/integrations/next-router#redirect--notfound) and [`notFound()`](/integrations/next-router#redirect--notfound) results after dehydration
+
+The broader [Next.js guide](/integrations/next) covers flight dehydration, static dehydration, Pages Router hydration, and when to use each setup.
+
+## Try the Examples
+
+The best place to see the SSR update in motion is the [Rick and Morty Encyclopedia example](/examples/rick-and-morty).
+
+It includes embedded sandboxes and source links for:
+
+- React SSR with `@nano_kit/react-ssr`
+- Next.js App Router with `@nano_kit/next-router`
+- Next.js Pages Router with `getServerSideProps` dehydration
+
+The example uses the same Nano Kit ideas across each environment: router state, query cache, store hydration, and page-level data declarations.
+
+You can also browse the [examples overview](/examples) for smaller apps, including the Weather App and CV Generator.
+
+## Where to Start
+
+If you want to try the April update:
+
+- Start with [React SSR](/integrations/react-ssr) if you are building a Vite + React app.
+- Start with [Next.js](/integrations/next) if you are using App Router or Pages Router.
+- Read [Store SSR](/store/ssr), [Query SSR](/query/ssr), and [Router SSR](/router/ssr) if you want to understand how the pieces work together.
+- Open the [Rick and Morty example](/examples/rick-and-morty) when you want a complete app with source code and live sandboxes.
+
+SSR is the main theme of this release, but the important part is not just rendering HTML on the server. The important part is that Nano Kit's store, query, router, and framework adapters now share one SSR story.
