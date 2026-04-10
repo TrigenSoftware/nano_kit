@@ -10,9 +10,9 @@ A lightweight, modular, and performant state management ecosystem for building m
 | [`agera`](packages/agera#readme) | Push-pull based signal library based on alien-signals algorithm. | [![NPM version][agera-npm]][agera-npm-url] | [![Dependencies status][agera-deps]][agera-deps-url] |
 | [`kida`](packages/kida#readme) | State management library inspired by Nano Stores. | [![NPM version][kida-npm]][kida-npm-url] | [![Dependencies status][kida-deps]][kida-deps-url] |
 | [`@nano_kit/store`](packages/store#readme) | Signals-based state management library. | [![NPM version][store-npm]][store-npm-url] | [![Dependencies status][store-deps]][store-deps-url] |
-| [`@nano_kit/react`](packages/react#readme) | React bindings for @nano_kit/store. | [![NPM version][react-npm]][react-npm-url] | [![Dependencies status][react-deps]][react-deps-url] |
+| [`@nano_kit/react`](packages/react#readme) | React integration for @nano_kit/store. | [![NPM version][react-npm]][react-npm-url] | [![Dependencies status][react-deps]][react-deps-url] |
 | [`@nano_kit/router`](packages/router#readme) | Routing library, built on @nano_kit/store. | [![NPM version][router-npm]][router-npm-url] | [![Dependencies status][router-deps]][router-deps-url] |
-| [`@nano_kit/react-router`](packages/react-router#readme) | React bindings for @nano_kit/router. | [![NPM version][react-router-npm]][react-router-npm-url] | [![Dependencies status][react-router-deps]][react-router-deps-url] |
+| [`@nano_kit/react-router`](packages/react-router#readme) | React integration for @nano_kit/router. | [![NPM version][react-router-npm]][react-router-npm-url] | [![Dependencies status][react-router-deps]][react-router-deps-url] |
 | [`@nano_kit/next-router`](packages/next-router#readme) | Next.js integration for @nano_kit/router. | [![NPM version][next-router-npm]][next-router-npm-url] | [![Dependencies status][next-router-deps]][next-router-deps-url] |
 | [`@nano_kit/query`](packages/query#readme) | Data fetching and caching library, built on @nano_kit/store. | [![NPM version][query-npm]][query-npm-url] | [![Dependencies status][query-deps]][query-deps-url] |
 | [`@nano_kit/ssr`](packages/ssr#readme) | Base package for server-side rendering capabilities. | [![NPM version][ssr-npm]][ssr-npm-url] | [![Dependencies status][ssr-deps]][ssr-deps-url] |

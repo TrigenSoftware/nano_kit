@@ -577,6 +577,17 @@ $get(signal(1)) // 1
 $get(1) // 1
 ```
 
+### `get`
+
+`get` method gets the value from the signal or returns the given value **without tracking** (untracked).
+
+```ts
+import { signal, get } from 'kida'
+
+get(signal(1)) // 1
+get(1) // 1
+```
+
 ### `composeDestroys`
 
 `composeDestroys` method composes multiple destroy functions into one.
@@ -588,17 +599,6 @@ effect(() => composeDestroys(
   intervalLogger($interval),
   windowResizeLogger($size)
 ))
-```
-
-### `get`
-
-`get` method gets the value from the signal or returns the given value **without tracking** (untracked).
-
-```ts
-import { signal, get } from 'kida'
-
-get(signal(1)) // 1
-get(1) // 1
 ```
 
 ### `isEmpty`
@@ -628,7 +628,9 @@ function getPosition(options?: PositionOptions) {
 }
 
 const $highAccuracy = signal(false)
-const [$position, $error, $pending] = resolved(computed(() => getPosition({ enableHighAccuracy: $highAccuracy() })))
+const [$position, $error, $pending] = resolved(
+  computed(() => getPosition({ enableHighAccuracy: $highAccuracy() }))
+)
 ```
 
 A falsy source resets all signals to their initial state (`data: undefined`, `error: undefined`, `pending: false`).

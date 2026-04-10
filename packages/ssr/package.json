@@ -1,7 +1,7 @@
 {
   "name": "@nano_kit/ssr",
   "type": "module",
-  "version": "1.0.0-alpha",
+  "version": "1.0.0-alpha.0",
   "description": "A base package for server-side rendering capabilities in Nano Kit.",
   "author": "dangreen",
   "license": "MIT",
