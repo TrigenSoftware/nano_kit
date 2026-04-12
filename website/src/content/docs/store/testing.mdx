@@ -31,17 +31,17 @@ it('should cleanup after unmount delay', () => {
 
   const stop = start($data())
 
-  expect(cleanup).toBeCalledTimes(0)
+  expect(cleanup).toHaveBeenCalledTimes(0)
 
   stop()
 
   /* Cleanup not called immediately */
-  expect(cleanup).toBeCalledTimes(0)
+  expect(cleanup).toHaveBeenCalledTimes(0)
 
   /* Advance timers to trigger unmount */
   vi.advanceTimersByTime(STORE_UNMOUNT_DELAY)
 
-  expect(cleanup).toBeCalledTimes(1)
+  expect(cleanup).toHaveBeenCalledTimes(1)
 })
 ```
 
@@ -61,7 +61,7 @@ onMount($data, mounted)
 /* Start keeps $data mounted */
 const stop = start($data)
 
-expect(mounted).toBeCalledTimes(1)
+expect(mounted).toHaveBeenCalledTimes(1)
 
 /* Cleanup triggers unmount after debounce delay */
 stop()
@@ -81,7 +81,7 @@ onMount($data, mounted)
 /* Triggers mount, then immediately unmounts */
 exec($data)
 
-expect(mounted).toBeCalledTimes(1)
+expect(mounted).toHaveBeenCalledTimes(1)
 ```
 
 ## Waiting for Async Operations

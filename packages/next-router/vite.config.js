@@ -12,15 +12,23 @@ export default defineConfig({
         index: './src/index.ts'
       }
     },
-    rollupOptions: {
+    rolldownOptions: {
       external: id => /^(next|react|@nano_kit)\/?/.test(id),
       output: {
-        manualChunks(id, meta) {
-          const { code } = meta.getModuleInfo(id)
+        codeSplitting: {
+          groups: [
+            {
+              name(id, ctx) {
+                const { code } = ctx.getModuleInfo(id)
 
-          if (/^\s*['"]use client['"]/.test(code)) {
-            return 'client'
-          }
+                if (/^\s*['"]use client['"]/.test(code)) {
+                  return 'client'
+                }
+
+                return null
+              }
+            }
+          ]
         },
         banner(chunk) {
           if (chunk.name === 'client') {

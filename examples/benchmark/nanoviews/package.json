@@ -13,6 +13,6 @@
     "nanoviews": "*"
   },
   "devDependencies": {
-    "vite": "^5.2.7"
+    "vite": "^8.0.8"
   }
 }

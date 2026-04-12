@@ -1,5 +1,5 @@
 import { join } from 'node:path'
-import react from '@vitejs/plugin-react-swc'
+import react from '@vitejs/plugin-react'
 import postcssCustomMedia from 'postcss-custom-media'
 
 export default {
@@ -8,9 +8,6 @@ export default {
     postcss: {
       plugins: [postcssCustomMedia()]
     }
-  },
-  esbuild: {
-    jsx: 'automatic'
   },
   plugins: [react()],
   resolve: {

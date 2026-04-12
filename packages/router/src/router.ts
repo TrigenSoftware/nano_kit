@@ -35,7 +35,7 @@ type UnknownMatcher = (route: string | null) => PageRef<unknown> | null
  * @param fallback - Optional fallback view while loading
  * @returns Module reference object
  */
-/* @__NO_SIDE_EFFECTS__ */
+/* @__ NO_SIDE_EFFECTS __ - temporary disabled, see https://github.com/rolldown/rolldown/issues/9074 */
 export function loadable<const V>(
   load: PageModuleLoader<V>,
   fallback?: V

@@ -12,7 +12,7 @@ export default defineConfig({
         index: './src/index.ts'
       }
     },
-    rollupOptions: {
+    rolldownOptions: {
       external: id => /^(react|@nano_kit)\/?/.test(id),
       output: {
         banner() {

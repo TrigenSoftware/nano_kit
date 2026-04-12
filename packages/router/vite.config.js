@@ -10,7 +10,7 @@ export default defineConfig({
         index: './src/index.ts'
       }
     },
-    rollupOptions: {
+    rolldownOptions: {
       external: ['@nano_kit/store']
     },
     sourcemap: true,

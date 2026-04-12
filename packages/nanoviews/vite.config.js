@@ -11,7 +11,7 @@ export default defineConfig({
         store: './src/store.ts'
       }
     },
-    rollupOptions: {
+    rolldownOptions: {
       external: ['kida']
     },
     sourcemap: true,

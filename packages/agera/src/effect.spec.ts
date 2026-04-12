@@ -343,11 +343,11 @@ describe('agera', () => {
       })
       const stop = effect(fn)
 
-      expect(fn).toBeCalledWith(true)
+      expect(fn).toHaveBeenCalledWith(true)
 
       $num(1)
 
-      expect(fn).toBeCalledWith(undefined)
+      expect(fn).toHaveBeenCalledWith(undefined)
 
       stop()
     })
@@ -1176,15 +1176,15 @@ describe('agera', () => {
         })
       })
 
-      expect(onEffect).not.toBeCalled()
+      expect(onEffect).not.toHaveBeenCalled()
 
       $num(2)
 
-      expect(onEffect).not.toBeCalled()
+      expect(onEffect).not.toHaveBeenCalled()
 
       const stop = start()
 
-      expect(onEffect).toBeCalledWith(2)
+      expect(onEffect).toHaveBeenCalledWith(2)
 
       stop()
     })
