@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.6](https://github.com/TrigenSoftware/nano_kit/compare/nanoviews@1.0.0-alpha.5...nanoviews@1.0.0-alpha.6) (2026-04-12)
+
+### Features
+
+* move `FalsyValue` type to kida ([52bb15c](https://github.com/TrigenSoftware/nano_kit/commit/52bb15cc82a1759a9219142b62a75a54b1d2b023))
+* move `isEmpty` and `subscribeAny` to kida ([3470bbe](https://github.com/TrigenSoftware/nano_kit/commit/3470bbe77908e0438f016fc01f4528cbd5c1f526))
+
 ## [1.0.0-alpha.5](https://github.com/TrigenSoftware/nano_kit/compare/nanoviews@1.0.0-alpha.4...nanoviews@1.0.0-alpha.5) (2026-02-15)
 
 ### Features
