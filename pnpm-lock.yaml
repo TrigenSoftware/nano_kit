@@ -673,8 +673,8 @@ importers:
   packages/agera:
     devDependencies:
       '@size-limit/preset-small-lib':
-        specifier: ^11.1.2
-        version: 11.2.0(size-limit@12.0.1(jiti@2.4.2))
+        specifier: ^12.0.0
+        version: 12.0.1(size-limit@12.0.1(jiti@2.4.2))
       '@vitest/coverage-v8':
         specifier: ^4.1.4
         version: 4.1.4(vitest@4.1.4)
@@ -738,8 +738,8 @@ importers:
         version: link:../agera
     devDependencies:
       '@size-limit/preset-small-lib':
-        specifier: ^11.1.2
-        version: 11.2.0(size-limit@12.0.1(jiti@2.4.2))
+        specifier: ^12.0.0
+        version: 12.0.1(size-limit@12.0.1(jiti@2.4.2))
       '@vitest/coverage-v8':
         specifier: ^4.1.4
         version: 4.1.4(vitest@4.1.4)
@@ -776,8 +776,8 @@ importers:
         specifier: workspace:^
         version: link:../testing-library
       '@size-limit/preset-small-lib':
-        specifier: ^11.1.2
-        version: 11.2.0(size-limit@12.0.1(jiti@2.4.2))
+        specifier: ^12.0.0
+        version: 12.0.1(size-limit@12.0.1(jiti@2.4.2))
       '@testing-library/dom':
         specifier: ^10.0.0
         version: 10.4.0
@@ -838,8 +838,8 @@ importers:
         specifier: workspace:^
         version: link:../store
       '@size-limit/preset-small-lib':
-        specifier: ^11.1.6
-        version: 11.2.0(size-limit@12.0.1(jiti@2.4.2))
+        specifier: ^12.0.0
+        version: 12.0.1(size-limit@12.0.1(jiti@2.4.2))
       '@testing-library/dom':
         specifier: ^10.0.0
         version: 10.4.0
@@ -890,8 +890,8 @@ importers:
         specifier: workspace:^
         version: link:../store
       '@size-limit/preset-small-lib':
-        specifier: ^11.1.6
-        version: 11.2.0(size-limit@12.0.1(jiti@2.4.2))
+        specifier: ^12.0.0
+        version: 12.0.1(size-limit@12.0.1(jiti@2.4.2))
       '@vitest/coverage-v8':
         specifier: ^4.1.4
         version: 4.1.4(vitest@4.1.4)
@@ -918,8 +918,8 @@ importers:
         specifier: workspace:^
         version: link:../store
       '@size-limit/preset-small-lib':
-        specifier: ^11.1.6
-        version: 11.2.0(size-limit@12.0.1(jiti@2.4.2))
+        specifier: ^12.0.0
+        version: 12.0.1(size-limit@12.0.1(jiti@2.4.2))
       '@testing-library/dom':
         specifier: ^10.0.0
         version: 10.4.0
@@ -973,8 +973,8 @@ importers:
         specifier: workspace:^
         version: link:../store
       '@size-limit/preset-small-lib':
-        specifier: ^11.1.6
-        version: 11.2.0(size-limit@12.0.1(jiti@2.4.2))
+        specifier: ^12.0.0
+        version: 12.0.1(size-limit@12.0.1(jiti@2.4.2))
       '@testing-library/dom':
         specifier: ^10.0.0
         version: 10.4.0
@@ -1066,8 +1066,8 @@ importers:
         specifier: workspace:^
         version: link:../store
       '@size-limit/preset-small-lib':
-        specifier: ^11.1.6
-        version: 11.2.0(size-limit@12.0.1(jiti@2.4.2))
+        specifier: ^12.0.0
+        version: 12.0.1(size-limit@12.0.1(jiti@2.4.2))
       '@testing-library/dom':
         specifier: ^10.0.0
         version: 10.4.0
@@ -1127,8 +1127,8 @@ importers:
         version: link:../kida
     devDependencies:
       '@size-limit/preset-small-lib':
-        specifier: ^11.1.2
-        version: 11.2.0(size-limit@12.0.1(jiti@2.4.2))
+        specifier: ^12.0.0
+        version: 12.0.1(size-limit@12.0.1(jiti@2.4.2))
       '@vitest/coverage-v8':
         specifier: ^4.1.4
         version: 4.1.4(vitest@4.1.4)
@@ -2702,22 +2702,22 @@ packages:
     resolution: {integrity: sha512-tlqY9xq5ukxTUZBmoOp+m61cqwQD5pHJtFY3Mn8CA8ps6yghLH/Hw8UPdqg4OLmFW3IFlcXnQNmo/dh8HzXYIQ==}
     engines: {node: '>=18'}
 
-  '@size-limit/esbuild@11.2.0':
-    resolution: {integrity: sha512-vSg9H0WxGQPRzDnBzeDyD9XT0Zdq0L+AI3+77/JhxznbSCMJMMr8ndaWVQRhOsixl97N0oD4pRFw2+R1Lcvi6A==}
-    engines: {node: ^18.0.0 || >=20.0.0}
+  '@size-limit/esbuild@12.0.1':
+    resolution: {integrity: sha512-Z6km06//90REJ30+WmMWvngG9dZnY52z3bhGxkoOwyXaAwPuQgx6ZdD1edNDABXIZMatbeMejigBPNEl4OaFsQ==}
+    engines: {node: ^20.0.0 || ^22.0.0 || >=24.0.0}
     peerDependencies:
-      size-limit: 11.2.0
+      size-limit: 12.0.1
 
-  '@size-limit/file@11.2.0':
-    resolution: {integrity: sha512-OZHE3putEkQ/fgzz3Tp/0hSmfVo3wyTpOJSRNm6AmcwX4Nm9YtTfbQQ/hZRwbBFR23S7x2Sd9EbqYzngKwbRoA==}
-    engines: {node: ^18.0.0 || >=20.0.0}
+  '@size-limit/file@12.0.1':
+    resolution: {integrity: sha512-Kvbnz46iV7WeHaANf1HmWjXBVMU2KkCU+0xJ78FzIjZwlVKKEqy+QCZprdBMfIWrzrvYeqP4cfuzKG8z6xVivg==}
+    engines: {node: ^20.0.0 || ^22.0.0 || >=24.0.0}
     peerDependencies:
-      size-limit: 11.2.0
+      size-limit: 12.0.1
 
-  '@size-limit/preset-small-lib@11.2.0':
-    resolution: {integrity: sha512-RFbbIVfv8/QDgTPyXzjo5NKO6CYyK5Uq5xtNLHLbw5RgSKrgo8WpiB/fNivZuNd/5Wk0s91PtaJ9ThNcnFuI3g==}
+  '@size-limit/preset-small-lib@12.0.1':
+    resolution: {integrity: sha512-WqA87RAzGgYOWk0K7WPbgWKlT98eDf5I0DHFD+CNwOck+Cfcchp+rh3QQNTdW5WKDjSZLqGd+rK2ZSca7DPJCg==}
     peerDependencies:
-      size-limit: 11.2.0
+      size-limit: 12.0.1
 
   '@so-ric/colorspace@1.1.6':
     resolution: {integrity: sha512-/KiKkpHNOBgkFJwu9sh48LkHSMYGyuTcSFK/qMBdnOAlrRJzRSXAOFB5qwzaVQuDl8wAvHVMkaASQDReTahxuw==}
@@ -8520,20 +8520,20 @@ snapshots:
 
   '@sindresorhus/merge-streams@4.0.0': {}
 
-  '@size-limit/esbuild@11.2.0(size-limit@12.0.1(jiti@2.4.2))':
+  '@size-limit/esbuild@12.0.1(size-limit@12.0.1(jiti@2.4.2))':
     dependencies:
-      esbuild: 0.25.0
+      esbuild: 0.27.3
       nanoid: 5.1.6
       size-limit: 12.0.1(jiti@2.4.2)
 
-  '@size-limit/file@11.2.0(size-limit@12.0.1(jiti@2.4.2))':
+  '@size-limit/file@12.0.1(size-limit@12.0.1(jiti@2.4.2))':
     dependencies:
       size-limit: 12.0.1(jiti@2.4.2)
 
-  '@size-limit/preset-small-lib@11.2.0(size-limit@12.0.1(jiti@2.4.2))':
+  '@size-limit/preset-small-lib@12.0.1(size-limit@12.0.1(jiti@2.4.2))':
     dependencies:
-      '@size-limit/esbuild': 11.2.0(size-limit@12.0.1(jiti@2.4.2))
-      '@size-limit/file': 11.2.0(size-limit@12.0.1(jiti@2.4.2))
+      '@size-limit/esbuild': 12.0.1(size-limit@12.0.1(jiti@2.4.2))
+      '@size-limit/file': 12.0.1(size-limit@12.0.1(jiti@2.4.2))
       size-limit: 12.0.1(jiti@2.4.2)
 
   '@so-ric/colorspace@1.1.6':
