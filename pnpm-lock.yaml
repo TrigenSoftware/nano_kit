@@ -701,8 +701,8 @@ importers:
         specifier: ^1000.15.1
         version: 1000.15.1
       alien-signals-1:
-        specifier: npm:alien-signals@1.0.4
-        version: alien-signals@1.0.4
+        specifier: npm:alien-signals@3.1.2
+        version: alien-signals@3.1.2
       alien-signals-3:
         specifier: npm:alien-signals@3.1.2
         version: alien-signals@3.1.2
@@ -3189,9 +3189,6 @@ packages:
 
   ajv@8.17.1:
     resolution: {integrity: sha512-B/gBuNg5SiMTrPkC+A2+cW0RszwxYmn6VYxB/inlBStS5nx6xHIt/ehKRhIMhqusl7a8LjQoZnjCs5vhwxOQ1g==}
-
-  alien-signals@1.0.4:
-    resolution: {integrity: sha512-DJqqQD3XcsaQcQ1s+iE2jDUZmmQpXwHiR6fCAim/w87luaW+vmLY8fMlrdkmRwzaFXhkxf3rqPCR59tKVv1MDw==}
 
   alien-signals@3.1.2:
     resolution: {integrity: sha512-d9dYqZTS90WLiU0I5c6DHj/HcKkF8ZyGN3G5x8wSbslulz70KOxaqCT0hQCo9KOyhVqzqGojvNdJXoTumZOtcw==}
@@ -9133,8 +9130,6 @@ snapshots:
       fast-uri: 3.0.6
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
-
-  alien-signals@1.0.4: {}
 
   alien-signals@3.1.2: {}
 
