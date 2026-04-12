@@ -1,5 +1,10 @@
-const { join } = require('path')
+import { fileURLToPath } from 'node:url'
 
-exports.previewAnnotations = function previewAnnotations(input = []) {
-  return [...input, join(__dirname, 'client', 'entryPreview.mjs')]
+export function previewAnnotations(
+  input = []
+) {
+  return [
+    ...input,
+    fileURLToPath(import.meta.resolve('@nanoviews/storybook/entry-preview'))
+  ]
 }

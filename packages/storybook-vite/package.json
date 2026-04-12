@@ -1,6 +1,6 @@
 {
   "name": "@nanoviews/storybook-vite",
-  "type": "commonjs",
+  "type": "module",
   "private": true,
   "version": "0.0.0",
   "description": "Nanoviews + Vite framework for storybook.",
@@ -30,8 +30,9 @@
     "./package.json": "./package.json",
     ".": {
       "types": "./src/index.d.ts",
-      "require": "./src/index.js"
+      "default": "./src/index.js"
     },
+    "./node": "./src/node.js",
     "./preset": "./src/preset.js"
   },
   "publishConfig": {
@@ -51,14 +52,15 @@
   },
   "peerDependencies": {
     "@nanoviews/storybook": "workspace:^",
-    "vite": "^7.0.0"
+    "storybook": "^10.3.5",
+    "vite": "^8.0.8"
   },
   "dependencies": {
-    "@storybook/builder-vite": "^7.6.17",
-    "@storybook/types": "^7.6.17"
+    "@storybook/builder-vite": "^10.3.5"
   },
   "devDependencies": {
     "@nanoviews/storybook": "workspace:^",
-    "vite": "^7.0.0"
+    "storybook": "^10.3.5",
+    "vite": "^8.0.8"
   }
 }

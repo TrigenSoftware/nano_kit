@@ -4,13 +4,13 @@ import type {
   StoryAnnotations,
   ComponentAnnotations,
   ComposedStoryFn
-} from '@storybook/types'
+} from 'storybook/internal/types'
 import type {
   AnyProps,
   NanoviewsRenderer,
   UniversalProps,
   NanoviewsStoryResult
-} from './types'
+} from './types.js'
 
 type RenderFn<Props extends AnyProps> = (...args: any[]) => NanoviewsStoryResult<Props>
 

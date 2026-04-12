@@ -9,7 +9,7 @@ import type {
   StoryContext as GenericStoryContext,
   StrictArgs,
   ProjectAnnotations
-} from '@storybook/types'
+} from 'storybook/internal/types'
 import type {
   SetOptional,
   Simplify
@@ -18,9 +18,9 @@ import type {
   NanoviewsRenderer,
   ComponentType,
   RawProps
-} from './types'
+} from './types.js'
 
-export type { Args, ArgTypes, Parameters, StrictArgs } from '@storybook/types'
+export type { Args, ArgTypes, Parameters, StrictArgs } from 'storybook/internal/types'
 
 /**
  * Metadata to configure the stories for a component.

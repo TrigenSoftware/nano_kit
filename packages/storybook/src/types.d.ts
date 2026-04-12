@@ -1,7 +1,7 @@
 import type {
   StoryContext as StoryContextBase,
   WebRenderer
-} from '@storybook/types'
+} from 'storybook/internal/types'
 import type {
   AnyWritableSignal,
   WritableSignal,
@@ -12,6 +12,8 @@ import type {
   NonEmptyValue,
   EmptyValue
 } from 'nanoviews'
+
+export type { RenderContext } from 'storybook/internal/types'
 
 export type AnyProps = Record<string, any>
 

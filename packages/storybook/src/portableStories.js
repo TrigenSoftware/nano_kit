@@ -1,11 +1,13 @@
 import {
   composeStory as originalComposeStory,
   composeStories as originalComposeStories,
-  setProjectAnnotations as originalSetProjectAnnotations
-} from '@storybook/preview-api'
-import * as defaultProjectAnnotations from './entryPreview.mjs'
+  setProjectAnnotations as originalSetProjectAnnotations,
+  setDefaultProjectAnnotations
+} from 'storybook/preview-api'
+import * as defaultProjectAnnotations from './entryPreview.js'
 
 export function setProjectAnnotations(projectAnnotations) {
+  setDefaultProjectAnnotations(defaultProjectAnnotations)
   originalSetProjectAnnotations(projectAnnotations)
 }
 

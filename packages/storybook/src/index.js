@@ -1,3 +1,4 @@
-export * from './publicTypes.js'
+import './globals.js'
+
 export * from './portableStories.js'
 export * from './nanoStory.js'

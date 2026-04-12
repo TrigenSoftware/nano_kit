@@ -1,6 +1,6 @@
 {
   "name": "@nanoviews/storybook",
-  "type": "commonjs",
+  "type": "module",
   "private": true,
   "version": "0.0.0",
   "description": "Nanoviews storybook renderer.",
@@ -29,18 +29,17 @@
     "./package.json": "./package.json",
     ".": {
       "types": "./src/index.d.ts",
-      "import": "./src/index.mjs"
+      "default": "./src/index.js"
     },
     "./preset": "./src/preset.js",
-    "./src/client/entryPreview.mjs": "./src/client/entryPreview.mjs"
+    "./entry-preview": "./src/entryPreview.js"
   },
   "publishConfig": {
     "directory": "package",
     "linkDirectory": false
   },
   "files": [
-    "src",
-    "preset.js"
+    "src"
   ],
   "scripts": {
     "clear:package": "del ./package",
@@ -52,16 +51,16 @@
   },
   "peerDependencies": {
     "kida": "workspace:^",
-    "nanoviews": "workspace:^"
+    "nanoviews": "workspace:^",
+    "storybook": "^10.3.5"
   },
   "dependencies": {
     "@storybook/global": "^5.0.0",
-    "@storybook/preview-api": "^7.6.17",
-    "@storybook/types": "^7.6.17",
     "type-fest": "^4.12.0"
   },
   "devDependencies": {
     "kida": "workspace:^",
-    "nanoviews": "workspace:^"
+    "nanoviews": "workspace:^",
+    "storybook": "^10.3.5"
   }
 }

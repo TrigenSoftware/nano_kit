@@ -1,12 +1,12 @@
 import type {
   Args,
   RenderContext
-} from '@storybook/types'
+} from 'storybook/internal/types'
 import type {
   StoryContext,
   NanoviewsRenderer,
   NanoviewsStoryResult
-} from './types'
+} from './types.js'
 
 export function render(args: Args, context: StoryContext): NanoviewsStoryResult
 

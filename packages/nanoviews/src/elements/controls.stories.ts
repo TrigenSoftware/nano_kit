@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@nanoviews/storybook'
-import { fn } from '@storybook/test'
+import { fn } from 'storybook/test'
 import { nanoStory } from '@nanoviews/storybook'
 import { effect } from 'kida'
 import {

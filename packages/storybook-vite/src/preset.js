@@ -1,10 +1,4 @@
-const { dirname, join } = require('path')
-
-function getAbsolutePath(input) {
-  return dirname(require.resolve(join(input, 'package.json')))
-}
-
-exports.core = {
-  builder: getAbsolutePath('@storybook/builder-vite'),
-  renderer: getAbsolutePath('@nanoviews/storybook')
+export const core = {
+  builder: import.meta.resolve('@storybook/builder-vite'),
+  renderer: import.meta.resolve('@nanoviews/storybook/preset')
 }
