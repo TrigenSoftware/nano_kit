@@ -144,12 +144,13 @@ export function serverTransformFilterFallback(id, code) {
 
 /**
  * Attach chunk names to dynamic imports for SSR to know which chunks to preload.
+ * @param {import('rolldown').RolldownMagicString | null} magicString
  * @param {any} ast
  * @param {string} code
  * @param {(source: string) => Promise<string | null>} resolve
  * @returns {{ code: string, map: import('magic-string').SourceMap } | null} Transformed code
  */
-export async function transformServer(ast, code, resolve) {
+export async function transformServer(magicString, ast, code, resolve) {
   const imports = []
 
   walk(ast, {
@@ -188,7 +189,7 @@ export async function transformServer(ast, code, resolve) {
     return null
   }
 
-  const s = new MagicString(code)
+  const s = magicString ?? new MagicString(code)
 
   for (const imp of resolved) {
     const original = code.slice(imp.start, imp.end)
@@ -200,7 +201,7 @@ export async function transformServer(ast, code, resolve) {
     )
   }
 
-  if (!code.includes(Chunkname.VIRTUA_ID)) {
+  if (!code.includes(Chunkname.VIRTUAL_ID)) {
     s.prepend(Chunkname.IMPORT)
   }
 
@@ -244,12 +245,13 @@ const SSR_ONLY_EXPORTS = {
 /**
  * Remove SSR-only exports (`Stores$`, `Cache$`) from page components for client build,
  * since they are only used for SSR and can cause issues if left in.
+ * @param {import('rolldown').RolldownMagicString | null} magicString
  * @param {any} ast
  * @param {string} code
  * @returns {{ code: string, map: import('magic-string').SourceMap } | null} Transformed code
  */
-export function transformClient(ast, code) {
-  const s = new MagicString(code)
+export function transformClient(magicString, ast, code) {
+  const s = magicString ?? new MagicString(code)
   let changed = false
 
   for (const node of ast.body) {

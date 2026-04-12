@@ -15,7 +15,7 @@ const adapter = {
 
 /**
  * A Vite plugin for nano_kit React SSR capabilities.
- * @param {import('./index').SsrPluginOptions} options
+ * @param {import('./index.d.ts').SsrPluginOptions} options
  * @returns Vite plugin
  */
 export default function ReactSsrPlugin(options) {

@@ -12,8 +12,8 @@ import {
 
 /**
  * A Vite plugin for nano_kit SSR posibilities.
- * @param {import('./index').SsrPluginOptions} options
- * @param {import('./index').SsrPluginAdapter} adapter
+ * @param {import('./index.d.ts').SsrPluginOptions} options
+ * @param {import('./index.d.ts').SsrPluginAdapter} adapter
  * @returns {import('vite').Plugin[]} Vite plugin
  */
 export default function SsrPlugin(options, adapter) {
@@ -23,27 +23,39 @@ export default function SsrPlugin(options, adapter) {
     renderer: rendererPath = adapter.rendererPath,
     clientDir = 'client',
     rendererDir = 'renderer',
+    nativeMagicString = true,
     dev = {}
   } = options
-  let baseUrl = '/'
   let sourceConfig = {}
   let isSsrBuild
 
   return [
+    {
+      name: '@nano_kit/ssr/vite-plugin:config',
+      config() {
+        if (nativeMagicString) {
+          return {
+            experimental: {
+              nativeMagicString: true
+            }
+          }
+        }
+      }
+    },
     {
       name: '@nano_kit/ssr/vite-plugin:transform:client',
       apply: 'build',
 
       transform: {
         filter: clientTransformFilter,
-        handler(code, id, options) {
-          if (options?.ssr || !clientTransformFilterFallback(id, code)) {
+        handler(code, id, meta) {
+          if (meta?.ssr || !clientTransformFilterFallback(id, code)) {
             return null
           }
 
           const ast = this.parse(code)
 
-          return transformClient(ast, code)
+          return transformClient(meta.magicString, ast, code)
         }
       }
     },
@@ -52,7 +64,7 @@ export default function SsrPlugin(options, adapter) {
       apply: 'build',
 
       resolveId(id) {
-        if (id === Chunkname.VIRTUA_ID) {
+        if (id === Chunkname.VIRTUAL_ID) {
           return Chunkname.RESOLVED_VIRTUAL_ID
         }
       },
@@ -65,8 +77,8 @@ export default function SsrPlugin(options, adapter) {
 
       transform: {
         filter: serverTransformFilter,
-        handler(code, id, options) {
-          if (!options?.ssr || !serverTransformFilterFallback(id, code)) {
+        handler(code, id, meta) {
+          if (!meta?.ssr || !serverTransformFilterFallback(id, code)) {
             return null
           }
 
@@ -82,18 +94,20 @@ export default function SsrPlugin(options, adapter) {
             return path.relative(root, result.id)
           }
 
-          return transformServer(ast, code, resolve)
+          return transformServer(meta.magicString, ast, code, resolve)
         }
       }
     },
     {
       name: '@nano_kit/ssr/vite-plugin:virtual',
-      configResolved(config) {
-        baseUrl = config.base
-      },
-      resolveId(id) {
+      resolveId(id, importer, options) {
+        const baseUrl = this.environment.config.base ?? '/'
+
         if (id === 'virtual:app-index') {
-          return this.resolve(appIndex)
+          return this.resolve(appIndex, importer, {
+            ...options,
+            isEntry: true
+          })
         }
 
         if (
@@ -204,27 +218,33 @@ export default function SsrPlugin(options, adapter) {
         }
 
         if (isSsrBuild) {
+          const bundlerOptions = {
+            input: rendererPath,
+            output: {
+              entryFileNames: 'index.js'
+            }
+          }
+
           return {
             define,
             build: {
               sourcemap: true,
-              rollupOptions: {
-                input: rendererPath,
-                output: {
-                  entryFileNames: 'index.js'
-                }
-              },
+              rollupOptions: bundlerOptions,
+              rolldownOptions: bundlerOptions,
               outDir: outRendererDir
             }
           }
         }
 
+        const bundlerOptions = {
+          input: clientPath
+        }
+
         return {
           define,
           build: {
-            rollupOptions: {
-              input: clientPath
-            },
+            rollupOptions: bundlerOptions,
+            rolldownOptions: bundlerOptions,
             outDir: outClientDir,
             manifest: manifestOption
           }

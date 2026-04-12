@@ -103,7 +103,7 @@ describe('ssr', () => {
           ssr: true
         }
       })
-      const clientChunk = clientResult.output.find((c: any) => c.facadeModuleId === adapter.clientPath)
+      const clientChunk = clientResult.output.find((c: any) => c.facadeModuleId?.endsWith(adapter.clientPath))
 
       expect(clientChunk).toBeDefined()
       expect(clientChunk.code).toContain('console.log("App index"')
@@ -120,7 +120,7 @@ describe('ssr', () => {
 
       expect(manifest).toBeDefined()
 
-      const rendererChunk = rendererResult.output.find((c: any) => c.facadeModuleId === adapter.rendererPath)
+      const rendererChunk = rendererResult.output.find((c: any) => c.facadeModuleId?.endsWith(adapter.rendererPath))
 
       expect(rendererChunk).toBeDefined()
       expect(rendererChunk.code).toContain('console.log("App index"')

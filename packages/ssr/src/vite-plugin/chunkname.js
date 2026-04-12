@@ -1,6 +1,6 @@
-export const VIRTUA_ID = 'virtual:attach-chunkname'
+export const VIRTUAL_ID = 'virtual:attach-chunkname'
 
-export const RESOLVED_VIRTUAL_ID = `\0${VIRTUA_ID}`
+export const RESOLVED_VIRTUAL_ID = `\0${VIRTUAL_ID}`
 
 export const CODE = `
 export function __attachChunkname(promise, chunk) {
@@ -11,7 +11,7 @@ export function __attachChunkname(promise, chunk) {
 }
 `
 
-export const IMPORT = `import { __attachChunkname } from '${VIRTUA_ID}';\n`
+export const IMPORT = `import { __attachChunkname } from '${VIRTUAL_ID}';\n`
 
 /**
  * @param {string} imp

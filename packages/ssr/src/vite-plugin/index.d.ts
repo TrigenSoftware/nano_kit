@@ -23,6 +23,11 @@ export interface SsrPluginAdapter {
 
 export interface BaseSsrPluginOptions {
   /**
+   * Use Rolldown's native MagicString for transforms.
+   * @default true
+   */
+  nativeMagicString?: boolean
+  /**
    * Directory inside the build output for client assets.
    * @default 'client'
    */
