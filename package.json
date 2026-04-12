@@ -15,7 +15,7 @@
     "url": "https://github.com/TrigenSoftware/nano_kit/issues"
   },
   "engines": {
-    "node": ">=16"
+    "node": ">=20"
   },
   "scripts": {
     "clear": "pnpm -r --parallel --if-present clear",

@@ -23,7 +23,7 @@
     "nano_kit"
   ],
   "engines": {
-    "node": ">=16"
+    "node": ">=20"
   },
   "exports": {
     "./package.json": "./package.json",

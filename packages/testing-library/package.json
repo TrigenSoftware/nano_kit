@@ -24,7 +24,7 @@
     "nano_kit"
   ],
   "engines": {
-    "node": ">=16"
+    "node": ">=20"
   },
   "exports": {
     ".": "./src/index.ts",

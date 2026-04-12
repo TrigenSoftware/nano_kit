@@ -2,7 +2,7 @@
   "name": "weather-react-nanostores",
   "private": true,
   "version": "0.0.0",
-  "packageManager": "pnpm@10.11.0",
+  "packageManager": "pnpm@10.33.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
