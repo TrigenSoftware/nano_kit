@@ -69,7 +69,7 @@
   },
   "devDependencies": {
     "@nano_kit/store": "workspace:^",
-    "@size-limit/preset-small-lib": "^11.1.6",
+    "@size-limit/preset-small-lib": "^12.0.0",
     "@testing-library/dom": "^10.0.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
