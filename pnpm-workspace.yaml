@@ -10,8 +10,12 @@ autoInstallPeers: false
 catalog:
   '@types/react': ^19.2.4
   '@types/react-dom': ^19.2.3
+  '@vitejs/plugin-react': ^6.0.1
+  '@vitest/coverage-v8': ^4.1.4
   react: ^19.2.0
   react-dom: ^19.2.0
+  vite: ^8.0.8
+  vitest: ^4.1.4
 overrides:
   '@nano_kit/next-router@*': workspace:^
   '@nano_kit/query@*': workspace:^

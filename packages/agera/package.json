@@ -64,11 +64,10 @@
   },
   "devDependencies": {
     "@size-limit/preset-small-lib": "^12.0.0",
-    "@vitest/coverage-v8": "^4.1.4",
+    "@vitest/coverage-v8": "catalog:",
     "size-limit": "^12.0.0",
-    "terser": "^5.39.0",
     "typescript": "^6.0.0",
-    "vite": "^8.0.8",
-    "vitest": "^4.1.4"
+    "vite": "catalog:",
+    "vitest": "catalog:"
   }
 }
