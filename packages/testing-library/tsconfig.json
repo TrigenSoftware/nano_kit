@@ -1,11 +1,13 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "./tsconfig.build.json",
   "compilerOptions": {
-    "outDir": "dist",
+    "rootDir": "../../",
     "allowJs": true
   },
   "include": [
     "src",
     "*.js"
-  ]
+  ],
+  "exclude": []
 }
+
