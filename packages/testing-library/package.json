@@ -54,9 +54,10 @@
     "clear": "del ./package ./dist ./coverage",
     "prepublishOnly": "run build clear:package clean-publish",
     "postpublish": "pnpm clear:package",
-    "build:dist": "tsc",
+    "build:dist": "tsc -p tsconfig.build.json",
     "build": "run clear:dist build:dist",
     "lint": "eslint --flag v10_config_lookup_from_file",
+    "test:types": "tsc --noEmit",
     "test": "run lint"
   },
   "peerDependencies": {
