@@ -61,7 +61,7 @@
     "clear": "del ./package ./dist ./coverage",
     "prepublishOnly": "run build clear:package clean-publish",
     "postpublish": "pnpm clear:package",
-    "build:dist": "tsc -p tsconfig.build.json; cpy ./src/vite-plugin/index.d.ts ./dist/vite-plugin --flat; cpy './src/{client,renderer}.jsx' ./dist --flat",
+    "build:dist": "tsgo -p tsconfig.build.json; cpy ./src/vite-plugin/index.d.ts ./dist/vite-plugin --flat; cpy './src/{client,renderer}.jsx' ./dist --flat",
     "build": "run clear:dist build:dist",
     "lint": "eslint --flag v10_config_lookup_from_file",
     "test:unit": "vitest run --coverage",
