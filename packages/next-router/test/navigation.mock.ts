@@ -1,10 +1,10 @@
-import { vi } from 'vitest'
+import { vi, type MockInstance } from 'vitest'
 
 export const mockNavigation = {
-  push: vi.fn(),
-  replace: vi.fn(),
-  back: vi.fn(),
-  forward: vi.fn(),
+  push: vi.fn() as MockInstance,
+  replace: vi.fn() as MockInstance,
+  back: vi.fn() as MockInstance,
+  forward: vi.fn() as MockInstance,
   pathname: '/',
   search: '',
   reset() {
@@ -26,7 +26,7 @@ export const mockNavigationModule = {
   useRouter: () => mockNavigation,
   usePathname: () => mockNavigation.pathname,
   useSearchParams: () => new URLSearchParams(mockNavigation.search),
-  redirect: vi.fn(),
+  redirect: vi.fn() as MockInstance,
   RedirectType
 }
 
