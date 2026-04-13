@@ -1,7 +1,7 @@
 {
   "name": "@nano_kit/react-router",
   "type": "module",
-  "version": "1.0.0-alpha.4",
+  "version": "1.0.0-alpha.5",
   "description": "React integration for @nano_kit/router with code splitting, dependency injection, and state management.",
   "author": "dangreen",
   "license": "MIT",
