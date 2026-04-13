@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.5](https://github.com/TrigenSoftware/nano_kit/compare/react-router@1.0.0-alpha.4...react-router@1.0.0-alpha.5) (2026-04-13)
+
+### Bug Fixes
+
+* separate wildcard re-export from client chunk ([d9b3e49](https://github.com/TrigenSoftware/nano_kit/commit/d9b3e4985cdcd933636cce33a5d45fadbdd8d4b8))
+
 ## [1.0.0-alpha.4](https://github.com/TrigenSoftware/nano_kit/compare/react-router@1.0.0-alpha.3...react-router@1.0.0-alpha.4) (2026-04-12)
 
 ### Features
