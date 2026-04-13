@@ -81,7 +81,7 @@ The plugin produces a `renderer` export from the renderer bundle. Call `renderer
 
 ```js
 // server.js
-import { renderer } from './dist/renderer/renderer.js'
+import { renderer } from './dist/renderer/index.js'
 
 // Express example
 app.get('*', async (req, res) => {
