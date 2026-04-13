@@ -13,10 +13,27 @@ export default defineConfig({
       }
     },
     rolldownOptions: {
-      external: id => /^(react|@nano_kit)\/?/.test(id),
+      external: id => /^(next|react|@nano_kit)\/?/.test(id),
       output: {
-        banner() {
-          return `'use client';`
+        codeSplitting: {
+          groups: [
+            {
+              name(id, ctx) {
+                const { code } = ctx.getModuleInfo(id)
+
+                if (/^\s*['"]use client['"]/.test(code)) {
+                  return 'client'
+                }
+
+                return null
+              }
+            }
+          ]
+        },
+        banner(chunk) {
+          if (chunk.name === 'client') {
+            return `'use client';`
+          }
         }
       }
     },

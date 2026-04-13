@@ -1,4 +1,3 @@
-'use client'
 export * from '@nano_kit/router'
 export * from './types.js'
 export { router } from './core.jsx'

@@ -26,7 +26,8 @@ export default [
       'react-hooks/rules-of-hooks': 'off',
       'react-hooks/exhaustive-deps': 'off',
       'react/function-component-definition': 'off',
-      'no-multi-assign': 'off'
+      'no-multi-assign': 'off',
+      'consistent-return': 'off'
     }
   }
 ]

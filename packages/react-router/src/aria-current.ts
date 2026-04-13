@@ -1,3 +1,4 @@
+'use client'
 import { useMemo } from 'react'
 import type { Accessor } from '@nano_kit/store'
 import {
