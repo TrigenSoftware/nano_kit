@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.1](https://github.com/TrigenSoftware/nano_kit/compare/next-router@1.0.0-alpha.0...next-router@1.0.0-alpha.1) (2026-04-13)
+
+### Features
+
+* add next 15 to supported versions range ([dd5af09](https://github.com/TrigenSoftware/nano_kit/commit/dd5af09442105abeddec5a6c243af3b96badb75e))
+
 ## 1.0.0-alpha.0 (2026-04-12)
 
 ### Features
