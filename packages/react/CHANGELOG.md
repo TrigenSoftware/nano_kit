@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.6](https://github.com/TrigenSoftware/nano_kit/compare/react@1.0.0-alpha.5...react@1.0.0-alpha.6) (2026-04-12)
+
+### Features
+
+* add `isolate` prop to Dehydration and `reuse` option to HydrationProvider ([69abcb8](https://github.com/TrigenSoftware/nano_kit/commit/69abcb81d631d570b93e6b541c376764628e2bde))
+* fix argument type for `useSignal`, `useInjectionContext` hook ([2a5b1d7](https://github.com/TrigenSoftware/nano_kit/commit/2a5b1d7de04be53113b83f5a6170e76b289cd04a))
+* rename `hook` to `injectHook`, new `signalHook` helper, refactor dehydration and hydration components ([20118f4](https://github.com/TrigenSoftware/nano_kit/commit/20118f4eb8e4c8bf2dd5d8565028a19114842185))
+* rsc tools for stores dehydration and hydration ([427c4e6](https://github.com/TrigenSoftware/nano_kit/commit/427c4e6883d97b235af9336b7cb2fd51a1b95a68))
+
 ## [1.0.0-alpha.5](https://github.com/TrigenSoftware/nano_kit/compare/react@1.0.0-alpha.4...react@1.0.0-alpha.5) (2026-02-16)
 
 ### Bug Fixes

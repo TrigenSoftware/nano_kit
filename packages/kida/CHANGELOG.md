@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.0](https://github.com/TrigenSoftware/nano_kit/compare/kida@1.0.0-alpha.6...kida@1.0.0-beta.0) (2026-04-12)
+
+### Features
+
+* `subscribeAny` and `isEmpty` are moved from nanoviews, `get` util and `DependencyNotFound` error class are added ([1734be8](https://github.com/TrigenSoftware/nano_kit/commit/1734be81037ba01ca6d5dc943d18a6c7571145d0))
+* add `resolved` utility for reactive promise unwrapping ([70a4f15](https://github.com/TrigenSoftware/nano_kit/commit/70a4f156e5dd1ea4348d33ce050341f0ed81056f))
+* move `FalsyValue` type to kida ([52bb15c](https://github.com/TrigenSoftware/nano_kit/commit/52bb15cc82a1759a9219142b62a75a54b1d2b023))
+
+### Bug Fixes
+
+* di dependency is not propagating to root anymore ([4ca2eaf](https://github.com/TrigenSoftware/nano_kit/commit/4ca2eaf25383200a3c3bebfe9a0e25115f7bae69))
+* use child context when resolving transitive dependencies ([ef6f17b](https://github.com/TrigenSoftware/nano_kit/commit/ef6f17ba24ac15c4c5402c0b4f33ffa9e297ea36))
+
 ## [1.0.0-alpha.6](https://github.com/TrigenSoftware/nano_kit/compare/kida@1.0.0-alpha.5...kida@1.0.0-alpha.6) (2026-02-15)
 
 ### Features
