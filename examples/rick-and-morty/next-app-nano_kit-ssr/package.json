@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
     "start": "next start"
   },
   "dependencies": {
@@ -20,11 +20,9 @@
     "react-dom": "^19.2.0"
   },
   "devDependencies": {
+    "@types/node": "^24.0.0",
     "@types/react": "^19.2.4",
     "@types/react-dom": "^19.2.3",
     "typescript": "^5.8.2"
-  },
-  "stackblitz": {
-    "startCommand": "npm run dev"
   }
 }
