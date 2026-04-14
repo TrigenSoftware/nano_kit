@@ -21,6 +21,8 @@ const nextConfig: NextConfig = process.env.NANO_KIT_DEV
       return config
     }
   }
-  : {}
+  : {
+    allowedDevOrigins: ['csb.app', '*.csb.app']
+  }
 
 export default nextConfig
