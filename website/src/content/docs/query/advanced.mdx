@@ -38,7 +38,7 @@ const [updatePost] = mutation(updatePostFn, [
 ])
 ```
 
-**When to use**: Disable deduplication when you need to allow multiple simultaneous requests for the same data, such as polling or real-time updates.
+**When to use:** Allow multiple simultaneous requests for the same data, such as polling or real-time updates.
 
 ### `disabled`
 
@@ -59,11 +59,11 @@ const [$user] = query(UserKey, [$userId], fetchUser, [
 ])
 ```
 
-**When to use**: Use this to conditionally enable queries based on application state, such as authentication status or availability of required parameters.
+**When to use:** Conditionally enable queries based on application state, such as authentication status or availability of required parameters.
 
 ### `mapError`
 
-Customizes how errors are converted to strings for storage in cache signals. By default, errors is `error.message` value.
+Customizes how errors are converted to strings for storage in cache signals. By default, errors are mapped to `error.message`.
 
 ```ts
 import { client, mapError } from '@nano_kit/query'
@@ -91,7 +91,7 @@ const [$post] = query(PostKey, [$postId], fetchPost, [
 ])
 ```
 
-**When to use**: Use this for custom error formatting, localization, or when you need to extract specific error information from custom error types.
+**When to use:** Custom error formatting, localization, or extracting specific information from custom error types.
 
 ### `onEveryError`
 
@@ -133,7 +133,7 @@ const [$post] = query(PostKey, [$postId], (id, ctx) => {
 })
 ```
 
-**When to use**: Use this for centralized error handling, logging, or displaying user notifications. Combine with `stopErrorPropagation` to handle specific errors locally without triggering global handlers.
+**When to use:** Centralized error handling, logging, or user notifications. Combine with `stopErrorPropagation` to handle specific errors locally without triggering global handlers.
 
 ## Request Context
 
@@ -180,7 +180,7 @@ const {
   query,
   $data
 } = client()
-const [$tags, $tagsError, $tags] = query(TagsKey, [$postId], async (postId, ctx) => {
+const [$tags, $tagsError] = query(TagsKey, [$postId], async (postId, ctx) => {
   /* Use ctx as current query key to accumulate data in the cache */
   const prevTags = $data(ctx) || []
   const newTags = await PostsService.fetchTags(postId)
@@ -225,7 +225,7 @@ const [result, error] = await generate('Write a post about React')
 | **Deduplication** | Yes | Loading only | Yes |
 | **Use Case** | Fetching data for UI | Modifying data on server | "Heavy" computations, on-demand fetching with cache |
 
-**Use Operations for:**
+**Use operations for:**
 
 - Expensive calculations that should be cached but triggered manually (e.g., AI generation, reports).
 - Lazy loading data that shouldn't be loaded immediately on mount.
@@ -270,7 +270,7 @@ const [fetchNext, $data, $error, $loading] = infinite(
 - `$loading`: Signal indicating loading state.
 - `$key`: Signal with current cache key.
 
-Here is small usage example in a React component:
+Here is a small usage example in a React component:
 
 ```tsx
 import { useSignal } from '@nano_kit/react'
@@ -333,7 +333,7 @@ retryOnError((count, error) => {
 })
 ```
 
-**When to use**: Use for unstable network connections or transient server errors to improve resilience.
+**When to use:** Improve resilience for unstable network connections or transient server errors.
 
 ### `abortable`
 
@@ -365,7 +365,7 @@ const promise = fetchPost()
 abort(promise)
 ```
 
-**When to use**: Always recommended for data fetching to prevent race conditions and save bandwidth when the user navigates away or parameters change quickly (e.g., search-as-you-type).
+**When to use:** Data fetching where cancellation prevents race conditions and saves bandwidth when the user navigates away or parameters change quickly (e.g., search-as-you-type).
 
 ### `revalidateOnFocus`
 
@@ -379,7 +379,7 @@ const { query } = client(
 )
 ```
 
-**When to use**: Use to ensure the user sees the most up-date data when they return to your application.
+**When to use:** Keep data up to date when the user returns to your application.
 
 ### `revalidateOnReconnect`
 
@@ -393,7 +393,7 @@ const { query } = client(
 )
 ```
 
-**When to use**: Critical for mobile devices or unreliable networks to recover data synchronization automatically after an outage.
+**When to use:** Recover data synchronization automatically after an outage, especially on mobile devices or unreliable networks.
 
 ### `revalidateOnInterval`
 
@@ -408,22 +408,35 @@ const { query } = client(
 )
 ```
 
-**When to use**: Use for data that changes frequently on the server, such as stock prices, live scores, or status dashboards.
+**When to use:** Data that changes frequently on the server, such as stock prices, live scores, or status dashboards.
 
-### `indexedDbStorage`
+### `persistence`
 
-Persists the cache to IndexedDB, allowing data to survive page reloads and act as a cache for offline mode. You must specify the data lifetime in milliseconds.
+Persists the query cache using any storage adapter that implements the `Storage` interface. The second argument is the data lifetime in milliseconds.
 
 ```ts
-import { client, indexedDbStorage } from '@nano_kit/query'
+import { client, persistence, indexedDbStorage } from '@nano_kit/query'
 
 const { query } = client(
   /* Keep cache for 24 hours */
-  indexedDbStorage(24 * 60 * 60 * 1000)
+  persistence(indexedDbStorage(), 24 * 60 * 60 * 1000)
 )
 ```
 
-**When to use**: Use for "Offline First" applications or to improve startup performance by showing cached data immediately while fetching fresh data.
+### `indexedDbStorage`
+
+Creates an IndexedDB storage adapter for `persistence()`, allowing cached data to survive page reloads and act as a cache for offline mode.
+
+```ts
+import { client, persistence, indexedDbStorage } from '@nano_kit/query'
+
+const { query } = client(
+  /* Keep cache for 24 hours */
+  persistence(indexedDbStorage(), 24 * 60 * 60 * 1000)
+)
+```
+
+**When to use:** Offline-first applications, or faster startup by showing cached data immediately while fetching fresh data.
 
 ### `entities`
 
@@ -492,11 +505,11 @@ With this setup:
 2. Fetching specific post via `$post` updates the entity in `$posts` as well.
 3. `updatePost` optimistically updates the entity, instantly reflecting changes in both `$post` and `$posts`.
 
-**When to use**: Use in complex applications where the same data (e.g., a "User" or "Product") appears in multiple places/lists and needs to stay synchronized.
+**When to use:** Complex applications where the same data (e.g., a "User" or "Product") appears in multiple places or lists and needs to stay synchronized.
 
 ### `tasks`
 
-Integrates with `@nano_kit/store`'s task tracking system. This is mainly used for Server-Side Rendering (SSR) to wait for all data fetches to complete before rendering the HTML.
+Integrates with `@nano_kit/store`'s task tracking system. This is mainly used for server-side rendering (SSR) to wait for all data fetches to complete before rendering the HTML.
 
 ```ts
 import { tasksRunner, waitTasks } from '@nano_kit/store'
@@ -515,4 +528,6 @@ const { query } = client(
 await waitTasks(tasksPool)
 ```
 
-**When to use**: Essential for SSR setups to ensure the server sends a fully populated page to the client.
+Without arguments, `tasks()` reads `TasksRunner$` from the current injection context. Outside DI, pass the runner explicitly.
+
+**When to use:** SSR setups where the server should send a fully populated page to the client.

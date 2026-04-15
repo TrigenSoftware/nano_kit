@@ -1,6 +1,6 @@
 ---
 title: Testing
-description: "Learn how to test routing in @nano_kit/router"
+description: "Learn how to test routing in @nano_kit/router."
 sidebar:
   order: 5
 ---
@@ -9,35 +9,23 @@ sidebar:
 
 ## Virtual Navigation
 
-For testing environments (Unit tests, Integration tests) or isolated environments (Storybook), you should use `virtualNavigation` instead of `browserNavigation`.
+For testing environments (unit tests, integration tests) or isolated environments (Storybook), use `virtualNavigation` instead of `browserNavigation`.
 
-`virtualNavigation` creates an in-memory history stack that works exactly like the browser router but without manipulating the window URL.
+`virtualNavigation` creates an in-memory history stack that behaves exactly like the browser router but without touching the window URL.
 
-If your application uses Dependency Injection (DI) for router tokens (recommended), you can easily swap the real browser navigation with virtual navigation in your tests.
-
-First, ensure your app defines tokens using `browserNavigation$`:
-
-```ts
-import { browserNavigation$ } from '@nano_kit/router'
-import { routes } from './routes'
-
-/* Create factory for tokens */
-export const [Location$, Navigation$] = browserNavigation$(routes)
-```
-
-Then in your tests, creating a context with overridden providers:
+Provide the global `Location$` and `Navigation$` tokens — exported directly from `@nano_kit/router` — with virtual instances to isolate routing in tests:
 
 ```tsx
 import { render, screen } from '@testing-library/react'
 import { InjectionContext, provide } from '@nano_kit/store'
 import { InjectionContextProvider } from '@nano_kit/react'
-import { virtualNavigation } from '@nano_kit/router'
-import { Location$, Navigation$ } from './router'
+import { virtualNavigation, Location$, Navigation$ } from '@nano_kit/router'
+import { routes } from './routes'
 import { App } from './App'
 
-it('should render allowed page', async () => {
+it('should render the admin page', async () => {
   /* Create virtual navigation for the test */
-  const [$location, navigation] = virtualNavigation('/admin')
+  const [$location, navigation] = virtualNavigation('/admin', routes)
 
   /* Override tokens with virtual instances */
   const context = new InjectionContext([
@@ -52,5 +40,25 @@ it('should render allowed page', async () => {
   )
 
   expect(screen.getByText('Admin Panel')).toBeInTheDocument()
+})
+```
+
+Alternatively, use `virtualNavigationContext` as a shorthand — it creates the context and provides both tokens for you:
+
+```tsx
+import { virtualNavigationContext } from '@nano_kit/router'
+import { routes } from './routes'
+import { App } from './App'
+
+it('should render the home page', async () => {
+  const context = virtualNavigationContext('/', routes)
+
+  render(
+    <InjectionContextProvider context={context}>
+      <App />
+    </InjectionContextProvider>
+  )
+
+  expect(screen.getByText('Home')).toBeInTheDocument()
 })
 ```

@@ -5,9 +5,9 @@ sidebar:
   order: 2
 ---
 
-import { Steps, Tabs, TabItem, Code } from '@astrojs/starlight/components'
+import { Steps, Tabs, TabItem, Code, Aside } from '@astrojs/starlight/components'
 
-The `@nano_kit/react` package provides seamless integration between `@nano_kit/store` signals, dependency injection and React components.
+The `@nano_kit/react` package integrates `@nano_kit/store` signals and Dependency Injection with React components.
 
 ## Installation
 
@@ -29,7 +29,7 @@ Install the package using your favorite package manager:
 
 ### `useSignal`
 
-The `useSignal` hook subscribes a React component to a store signal. The component will re-render automatically whenever the signal's value changes.
+The `useSignal` hook subscribes a React component to any accessor. The component will re-render automatically whenever the value changes.
 
 ```tsx
 import { signal } from '@nano_kit/store'
@@ -41,7 +41,7 @@ export function Counter() {
   const count = useSignal($count)
 
   return (
-    <button onClick={() => $count(count + 1)}>
+    <button onClick={() => $count(count => count + 1)}>
       Count: {count}
     </button>
   )
@@ -90,12 +90,12 @@ export function ThemedButton() {
 }
 ```
 
-### `hook`
+### `injectHook`
 
-The `hook` helper enables you to create custom hooks for your dependencies. This promotes cleaner component code by encapsulating the injection logic (and the dependency token itself).
+`injectHook` creates a reusable hook for a given injection token. This is useful for encapsulating injection logic away from components.
 
 ```tsx
-import { hook } from '@nano_kit/react'
+import { injectHook } from '@nano_kit/react'
 
 /* Define token */
 function Theme$(): 'light' | 'dark' {
@@ -103,11 +103,235 @@ function Theme$(): 'light' | 'dark' {
 }
 
 /* Create custom hook */
-const useTheme = hook(Theme$)
+const useTheme = injectHook(Theme$)
 
 export function ThemedButton() {
   const theme = useTheme() // Type-safe 'light' | 'dark'
 
   return <button className={`btn-${theme}`}>Click me</button>
 }
+```
+
+### `signalHook`
+
+`signalHook` creates a hook that subscribes to a signal returned by a getter function. Useful for wrapping signal-valued injection tokens into stable hooks.
+
+```tsx
+import { signalHook, injectHook } from '@nano_kit/react'
+import { Location$ } from '@nano_kit/router'
+
+/* Creates a hook that reads and subscribes to the location signal */
+const useLocation = signalHook(injectHook(Location$))
+
+export function ActiveLink({ route }) {
+  const location = useLocation()
+  /* ... */
+}
+```
+
+## SSR
+
+### RSC-Side Dehydration
+
+#### `Dehydration`
+
+`Dehydration` is an async RSC component that dehydrates stores on the server and streams the snapshot to the client via [`HydrationProvider`](#hydrationprovider). It works on both initial page loads and RSC flight requests (client-side navigations), pushing fresh data to the client each time.
+
+`Dehydration` boundaries can be nested and repeated in the same RSC tree. For example, a layout can dehydrate shared stores, while a page dehydrates page-specific stores. Boundaries in the same RSC request reuse the shared request context and skip stores that were already dehydrated.
+
+```tsx
+import { inject } from '@nano_kit/store'
+import { Dehydration } from '@nano_kit/react'
+import { User$ } from './stores'
+
+function Stores$() {
+  const { $user } = inject(User$)
+
+  /* Will execute store logic, wait for all async tasks to complete, and extract the dehydrated snapshot */
+  return [$user]
+}
+
+export default function Page() {
+  return (
+    <Dehydration stores={Stores$}>
+      <UserProfile />
+    </Dehydration>
+  )
+}
+```
+
+If you need to inspect or act on the dehydrated data or injection context before rendering, use [`serverDehydrate`](#serverdehydrate--servercontextdehydrate) or [`serverContextDehydrate`](#serverdehydrate--servercontextdehydrate) directly and pass the snapshot via `dehydrated`:
+
+```tsx
+import { inject } from '@nano_kit/store'
+import { serverContextDehydrate, Dehydration } from '@nano_kit/react'
+import { User$ } from './stores'
+
+function Stores$() {
+  const { $user } = inject(User$)
+
+  /* Will execute store logic, wait for all async tasks to complete, and extract the dehydrated snapshot */
+  return [$user]
+}
+
+export default async function Page() {
+  const [context, dehydrated] = await serverContextDehydrate(Stores$)
+
+  /* ...You can use `context` or `dehydrated` here to implement some logic before rendering... */
+
+  return (
+    <Dehydration dehydrated={dehydrated}>
+      <UserProfile />
+    </Dehydration>
+  )
+}
+```
+
+Props:
+- `stores?` — function returning an array of accessors to dehydrate
+- `dehydrated?` — pre-dehydrated data (skips `stores` dehydration if provided)
+- `context?` — additional injection providers
+- `isolate?` — create a new `InjectionContext` on the client instead of reusing the existing one
+
+#### `StaticDehydration`
+
+`StaticDehydration` is like [`Dehydration`](#dehydration) but performs dehydration only on the initial full-page request and skips it on RSC flight requests (client-side navigations where React fetches only the server component payload, not a full HTML page), detected via [`FlightDetector`](#flightdetector). In that case, during client-side navigation, stores will fetch and resolve data in the browser instead of the server.
+
+Like `Dehydration`, `StaticDehydration` can be nested and repeated. This makes it valid to place one boundary in a layout and another boundary in a page.
+
+```tsx
+import { inject } from '@nano_kit/store'
+import { StaticDehydration } from '@nano_kit/react'
+import { User$ } from './stores'
+
+function Stores$() {
+  const { $user } = inject(User$)
+
+  /* Will execute store logic, wait for all async tasks to complete, and extract the dehydrated snapshot */
+  return [$user]
+}
+
+export default function Page() {
+  return (
+    <StaticDehydration stores={Stores$}>
+      <UserProfile />
+    </StaticDehydration>
+  )
+}
+```
+
+Props:
+- `stores?` — function returning an array of accessors to dehydrate
+- `dehydrated?` — pre-dehydrated data (skips `stores` dehydration if provided)
+- `context?` — additional injection providers
+- `isolate?` — create a new `InjectionContext` on the client instead of reusing the existing one
+- `flight?` — override flight detection; when `false`, dehydration is always included
+
+#### `FlightDetector`
+
+`FlightDetector` marks the current RSC request as a non-flight render. Place it in the root layout so [`StaticDehydration`](#staticdehydration) knows when to include dehydrated data.
+
+```tsx
+import { FlightDetector } from '@nano_kit/react'
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        <FlightDetector>
+          {children}
+        </FlightDetector>
+      </body>
+    </html>
+  )
+}
+```
+
+#### `serverDehydrate` / `serverContextDehydrate`
+
+Low-level RSC helpers that run stores in the **shared per-request injection context** and return the dehydrated snapshot. Use them when you need to inspect or act on the dehydrated data before rendering — for instance, to redirect if the user is not authenticated.
+
+`serverDehydrate` returns only the snapshot; `serverContextDehydrate` also returns the `InjectionContext` so you can read values from it.
+
+```tsx
+import { redirect } from 'next/navigation'
+import { inject } from '@nano_kit/store'
+import { serverContextDehydrate, Dehydration } from '@nano_kit/react'
+import { User$ } from './stores'
+
+function Stores$() {
+  const { $user } = inject(User$)
+
+  return [$user]
+}
+
+export default async function Page() {
+  const [context, dehydrated] = await serverContextDehydrate(Stores$)
+  const { $user } = context.get(User$)
+
+  if (!$user()) {
+    redirect('/login')
+  }
+
+  return (
+    <Dehydration dehydrated={dehydrated}>
+      <UserProfile />
+    </Dehydration>
+  )
+}
+```
+
+### Client-Side Hydration
+
+#### `HydrationProvider`
+
+`HydrationProvider` sets up a reactive hydration context for client-side hydration. It uses [`ActiveHydrator`](/store/ssr/#client-side-hydration) under the hood, which supports streaming — the `dehydrated` prop can be updated on re-renders to feed new data.
+
+```tsx
+import { HydrationProvider } from '@nano_kit/react'
+
+function App({ dehydrated }) {
+  return (
+    <HydrationProvider dehydrated={dehydrated}>
+      <UserProfile />
+    </HydrationProvider>
+  )
+}
+```
+
+Props:
+- `dehydrated?` — dehydrated key-value pairs `[string, unknown][]`, or a falsy value to skip hydration
+- `context?` — additional injection providers
+- `reuse?` — reuse an existing `InjectionContext` instead of creating a new one; set to `true` if you want the hydration context to be shared with the rest of your app instead of isolated
+
+#### `StaticHydrationProvider`
+
+`StaticHydrationProvider` is a simpler one-shot variant using [`StaticHydrator`](/store/ssr/#client-side-hydration). It applies the initial `dehydrated` snapshot once and never updates. Use this for classic SSR where the full snapshot is available at first render.
+
+```tsx
+import { StaticHydrationProvider } from '@nano_kit/react'
+
+function App({ dehydrated }) {
+  return (
+    <StaticHydrationProvider dehydrated={dehydrated}>
+      <UserProfile />
+    </StaticHydrationProvider>
+  )
+}
+```
+
+### Utils
+
+#### `isFlight`
+
+Utility to detect flight requests from HTTP headers. Returns `true` when the `accept` header does not include `text/html`.
+
+```ts
+import { isFlight } from '@nano_kit/react'
+import { headers } from 'next/headers'
+
+/* Works with promise-based headers */
+const flightFromHeaders = await isFlight(headers())
+/* Or with plain header objects */
+const flightFromRequest = isFlight(req.headers)
 ```

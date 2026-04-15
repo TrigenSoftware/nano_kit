@@ -7,6 +7,10 @@ sidebar:
 
 import { Tabs, TabItem } from '@astrojs/starlight/components'
 
+This example shows a small React weather app built with `@nano_kit/store`, `@nano_kit/query`, and `@nano_kit/react`.
+
+Use the **Basic** version for the shortest path through the data flow. Use the **Dependency Injection** version to see how external services can be moved out of components and provided through Nano Kit's injection context.
+
 <Tabs syncKey='example-view'>
   <TabItem label='Basic' icon='seti:default'>
     <iframe
@@ -17,6 +21,8 @@ import { Tabs, TabItem } from '@astrojs/starlight/components'
       allow='accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking'
       sandbox='allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts'
     />
+
+    [View source on GitHub](https://github.com/TrigenSoftware/nano_kit/tree/main/examples/weather/react-nano_kit)
   </TabItem>
   <TabItem label='Dependency Injection' icon='puzzle'>
     <iframe
@@ -27,5 +33,7 @@ import { Tabs, TabItem } from '@astrojs/starlight/components'
       allow='accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking'
       sandbox='allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts'
     />
+
+    [View source on GitHub](https://github.com/TrigenSoftware/nano_kit/tree/main/examples/weather/react-nano_kit-di)
   </TabItem>
 </Tabs>

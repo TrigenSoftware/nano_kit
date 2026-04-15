@@ -5,9 +5,9 @@ sidebar:
   order: 3
 ---
 
-import { Steps, Tabs, TabItem, Code } from '@astrojs/starlight/components'
+import { Tabs, TabItem, Code } from '@astrojs/starlight/components'
 
-The `@nano_kit/react-router` package provides React integration for `@nano_kit/router`. It allows you to use the router's powerful features like code splitting, dependency injection, and state management directly within your React application.
+The `@nano_kit/react-router` package provides React integration for `@nano_kit/router`. It allows you to use the router's powerful features like code splitting, Dependency Injection, and state management directly within your React application.
 
 ## Installation
 
@@ -32,7 +32,8 @@ Basically, `@nano_kit/react-router` re-exports everything from `@nano_kit/router
 A typical setup looks like this:
 
 ```tsx
-import { browserNavigation, app, layout, page, loadable, Outlet } from '@nano_kit/react-router'
+import { createRoot } from 'react-dom/client'
+import { browserNavigation, router, layout, page, loadable, usePageSignal } from '@nano_kit/react-router'
 import { MainLayout } from './MainLayout'
 
 /* Define routes config */
@@ -41,57 +42,129 @@ const routes = {
   user: '/users/:id'
 } as const
 
-/* Create navigation */
-const [$location, navigation] = browserNavigation(routes)
-
 /* Define loader fallback */
 const Loader = () => <div>Loading...</div>
 
-/* Create App component */
-const App = app($location, [
+/* Create navigation */
+const [$location, navigation] = browserNavigation(routes)
+
+/* Create page signal */
+const $page = router($location, [
   layout(MainLayout, [
-    page('home', loadable(() => import('./Home'), Loader)),
-    page('user', loadable(() => import('./User'), Loader))
+    page('home', loadable(() => import('./pages/Home'), Loader)),
+    page('user', loadable(() => import('./pages/User'), Loader))
   ])
 ])
+
+function App() {
+  const Page = usePageSignal($page)
+
+  return Page ? <Page /> : null
+}
 
 /* Render App */
 createRoot(document.getElementById('root')!).render(<App />)
 ```
 
+If you want to use DI-based setup, pass the router tokens through `InjectionContextProvider`:
+
+```tsx
+import { createRoot } from 'react-dom/client'
+import { provide } from '@nano_kit/store'
+import { InjectionContextProvider } from '@nano_kit/react'
+import { App, browserNavigation, router, Location$, Navigation$, Page$, Pages$ } from '@nano_kit/react-router'
+import { pages } from './pages'
+import { routes } from './routes'
+
+/* Define global routes types for DI */
+declare module '@nano_kit/router' {
+  interface AppContext {
+    routes: typeof routes
+  }
+}
+
+/* Create navigation and page accessor */
+const [$location, navigation] = browserNavigation(routes)
+const $page = router($location, pages)
+
+/* Render App with DI */
+createRoot(document.getElementById('root')!).render(
+  <InjectionContextProvider
+    context={[
+      provide(Location$, $location),
+      provide(Navigation$, navigation),
+      provide(Page$, $page) // required for App component
+    ]}
+  >
+    <App />
+  </InjectionContextProvider>
+)
+```
+
 ## React Specifics
 
-### `router` & `router$`
+### `router`
 
 The `router` function in this package is an enhanced version of the core router. It supports React components as views and correctly handles nested layouts using the `Outlet` component.
 
-`router$` is the Dependency Injection variant, perfect for usage with `InjectionContextProvider`.
-
 ```tsx
-import { router$, page } from '@nano_kit/react-router'
-import { Location$ } from './router'
+import { router, page } from '@nano_kit/react-router'
 
-const [Page$] = router$(Location$, [
+const $page = router($location, [
   page('home', HomePage),
   page('user', UserPage)
 ])
 ```
 
-### `app` & `app$`
+### `usePageSignal` & `usePage`
 
-The `app` function creates a main React component that reacts to route changes and renders the matching page. It simplifies the boilerplate of manually subscribing to the page signal.
+These hooks return the currently matched page component.
 
-`app$` is the DI variant which returns an `[App, StoresToPreload$]` tuple.
+Without DI, use `usePageSignal` with the `$page` accessor returned by `router()`:
 
 ```tsx
-import { app$, layout, page } from '@nano_kit/react-router'
+import { usePageSignal } from '@nano_kit/react-router'
 
-/* Create a DI-ready App component */
-const [App, StoresToPreload$] = app$(Location$, [
-  layout(RootLayout, [
-    page('home', Home)
-  ])
+function App() {
+  const Page = usePageSignal($page)
+
+  return Page ? <Page /> : null
+}
+```
+
+With DI, use `usePage` and let it read `Page$` from the current injection context:
+
+```tsx
+import { usePage } from '@nano_kit/react-router'
+
+function App() {
+  const Page = usePage()
+
+  return Page ? <Page /> : null
+}
+```
+
+### `App`
+
+`App` is a ready-made React component that reads `Page$` from the current injection context and renders the matched page.
+
+```tsx
+import { provide } from '@nano_kit/store'
+import { router, page, Page$, App } from '@nano_kit/react-router'
+import { InjectionContextProvider } from '@nano_kit/react'
+
+const $page = router($location, [
+  page('home', HomePage),
+  page('user', UserPage)
 ])
+
+<InjectionContextProvider
+  context={[
+    provide(Page$, $page)
+  ]}
+>
+  <App />
+</InjectionContextProvider>
 ```
 
 ### `Outlet`
@@ -103,7 +176,7 @@ import { Outlet } from '@nano_kit/react-router'
 
 export function MainLayout() {
   return (
-    <div className="layout">
+    <div className='layout'>
       <Sidebar />
       <main>
         {/* Nested page will be rendered here */}
@@ -114,30 +187,229 @@ export function MainLayout() {
 }
 ```
 
-### `link` & `link$`
+### `useNavigationListenLinks` & `useListenLinks`
 
-Creates a type-safe `Link` component bound to your router instance. It supports `preload` on hover/focus if configured.
+These hooks intercept clicks on native `<a>` elements and route them through the router navigation layer. Use them when you want to use the router without a custom link component.
+
+Without DI, pass the navigation instance explicitly:
 
 ```tsx
-import { buildPaths, link, preloadable } from '@nano_kit/react-router'
-import { pages } from './pages'
+import { useNavigationListenLinks, usePageSignal } from '@nano_kit/react-router'
+
+function App() {
+  const Page = usePageSignal($page)
+
+  useNavigationListenLinks(navigation)
+
+  return Page ? <Page /> : null
+}
+```
+
+With DI, use `useListenLinks` and let it read `Navigation$` from the current injection context:
+
+```tsx
+import { useListenLinks } from '@nano_kit/react-router'
+
+function App() {
+  const Page = usePage()
+
+  useListenLinks()
+
+  return Page ? <Page /> : null
+}
+```
+
+### `linkComponent` & `Link`
+
+`linkComponent` creates a type-safe `Link` component bound to a specific navigation instance and paths object. `Link` is the DI-based variant that reads router dependencies from the current injection context.
+
+```tsx
+import { linkComponent, buildPaths, preloadable } from '@nano_kit/react-router'
 
 /* Create Link component */
-const Link = link(
+const Link = linkComponent(
   navigation,
   buildPaths(routes),
   /* Optional: enable preloading on interaction */
-  preloadable(pages)
+  [preloadable(pages)]
 )
 
 /* Usage */
-<Link to="user" params={{ id: '123' }} preload>
+<Link to='user' params={{ id: '123' }} preload>
   View User
 </Link>
 ```
 
-For DI usage, `link$` accepts a `Navigation$` token:
+For DI usage, use the built-in `Link` component inside `InjectionContextProvider`:
 
 ```tsx
-const Link = link$(Navigation$, buildPaths(routes))
+import { Link } from '@nano_kit/react-router'
+
+<Link to='user' params={{ id: '123' }}>
+  View User
+</Link>
+```
+
+The DI variant uses the provided `Navigation$` and `Paths$` tokens under the hood.
+
+### `preloadable` & `useLinkComponentPreload`
+
+These link extensions enable page preloading on hover and focus.
+
+Without DI, use `preloadable` when creating your custom `Link` component. It accepts either the pages array or a function returning it:
+
+```tsx
+import { linkComponent, buildPaths, preloadable } from '@nano_kit/react-router'
+import { pages } from './pages'
+
+const Link = linkComponent(
+  navigation,
+  buildPaths(routes),
+  [
+    /* true = default value of Link's preload prop */
+    preloadable(() => pages, true)
+  ]
+)
+```
+
+With DI, use `useLinkComponentPreload` to enable the same behavior for the built-in `Link` component:
+
+```tsx
+import { useLinkComponentPreload } from '@nano_kit/react-router'
+
+function App() {
+  const Page = usePage()
+
+  /* true = default value of built-in Link's preload prop */
+  useLinkComponentPreload(true)
+
+  return Page ? <Page /> : null
+}
+```
+
+### `ariaCurrent` & `useLinkComponentAriaCurrent`
+
+These link extensions enable automatic `aria-current` handling for active links.
+
+Without DI, use `ariaCurrent` when creating your custom `Link` component:
+
+The optional second argument is a predicate that receives the link URL and current location and decides whether the link should be treated as current. By default, it checks `url.pathname === location.pathname`.
+
+```tsx
+import { ariaCurrent, linkComponent, buildPaths } from '@nano_kit/react-router'
+
+const Link = linkComponent(
+  navigation,
+  buildPaths(routes),
+  [ariaCurrent($location)]
+)
+```
+
+With DI, use `useLinkComponentAriaCurrent` to enable the same behavior for the built-in `Link` component:
+
+It accepts the same optional predicate, but reads the current location from DI instead of taking `$location` explicitly.
+
+```tsx
+import { useLinkComponentAriaCurrent, usePage } from '@nano_kit/react-router'
+
+function App() {
+  const Page = usePage()
+
+  useLinkComponentAriaCurrent()
+
+  return Page ? <Page /> : null
+}
+```
+
+### `usePageSyncHead` & `useSyncHead`
+
+These hooks synchronize the current page's `Head$` descriptors.
+
+Without DI, use `usePageSyncHead` with an explicit `$page` accessor:
+
+```tsx
+import { usePageSyncHead } from '@nano_kit/react-router'
+
+function App() {
+  const Page = usePageSignal($page)
+
+  usePageSyncHead($page)
+
+  return Page ? <Page /> : null
+}
+```
+
+With DI, use `useSyncHead` and let it read `Page$` from the current injection context:
+
+```tsx
+import { useSyncHead } from '@nano_kit/react-router'
+
+function App() {
+  const Page = usePage()
+
+  useSyncHead()
+
+  return Page ? <Page /> : null
+}
+```
+
+### `useLocation`
+
+`useLocation` subscribes to the current route location from the injection context.
+
+```tsx
+import { useLocation } from '@nano_kit/react-router'
+
+function RouteInfo() {
+  const location = useLocation()
+
+  return <span>{location.pathname}</span>
+}
+```
+
+### `useNavigation`
+
+`useNavigation` returns the navigation API from the injection context.
+
+```tsx
+import { useNavigation } from '@nano_kit/react-router'
+
+function BackButton() {
+  const navigation = useNavigation()
+
+  return <button onClick={() => navigation.back()}>Back</button>
+}
+```
+
+### `usePaths`
+
+`usePaths` returns the typed path builders derived from your route definitions.
+
+```tsx
+import { usePaths } from '@nano_kit/react-router'
+
+function UserLink({ id }: { id: string }) {
+  const paths = usePaths()
+
+  return <a href={paths.user({ id })}>View user</a>
+}
+```
+
+### `useCanGoBack`
+
+`useCanGoBack` subscribes to whether back navigation is currently possible.
+
+```tsx
+import { useCanGoBack, useNavigation } from '@nano_kit/react-router'
+
+function BackButton() {
+  const navigation = useNavigation()
+  const canGoBack = useCanGoBack()
+
+  return (
+    <button disabled={!canGoBack} onClick={() => navigation.back()}>
+      Back
+    </button>
+  )
+}
 ```

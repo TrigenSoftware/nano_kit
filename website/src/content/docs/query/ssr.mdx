@@ -1,15 +1,55 @@
 ---
 title: SSR
-description: "Learn how to use @nano_kit/query for server-side rendering (SSR)"
+description: "Learn how to use @nano_kit/query for server-side rendering (SSR)."
 sidebar:
   order: 4
 ---
 
-import { Aside } from '@astrojs/starlight/components'
+Server-side rendering in `@nano_kit/query` is built around two pieces: task tracking and cache dehydration.
 
-<Aside type='caution'>SSR functionality is currently in **Alpha** stage. It is not fully implemented and the API may change in future releases.</Aside>
+Queries started during server render should be awaited before HTML is returned, and the resulting cache state should be transferred to the client for hydration.
 
-Complete documentation, hydration guides, and framework-specific examples are coming soon!
+## `hydratable`
 
-Currently, you can use the `tasks` extension to await promises on the server (as described in the [Advanced](/query/advanced#tasks) section), but full hydration support is still in development.
+Use `hydratable()` when query cache should be dehydrated on the server and rehydrated on the client.
 
+Without arguments, it reads hydration dependencies from the current injection context. Outside DI, pass them explicitly.
+
+In a manual setup, it is typically paired with `tasks()`, which works the same way: without arguments it reads `TasksRunner$` from the current injection context, and outside DI you can pass the runner explicitly.
+
+```ts
+import { client, tasks, hydratable } from '@nano_kit/query'
+
+const { query } = client(
+  tasks(),
+  hydratable()
+)
+```
+
+Use this when you want to customize task handling or hydration setup independently.
+
+## `ssr`
+
+`ssr()` is a convenience setting that combines `tasks()` and `hydratable()`.
+
+Inside an SSR injection context, it reads the task runner and hydration dependencies automatically. If you need explicit control instead, use `tasks(...)` and `hydratable(...)` directly.
+
+```ts
+import { client, dedupeTime, ssr } from '@nano_kit/query'
+
+const DEDUPE_TIME = 300_000 // 5 minutes
+
+export function Client$() {
+  return client(
+    dedupeTime(DEDUPE_TIME),
+    ssr()
+  )
+}
+```
+
+This enables the usual SSR flow:
+
+1. Queries started during server render are tracked as tasks.
+2. The renderer waits for those tasks to finish.
+3. Query cache state is dehydrated into the hydration payload.
+4. The client rehydrates the cache and reuses the prefetched data.

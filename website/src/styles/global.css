@@ -106,7 +106,7 @@
 
 .site-title, .hero:has(.actions) h1 {
   position: relative;
-  font-family: var(--sl-font-system-mono);
+  font-family: Menlo, monospace;
   color: transparent;
 
   &::after {

@@ -106,6 +106,21 @@ const stop = observe($data, (value) => {
 /* $data remains unmounted until something else mounts it */
 ```
 
+**`subscribeAny`** - Subscribes to a signal or calls the callback immediately with a plain value. Useful when you have a value that may or may not be reactive.
+
+```ts
+import { signal, subscribeAny } from '@nano_kit/store'
+
+const $count = signal(0)
+
+/* Works with a signal */
+subscribeAny($count, (value) => console.log('Value:', value))
+
+/* Works with a plain value */
+subscribeAny(42, (value) => console.log('Value:', value))
+/* Calls callback immediately with 42 */
+```
+
 ## Complex Data Types
 
 When working with objects and arrays, the library provides tools to create reactive child signals for individual properties or elements. This enables fine-grained reactivity while keeping your code organized.
@@ -365,6 +380,31 @@ const $canDriveCached = computed($canDrive)
 
 The library provides a set of utility functions for common tasks like rate limiting, value extraction, type checking, and working with signal properties.
 
+### Async State
+
+**`resolved`** unwraps a promise accessor into a `[$result, $error, $pending]` tuple of signals. Stale data is preserved while a new promise is pending, and falsy values reset the state.
+
+```ts
+import { signal, computed, resolved } from '@nano_kit/store'
+
+function getPosition(options?: PositionOptions) {
+  return new Promise<GeolocationPosition>((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(resolve, reject, options)
+  })
+}
+
+const $highAccuracy = signal(false)
+const [$position, $error, $pending] = resolved(
+  computed(() => getPosition({ enableHighAccuracy: $highAccuracy() }))
+)
+```
+
+A falsy source resets all signals to their initial state (`result: undefined`, `error: undefined`, `pending: false`).
+
+<Aside>
+  For remote data fetching with caching, request deduplication, cancellation, refetching, and other advanced features, consider using [`@nano_kit/query`](/query) instead.
+</Aside>
+
 ### Rate Limiting
 
 **`paced`** creates a proxy signal that updates the original signal using a rate limiter. This allows you to control how frequently a signal propagates updates while keeping immediate local updates. The proxy signal updates instantly, but the original signal updates only after the rate limiter allows it.
@@ -520,9 +560,20 @@ isSignal($doubled) /* true */
 isSignal($accessor) /* false */
 ```
 
+**`isEmpty`** checks if a value is `null` or `undefined`.
+
+```ts
+import { isEmpty } from '@nano_kit/store'
+
+isEmpty(null)      /* true */
+isEmpty(undefined) /* true */
+isEmpty(0)         /* false */
+isEmpty('')        /* false */
+```
+
 ### Value Extraction
 
-**`$get`** extracts a value from either a plain value or an accessor.
+**`$get`** extracts a value from either a plain value or an accessor. Tracks dependencies when called inside an effect.
 
 ```ts
 import { signal, $get } from '@nano_kit/store'
@@ -532,6 +583,23 @@ const $count = signal(5)
 $get($count) /* 5 */
 $get(10) /* 10 */
 $get(() => 15) /* 15 */
+```
+
+**`get`** — same as `$get` but always reads without tracking dependencies (untracked). Useful when you need the current value inside an effect without subscribing to future changes.
+
+```ts
+import { signal, effect, get } from '@nano_kit/store'
+
+const $a = signal(1)
+const $b = signal(10)
+
+effect(() => {
+  /* Tracks $a, re-runs when $a changes */
+  console.log('A:', $a())
+
+  /* Reads $b without tracking */
+  console.log('B:', get($b))
+})
 ```
 
 **`toSignal`** converts a value, accessor, or signal into a writable signal.
@@ -550,7 +618,7 @@ const $d = toSignal(() => 20) /* Creates computed(() => 20) */
 ```ts
 import { signal, computed, toAccessor } from '@nano_kit/store'
 
-const $a = toAccessor(42) /* Сreates () => 42 */
+const $a = toAccessor(42) /* Creates () => 42 */
 const $b = toAccessor(signal(10)) /* Returns input signal */
 const $c = toAccessor(computed(() => 5)) /* Returns input computed */
 const $d = toAccessor(() => 20) /* Returns input accessor */

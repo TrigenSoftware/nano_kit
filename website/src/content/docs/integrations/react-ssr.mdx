@@ -1,0 +1,175 @@
+---
+title: React SSR
+description: "Add server-side rendering to a React + Nano Kit app using @nano_kit/react-ssr."
+sidebar:
+  order: 5
+---
+
+import { Steps, Tabs, TabItem, Code, Aside } from '@astrojs/starlight/components'
+
+`@nano_kit/react-ssr` is the React adapter for server-side rendering in Nano Kit.
+
+## Installation
+
+<Tabs syncKey='pkg'>
+  <TabItem label='pnpm' icon='pnpm'>
+    <Code frame='none' lang='bash' code='pnpm add @nano_kit/store @nano_kit/router @nano_kit/react @nano_kit/react-router @nano_kit/react-ssr react react-dom' />
+  </TabItem>
+  <TabItem label='Yarn' icon='seti:yarn'>
+    <Code frame='none' lang='bash' code='yarn add @nano_kit/store @nano_kit/router @nano_kit/react @nano_kit/react-router @nano_kit/react-ssr react react-dom' />
+  </TabItem>
+  <TabItem label='npm' icon='seti:npm'>
+    <Code frame='none' lang='bash' code='npm install @nano_kit/store @nano_kit/router @nano_kit/react @nano_kit/react-router @nano_kit/react-ssr react react-dom' />
+  </TabItem>
+</Tabs>
+
+## Quick Start
+
+<Steps>
+
+1. **Define your app**
+
+   Create an index file that exports `routes` and `pages`. This file is the single source of truth consumed by both the server renderer and the Vite plugin.
+
+   ```ts
+   // src/index.ts
+   import { page, layout, loadable } from '@nano_kit/router'
+   import * as Layout from './Layout.jsx'
+
+   export const routes = {
+     home: '/',
+     about: '/about'
+   } as const
+
+   export const pages = [
+     layout(Layout, [
+       page('home', loadable(() => import('./pages/Home.jsx'))),
+       page('about', loadable(() => import('./pages/About.jsx')))
+     ])
+   ]
+
+   declare module '@nano_kit/router' {
+     interface AppContext {
+       routes: typeof routes
+     }
+   }
+   ```
+
+2. **Set up the Vite plugin**
+
+   Add `@nano_kit/react-ssr/vite-plugin` to your Vite config. No extra configuration is needed for a standard setup — the plugin uses built-in client and renderer templates automatically.
+
+   ```js
+   // vite.config.js
+   import { defineConfig } from 'vite'
+   import react from '@vitejs/plugin-react'
+   import ssr from '@nano_kit/react-ssr/vite-plugin'
+
+   export default defineConfig({
+     plugins: [
+       react(),
+       ssr({ index: 'src/index.ts' })
+     ]
+   })
+   ```
+
+   - **`vite dev`** — starts the development server with SSR rendering handled in-process.
+   - **`vite build`** — produces `dist/client/` (browser assets) and `dist/renderer/` (SSR renderer bundle).
+
+3. **Write your production HTTP server**
+
+   For production, write your own HTTP server that imports the built renderer and calls `renderer.render(url)` for every incoming request:
+
+   ```js
+   // server.js
+   import { renderer } from './dist/renderer/index.js'
+
+   // Express example
+   app.get('*', async (req, res) => {
+     const result = await renderer.render(req.url)
+
+     if (result.redirect) {
+       return res.redirect(result.statusCode, result.redirect)
+     }
+
+     if (result.html !== null) {
+       return res.status(result.statusCode).send(result.html)
+     }
+
+     res.status(result.statusCode).send('Not Found')
+   })
+   ```
+
+</Steps>
+
+## Custom Renderer
+
+To customize the HTML output, extend `ReactRenderer` and override `renderToString`:
+
+```tsx
+// src/renderer.tsx
+import { ReactRenderer, type RenderData } from '@nano_kit/react-ssr/renderer'
+import { routes, pages } from './index.js'
+
+class AppRenderer extends ReactRenderer {
+  renderToString(data: RenderData) {
+    // call the default implementation or build your own HTML document
+    return super.renderToString(data)
+  }
+}
+
+export const renderer = new AppRenderer({
+  base: import.meta.env.BASE_URL,
+  manifestPath: import.meta.env.MANIFEST,
+  routes,
+  pages
+})
+```
+
+Then point the plugin to your custom renderer file:
+
+```js
+// vite.config.js
+ssr({
+  index: 'src/index.ts',
+  renderer: 'src/renderer.tsx'
+})
+```
+
+## Custom Client
+
+To customize client-side hydration, provide your own client entry:
+
+```tsx
+// src/client.tsx
+import { hydrateRoot } from 'react-dom/client'
+import { InjectionContextProvider } from '@nano_kit/react'
+import { App } from '@nano_kit/react-router'
+import { ROOT_ID, ready } from '@nano_kit/react-ssr/client'
+import { routes, pages } from './index.js'
+
+ready({ routes, pages }).then((context) => {
+  hydrateRoot(
+    document.getElementById(ROOT_ID)!,
+    <InjectionContextProvider context={context}>
+      <App />
+    </InjectionContextProvider>
+  )
+})
+```
+
+Then point the plugin to your client file:
+
+```js
+// vite.config.js
+ssr({
+  index: 'src/index.ts',
+  client: 'src/client.tsx'
+})
+```
+
+## See Also
+
+- [SSR — Getting Started](/ssr) — how the base SSR package works
+- [Router SSR](/router/ssr) — how to add [`Stores$`](/router/ssr#stores-data-dehydration) and [`Head$`](/router/ssr#head-management) to page modules
+- [React Router](/integrations/react-router) — [`App`](/integrations/react-router#app), [`browserNavigation`](/integrations/react-router#setup), [`router`](/integrations/react-router#router), and other React router APIs

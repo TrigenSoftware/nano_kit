@@ -1,6 +1,6 @@
 ---
 title: Low-Level API
-description: "Learn about the low-level API of @nano_kit/store"
+description: "Learn about the low-level API of @nano_kit/store."
 sidebar:
   order: 6
 next:
@@ -181,7 +181,7 @@ console.log($user()) /* { name: 'Alice', age: 30 } */
 With dynamic keys:
 
 ```ts
-import { signal, child } from '@nano_kit/store'
+import { signal, child, assignKey } from '@nano_kit/store'
 
 const $obj = signal({ a: 1, b: 2 })
 const $key = signal('a')

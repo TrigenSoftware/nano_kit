@@ -111,6 +111,12 @@ export default defineConfig({
           }
         },
         {
+          label: 'SSR',
+          autogenerate: {
+            directory: 'ssr'
+          }
+        },
+        {
           label: 'Integrations',
           autogenerate: {
             directory: 'integrations'

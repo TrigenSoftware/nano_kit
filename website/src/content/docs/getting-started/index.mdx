@@ -50,15 +50,18 @@ unsub()
 | [@nano_kit/store](/store) | Signals-based state management library. |
 | [@nano_kit/query](/query) | Data fetching and caching library, built on @nano_kit/store. |
 | [@nano_kit/router](/router) | Routing library, built on @nano_kit/store. |
+| [@nano_kit/ssr](/ssr) | Base package for building framework-specific SSR adapters. |
 
 ### Framework Adapters
 
 | Adapter | Description |
 |---------|-------------|
-| [@nano_kit/react](/integrations/react) | React bindings for @nano_kit/store. |
-| [@nano_kit/react-router](/integrations/react-router) | React bindings for @nano_kit/router. |
+| [@nano_kit/react](/integrations/react) | React integration for @nano_kit/store. |
+| [@nano_kit/react-router](/integrations/react-router) | React integration for @nano_kit/router. |
+| [@nano_kit/next-router](/integrations/next-router) | Next.js integration for @nano_kit/router. |
+| [@nano_kit/react-ssr](/integrations/react-ssr) | React SSR adapter for @nano_kit/ssr. |
 
-<Aside>Nano Kit is currently in **alpha**. More adapters are coming later.</Aside>
+<Aside>Nano Kit is currently in **beta**. More adapters are coming later.</Aside>
 
 ## Motivation
 
@@ -83,7 +86,7 @@ Adopting an ecosystem-first architecture provides a much smoother experience for
 
 Compare this to a standard setup like React Router + Redux + React Query. While these are great tools, they are effectively strangers to each other. They each have their own way of doing things and their own internal weight, often leading to duplicated code. Consequently, developers are forced to manually synchronize state and data between these independent tools inside the UI components, often resulting in bloated "glue code".
 
-Nano Kit takes a different approach. Because the router, data fetching, and state manager are engineered to work together from day one, they integrate deeply at the store level. This removes the need for messy "glue code" in your components and keeps your application logic clean, unified, and efficient. It makes the store layer portable and independent, allowing you to easily swap the UI layer.
+Nano Kit takes a different approach. Because the router, data fetching, and state management layer are engineered to work together from day one, they integrate deeply at the store level. This removes the need for messy "glue code" in your components and keeps your application logic clean, unified, and efficient. It makes the store layer portable and independent, allowing you to easily swap the UI layer.
 
 ```ts
 import { browserNavigation, searchParams, searchParam } from '@nano_kit/router'

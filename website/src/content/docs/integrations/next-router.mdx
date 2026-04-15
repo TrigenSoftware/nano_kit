@@ -1,0 +1,258 @@
+---
+title: Next.js Router
+description: "Integrate @nano_kit/router with Next.js using @nano_kit/next-router."
+sidebar:
+  order: 5
+---
+
+import { Tabs, TabItem, Code } from '@astrojs/starlight/components'
+
+The `@nano_kit/next-router` package provides Next.js integration for `@nano_kit/router`. It re-exports everything from `@nano_kit/react-router` and adds Next.js-specific navigation providers, a router-aware `Link`, and helpers for the Pages Router.
+
+For shared router APIs such as [`useLocation`](/integrations/react-router#uselocation), [`useNavigation`](/integrations/react-router#usenavigation), [`usePaths`](/integrations/react-router#usepaths), [`useListenLinks`](/integrations/react-router#usenavigationlistenlinks--uselistenlinks), see the [React Router integration](/integrations/react-router).
+
+## Installation
+
+Install the package using your favorite package manager:
+
+<Tabs syncKey='pkg'>
+  <TabItem label='pnpm' icon='pnpm'>
+    <Code frame='none' lang='bash' code='pnpm add @nano_kit/store @nano_kit/router @nano_kit/react @nano_kit/next-router' />
+  </TabItem>
+  <TabItem label='Yarn' icon='seti:yarn'>
+    <Code frame='none' lang='bash' code='yarn add @nano_kit/store @nano_kit/router @nano_kit/react @nano_kit/next-router' />
+  </TabItem>
+  <TabItem label='npm' icon='seti:npm'>
+    <Code frame='none' lang='bash' code='npm install @nano_kit/store @nano_kit/router @nano_kit/react @nano_kit/next-router' />
+  </TabItem>
+</Tabs>
+
+## Setup
+
+Like `@nano_kit/react-router`, this package works with route definitions declared in `AppContext.routes`.
+
+```tsx
+import { routes } from '@/stores/router'
+
+declare module '@nano_kit/router' {
+  interface AppContext {
+    routes: typeof routes
+  }
+}
+```
+
+The Next.js setup differs slightly between the App Router and the Pages Router.
+
+### App Router
+
+Use `NextNavigation` in the root layout to create navigation for the current RSC request and provide `Location$` / `Navigation$` to client components.
+
+```tsx
+import type { Metadata } from 'next'
+import {
+  FlightDetector,
+  HydrationProvider
+} from '@nano_kit/react'
+import { NextNavigation } from '@nano_kit/next-router'
+import { routes } from '@/stores/router'
+
+declare module '@nano_kit/router' {
+  interface AppContext {
+    routes: typeof routes
+  }
+}
+
+export const metadata: Metadata = {
+  title: 'My App'
+}
+
+export default function RootLayout({ children }: {
+  children: React.ReactNode
+}) {
+  return (
+    <FlightDetector>
+      <NextNavigation
+        routes={routes}
+        prerenderable
+      >
+        <HydrationProvider>
+          <html lang='en'>
+            <body>{children}</body>
+          </html>
+        </HydrationProvider>
+      </NextNavigation>
+    </FlightDetector>
+  )
+}
+```
+
+If a page dehydrates stores on the server, wrap that page's dehydration boundary in its own `NextNavigation`. This ensures client-side flight renders still have a current navigation context.
+
+```tsx
+import { Dehydration } from '@nano_kit/react'
+import { NextNavigation } from '@nano_kit/next-router'
+import { routes } from '@/stores/router'
+import CharactersPage, { Stores$ } from '@/ui/pages/Characters'
+
+export default function Page() {
+  return (
+    <NextNavigation routes={routes}>
+      <Dehydration stores={Stores$}>
+        <CharactersPage />
+      </Dehydration>
+    </NextNavigation>
+  )
+}
+```
+
+### Pages Router
+
+Use `NextNavigationProvider` in `_app.tsx` to provide navigation in client components, then hydrate store data through `HydrationProvider`.
+
+```tsx
+import type { AppProps } from 'next/app'
+import { HydrationProvider } from '@nano_kit/react'
+import { NextNavigationProvider } from '@nano_kit/next-router'
+import { routes } from '@/stores/router'
+
+declare module '@nano_kit/router' {
+  interface AppContext {
+    routes: typeof routes
+  }
+}
+
+export default function App({ Component, pageProps }: AppProps) {
+  return (
+    <NextNavigationProvider routes={routes}>
+      <HydrationProvider dehydrated={pageProps.dehydrated}>
+        <Component {...pageProps} />
+      </HydrationProvider>
+    </NextNavigationProvider>
+  )
+}
+```
+
+For SSR data loading in `getServerSideProps`, use `virtualNavigationContext` together with `dehydrate`.
+
+```tsx
+import type { GetServerSideProps } from 'next'
+import { dehydrate } from '@nano_kit/store'
+import { virtualNavigationContext } from '@nano_kit/next-router'
+import { routes } from '@/stores/router'
+import CharactersPage, { Stores$ } from '@/ui/pages/Characters'
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const dehydrated = await dehydrate(
+    Stores$,
+    virtualNavigationContext(context.resolvedUrl, routes)
+  )
+
+  return {
+    props: {
+      dehydrated
+    }
+  }
+}
+
+export default function Page() {
+  return <CharactersPage />
+}
+```
+
+## Next Specifics
+
+### `NextNavigation`
+
+`NextNavigation` is an async RSC component for the App Router. It creates navigation for the current request, provides `Location$` and `Navigation$`, and renders `NextNavigationProvider` on the client.
+
+Server-side `navigation.push()` and `navigation.replace()` are mapped to Next.js redirects. The `prerenderable` prop skips [Next.js `connection()`](https://nextjs.org/docs/app/api-reference/functions/connection) and allows the route to stay statically prerenderable, but in that mode `searchParams` are not available during server render.
+
+```tsx
+import { NextNavigation } from '@nano_kit/next-router'
+
+export default function Layout({ children }: {
+  children: React.ReactNode
+}) {
+  return (
+    <NextNavigation
+      routes={routes}
+      prerenderable
+    >
+      {children}
+    </NextNavigation>
+  )
+}
+```
+
+### `NextNavigationProvider`
+
+`NextNavigationProvider` is the client-side provider used by the Pages Router and by `NextNavigation` after hydration. It creates an `InjectionContext` with `Location$` and `Navigation$` only when a fresh client navigation context is needed.
+
+```tsx
+import { NextNavigationProvider } from '@nano_kit/next-router'
+
+<NextNavigationProvider routes={routes}>
+  <App />
+</NextNavigationProvider>
+```
+
+### `Link`
+
+`Link` is a typed wrapper around `next/link`. It supports route-aware `to` and `params` props, but also accepts plain `href` when needed.
+
+Use it inside `NextNavigation` or `NextNavigationProvider`.
+
+```tsx
+'use client'
+import { Link } from '@nano_kit/next-router'
+
+export function Nav() {
+  return (
+    <nav>
+      <Link to='characters'>Characters</Link>
+      <Link to='character' params={{ id: '42' }}>
+        Rick
+      </Link>
+      <Link href='/about'>About</Link>
+    </nav>
+  )
+}
+```
+
+### `redirect` & `notFound`
+
+These helpers are for the Pages Router.
+
+- `redirect(context, permanent?)` returns a Next.js `{ redirect: ... }` if redirection was triggered during dehydration.
+- `notFound(value)` returns `{ notFound: true }` when the value is falsy.
+
+```tsx
+import type { GetServerSideProps } from 'next'
+import { contextDehydrate } from '@nano_kit/store'
+import {
+  notFound,
+  redirect,
+  virtualNavigationContext
+} from '@nano_kit/next-router'
+import { routes } from '@/stores/router'
+import { User$ } from '@/stores/user'
+import UserPage, { Stores$ } from '@/ui/pages/User'
+
+export const getServerSideProps: GetServerSideProps = async (nextContext) => {
+  const [context, dehydrated] = await contextDehydrate(
+    Stores$,
+    virtualNavigationContext(nextContext.resolvedUrl, routes)
+  )
+  const { $user } = context.get(User$)
+
+  return notFound($user()) ?? redirect(context) ?? {
+    props: {
+      dehydrated
+    }
+  }
+}
+
+export default function Page() {
+  return <UserPage />
+}
+```

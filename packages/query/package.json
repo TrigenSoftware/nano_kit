@@ -2,7 +2,7 @@
   "name": "@nano_kit/query",
   "type": "module",
   "version": "1.0.0-alpha.2",
-  "description": "A small and powerful remote data manager for @nano_kit/store state manager.",
+  "description": "A small and powerful remote data management library for @nano_kit/store.",
   "author": "dangreen",
   "license": "MIT",
   "homepage": "https://nano-kit.js.org/query",

@@ -244,7 +244,7 @@ onMount($temperature, () => {
 const stop = effect(() => {
   console.log('Current temperature:', $temperature())
 })
-/* $temperature is now mounted */f
+/* $temperature is now mounted */
 
 stop()
 /* $temperature is now unmounted */
@@ -271,7 +271,7 @@ stop2()
 
 ## Dependency Injection
 
-The dependency injection system enables modular architecture and makes testing easier by allowing dependencies to be easily replaced with mocks. It also plays a critical role in SSR scenarios by isolating state between requests.
+The Dependency Injection system enables modular architecture and makes testing easier by allowing dependencies to be easily replaced with mocks. It also plays a critical role in SSR scenarios by isolating state between requests.
 
 Use factory functions with `inject` to retrieve dependencies. For example, in React, use `InjectionContextProvider` to create a context and `useInject` to access dependencies.
 
@@ -325,14 +325,43 @@ function UserProfile() {
 
 Use `provide` to override dependencies with custom values. This is useful for testing or when you want to inject a different value / implementation.
 
-```ts
+```tsx
 import { provide } from '@nano_kit/store'
-import { InjectionContextProvider, useInject } from '@nano_kit/react'
+import { InjectionContextProvider } from '@nano_kit/react'
 
 function Theme$() {
   return 'light'
 }
 
+function App() {
+  return (
+    <InjectionContextProvider context={[provide(Theme$, 'dark')]}>
+      <TopBar />
+    </InjectionContextProvider>
+  )
+}
+```
+
+### Required Dependencies
+
+If a factory has no meaningful default and must always be provided via `provide`, throw `DependencyNotFound` to make the error explicit:
+
+```tsx
+import { DependencyNotFound, inject, provide } from '@nano_kit/store'
+import { InjectionContextProvider, useInject } from '@nano_kit/react'
+
+/* Token that must be provided — no default value exists */
+function Theme$(): 'light' | 'dark' {
+  throw new DependencyNotFound('Theme$')
+}
+
+/* Consumer */
+function Button() {
+  const theme = useInject(Theme$) /* throws if not provided */
+  /* ... */
+}
+
+/* Provider */
 function App() {
   return (
     <InjectionContextProvider context={[provide(Theme$, 'dark')]}>
@@ -362,35 +391,13 @@ const value = $get($count)
 
 ### DI Factories
 
-Factory functions that start with an uppercase letter and end with `$` are dependency injection factories.
+Factory functions that start with an uppercase letter and end with `$` are Dependency Injection factories.
 
 ```ts
 import { TasksRunner$, inject } from '@nano_kit/store'
 
 function User$() {
   const task = inject(TasksRunner$)
-  /* ... */
-}
-```
-
-### DI Utilities
-
-Functions that start with a lowercase letter and end with `$` accept or return DI factories. These typically mirror the signature of their non-DI counterparts.
-
-```ts
-import { browserNavigation, browserNavigation$ } from '@nano_kit/router'
-import { useInject } from '@nano_kit/react'
-
-/* Regular function - returns tuple directly */
-const [$location, navigation] = browserNavigation()
-
-/* DI version - returns factories */
-const [Location$, Navigation$] = browserNavigation$()
-
-/* Usage with DI */
-function MyComponent() {
-  const $location = useInject(Location$)
-  const navigation = useInject(Navigation$)
   /* ... */
 }
 ```
