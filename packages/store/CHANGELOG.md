@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.1](https://github.com/TrigenSoftware/nano_kit/compare/store@1.0.0-beta.0...store@1.0.0-beta.1) (2026-04-18)
+
+### Features
+
+* add pace accessor helper ([fc8f78b](https://github.com/TrigenSoftware/nano_kit/commit/fc8f78bcff1fe70ec1bd96633984effb4fd4dc04))
+
 ## [1.0.0-beta.0](https://github.com/TrigenSoftware/nano_kit/compare/store@1.0.0-alpha.1...store@1.0.0-beta.0) (2026-04-12)
 
 ### Features

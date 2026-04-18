@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.3](https://github.com/TrigenSoftware/nano_kit/compare/query@1.0.0-alpha.2...query@1.0.0-alpha.3) (2026-04-18)
+
+### Bug Fixes
+
+* improve infinite refetching and query helper types ([aeae0fa](https://github.com/TrigenSoftware/nano_kit/commit/aeae0fa7f31fe866c47254c31b8ed50c175b9b54))
+
 ## [1.0.0-alpha.2](https://github.com/TrigenSoftware/nano_kit/compare/query@1.0.0-alpha.1...query@1.0.0-alpha.2) (2026-04-12)
 
 ### Features
