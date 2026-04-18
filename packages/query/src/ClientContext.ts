@@ -1,5 +1,6 @@
 import {
   type ReadableSignal,
+  type Accessor,
   type TasksRunner,
   type Task,
   TasksRunner$,
@@ -22,7 +23,7 @@ export type OnEveryError = (error: unknown, stopped: boolean) => void
 
 export class ClientContext<T = unknown> extends CacheStorage {
   $key?: ReadableSignal<CacheKey> = undefined
-  $disabled?: ReadableSignal<boolean> = undefined
+  $disabled?: Accessor<boolean> = undefined
   loadingDedupe = true
   timeDedupe = true
   onEveryError: OnEveryError | undefined = undefined
@@ -176,7 +177,7 @@ export function onEveryError(fn: OnEveryError): ClientSetting {
  * @returns The client setting function.
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function disabled($disabled: ReadableSignal<boolean>): ClientSetting {
+export function disabled($disabled: Accessor<boolean>): ClientSetting {
   return ctx => ctx.$disabled = $disabled
 }
 

@@ -21,6 +21,7 @@ import {
   mutation
 } from './queries/index.js'
 
+export type { InfinitePages } from './queries/index.js'
 export * from './client.types.js'
 
 /**

@@ -101,12 +101,15 @@ export function infinite<P extends unknown[], C, R>(
     $loading
   } = baseQuery<P, [cursor: C | undefined], InfinitePages<R, C>>(this, key, params, async (...args) => {
     const queryCtx = args[args.length - 1] as QueryContext<P, InfinitePages<R, C>>
+    const cursor = args[args.length - 2] as C | undefined
     const data = clientCtx.$get(queryCtx).data as InfinitePages<R, C> | null
     const page = await fn(...args)
     const nextValue = next(page)
 
     return {
-      pages: [...data?.pages || [], page],
+      pages: cursor === undefined
+        ? [page]
+        : [...data?.pages || [], page],
       next: nextValue,
       more: Boolean(nextValue)
     }

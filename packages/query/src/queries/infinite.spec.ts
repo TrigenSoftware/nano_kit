@@ -279,6 +279,41 @@ describe('query', () => {
 
         off()
       })
+
+      it('should replace pages when revalidating the first page', async () => {
+        const {
+          infinite,
+          revalidate
+        } = client(infinites(), tasks(tasksRunner(tasksPool)))
+        const [fetchNext, $data] = infinite(
+          PostsKey,
+          [],
+          page => page.nextCursor,
+          getPosts
+        )
+        const off = effect(() => {
+          $data()
+        })
+
+        await waitTasks(tasksPool)
+
+        expect($data()?.pages).toHaveLength(1)
+
+        fetchNext()
+
+        await waitTasks(tasksPool)
+
+        expect($data()?.pages).toHaveLength(2)
+
+        revalidate(PostsKey())
+
+        await waitTasks(tasksPool)
+
+        expect($data()?.pages).toHaveLength(1)
+        expect($data()?.pages[0]?.posts.map(post => post.id)).toEqual([1, 2])
+
+        off()
+      })
     })
   })
 })
