@@ -1,0 +1,36 @@
+{
+  "name": "event-board-react-nano_kit-ssr",
+  "private": true,
+  "version": "0.0.0",
+  "packageManager": "pnpm@10.33.0",
+  "type": "module",
+  "imports": {
+    "#src/*": "./src/*"
+  },
+  "scripts": {
+    "dev": "FORCE_COLOR=1 pnpm run \"/^dev:.*/\"",
+    "dev:backend": "node api/server.js",
+    "dev:frontend": "vite",
+    "build": "tsc && vite build",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.9",
+    "@nano_kit/query": "*",
+    "@nano_kit/react": "*",
+    "@nano_kit/react-router": "*",
+    "@nano_kit/react-ssr": "*",
+    "@nano_kit/router": "*",
+    "@nano_kit/store": "*",
+    "hono": "^4.12.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.4",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "typescript": "~5.7.2",
+    "vite": "^8.0.8"
+  }
+}

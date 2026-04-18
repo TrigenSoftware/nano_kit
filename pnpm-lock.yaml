@@ -205,6 +205,55 @@ importers:
         specifier: ^8.0.8
         version: 8.0.8(@types/node@24.0.14)(esbuild@0.27.3)(jiti@2.4.2)(yaml@2.8.2)
 
+  examples/event-board/react-nano_kit-ssr:
+    dependencies:
+      '@hono/node-server':
+        specifier: ^1.19.9
+        version: 1.19.9(hono@4.12.1)
+      '@nano_kit/query':
+        specifier: workspace:^
+        version: link:../../../packages/query
+      '@nano_kit/react':
+        specifier: workspace:^
+        version: link:../../../packages/react
+      '@nano_kit/react-router':
+        specifier: workspace:^
+        version: link:../../../packages/react-router
+      '@nano_kit/react-ssr':
+        specifier: workspace:^
+        version: link:../../../packages/react-ssr
+      '@nano_kit/router':
+        specifier: workspace:^
+        version: link:../../../packages/router
+      '@nano_kit/store':
+        specifier: workspace:^
+        version: link:../../../packages/store
+      hono:
+        specifier: ^4.12.1
+        version: 4.12.1
+      react:
+        specifier: ^19.2.0
+        version: 19.2.3
+      react-dom:
+        specifier: ^19.2.0
+        version: 19.2.3(react@19.2.3)
+    devDependencies:
+      '@types/react':
+        specifier: ^19.2.4
+        version: 19.2.9
+      '@types/react-dom':
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.9)
+      '@vitejs/plugin-react':
+        specifier: ^6.0.1
+        version: 6.0.1(vite@8.0.8(@types/node@24.0.14)(esbuild@0.27.3)(jiti@2.4.2)(yaml@2.8.2))
+      typescript:
+        specifier: ~5.7.2
+        version: 5.7.3
+      vite:
+        specifier: ^8.0.8
+        version: 8.0.8(@types/node@24.0.14)(esbuild@0.27.3)(jiti@2.4.2)(yaml@2.8.2)
+
   examples/rick-and-morty/next-app-nano_kit-ssr:
     dependencies:
       '@nano_kit/next-router':
