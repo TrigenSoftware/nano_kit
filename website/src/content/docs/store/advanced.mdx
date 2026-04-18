@@ -407,6 +407,24 @@ A falsy source resets all signals to their initial state (`result: undefined`, `
 
 ### Rate Limiting
 
+**`pace`** creates a rate-limited accessor from another accessor. Wrap it with `computed` to memoize the paced value and avoid extra effect runs while the rate limiter is waiting.
+
+```ts
+import { signal, computed, pace, effect, debounce } from '@nano_kit/store'
+
+const $search = signal('')
+const $searchPaced = computed(pace($search, debounce(300)))
+
+effect(() => {
+  console.log('Search:', $searchPaced())
+})
+
+$search('a')
+$search('ab')
+$search('abc')
+/* Only logs "abc" after debounce completes */
+```
+
 **`paced`** creates a proxy signal that updates the original signal using a rate limiter. This allows you to control how frequently a signal propagates updates while keeping immediate local updates. The proxy signal updates instantly, but the original signal updates only after the rate limiter allows it.
 
 ```ts
@@ -426,7 +444,7 @@ $searchPaced('abc')
 /* Only logs "abc" after debounce completes */
 ```
 
-**`debounce`** and **`throttle`** are rate limiters that work with `paced`:
+**`debounce`** and **`throttle`** are rate limiters that work with `pace` and `paced`:
 
 **`debounce`** delays updates until after a specified time has passed since the last change. Useful for expensive operations like search queries or API calls.
 

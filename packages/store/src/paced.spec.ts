@@ -7,13 +7,17 @@ import {
   expect
 } from 'vitest'
 import {
+  computed,
   effect,
   signal,
   mountable,
   STORE_UNMOUNT_DELAY
 } from 'kida'
 import { debounce } from './utils.js'
-import { paced } from './paced.js'
+import {
+  pace,
+  paced
+} from './paced.js'
 
 describe('store', () => {
   describe('paced', () => {
@@ -108,6 +112,50 @@ describe('store', () => {
 
       expect($source.node.subsCount).toBe(0)
       expect($paced.node.subsCount).toBe(0)
+    })
+  })
+
+  describe('pace', () => {
+    beforeEach(() => {
+      vi.useFakeTimers()
+    })
+
+    afterEach(() => {
+      vi.restoreAllMocks()
+    })
+
+    it('should pace computed value update', () => {
+      const $source = signal(0)
+      const $paced = computed(pace($source, debounce(300)))
+      const pacedListener = vi.fn()
+      const offPaced = effect(() => {
+        pacedListener($paced())
+      })
+
+      expect($source()).toBe(0)
+      expect($paced()).toBe(0)
+      expect(pacedListener).toHaveBeenCalledTimes(1)
+
+      $source(1)
+
+      expect($source()).toBe(1)
+      expect($paced()).toBe(0)
+      expect(pacedListener).toHaveBeenCalledTimes(1)
+
+      vi.advanceTimersByTime(100)
+
+      $source(2)
+
+      expect($source()).toBe(2)
+      expect($paced()).toBe(0)
+      expect(pacedListener).toHaveBeenCalledTimes(1)
+
+      vi.advanceTimersByTime(300)
+
+      expect($paced()).toBe(2)
+      expect(pacedListener).toHaveBeenCalledTimes(2)
+
+      offPaced()
     })
   })
 })
