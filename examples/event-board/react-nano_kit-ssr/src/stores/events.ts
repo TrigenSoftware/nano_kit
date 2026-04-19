@@ -284,7 +284,8 @@ export function NewEventForm$() {
       return createEvent(payload)
     },
     [
-      disabled(not($valid))
+      disabled(not($valid)),
+      entities(EventEntity)
     ]
   )
 

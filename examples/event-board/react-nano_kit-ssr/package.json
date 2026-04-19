@@ -8,9 +8,7 @@
     "#src/*": "./src/*"
   },
   "scripts": {
-    "dev": "FORCE_COLOR=1 pnpm run \"/^dev:.*/\"",
-    "dev:frontend": "vite",
-    "dev:backend": "node api/server.js",
+    "dev": "vite",
     "build": "tsc && vite build",
     "start": "node server.js"
   },

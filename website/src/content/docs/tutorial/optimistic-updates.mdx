@@ -45,7 +45,9 @@ export const [submitNewEvent] = mutation<[], BoardEvent>((ctx) => {
   })
 
   return createEvent(payload)
-})
+}, [
+  disabled(not($valid))
+])
 ```
 
 [`$data`](/query/core-concepts#reading-and-writing-data) updates cached query data directly. The first `$data(EventsKey, ...)` call inserts a temporary event. [`onSuccess`](/query/advanced#request-context) replaces it with the real event returned by the API. [`onError`](/query/advanced#request-context) removes the temporary event if the request fails.

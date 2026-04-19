@@ -9,7 +9,7 @@ import {
 const HTTP_BAD_REQUEST = 400
 const HTTP_NOT_FOUND = 404
 
-export function api() {
+export function createApiApp() {
   const app = new Hono()
 
   app.get('/api/events', (c) => {
@@ -60,6 +60,12 @@ export function api() {
 
     return c.json(event)
   })
+
+  return app
+}
+
+export function api() {
+  const app = createApiApp()
 
   return c => app.fetch(c.req.raw)
 }

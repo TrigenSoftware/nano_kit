@@ -22,7 +22,7 @@ export default [
     }
   },
   ...moduleConfig.map(config => ({
-    files: ['**/*.js'],
+    files: ['**/*.js', 'vite.config.ts'],
     ...config
   }))
 ]

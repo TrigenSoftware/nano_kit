@@ -10,10 +10,10 @@ export * from './events.types'
 
 /**
  * Absolute API origin used by the server renderer.
- * Browser requests stay relative and are proxied by Vite in development.
+ * Browser requests stay relative to the current origin.
  */
 const API_ORIGIN = import.meta.env.SSR
-  ? import.meta.env.VITE_EVENT_BOARD_API_ORIGIN || 'http://localhost:3001'
+  ? import.meta.env.VITE_EVENT_BOARD_API_ORIGIN || (import.meta.env.DEV ? 'http://localhost:5173' : 'http://localhost:3001')
   : ''
 const HTTP_NOT_FOUND = 404
 
