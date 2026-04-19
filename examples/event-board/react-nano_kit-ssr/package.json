@@ -9,8 +9,8 @@
   },
   "scripts": {
     "dev": "FORCE_COLOR=1 pnpm run \"/^dev:.*/\"",
-    "dev:backend": "node api/server.js",
     "dev:frontend": "vite",
+    "dev:backend": "node api/server.js",
     "build": "tsc && vite build",
     "start": "node server.js"
   },
@@ -32,5 +32,9 @@
     "@vitejs/plugin-react": "^6.0.1",
     "typescript": "~5.7.2",
     "vite": "^8.0.8"
+  },
+  "stackblitz": {
+    "installDependencies": false,
+    "startCommand": "pnpm install && pnpm dev"
   }
 }

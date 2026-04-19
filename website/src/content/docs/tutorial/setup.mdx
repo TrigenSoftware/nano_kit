@@ -1,0 +1,44 @@
+---
+title: Setup
+description: Start the Nano Kit tutorial and create the demo project shape.
+sidebar:
+  order: 1
+---
+
+This tutorial teaches Nano Kit by building a small app in stages. The app is Event Board, a public listing of frontend events.
+
+It starts as a single React page, then grows into a routed, data-driven, SSR-ready app.
+
+## What We Build
+
+The finished app can:
+
+- list upcoming events;
+- filter events by search text and category;
+- load more events with cursor pagination;
+- open a public event page;
+- create a new event;
+- RSVP with an optimistic attendee count;
+- render list and detail pages on the server.
+
+## Packages
+
+Start with a Vite React app and install the Nano Kit packages used throughout the tutorial:
+
+```bash
+pnpm add @nano_kit/store @nano_kit/query @nano_kit/router @nano_kit/react @nano_kit/react-router @nano_kit/react-ssr react react-dom hono @hono/node-server
+pnpm add -D vite @vitejs/plugin-react typescript
+```
+
+## API Shape
+
+To keep the focus on Nano Kit, assume the app already has a small HTTP API. In the final source this is an in-memory Hono server, but the UI code only needs to know these endpoints:
+
+```text
+GET  /api/events
+GET  /api/events/:slug
+POST /api/events
+POST /api/events/:id/rsvp
+```
+
+You can compare each step with the complete implementation in the [Event Board source](https://github.com/TrigenSoftware/nano_kit/tree/main/examples/event-board/react-nano_kit-ssr).

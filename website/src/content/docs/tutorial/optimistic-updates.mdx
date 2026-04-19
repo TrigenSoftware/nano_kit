@@ -1,0 +1,124 @@
+---
+title: Optimistic Updates
+description: Add optimistic updates first by hand, then simplify shared records with query entities.
+sidebar:
+  order: 7
+---
+
+After the form and RSVP button work, improve both mutations with optimistic updates. The UI can update the cache before the server answers, then keep the result or roll it back if the request fails.
+
+Start with the creation form: insert a temporary event into the list cache immediately instead of waiting for the request to finish.
+
+Expose `$data` from the query client:
+
+```ts
+import { client, infinites, mutations } from '@nano_kit/query'
+
+export const {
+  query,
+  infinite,
+  mutation,
+  $data
+} = client(
+  infinites(),
+  mutations()
+)
+```
+
+Now the mutation can update cached list data before the request finishes:
+
+```ts
+export const [submitNewEvent] = mutation<[], BoardEvent>((ctx) => {
+  const payload = $payload()
+  const optimisticId = `optimistic-${crypto.randomUUID()}`
+
+  $data(EventsKey, data => addEvent(data, optimisticId, payload))
+
+  onSuccess(ctx, (created) => {
+    $data(EventsKey, data => replaceEvent(data, optimisticId, created))
+    resetNewEventForm()
+    navigation.push(`/events/${created.slug}`)
+  })
+
+  onError(ctx, () => {
+    $data(EventsKey, data => removeEvent(data, optimisticId))
+  })
+
+  return createEvent(payload)
+})
+```
+
+[`$data`](/query/core-concepts#reading-and-writing-data) updates cached query data directly. The first `$data(EventsKey, ...)` call inserts a temporary event. [`onSuccess`](/query/advanced#request-context) replaces it with the real event returned by the API. [`onError`](/query/advanced#request-context) removes the temporary event if the request fails.
+
+This is a good fit for creating an event: `$data(EventsKey, ...)` visits all cached event-list entries, and the helper functions decide what to change in each filtered list.
+
+The RSVP button from the detail page is a different case. So far it revalidates the detail query, which is enough for that page. But the same event can also appear inside list cards. For that kind of shared record, it is easier to update one normalized cache entry instead of editing each query result separately.
+
+## Entities
+
+[`entities`](/query/advanced#entities) normalize shared records in the query cache. Define one [`entity`](/query/advanced#entities) for events:
+
+```ts
+import { entities, entity } from '@nano_kit/query'
+
+export const EventEntity = entity<BoardEvent>('event')
+```
+
+Map event detail results into that entity:
+
+```ts
+query(
+  EventKey,
+  [$slug],
+  fetchEvent,
+  [entities(EventEntity)]
+)
+```
+
+Map every event inside every infinite page too:
+
+```ts
+infinite(
+  EventsKey,
+  [$pacedQ, $category],
+  lastPage => lastPage.nextCursor,
+  (q, category, cursor) => fetchEvents({ q, category, cursor }),
+  [
+    entities(data => ({
+      ...data,
+      pages: data.pages.map(page => ({
+        ...page,
+        events: page.events.map(EventEntity)
+      }))
+    }))
+  ]
+)
+```
+
+Now RSVP can update one entity instead of hunting through every list:
+
+```ts
+export const [rsvp, $rsvpEvent, $rsvpError, $rsvpLoading] = mutation<[id: string], BoardEvent>(
+  (id, ctx) => {
+    const key = EventEntity(id)
+    const previousEvent = $data(key)
+
+    if (previousEvent) {
+      $data(key, {
+        ...previousEvent,
+        attendees: previousEvent.attendees + 1
+      })
+
+      onError(ctx, () => {
+        $data(key, previousEvent)
+      })
+    }
+
+    return rsvpEvent(id)
+  }
+)
+```
+
+`EventEntity(id)` points to one shared event record in cache. RSVP can update that one record, and every query result that references it sees the new attendees count.
+
+Entities are not required for optimistic updates, but they remove a lot of repeated cache update code when the same record appears in multiple places.

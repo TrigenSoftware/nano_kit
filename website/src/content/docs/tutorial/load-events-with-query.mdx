@@ -1,0 +1,141 @@
+---
+title: Load Events With Query
+description: Move event loading to Nano Kit query and add paced search.
+sidebar:
+  order: 3
+---
+
+The first store works, but event data is server state. It comes from an API, can be cached, can become stale, and often needs loading state, pagination, and refetching.
+
+[`@nano_kit/query`](/query/core-concepts) is the Nano Kit layer for that kind of data. A [`query`](/query/core-concepts#query) connects reactive parameters to an async request and gives you signals for the result, loading state, and errors. When the parameters change, the query fetches again. When the same data is requested again, it can come from cache instead of forcing every store to rebuild the same request logic by hand.
+
+Use query for loading events from the API. Keep simple signals for things like input values and local UI state.
+
+Create one query client for the app:
+
+```ts
+import { client, infinites } from '@nano_kit/query'
+
+export const {
+  query,
+  infinite
+} = client(
+  infinites()
+)
+```
+
+[`client()`](/query/core-concepts#client) creates the query cache and returns helpers for working with it.
+
+[`infinites()`](/query/advanced#infinite) adds [`infinite`](/query/advanced#infinite), which we need for the paginated event list and the `Load more` button.
+
+For the event list, keep the filter signals and replace the manual request state with [`infinite()`](/query/advanced#infinite). The app can now show cursor pagination and `Load more`.
+
+```ts
+import { type InfinitePages, queryKey } from '@nano_kit/query'
+import { signal } from '@nano_kit/store'
+import { type EventCategory, type EventsPage, fetchEvents } from '#src/services/events'
+import { infinite } from './query'
+
+export type EventsList = InfinitePages<EventsPage, number>
+
+export const $q = signal('')
+export const $category = signal<EventCategory | null>(null)
+
+export const EventsKey = queryKey<
+  [q: string, category: EventCategory | null],
+  EventsList
+>('events')
+
+export const [
+  fetchNextEventPage,
+  $events,
+  $eventsError,
+  $eventsLoading
+] = infinite(
+  EventsKey,
+  [$q, $category],
+  lastPage => lastPage.nextCursor,
+  (q, category, cursor) => fetchEvents({ q, category, cursor })
+)
+```
+
+[`queryKey`](/query/core-concepts#creating-cache-keys) creates a typed cache key builder. The first type argument describes the parameters that identify this data: search text and category. The second type argument describes the cached value. Here the cached value is `EventsList`, which is an `InfinitePages<EventsPage, number>`.
+
+The string `'events'` is the stable name of this cache entry. Query will combine it with the current parameter values, so `events` with `q = "react"` is cached separately from `events` with `q = "vite"`.
+
+This makes cache access type-safe. The key carries the type of its cached data, so cache helpers can infer `EventsList` from `EventsKey` instead of treating the value as an unknown object.
+
+`infinite(...)` creates a paginated query. It receives four main arguments:
+
+1. `EventsKey` tells query where this data lives in the cache.
+2. `[$q, $category]` are reactive parameters. When either signal changes, the first page is fetched again with the new filters.
+3. `lastPage => lastPage.nextCursor` tells query how to find the cursor for the next page.
+4. The fetcher receives `q`, `category`, and `cursor`, then calls the API.
+
+The return value also has a shape:
+
+1. `fetchNextEventPage` loads the next page when the user clicks `Load more`.
+2. `$events` is the paginated data signal.
+3. `$eventsError` is the error signal.
+4. `$eventsLoading` is the loading signal.
+
+In the component, read the query signals and flatten pages for rendering:
+
+```tsx
+import { useSignal } from '@nano_kit/react'
+import { $events, $eventsError, $eventsLoading, $q, fetchNextEventPage } from '#src/stores/events'
+
+export function Home() {
+  const q = useSignal($q)
+  const data = useSignal($events)
+  const error = useSignal($eventsError)
+  const loading = useSignal($eventsLoading)
+  const events = data?.pages.flatMap(page => page.events) ?? []
+
+  return (
+    <section>
+      <input
+        value={q}
+        onChange={event => $q(event.currentTarget.value)}
+        placeholder='Search events'
+      />
+
+      {error && <p>{error}</p>}
+
+      {events.map(event => (
+        <article key={event.id}>
+          <h2>{event.title}</h2>
+          <p>{event.description}</p>
+        </article>
+      ))}
+
+      {loading && <p>Loading...</p>}
+
+      {data?.more && (
+        <button onClick={() => fetchNextEventPage()}>
+          Load more
+        </button>
+      )}
+    </section>
+  )
+}
+```
+
+## Pace Search
+
+Search inputs should update immediately, but the server should not receive a request for every keystroke. Keep the input signal responsive and pace the value used by query:
+
+```ts
+import { computed, debounce, pace } from '@nano_kit/store'
+
+const $pacedQ = computed(pace($q, debounce(600)))
+
+const [fetchNextEventPage, $events] = infinite(
+  EventsKey,
+  [$pacedQ, $category],
+  lastPage => lastPage.nextCursor,
+  (q, category, cursor) => fetchEvents({ q, category, cursor })
+)
+```
+
+[`pace`](/store/advanced#rate-limiting) returns a rate-limited accessor. Wrapping it in [`computed`](/store/core-concepts#using-computed) memoizes the paced value and avoids extra effect runs while the debounce timer is waiting.

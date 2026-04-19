@@ -1,0 +1,89 @@
+---
+title: Routing
+description: Use Nano Kit Router and move event filters into the URL.
+sidebar:
+  order: 4
+---
+
+The app now has one useful page: it loads events, filters them, and can fetch more results. Before adding more screens, we need a way to describe where the user is in the app and move between screens without losing reactive state.
+
+That is the job of [`@nano_kit/router`](/router/core-concepts). It keeps the current route in a signal, gives us navigation methods, and lets stores derive values from the URL. In this step, we will start with the smallest useful router setup: one `home` route and filters stored in the search string.
+
+Putting filters in the URL is a good first use case for the router. A filtered list can survive refresh, and the user can copy the link and open the same view later.
+
+```ts
+import { browserNavigation, searchParam, searchParams } from '@nano_kit/router'
+import { type EventCategory, eventCategories } from '#src/services/events'
+
+export const routes = {
+  home: '/'
+} as const
+
+export const [$location, navigation] = browserNavigation(routes)
+
+export const $searchParams = searchParams($location)
+export const $q = searchParam($searchParams, 'q', value => value || '')
+export const $category = searchParam($searchParams, 'category', (value): EventCategory | null => (
+  eventCategories.includes(value as EventCategory)
+    ? value as EventCategory
+    : null
+))
+```
+
+[`browserNavigation`](/router/core-concepts#browser-navigation) connects the route table to the browser address bar. It returns two things:
+
+1. `$location` is a signal with the current route, params, path, search string, and navigation action.
+2. `navigation` is an object for changing the URL with `push`, `replace`, `back`, and `forward`.
+
+[`searchParams`](/router/core-concepts#searchparams) turns the current search string into a `URLSearchParams` signal. [`searchParam`](/router/core-concepts#searchparam) reads one value from it. Here `$q` reads `?q=...`, and `$category` reads `?category=...`.
+
+The list query from the previous step can keep using `$q` and `$category`. Only their source changed: they now come from the current URL.
+
+`Home` can update the URL instead of writing to a local filter store:
+
+```tsx
+import { $searchParams, navigation } from '#src/stores/router'
+
+const onSearch = (event: ChangeEvent<HTMLInputElement>) => {
+  const searchParams = $searchParams()
+
+  searchParams.set('q', event.currentTarget.value)
+
+  navigation.replace({
+    search: searchParams.toString()
+  })
+}
+```
+
+`navigation.replace(...)` changes the current URL without adding a new browser history entry. That is useful for typing in a search input: pressing Back should leave the page, not replay every typed character.
+
+## Render The Current Page
+
+`browserNavigation(routes)` gave us `$location`. React still needs one more piece: a signal that turns the current location into the page component to render.
+
+```tsx
+import { page, router, useNavigationListenLinks, usePageSignal } from '@nano_kit/react-router'
+import { $location, navigation } from './stores/router'
+import Home from './ui/pages/Home'
+import './app.css'
+
+const $page = router($location, [
+  page('home', Home)
+])
+
+export function App() {
+  const Page = usePageSignal($page)
+
+  useNavigationListenLinks(navigation)
+
+  return Page ? <Page /> : null
+}
+```
+
+[`page`](/integrations/react-router#router) maps a route name to a React component. Here the `home` route renders `Home`.
+
+[`router`](/integrations/react-router#router) takes `$location` and the page list, then returns `$page`. `$page` is a signal with the component that matches the current URL.
+
+[`usePageSignal`](/integrations/react-router#usepagesignal--usepage) reads that signal inside React. If the current URL matches `home`, `Page` is `Home`; if no route matches, `Page` is `null`.
+
+[`useNavigationListenLinks`](/integrations/react-router#usenavigationlistenlinks--uselistenlinks) lets normal `<a>` links use router navigation instead of forcing a full page reload. That keeps links simple while the app is still using the router directly.

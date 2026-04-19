@@ -1,0 +1,83 @@
+---
+title: Build The First Store
+description: Create the first store for loading and filtering events.
+sidebar:
+  order: 2
+---
+
+The home page needs three pieces of state: filters, fetched events, and loading status. Create a store that owns those values and loads events from the API.
+
+```ts
+import { action, effect, mountable, onMount, signal } from '@nano_kit/store'
+import { type BoardEvent, type EventCategory, fetchEvents } from '#src/services/events'
+
+export const $q = signal('')
+export const $category = signal<EventCategory | null>(null)
+export const $events = mountable(signal<BoardEvent[]>([]))
+export const $loading = signal(false)
+
+export const loadEvents = action(async (
+  q: string,
+  category: EventCategory | null
+) => {
+  $loading(true)
+
+  const page = await fetchEvents({
+    q,
+    category
+  })
+
+  $events(page.events)
+  $loading(false)
+})
+
+onMount($events, () => effect(() => {
+  void loadEvents($q(), $category())
+}))
+```
+
+This store module exports the state that the home page needs and one action for loading events.
+
+[`signal`](/store/core-concepts#signals-and-effects) creates a reactive value. `$q`, `$category`, and `$loading` are plain signals that hold the current filters and loading status.
+
+`$events` is different because it is wrapped in [`mountable`](/store/core-concepts#mountable-stores). A mountable signal has a lifecycle. It can run setup code when something starts listening to it, and cleanup code when nobody needs it anymore. The read/write API stays the same, but the signal can now participate in [`onMount`](/store/core-concepts#mountable-stores).
+
+`onMount($events, callback)` runs the callback when `$events` becomes active. In React, that happens when a component calls [`useSignal`](/integrations/react#usesignal) for `$events`. If the component unmounts and nothing else uses `$events`, the cleanup returned by the callback runs.
+
+Here the callback creates an [`effect`](/store/core-concepts#signals-and-effects). The effect reads `$q` and `$category`, so it reruns when either filter changes. On each run it passes the current filter values to `loadEvents()`. The first request starts when the event list is actually rendered.
+
+[`action`](/store/core-concepts#actions) wraps `loadEvents` so signal reads inside the action are untracked. In this case the filters are passed as arguments, which keeps the dependencies of the effect visible at the call site. As a good practice, wrap business functions like this in `action` when they read or write signals and may be called from effects. It prevents accidental tracking bugs as the function grows. The action sets loading state, calls the API, and writes the new events.
+
+Now render it as one React component:
+
+```tsx
+import { useSignal } from '@nano_kit/react'
+import { $events, $loading, $q } from '#src/stores/events'
+
+export function Home() {
+  const q = useSignal($q)
+  const events = useSignal($events)
+  const loading = useSignal($loading)
+
+  return (
+    <section>
+      <input
+        value={q}
+        onChange={event => $q(event.currentTarget.value)}
+        placeholder='Search events'
+      />
+
+      {events.map(event => (
+        <article key={event.id}>
+          <h2>{event.title}</h2>
+          <p>{event.description}</p>
+        </article>
+      ))}
+
+      {loading && <p>Loading...</p>}
+    </section>
+  )
+}
+```
+
+At this stage the app has one component and one store. It can fetch events, react to filter changes, and render loading state.

@@ -1,0 +1,165 @@
+---
+title: Route Parameters
+description: Create a route with a parameter and load data for that page.
+sidebar:
+  order: 5
+---
+
+The list page can now link to event details. Add a new route with a `slug` parameter:
+
+```ts
+import { param } from '@nano_kit/router'
+
+export const routes = {
+  home: '/',
+  event: '/events/:slug'
+} as const
+
+export const $slug = param($location, 'slug')
+```
+
+[`param`](/router/core-concepts#route-parameters) reads the dynamic part of the current route. For `/events/react-ssr-workshop`, `$slug()` returns `'react-ssr-workshop'`.
+
+Then add the page to the router:
+
+```tsx
+import { page, router, useNavigationListenLinks, usePageSignal } from '@nano_kit/react-router'
+import { $location, navigation } from './stores/router'
+import Event from './ui/pages/Event'
+import Home from './ui/pages/Home'
+
+const $page = router($location, [
+  page('home', Home),
+  page('event', Event)
+])
+
+export function App() {
+  const Page = usePageSignal($page)
+
+  useNavigationListenLinks(navigation)
+
+  return Page ? <Page /> : null
+}
+```
+
+The `event` page uses the new `/events/:slug` route. When the browser URL matches that pattern, `$page` becomes `Event`.
+
+Now the event page can load one event by slug.
+
+```ts
+import { queryKey } from '@nano_kit/query'
+import { type BoardEvent, fetchEvent } from '#src/services/events'
+import { query } from './query'
+import { $slug } from './router'
+
+export const EventKey = queryKey<[slug: string | undefined], BoardEvent | null>('event')
+
+export const [
+  $event,
+  $eventError,
+  $eventLoading
+] = query(
+  EventKey,
+  [$slug],
+  async slug => (
+    slug
+      ? await fetchEvent(slug)
+      : null
+  )
+)
+```
+
+The cache key idea is the same as before, but this time we use a regular [`query`](/query/core-concepts#query) instead of [`infinite`](/query/advanced#infinite). The page needs one record, not a list of pages. The important parameter is `[$slug]`: when the route parameter changes, the query loads data for the new page.
+
+The result signals follow the same pattern as the list query: `$event`, `$eventError`, and `$eventLoading`.
+
+## Add A Page Action
+
+Add an RSVP button to the detail page. When the user clicks it, the app will call `POST /api/events/:id/rsvp` and the server will return the event with an updated attendee count.
+
+Enable mutations in the query client:
+
+```ts
+import { client, infinites, mutations } from '@nano_kit/query'
+
+export const {
+  query,
+  infinite,
+  mutation,
+  revalidate
+} = client(
+  infinites(),
+  mutations()
+)
+```
+
+[`mutations()`](/query/core-concepts#mutation) adds [`mutation`](/query/core-concepts#mutation) to the client. A query runs from reactive parameters. A mutation runs only when you call it.
+
+[`revalidate`](/query/core-concepts#revalidating-cache) marks cached data as stale and tells active queries to fetch again. We will use it after the mutation succeeds.
+
+Now create the action for the button:
+
+```ts
+import { onSuccess } from '@nano_kit/query'
+import { type BoardEvent, rsvpEvent } from '#src/services/events'
+import { mutation, revalidate } from './query'
+import { $slug } from './router'
+
+export const [
+  rsvp,
+  $rsvpEvent,
+  $rsvpError,
+  $rsvpLoading
+] = mutation<[id: string], BoardEvent>((id, ctx) => {
+  onSuccess(ctx, () => {
+    revalidate(EventKey($slug()))
+  })
+
+  return rsvpEvent(id)
+})
+```
+
+When the request succeeds, `revalidate(EventKey($slug()))` refreshes the event query. The page keeps reading the event from `$event`.
+
+The React page reads the query signals and uses the mutation signals only for the button state:
+
+```tsx
+import { useSignal } from '@nano_kit/react'
+import { $event, $eventError, $eventLoading, $rsvpError, $rsvpLoading, rsvp } from '#src/stores/events'
+
+export default function Event() {
+  const event = useSignal($event)
+  const error = useSignal($eventError)
+  const loading = useSignal($eventLoading)
+  const rsvpError = useSignal($rsvpError)
+  const rsvpLoading = useSignal($rsvpLoading)
+
+  if (loading) {
+    return <p>Loading...</p>
+  }
+
+  if (error) {
+    return <p>{error}</p>
+  }
+
+  if (!event) {
+    return <p>Event not found.</p>
+  }
+
+  return (
+    <article>
+      <a href='/'>Back to events</a>
+      <h1>{event.title}</h1>
+      <p>{event.description}</p>
+      <p>{event.location}</p>
+      <p>{event.attendees} going</p>
+      {rsvpError && <p>{rsvpError}</p>}
+      <button disabled={rsvpLoading} onClick={() => rsvp(event.id)}>
+        {rsvpLoading ? 'Saving...' : "I'm going"}
+      </button>
+    </article>
+  )
+}
+```
+
+The page has three states before the final UI: loading, error, and not found. Once `event` is available, it renders the public content and the button.

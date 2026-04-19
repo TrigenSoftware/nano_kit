@@ -123,6 +123,12 @@ export default defineConfig({
           }
         },
         {
+          label: 'Tutorial',
+          autogenerate: {
+            directory: 'tutorial'
+          }
+        },
+        {
           label: 'Examples',
           autogenerate: {
             directory: 'examples'

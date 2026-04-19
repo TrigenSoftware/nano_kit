@@ -1,0 +1,153 @@
+---
+title: Server Rendering
+description: Use server rendering, Stores$, Head$, hydration, and the production Hono server.
+sidebar:
+  order: 9
+---
+
+Event pages are public URLs. They should render useful HTML, title, and description before the browser hydrates.
+
+The app is already in the shape that SSR needs: stores are factories, and the app entry exports `routes` and `pages`. The next step is to teach Vite how to build a renderer from that entry.
+
+Add the React SSR plugin:
+
+```ts
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import ssr from '@nano_kit/react-ssr/vite-plugin'
+
+export default defineConfig({
+  server: {
+    proxy: {
+      '/api': 'http://localhost:3001'
+    }
+  },
+  plugins: [
+    react(),
+    ssr({
+      index: 'src/index.tsx'
+    })
+  ]
+})
+```
+
+[`@nano_kit/react-ssr`](/integrations/react-ssr) adds a Vite plugin that builds two outputs: the client bundle and the server renderer. The `index` option points to the file from the previous step: it exports `routes` and `pages`.
+
+Make page modules expose the data that SSR must await and dehydrate:
+
+```tsx
+// Home.tsx
+export function Stores$() {
+  const { $events } = inject(EventsList$)
+
+  return [$events]
+}
+
+export function Head$() {
+  return [
+    title('Event Board | Upcoming events'),
+    meta({
+      name: 'description',
+      content: 'Find meetups, workshops, webinars, and conferences.'
+    })
+  ]
+}
+```
+
+[`Stores$`](/router/ssr#stores-data-dehydration) tells the renderer which signals must be loaded and dehydrated for this page. Here the home page waits for `$events`, so the first HTML response already contains the event list.
+
+[`Head$`](/router/ssr#head-management) returns title and meta entries for the page.
+
+The layout should sync page head entries during client navigation:
+
+```tsx
+import { useSyncHead } from '@nano_kit/react-router'
+
+export default function Layout() {
+  useSyncHead()
+
+  /* render links and Outlet */
+}
+```
+
+[`useSyncHead`](/integrations/react-router#usepagesynchead--usesynchead) keeps the browser document head in sync when the active page changes.
+
+Detail pages can use loaded data in `Head$`:
+
+```tsx
+// Event.tsx
+export function Stores$() {
+  const { $event } = inject(EventDetails$)
+
+  return [$event]
+}
+
+export function Head$() {
+  const { $event } = inject(EventDetails$)
+
+  return [
+    title(() => {
+      const event = $event()
+
+      return event
+        ? `${event.title} | Event Board`
+        : 'Event Board | Event'
+    }),
+    meta({
+      name: 'description',
+      content: () => $event()?.description ?? 'Event details'
+    })
+  ]
+}
+```
+
+The detail page returns `$event` from `Stores$`, so `Head$` can use the loaded event title and description.
+
+In development, `vite dev` handles SSR rendering in-process through the plugin. You do not need to write a local renderer server just to work on the app.
+
+For production, `vite build` creates `dist/client/` with browser assets and `dist/renderer/` with the SSR renderer bundle. The HTTP server is yours: choose the runtime, mount the API, serve static files, and call the built renderer for application routes.
+
+```js
+import { serve } from '@hono/node-server'
+import { serveStatic } from '@hono/node-server/serve-static'
+import { Hono } from 'hono'
+import { compress } from 'hono/compress'
+import { renderer } from './dist/renderer/index.js'
+import { api } from './api/index.js'
+
+const app = new Hono()
+
+app.use(compress())
+app.use('/api/*', api())
+
+app.use(`${renderer.base.replace(/(.)\/$/, '$1')}*`, serveStatic({
+  root: './dist/client'
+}))
+
+app.get('*', async (c) => {
+  const result = await renderer.render(c.req.url)
+
+  if (result.redirect) {
+    return c.redirect(result.redirect, result.statusCode)
+  }
+
+  if (result.html !== null) {
+    return c.html(result.html, result.statusCode)
+  }
+
+  return c.text('Not Found', result.statusCode)
+})
+
+serve({
+  fetch: app.fetch,
+  port: 3001
+})
+```
+
+The server does three things:
+
+1. Mounts the API endpoints.
+2. Serves the built client files.
+3. Sends all other requests to `renderer.render(...)`.
+
+If the renderer returns a redirect, the server redirects. If it returns HTML, the server sends it. Otherwise, the server responds with `Not Found`.

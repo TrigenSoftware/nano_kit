@@ -10,7 +10,7 @@ const app = new Hono()
 app.use(compress())
 app.use('/api/*', api())
 
-app.get('/', c => c.text('Event Board API is running.'))
+app.get('/', c => c.redirect('http://localhost:5173'))
 
 serve({
   fetch: app.fetch,

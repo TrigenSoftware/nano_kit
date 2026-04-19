@@ -1,0 +1,175 @@
+---
+title: Prepare For SSR
+description: Move stores into factories and switch the router UI to the SSR-ready shape.
+sidebar:
+  order: 8
+---
+
+So far the app can keep stores at module scope and render pages with `usePageSignal($page)`. That is fine while the app runs only in the browser.
+
+Before adding SSR, move shared stores into factories. A server handles many requests in one process, so shared module state would be the wrong shape. Dependency Injection gives each render its own store graph and keeps stores easy to compose.
+
+Start with the query client:
+
+```ts
+import { client, infinites, mutations, ssr } from '@nano_kit/query'
+
+export function Client$() {
+  return client(
+    infinites(),
+    mutations(),
+    ssr()
+  )
+}
+```
+
+The query client now includes [`ssr()`](/query/ssr#ssr). This setting lets query cache data be prepared during server rendering and reused during hydration.
+
+Then move router-derived state into a factory. The router integration provides [`Location$`](/router/ssr#setting-up-ssr), and the factory derives params from it:
+
+```ts
+import { inject } from '@nano_kit/store'
+import { Location$, param, searchParam, searchParams } from '@nano_kit/router'
+import { type EventCategory, eventCategories } from '#src/services/events'
+
+export function Params$() {
+  const $location = inject(Location$)
+  const $searchParams = searchParams($location)
+  const $slug = param($location, 'slug')
+  const $q = searchParam($searchParams, 'q', value => value || '')
+  const $category = searchParam($searchParams, 'category', (value): EventCategory | null => (
+    eventCategories.includes(value as EventCategory)
+      ? value as EventCategory
+      : null
+  ))
+
+  return {
+    $slug,
+    $q,
+    $category,
+    $searchParams
+  }
+}
+```
+
+[`inject`](/store/core-concepts#dependency-injection) reads another factory from the current context. [`Location$`](/router/ssr#setting-up-ssr) is provided by the router integration, so the same params code can run during browser navigation and server rendering.
+
+Stores can now ask for the dependencies they need:
+
+```ts
+export function EventsList$() {
+  const { infinite } = inject(Client$)
+  const { $q, $category } = inject(Params$)
+
+  const [
+    fetchNext,
+    $events,
+    $eventsError,
+    $eventsLoading
+  ] = infinite(
+    EventsKey,
+    [$q, $category],
+    lastPage => lastPage.nextCursor,
+    (q, category, cursor) => fetchEvents({ q, category, cursor })
+  )
+
+  return {
+    fetchNext,
+    $events,
+    $eventsError,
+    $eventsLoading
+  }
+}
+```
+
+`EventsList$` creates the same list query as before, but now it gets `infinite`, `$q`, and `$category` from injected factories instead of module imports.
+
+React components read factory results with [`useInject`](/integrations/react#useinject):
+
+```tsx
+import { useInject, useSignal } from '@nano_kit/react'
+import { EventsList$ } from '#src/stores/events'
+
+export default function Home() {
+  const {
+    fetchNext,
+    $events,
+    $eventsError,
+    $eventsLoading
+  } = useInject(EventsList$)
+
+  const data = useSignal($events)
+  const error = useSignal($eventsError)
+  const loading = useSignal($eventsLoading)
+
+  /* render the page */
+}
+```
+
+This changes how stores are created, but not what the UI can do. The app still has the same filters, pages, queries, and mutations. The difference is that the store graph is now scoped to the current injection context, which is what SSR needs.
+
+## Router Integration
+
+Now switch the app entry to the router shape used by the SSR renderer. Instead of creating `$page` manually, export `routes` and `pages`:
+
+```tsx
+import { layout, loadable, page } from '@nano_kit/react-router'
+import { routes } from './stores/router'
+import * as Layout from './ui/pages/Layout'
+import './app.css'
+
+declare module '@nano_kit/router' {
+  interface AppContext {
+    routes: typeof routes
+  }
+}
+
+export { routes }
+
+export const pages = [
+  layout(Layout, [
+    page('home', loadable(() => import('./ui/pages/Home'))),
+    page('newEvent', loadable(() => import('./ui/pages/NewEvent'))),
+    page('event', loadable(() => import('./ui/pages/Event')))
+  ])
+]
+```
+
+[`layout`](/integrations/react-router#setup) wraps several pages in the same shell. [`page`](/integrations/react-router#setup) connects a route name to a page module. [`loadable`](/integrations/react-router#setup) keeps page modules lazy, so the browser can load page code on demand and the SSR renderer can still read page exports.
+
+The route type declaration belongs here because the DI-based router components need to know the app route table.
+
+## Layout Links
+
+With the router now available through DI, the layout can use the built-in [`Link`](/integrations/react-router#linkcomponent--link) component:
+
+```tsx
+import { Link, Outlet, useLinkComponentAriaCurrent, useLinkComponentPreload } from '@nano_kit/react-router'
+
+export default function Layout() {
+  useLinkComponentPreload(true)
+  useLinkComponentAriaCurrent()
+
+  return (
+    <div className='app'>
+      <header>
+        <Link to='home'>Event Board</Link>
+        <nav>
+          <Link to='home'>Events</Link>
+          <Link to='newEvent'>New event</Link>
+        </nav>
+      </header>
+
+      <main>
+        <Outlet />
+      </main>
+    </div>
+  )
+}
+```
+
+[`Outlet`](/integrations/react-router#outlet) renders the active child page inside the layout.
+
+[`useLinkComponentPreload(true)`](/integrations/react-router#preloadable--uselinkcomponentpreload) enables page preloading for the built-in `Link`. When a user is likely to open a link, the linked page module can be loaded before the click.
+
+[`useLinkComponentAriaCurrent`](/integrations/react-router#ariacurrent--uselinkcomponentariacurrent) adds `aria-current` to active links. The navigation can now expose the current page to assistive technology without custom link logic.

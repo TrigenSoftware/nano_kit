@@ -1,0 +1,134 @@
+---
+title: Forms And Mutations
+description: Use controlled inputs, validation, mutation, and navigation after submit.
+sidebar:
+  order: 6
+---
+
+The app also needs a page for creating events. Add one more route:
+
+```ts
+export const routes = {
+  home: '/',
+  newEvent: '/events/new',
+  event: '/events/:slug'
+} as const
+```
+
+```tsx
+import { page, router, useNavigationListenLinks, usePageSignal } from '@nano_kit/react-router'
+import { $location, navigation } from './stores/router'
+import Event from './ui/pages/Event'
+import Home from './ui/pages/Home'
+import NewEvent from './ui/pages/NewEvent'
+
+const $page = router($location, [
+  page('home', Home),
+  page('newEvent', NewEvent),
+  page('event', Event)
+])
+
+export function App() {
+  const Page = usePageSignal($page)
+
+  useNavigationListenLinks(navigation)
+
+  return Page ? <Page /> : null
+}
+```
+
+`newEvent` now has its own component, so the app can render the creation page when the URL is `/events/new`.
+
+Now build the form state.
+
+Form input values are local UI state, so plain store [`signal`](/store/core-concepts#signals-and-effects) values are enough. Derived values like validation errors and request payload can be computed from those signals.
+
+```ts
+import { action, computed, signal } from '@nano_kit/store'
+import { type EventCategory, type NewEventForm } from '#src/services/events'
+
+export const $title = signal('')
+export const $description = signal('')
+export const $startsAt = signal('')
+export const $location = signal('')
+export const $category = signal<EventCategory>('meetup')
+
+export const $errors = computed(() => {
+  const errors: Partial<Record<keyof NewEventForm, string>> = {}
+
+  if (!$title().trim()) {
+    errors.title = 'Title is required'
+  }
+
+  if (!$description().trim()) {
+    errors.description = 'Description is required'
+  }
+
+  if (!$startsAt()) {
+    errors.startsAt = 'Date and time are required'
+  }
+
+  if (!$location().trim()) {
+    errors.location = 'Location is required'
+  }
+
+  return errors
+})
+
+export const $valid = computed(() => Object.keys($errors()).length === 0)
+export const $payload = computed(() => ({
+  title: $title().trim(),
+  description: $description().trim(),
+  startsAt: new Date($startsAt()).getTime(),
+  location: $location().trim(),
+  category: $category()
+}))
+
+export const resetNewEventForm = action(() => {
+  $title('')
+  $description('')
+  $startsAt('')
+  $location('')
+  $category('meetup')
+})
+```
+
+[`computed`](/store/core-concepts#using-computed) creates derived values. `$errors` recalculates when any form field changes. `$valid` depends on `$errors`, and `$payload` converts the form fields into the shape expected by the API.
+
+`resetNewEventForm` clears all fields after a successful submit.
+
+Now add a mutation for the submit action:
+
+```ts
+import { disabled, onSuccess } from '@nano_kit/query'
+import { not } from '@nano_kit/store'
+import { type BoardEvent, createEvent as createEventRequest } from '#src/services/events'
+import { navigation } from './router'
+import { mutation, revalidate } from './query'
+
+export const [
+  submitNewEvent,
+  $createdEvent,
+  $createError,
+  $createLoading
+] = mutation<[], BoardEvent>(
+  (ctx) => {
+    onSuccess(ctx, (created) => {
+      revalidate(EventsKey)
+      resetNewEventForm()
+      navigation.push(`/events/${created.slug}`)
+    })
+
+    return createEventRequest($payload())
+  },
+  [
+    disabled(not($valid))
+  ]
+)
+```
+
+This uses the same [`mutation`](/query/core-concepts#mutation) helper as the button from the previous page. Here `submitNewEvent` runs only when the form is submitted.
+
+[`disabled`](/query/advanced#disabled) prevents the mutation while `$valid` is false. [`not`](/store/advanced#logical-operations) turns `$valid` into the disabled accessor.
+
+[`onSuccess`](/query/advanced#request-context) registers a callback for a successful request. `revalidate(EventsKey)` uses the key without arguments, so it revalidates all cached event-list entries in that shard. After that, the form resets and `navigation.push(...)` opens the new event page.
