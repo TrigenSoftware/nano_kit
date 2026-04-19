@@ -10,9 +10,11 @@ import {
   effect
 } from '@nano_kit/store'
 import {
+  type MutationClientContext,
   dedupe,
   onEveryError
 } from '../ClientContext.js'
+import type { ClientSetting } from '../client.types.js'
 import {
   onSuccess,
   onError,
@@ -244,6 +246,47 @@ describe('query', () => {
         })
 
         off()
+      })
+
+      it('should pass mapped data to success and settled callbacks', async () => {
+        const { mutation } = client(mutations())
+        const successHandler = vi.fn()
+        const settledHandler = vi.fn()
+        const mapPostData = ((ctx) => {
+          ctx.mapData = data => ({
+            ...data,
+            title: `[mapped] ${data.title}`
+          })
+        }) as ClientSetting<MutationClientContext<Post>>
+        const [mutate, $data] = mutation<[params: CreatePostParams], Post>((params, ctx) => {
+          onSuccess(ctx, successHandler)
+          onSettled(ctx, settledHandler)
+
+          return createPost(params)
+        }, [mapPostData])
+
+        await mutate({
+          title: 'Test',
+          content: 'Content'
+        })
+
+        expect($data()).toEqual({
+          id: 4,
+          title: '[mapped] Test',
+          content: 'Content'
+        })
+        expect(successHandler).toHaveBeenCalledTimes(1)
+        expect(successHandler).toHaveBeenCalledWith({
+          id: 4,
+          title: '[mapped] Test',
+          content: 'Content'
+        })
+        expect(settledHandler).toHaveBeenCalledTimes(1)
+        expect(settledHandler).toHaveBeenCalledWith({
+          id: 4,
+          title: '[mapped] Test',
+          content: 'Content'
+        }, undefined)
       })
 
       it('should call onError callback', async () => {

@@ -69,14 +69,15 @@ export class ClientContext<T = unknown> extends CacheStorage {
         return
       }
 
-      const dataOrNull = error ? null : mapData(data as T)
+      const mappedData = mapData(data as T)
+      const dataOrNull = error ? null : mappedData
       const errorString = error ? mapError(error) : null
 
       onSettled(dataOrNull, errorString)
-      requestCtx.settled(data, error)
+      requestCtx.settled(mappedData, error)
       this.handleError(error, requestCtx.stopErrorPropagation)
 
-      return [data, error] as const
+      return [mappedData, error] as const
     }))
   }
 
