@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.4](https://github.com/TrigenSoftware/nano_kit/compare/query@1.0.0-alpha.3...query@1.0.0-alpha.4) (2026-04-19)
+
+### Bug Fixes
+
+* fix entities extension by fixing data mapping in client ([b6aa567](https://github.com/TrigenSoftware/nano_kit/commit/b6aa5676a83f8a727a8da9ecd6ef2d774177d47b))
+
 ## [1.0.0-alpha.3](https://github.com/TrigenSoftware/nano_kit/compare/query@1.0.0-alpha.2...query@1.0.0-alpha.3) (2026-04-18)
 
 ### Bug Fixes
