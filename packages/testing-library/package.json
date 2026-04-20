@@ -61,7 +61,7 @@
     "test": "run lint"
   },
   "peerDependencies": {
-    "@testing-library/dom": "^10.0.0",
+    "@testing-library/dom": "catalog:",
     "nanoviews": "workspace:^"
   },
   "devDependencies": {
