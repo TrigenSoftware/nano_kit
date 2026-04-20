@@ -23,18 +23,13 @@ import {
   type EventsPage,
   type NewEventForm,
   createEvent,
-  eventMatches,
   fetchEvent,
   fetchEvents,
-  optimisticEvent,
   rsvpEvent
 } from '#src/services/events'
 import { Params$ } from './router'
 import { Client$ } from './query'
-import {
-  datetimeLocalValue,
-  optimisticId
-} from './utils'
+import { datetimeLocalValue } from './utils'
 
 const SEARCH_DEBOUNCE = 600
 const MOCK_EVENT_START_OFFSET = 14 * 24 * 60 * 60 * 1000
@@ -128,88 +123,10 @@ export function EventDetails$() {
   }
 }
 
-function addEvent(
-  data: EventsList | null,
-  id: string,
-  payload: NewEventForm
-) {
-  const event = optimisticEvent(id, payload)
-
-  if (!data || !eventMatches(event, data)) {
-    return data
-  }
-
-  if (data.pages.length === 0) {
-    return {
-      ...data,
-      pages: [{
-        events: [event]
-      }],
-      next: undefined,
-      more: false
-    }
-  }
-
-  const [firstPage, ...restPages] = data.pages
-
-  return {
-    ...data,
-    pages: [
-      {
-        ...firstPage,
-        events: [
-          event,
-          ...firstPage.events
-        ]
-      },
-      ...restPages
-    ]
-  }
-}
-
-function replaceEvent(
-  data: EventsList | null,
-  id: string,
-  event: BoardEvent
-) {
-  if (!data) {
-    return data
-  }
-
-  return {
-    ...data,
-    pages: data.pages.map(page => ({
-      ...page,
-      events: page.events.map(item => (
-        item.id === id
-          ? event
-          : item
-      ))
-    }))
-  }
-}
-
-function removeEvent(
-  data: EventsList | null,
-  id: string
-) {
-  if (!data) {
-    return data
-  }
-
-  return {
-    ...data,
-    pages: data.pages.map(page => ({
-      ...page,
-      events: page.events.filter(event => event.id !== id)
-    }))
-  }
-}
-
 export function NewEventForm$() {
   const {
-    $data,
-    mutation
+    mutation,
+    revalidate
   } = inject(Client$)
   const navigation = inject(Navigation$)
   const $title = signal('')
@@ -268,17 +185,11 @@ export function NewEventForm$() {
   ] = mutation<[], BoardEvent>(
     (ctx) => {
       const payload = $payload()
-      const oid = optimisticId()
-
-      $data(EventsKey, data => addEvent(data, oid, payload))
 
       onSuccess(ctx, (created) => {
-        $data(EventsKey, data => replaceEvent(data, oid, created))
+        revalidate(EventsKey)
         reset()
         navigation.push(`/events/${created.slug}`)
-      })
-      onError(ctx, () => {
-        $data(EventsKey, data => removeEvent(data, oid))
       })
 
       return createEvent(payload)
@@ -306,16 +217,6 @@ export function NewEventForm$() {
   }
 }
 
-function changeAttendees(
-  event: BoardEvent,
-  value: number
-) {
-  return {
-    ...event,
-    attendees: Math.max(0, event.attendees + value)
-  }
-}
-
 export function RsvpEvent$() {
   const {
     $data,
@@ -332,7 +233,10 @@ export function RsvpEvent$() {
       const previousEvent = $data(key)
 
       if (previousEvent) {
-        $data(key, changeAttendees(previousEvent, 1))
+        $data(key, {
+          ...previousEvent,
+          attendees: previousEvent.attendees + 1
+        })
 
         onError(ctx, () => {
           $data(key, previousEvent)

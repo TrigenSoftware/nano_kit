@@ -1,6 +1,5 @@
 import type {
   BoardEvent,
-  EventCategory,
   EventsFilter,
   EventsPage,
   NewEventForm
@@ -16,50 +15,6 @@ const API_ORIGIN = import.meta.env.SSR
   ? import.meta.env.VITE_EVENT_BOARD_API_ORIGIN || (import.meta.env.DEV ? 'http://localhost:5173' : 'http://localhost:3001')
   : ''
 const HTTP_NOT_FOUND = 404
-
-export function slugify(value: string) {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
-}
-
-export function eventMatches(
-  event: BoardEvent,
-  filter: {
-    q?: string
-    category?: EventCategory | null
-  }
-) {
-  const search = filter.q?.trim().toLowerCase()
-
-  if (filter.category && event.category !== filter.category) {
-    return false
-  }
-
-  if (!search) {
-    return true
-  }
-
-  return `${event.title} ${event.description} ${event.location}`.toLowerCase().includes(search)
-}
-
-export function optimisticEvent(
-  id: string,
-  event: NewEventForm
-): BoardEvent {
-  return {
-    id,
-    slug: slugify(event.title) || id,
-    title: event.title,
-    description: event.description,
-    startsAt: event.startsAt ?? Date.now(),
-    location: event.location,
-    category: event.category,
-    attendees: 0
-  }
-}
 
 /**
  * Fetch a cursor-paginated page of events.
