@@ -1,0 +1,36 @@
+{
+  "name": "event-board-preact-nano_kit-ssr",
+  "private": true,
+  "version": "0.0.0",
+  "packageManager": "pnpm@10.33.0",
+  "type": "module",
+  "imports": {
+    "#src/*": "./src/*"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.9",
+    "@nano_kit/preact": "*",
+    "@nano_kit/preact-router": "*",
+    "@nano_kit/preact-ssr": "*",
+    "@nano_kit/query": "*",
+    "@nano_kit/router": "*",
+    "@nano_kit/store": "*",
+    "hono": "^4.12.1",
+    "preact": "^10.27.1",
+    "preact-render-to-string": "^6.6.1"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.10.2",
+    "typescript": "~5.7.2",
+    "vite": "^8.0.8"
+  },
+  "stackblitz": {
+    "installDependencies": false,
+    "startCommand": "pnpm install && pnpm dev"
+  }
+}
