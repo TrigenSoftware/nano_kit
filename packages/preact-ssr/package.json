@@ -1,0 +1,96 @@
+{
+  "name": "@nano_kit/preact-ssr",
+  "type": "module",
+  "version": "1.0.0-alpha.0",
+  "description": "The Preact adapter for server-side rendering in Nano Kit.",
+  "author": "dangreen",
+  "license": "MIT",
+  "funding": "https://ko-fi.com/dangreen",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TrigenSoftware/nano_kit.git",
+    "directory": "packages/preact-ssr"
+  },
+  "bugs": {
+    "url": "https://github.com/TrigenSoftware/nano_kit/issues"
+  },
+  "keywords": [
+    "router",
+    "routing",
+    "navigation",
+    "vite",
+    "vite-plugin",
+    "ssr",
+    "nano_kit",
+    "preact"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "sideEffects": false,
+  "exports": {
+    "./vite-plugin": "./src/vite-plugin/index.js",
+    "./renderer": "./src/renderer/index.tsx",
+    "./client": "./src/client/index.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      "./package.json": "./package.json",
+      "./vite-plugin": {
+        "types": "./dist/vite-plugin/index.d.ts",
+        "import": "./dist/vite-plugin/index.js"
+      },
+      "./renderer": {
+        "types": "./dist/renderer/index.d.ts",
+        "import": "./dist/renderer/index.js"
+      },
+      "./client": {
+        "types": "./dist/client/index.d.ts",
+        "import": "./dist/client/index.js"
+      }
+    },
+    "directory": "package",
+    "linkDirectory": false
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clear:package": "del ./package",
+    "clear:dist": "del ./dist",
+    "clear": "del ./package ./dist ./coverage",
+    "prepublishOnly": "run build clear:package clean-publish",
+    "postpublish": "pnpm clear:package",
+    "build:dist": "tsgo -p tsconfig.build.json; cpy ./src/vite-plugin/index.d.ts ./dist/vite-plugin --flat; cpy './src/{client,renderer}.jsx' ./dist --flat",
+    "build": "run clear:dist build:dist",
+    "lint": "eslint --flag v10_config_lookup_from_file",
+    "test:unit": "vitest run --coverage",
+    "test:unit:watch": "vitest watch",
+    "test": "run lint test:unit"
+  },
+  "peerDependencies": {
+    "@nano_kit/preact": "workspace:^",
+    "@nano_kit/preact-router": "workspace:^",
+    "@nano_kit/router": "workspace:^",
+    "@nano_kit/store": "workspace:^",
+    "preact": "^10.0.0",
+    "preact-render-to-string": "^6.0.0",
+    "vite": "^7.0.0 || ^8.0.0"
+  },
+  "dependencies": {
+    "@nano_kit/ssr": "workspace:^"
+  },
+  "devDependencies": {
+    "@nano_kit/preact": "workspace:^",
+    "@nano_kit/preact-router": "workspace:^",
+    "@nano_kit/router": "workspace:^",
+    "@nano_kit/store": "workspace:^",
+    "@preact/preset-vite": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "cpy-cli": "^7.0.0",
+    "preact": "catalog:",
+    "preact-render-to-string": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}
