@@ -5,9 +5,11 @@ sidebar:
   order: 7
 ---
 
-The previous version of RSVP calls `revalidate(EventKey($slug()))` after the request succeeds. That keeps the detail page correct, but it still waits for the request and only refreshes one cache entry.
+Sometimes waiting for the server is fine. Sometimes it makes the UI feel late.
 
-For an optimistic update, the attendee count should change before the server responds.
+In our example, the create-event form can stay simple with `revalidate(...)`, but RSVP is different. The user stays on the page and expects the attendee count to change immediately.
+
+That is where Nano Kit Query optimistic updates help. The attendee count can change before the server responds.
 
 ## Entities
 
@@ -15,7 +17,7 @@ There is one more problem to solve before writing the optimistic mutation. The s
 
 Nano Kit Query solves this with [`entities`](/query/advanced#entities). An entity is a shared cache record that query results can reference. Instead of updating every list and detail cache separately, update the entity once.
 
-Define one [`entity`](/query/advanced#entities) for events:
+The app needs one [`entity`](/query/advanced#entities) for events:
 
 ```ts
 import { entities, entity } from '@nano_kit/query'
@@ -23,7 +25,7 @@ import { entities, entity } from '@nano_kit/query'
 export const EventEntity = entity<BoardEvent>('event')
 ```
 
-Map event detail results into that entity:
+Event detail results can be mapped into that entity:
 
 ```ts
 query(
@@ -34,7 +36,7 @@ query(
 )
 ```
 
-Map every event inside every infinite page too:
+The list query can map every event inside every infinite page too:
 
 ```ts
 infinite(
@@ -54,7 +56,7 @@ infinite(
 )
 ```
 
-Expose `$data` from the query client before writing the mutation:
+The mutation also needs `$data` from the query client:
 
 ```ts
 import { client, infinites, mutations } from '@nano_kit/query'
@@ -70,7 +72,7 @@ export const {
 )
 ```
 
-Now RSVP can update one entity immediately, then keep it or roll it back:
+RSVP can now update one entity immediately, then keep it or roll it back:
 
 ```ts
 export const [rsvp, $rsvpEvent, $rsvpError, $rsvpLoading] = mutation<[id: string], BoardEvent>(

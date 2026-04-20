@@ -1,11 +1,15 @@
 ---
 title: Build The First Store
-description: Create a store for local state, effects, and async loading.
+description: A first store for local state, effects, and async loading.
 sidebar:
   order: 2
 ---
 
-The home page needs three pieces of state: filters, fetched events, and loading status. Create a store that owns those values and loads events from the API.
+Most web apps begin with the same task: fetch data from an API and show it on the page.
+
+In our example, that first task is the home page with a list of events, a search field, and a category filter.
+
+The first store will hold the filters, the loaded events, and the loading flag.
 
 ```ts
 import { action, effect, mountable, onMount, signal } from '@nano_kit/store'
@@ -48,7 +52,7 @@ Here the callback creates an [`effect`](/store/core-concepts#signals-and-effects
 
 [`action`](/store/core-concepts#actions) wraps `loadEvents` so signal reads inside the action are untracked. In this case the filters are passed as arguments, which keeps the dependencies of the effect visible at the call site. As a good practice, wrap business functions like this in `action` when they read or write signals and may be called from effects. It prevents accidental tracking bugs as the function grows. The action sets loading state, calls the API, and writes the new events.
 
-Now render it as one React component:
+Let's render that state with one React component:
 
 ```tsx
 import { useSignal } from '@nano_kit/react'

@@ -5,13 +5,15 @@ sidebar:
   order: 3
 ---
 
-The first store works, but event data is server state. It comes from an API, can be cached, can become stale, and often needs loading state, pagination, and refetching.
+Fetching API data is one of the main jobs in a web app, but it is also where hand-written state starts growing quickly.
+
+In our example, the event list already works, but this data comes from the API. It can be cached, can become stale, and soon needs pagination and refetching.
 
 [`@nano_kit/query`](/query/core-concepts) is the Nano Kit layer for that kind of data. A [`query`](/query/core-concepts#query) connects reactive parameters to an async request and gives you signals for the result, loading state, and errors. When the parameters change, the query fetches again. When the same data is requested again, it can come from cache instead of forcing every store to rebuild the same request logic by hand.
 
-Use query for loading events from the API. Keep simple signals for things like input values and local UI state.
+In this step, event data moves to query, while simple signals stay for input values and other local UI state.
 
-Create one query client for the app:
+The app starts with one query client:
 
 ```ts
 import { client, infinites } from '@nano_kit/query'

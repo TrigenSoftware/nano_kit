@@ -5,11 +5,13 @@ sidebar:
   order: 9
 ---
 
-Event pages are public URLs. They should render useful HTML, title, and description before the browser hydrates.
+Some pages should be useful before JavaScript finishes loading. Public pages especially benefit from ready HTML, title, and description.
 
-The app is already in the shape that SSR needs: stores are factories, and the app entry exports `routes` and `pages`. The next step is to teach Vite how to build a renderer from that entry.
+In our example, event pages are public URLs, so they are a good fit for SSR.
 
-Add the React SSR plugin:
+The app is already in the shape that Nano Kit SSR needs: stores are factories, and the app entry exports `routes` and `pages`. The next step is to teach Vite how to build a renderer from that entry.
+
+The Vite config gets the React SSR plugin:
 
 ```ts
 import { defineConfig } from 'vite'
@@ -33,7 +35,7 @@ export default defineConfig({
 
 [`@nano_kit/react-ssr`](/integrations/react-ssr) adds a Vite plugin that builds two outputs: the client bundle and the server renderer. The `index` option points to the file from the previous step: it exports `routes` and `pages`.
 
-Make page modules expose the data that SSR must await and dehydrate:
+Page modules can expose the data that SSR must await and dehydrate:
 
 ```tsx
 // Home.tsx

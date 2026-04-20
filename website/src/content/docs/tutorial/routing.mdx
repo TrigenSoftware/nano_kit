@@ -5,9 +5,11 @@ sidebar:
   order: 4
 ---
 
-The app now has one useful page: it loads events, filters them, and can fetch more results. Before adding more screens, we need a way to describe where the user is in the app and move between screens without losing reactive state.
+As soon as an app has more than one view, it needs routing. The URL should describe where the user is, and some state should live in that URL instead of only inside memory.
 
-That is the job of [`@nano_kit/router`](/router/core-concepts). It keeps the current route in a signal, gives us navigation methods, and lets stores derive values from the URL. In this step, we will start with the smallest useful router setup: one `home` route and filters stored in the search string.
+In our example, we already have a useful event list page. The next step is to make its filters shareable and survive refresh.
+
+That is the job of [`@nano_kit/router`](/router/core-concepts). It keeps the current route in a signal, gives us navigation methods, and lets stores derive values from the URL. In this step, we start with the smallest useful router setup: one `home` route and filters stored in the search string.
 
 Putting filters in the URL is a good first use case for the router. A filtered list can survive refresh, and the user can copy the link and open the same view later.
 

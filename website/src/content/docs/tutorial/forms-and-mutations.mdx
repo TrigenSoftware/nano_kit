@@ -5,7 +5,9 @@ sidebar:
   order: 6
 ---
 
-The app also needs a page for creating events. Add one more route:
+Reading data is only half of a real app. At some point the user also needs to send data back to the server.
+
+In our example, that means a page for creating a new event. That page gets its own route:
 
 ```ts
 export const routes = {
@@ -39,7 +41,9 @@ export function App() {
 
 `newEvent` now has its own component, so the app can render the creation page when the URL is `/events/new`.
 
-Now build the form state.
+The next problem is form state: inputs, validation, submit state, and navigation after success.
+
+Nano Kit solves that by combining store signals for local form values with query mutations for the request.
 
 Form input values are local UI state, so plain store [`signal`](/store/core-concepts#signals-and-effects) values are enough. Derived values like validation errors and request payload can be computed from those signals.
 
@@ -97,7 +101,7 @@ export const resetNewEventForm = action(() => {
 
 `resetNewEventForm` clears all fields after a successful submit.
 
-Now add a mutation for the submit action:
+The submit action is another mutation:
 
 ```ts
 import { disabled, onSuccess } from '@nano_kit/query'

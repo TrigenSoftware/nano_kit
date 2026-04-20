@@ -5,7 +5,9 @@ sidebar:
   order: 5
 ---
 
-The list page can now link to event details. Add a new route with a `slug` parameter:
+A routed app usually needs pages for individual records too: one post, one product, one user, one event.
+
+In our example, the next step is a public page for one event. That means the route needs a dynamic `slug` parameter:
 
 ```ts
 import { param } from '@nano_kit/router'
@@ -20,7 +22,7 @@ export const $slug = param($location, 'slug')
 
 [`param`](/router/core-concepts#route-parameters) reads the dynamic part of the current route. For `/events/react-ssr-workshop`, `$slug()` returns `'react-ssr-workshop'`.
 
-Then add the page to the router:
+The router can now include that page:
 
 ```tsx
 import { page, router, useNavigationListenLinks, usePageSignal } from '@nano_kit/react-router'
@@ -44,7 +46,7 @@ export function App() {
 
 The `event` page uses the new `/events/:slug` route. When the browser URL matches that pattern, `$page` becomes `Event`.
 
-Now the event page can load one event by slug.
+The event page can load one event by slug.
 
 ```ts
 import { queryKey } from '@nano_kit/query'
@@ -75,9 +77,9 @@ The result signals follow the same pattern as the list query: `$event`, `$eventE
 
 ## Add A Page Action
 
-Add an RSVP button to the detail page. When the user clicks it, the app will call `POST /api/events/:id/rsvp` and the server will return the event with an updated attendee count.
+The detail page also needs an RSVP button. When the user clicks it, the app will call `POST /api/events/:id/rsvp` and the server will return the event with an updated attendee count.
 
-Enable mutations in the query client:
+The query client needs mutations for this action:
 
 ```ts
 import { client, infinites, mutations } from '@nano_kit/query'
@@ -97,7 +99,7 @@ export const {
 
 [`revalidate`](/query/core-concepts#revalidating-cache) marks cached data as stale and tells active queries to fetch again. We will use it after the mutation succeeds.
 
-Now create the action for the button:
+The button action is a mutation:
 
 ```ts
 import { onSuccess } from '@nano_kit/query'

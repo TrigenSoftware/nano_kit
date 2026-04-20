@@ -5,11 +5,13 @@ sidebar:
   order: 8
 ---
 
-So far the app can keep stores at module scope and render pages with `usePageSignal($page)`. That is fine while the app runs only in the browser.
+Client-only apps can keep state in module scope, because there is just one browser session using that code at a time.
 
-Before adding SSR, move shared stores into factories. A server handles many requests in one process, so shared module state would be the wrong shape. Dependency Injection gives each render its own store graph and keeps stores easy to compose.
+Our example is about to move to server rendering, and that changes the problem. A server handles many requests in one process, so shared module state becomes the wrong shape.
 
-Start with the query client:
+Before adding SSR, move shared stores into factories. Nano Kit uses Dependency Injection for this: each render gets its own store graph, and stores stay easy to compose.
+
+The query client becomes a factory first:
 
 ```ts
 import { client, infinites, mutations, ssr } from '@nano_kit/query'
@@ -25,7 +27,7 @@ export function Client$() {
 
 The query client now includes [`ssr()`](/query/ssr#ssr). This setting lets query cache data be prepared during server rendering and reused during hydration.
 
-Then move router-derived state into a factory. The router integration provides [`Location$`](/router/ssr#setting-up-ssr), and the factory derives params from it:
+Router-derived state moves into a factory too. The router integration provides [`Location$`](/router/ssr#setting-up-ssr), and the factory derives params from it:
 
 ```ts
 import { inject } from '@nano_kit/store'
@@ -110,7 +112,7 @@ This changes how stores are created, but not what the UI can do. The app still h
 
 ## Router Integration
 
-Now switch the app entry to the router shape used by the SSR renderer. Instead of creating `$page` manually, export `routes` and `pages`:
+The app entry can now use the router shape expected by the SSR renderer. Instead of creating `$page` manually, it exports `routes` and `pages`:
 
 ```tsx
 import { layout, loadable, page } from '@nano_kit/react-router'
