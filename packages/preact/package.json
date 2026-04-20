@@ -1,0 +1,85 @@
+{
+  "name": "@nano_kit/preact",
+  "type": "module",
+  "version": "1.0.0-alpha.0",
+  "description": "Integrates @nano_kit/store signals and Dependency Injection with Preact components.",
+  "author": "dangreen",
+  "license": "MIT",
+  "homepage": "https://nano-kit.js.org/integrations/preact",
+  "funding": "https://ko-fi.com/dangreen",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TrigenSoftware/nano_kit.git",
+    "directory": "packages/preact"
+  },
+  "bugs": {
+    "url": "https://github.com/TrigenSoftware/nano_kit/issues"
+  },
+  "keywords": [
+    "preact",
+    "store",
+    "state",
+    "state-management",
+    "signal",
+    "reactive",
+    "hooks",
+    "nano_kit"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "sideEffects": false,
+  "exports": {
+    "./package.json": "./package.json",
+    ".": "./src/index.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      "./package.json": "./package.json",
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    },
+    "directory": "package",
+    "linkDirectory": false
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clear:package": "del ./package",
+    "clear:dist": "del ./dist",
+    "clear": "del ./package ./dist ./coverage",
+    "prepublishOnly": "run build clear:package clean-publish",
+    "postpublish": "pnpm clear:package",
+    "emitDeclarations": "tsgo -p ./tsconfig.build.json --emitDeclarationOnly",
+    "build:dist": "run -p emitDeclarations [ vite build ]",
+    "build": "run clear:dist build:dist",
+    "lint": "eslint --flag v10_config_lookup_from_file",
+    "test:unit": "vitest run --coverage",
+    "test:unit:watch": "vitest watch",
+    "test:size": "size-limit",
+    "test:types": "tsgo --noEmit",
+    "test": "run -p lint test:unit test:types"
+  },
+  "peerDependencies": {
+    "@nano_kit/store": "workspace:^",
+    "preact": "^10.0.0"
+  },
+  "devDependencies": {
+    "@nano_kit/store": "workspace:^",
+    "@preact/preset-vite": "catalog:",
+    "@size-limit/preset-small-lib": "^12.0.0",
+    "@testing-library/dom": "^10.0.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/preact": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "happy-dom": "^20.0.0",
+    "preact": "catalog:",
+    "size-limit": "^12.0.0",
+    "typescript": "^6.0.0",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}
