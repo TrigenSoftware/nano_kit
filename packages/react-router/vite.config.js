@@ -13,7 +13,7 @@ export default defineConfig({
       }
     },
     rolldownOptions: {
-      external: id => /^(next|react|@nano_kit)\/?/.test(id),
+      external: id => /^(react|@nano_kit)\/?/.test(id),
       output: {
         codeSplitting: {
           groups: [

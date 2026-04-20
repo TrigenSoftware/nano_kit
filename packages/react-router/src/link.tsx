@@ -89,14 +89,12 @@ function createLinkSettings<R extends Routes>(
 
         const prevHook = settings.hook
 
-        if (prevHook) {
-          settings.hook = (props, settings) => ({
+        settings.hook = prevHook
+          ? (props, settings) => ({
             ...prevHook(props, settings),
             ...hook(props, settings)
           })
-        } else {
-          settings.hook = hook
-        }
+          : hook
       }
     }
   } as LinkSettings
