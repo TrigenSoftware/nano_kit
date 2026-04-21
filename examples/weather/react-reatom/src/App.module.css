@@ -1,0 +1,20 @@
+.main {
+  margin-right: 2.5em;
+  margin-left: 2.5em;
+}
+
+.title {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+@media (max-width: 767px) {
+  .main {
+    margin-right: 1em;
+    margin-left: 1em;
+  }
+
+  .title {
+    font-size: 1.6em;
+  }
+}

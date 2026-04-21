@@ -1,0 +1,24 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mode {
+  font-size: 1.2em;
+}
+
+.list {
+  margin: 0;
+  display: flex;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+  scroll-snap-type: x mandatory;
+}
+
+@media (max-width: 767px) {
+  .title {
+    font-size: 1.2em;
+  }
+}

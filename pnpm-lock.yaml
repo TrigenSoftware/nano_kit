@@ -729,6 +729,37 @@ importers:
         specifier: ^8.0.8
         version: 8.0.8(@types/node@24.0.14)(esbuild@0.27.3)(jiti@2.4.2)(yaml@2.8.2)
 
+  examples/weather/react-reatom:
+    dependencies:
+      '@reatom/core':
+        specifier: ^1000.15.1
+        version: 1000.15.1
+      '@reatom/react':
+        specifier: ^1000.2.2
+        version: 1000.2.2(@reatom/core@1000.15.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+    devDependencies:
+      '@types/react':
+        specifier: ^19.2.4
+        version: 19.2.9
+      '@types/react-dom':
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.9)
+      '@vitejs/plugin-react':
+        specifier: ^6.0.1
+        version: 6.0.1(vite@8.0.8(@types/node@24.0.14)(esbuild@0.27.3)(jiti@2.4.2)(yaml@2.8.2))
+      react:
+        specifier: ^19.2.0
+        version: 19.2.3
+      react-dom:
+        specifier: ^19.2.0
+        version: 19.2.3(react@19.2.3)
+      typescript:
+        specifier: ^5.2.2
+        version: 5.9.3
+      vite:
+        specifier: ^8.0.8
+        version: 8.0.8(@types/node@24.0.14)(esbuild@0.27.3)(jiti@2.4.2)(yaml@2.8.2)
+
   examples/weather/react-tanstack:
     dependencies:
       '@tanstack/react-query':
@@ -2652,6 +2683,13 @@ packages:
 
   '@reatom/core@1000.15.1':
     resolution: {integrity: sha512-5KKwjD7teOfHNXUj9aJxFYR+DLWiaE0xZwy1tpWlSE+cx3VI5VwJZJuhvZ887pdrMbgwyOypcz/V9p1v3YSWPg==}
+
+  '@reatom/react@1000.2.2':
+    resolution: {integrity: sha512-QxNFwtmbsIK/DUtmjebfW9gmW+d+4UPZVq1f+Nb2wkiNOZ8yUh7o0i4xAs83nneZOFqcqwNiYKfDrEpBozMCvA==}
+    peerDependencies:
+      '@reatom/core': ^1000.14.1
+      react: '>=18.2.0'
+      react-dom: '>=18.2.0'
 
   '@resvg/resvg-js-android-arm-eabi@2.6.2':
     resolution: {integrity: sha512-FrJibrAk6v29eabIPgcTUMPXiEz8ssrAk7TXxsiZzww9UTQ1Z5KAbFJs+Z0Ez+VZTYgnE5IQJqBcoSiMebtPHA==}
@@ -8798,6 +8836,12 @@ snapshots:
       '@standard-schema/spec': 1.1.0
     optionalDependencies:
       idb-keyval: 6.2.2
+
+  '@reatom/react@1000.2.2(@reatom/core@1000.15.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
+    dependencies:
+      '@reatom/core': 1000.15.1
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
 
   '@resvg/resvg-js-android-arm-eabi@2.6.2':
     optional: true

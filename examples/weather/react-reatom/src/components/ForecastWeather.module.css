@@ -1,0 +1,48 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  scroll-snap-align: start;
+}
+
+.root:not(:first-child) {
+  margin-left: 4em;
+}
+
+.time {
+  font-size: 1.2em;
+  font-style: italic;
+}
+
+.temp {
+  margin: 0;
+  font-size: 2em;
+  font-weight: normal;
+}
+
+.description {
+  text-align: center;
+}
+
+@media (prefers-color-scheme: light) {
+  .image {
+    border-radius: 100px;
+    background-color: oklch(0.26 0 0 / 0.16);
+  }
+}
+
+.image {
+  width: 100px;
+  height: 100px;
+}
+
+@media (max-width: 767px) {
+  .root:not(:first-child) {
+    margin-left: 1.6em;
+  }
+
+  .image {
+    width: 80px;
+    height: 80px;
+  }
+}

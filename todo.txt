@@ -1,9 +1,11 @@
-- guide
 - tweark colors on the website
 
 ## Agera/Kida/Store
 
 - serialize/deserialize for hydratable
+- untracked -> peek
+- replace paced with pace + rename
+- persistent - localstorage
 - immutability helpers? / make work with $data facet more comfort
 - lazy scope to start and stop methods? for example for resort in loop
 - later: resort effects
