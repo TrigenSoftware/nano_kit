@@ -56,6 +56,7 @@ catalogs:
       version: 4.1.4
 
 overrides:
+  '@nano_kit/cookie-store@*': workspace:^
   '@nano_kit/next-router@*': workspace:^
   '@nano_kit/preact@*': workspace:^
   '@nano_kit/preact-router@*': workspace:^
@@ -898,6 +899,28 @@ importers:
       valtio:
         specifier: ^2.3.0
         version: 2.3.0(@types/react@19.2.9)(react@19.2.3)
+
+  packages/cookie-store:
+    devDependencies:
+      '@size-limit/preset-small-lib':
+        specifier: ^12.0.0
+        version: 12.0.1(size-limit@12.0.1(jiti@2.4.2))
+      '@vitest/coverage-v8':
+        specifier: 'catalog:'
+        version: 4.1.4(vitest@4.1.4)
+      size-limit:
+        specifier: ^12.0.0
+        version: 12.0.1(jiti@2.4.2)
+      typescript:
+        specifier: ^6.0.0
+        version: 6.0.2
+      vite:
+        specifier: 'catalog:'
+        version: 8.0.8(@types/node@24.0.14)(esbuild@0.27.3)(jiti@2.4.2)(yaml@2.8.2)
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.4(@types/node@24.0.14)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.0.8(@types/node@24.0.14)(esbuild@0.27.3)(jiti@2.4.2)(yaml@2.8.2))
+    publishDirectory: package
 
   packages/kida:
     dependencies:

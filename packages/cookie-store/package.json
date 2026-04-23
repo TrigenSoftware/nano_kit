@@ -1,0 +1,73 @@
+{
+  "name": "@nano_kit/cookie-store",
+  "type": "module",
+  "version": "1.0.0-alpha.0",
+  "description": "A virutal CookieStore-compatible implementation for SSR and testing environments.",
+  "author": "dangreen",
+  "license": "MIT",
+  "homepage": "https://nano-kit.js.org/cookie-store",
+  "funding": "https://ko-fi.com/dangreen",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TrigenSoftware/nano_kit.git",
+    "directory": "packages/cookie-store"
+  },
+  "bugs": {
+    "url": "https://github.com/TrigenSoftware/nano_kit/issues"
+  },
+  "keywords": [
+    "cookie",
+    "cookies",
+    "cookie-store",
+    "ssr",
+    "server",
+    "di",
+    "nano_kit"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "sideEffects": false,
+  "exports": {
+    "./package.json": "./package.json",
+    ".": "./src/index.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      "./package.json": "./package.json",
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    },
+    "directory": "package",
+    "linkDirectory": false
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clear:package": "del ./package",
+    "clear:dist": "del ./dist",
+    "clear": "del ./package ./dist ./coverage",
+    "prepublishOnly": "run build clear:package clean-publish",
+    "postpublish": "pnpm clear:package",
+    "emitDeclarations": "tsgo -p ./tsconfig.build.json --emitDeclarationOnly",
+    "build:dist": "run -p emitDeclarations [ vite build ]",
+    "build": "run clear:dist build:dist",
+    "lint": "eslint --flag v10_config_lookup_from_file",
+    "test:unit": "vitest run --coverage",
+    "test:unit:watch": "vitest watch",
+    "test:size": "size-limit",
+    "test:types": "tsgo --noEmit",
+    "test": "run -p lint test:unit test:types"
+  },
+  "devDependencies": {
+    "@size-limit/preset-small-lib": "^12.0.0",
+    "@vitest/coverage-v8": "catalog:",
+    "size-limit": "^12.0.0",
+    "typescript": "^6.0.0",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}
