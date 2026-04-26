@@ -28,13 +28,13 @@ const INITIAL_STATE = {
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function resolved<T>(
-  $promise: Accessor<Promise<T> | FalsyValue> | Promise<T> | FalsyValue
+  $promise: Accessor<T | Promise<T> | FalsyValue> | Promise<T> | FalsyValue
 ): readonly [
   $result: ReadableSignal<T | undefined>,
   $error: ReadableSignal<unknown>,
   $pending: ReadableSignal<boolean>
 ] {
-  let currentPromise: Promise<T> | FalsyValue = null
+  let currentPromise: T | Promise<T> | FalsyValue = null
   const $state = signal<ResolvedState<T>>(INITIAL_STATE)
   const resolve = () => {
     const promise = isFunction($promise) ? $promise() : $promise
@@ -50,31 +50,38 @@ export function resolved<T>(
       return $state()
     }
 
-    $state(state => ({
-      ...state,
-      error: undefined,
-      pending: true
-    }))
+    if (promise instanceof Promise) {
+      $state(state => ({
+        ...state,
+        error: undefined,
+        pending: true
+      }))
 
-    promise.then(
-      (data) => {
-        if (currentPromise === promise) {
-          $state({
-            ...INITIAL_STATE,
-            data
-          })
+      promise.then(
+        (data) => {
+          if (currentPromise === promise) {
+            $state({
+              ...INITIAL_STATE,
+              data
+            })
+          }
+        },
+        (error) => {
+          if (currentPromise === promise) {
+            $state(state => ({
+              ...state,
+              error,
+              pending: false
+            }))
+          }
         }
-      },
-      (error) => {
-        if (currentPromise === promise) {
-          $state(state => ({
-            ...state,
-            error,
-            pending: false
-          }))
-        }
-      }
-    )
+      )
+    } else {
+      $state({
+        ...INITIAL_STATE,
+        data: promise
+      })
+    }
 
     return $state()
   }

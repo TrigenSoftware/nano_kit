@@ -46,7 +46,7 @@ describe('kida', () => {
 
     it('should react to source signal changes', async () => {
       let promise: Promise<number> | null = null
-      const $promise = signal<Promise<number> | null>(promise)
+      const $promise = signal<number | Promise<number> | null>(promise)
       const [$result, , $pending] = resolved($promise)
 
       expect($result()).toBeUndefined()
@@ -77,6 +77,11 @@ describe('kida', () => {
       $promise(null)
 
       expect($result()).toBeUndefined()
+      expect($pending()).toBe(false)
+
+      $promise(42)
+
+      expect($result()).toBe(42)
       expect($pending()).toBe(false)
     })
 
