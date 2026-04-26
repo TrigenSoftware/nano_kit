@@ -30,6 +30,7 @@ overrides:
   '@nano_kit/preact@*': workspace:^
   '@nano_kit/preact-router@*': workspace:^
   '@nano_kit/preact-ssr@*': workspace:^
+  '@nano_kit/platform-web@*': workspace:^
   '@nano_kit/query@*': workspace:^
   '@nano_kit/react-router@*': workspace:^
   '@nano_kit/react-ssr@*': workspace:^
