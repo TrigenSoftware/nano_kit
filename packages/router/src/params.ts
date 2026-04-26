@@ -3,7 +3,8 @@ import {
   type KeysOf,
   type ValueOfKey,
   type ReadableSignal,
-  computed
+  computed,
+  identity
 } from '@nano_kit/store'
 import type { Routes } from './types.js'
 import type {
@@ -36,7 +37,7 @@ export function searchParams($location: RouteLocationRecord<Routes>): SearchPara
 export function searchParam<T = string | null>(
   $searchParams: SearchParamsSignal,
   key: string,
-  parser: (value: string | null) => T = _ => _ as T
+  parser: (value: string | null) => T = identity as (value: string | null) => T
 ): ReadableSignal<T> {
   return computed(() => parser($searchParams().get(key)))
 }
@@ -58,7 +59,7 @@ export function param<
 >(
   $location: RouteLocationRecord<R>,
   key: K,
-  parser: (value: NoInfer<V> | undefined) => T = _ => _ as unknown as T
+  parser: (value: NoInfer<V> | undefined) => T = identity as (value: NoInfer<V> | undefined) => T
 ): ReadableSignal<T> {
   const { $params } = $location as RouteLocationRecord<{}>
 

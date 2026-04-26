@@ -1,4 +1,7 @@
-import { isFunction } from '@nano_kit/store'
+import {
+  identity,
+  isFunction
+} from '@nano_kit/store'
 
 export interface Codec<D, E> {
   encode(value: D): E
@@ -18,11 +21,9 @@ export function isCodec<C extends AnyCodec>(value: unknown): value is C {
   return isFunction((value as C)?.encode)
 }
 
-export const NoopCodec: AnyCodec = {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-  encode: _ => _,
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-  decode: _ => _
+export const NoopCodec = {
+  encode: identity,
+  decode: identity
 }
 
 /**

@@ -28,3 +28,7 @@ export const isAccessor = isFunction as <T extends AnyAccessor = AnyAccessor>(va
 export function isSignal<T extends AnyReadableSignal = AnyReadableSignal>(value: unknown): value is T {
   return isFunction(value) && 'node' in value
 }
+
+export const noop = () => { /* no op */ }
+
+export const identity = <T>(value: T): T => value

@@ -3,7 +3,8 @@ import {
   mountable,
   onStart,
   isFunction,
-  signalNextValue
+  signalNextValue,
+  noop
 } from 'kida'
 import type { RateLimiter } from './types.js'
 import { external } from './external.js'
@@ -38,9 +39,9 @@ export const noopStorage: SyncedStorage<any> = {
   get() {
     return null
   },
-  set() { /* no op */ },
+  set: noop,
   sub() {
-    return () => { /* no op */ }
+    return noop
   }
 }
 

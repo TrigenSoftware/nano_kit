@@ -3,6 +3,7 @@ import {
   type RateLimiter,
   type SyncedStorage,
   type WritableSignal,
+  noop,
   syncedStored
 } from '@nano_kit/store'
 
@@ -19,7 +20,7 @@ class BroadcastChannelStorage<T> implements SyncedStorage<T> {
 
   sub(key: string, callback: (value: T | null) => void) {
     if (typeof BroadcastChannel === 'undefined') {
-      return () => { /* noop */ }
+      return noop
     }
 
     const channel = this.#channel = new BroadcastChannel(key)
