@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.1](https://github.com/TrigenSoftware/nano_kit/compare/agera@1.0.0-beta.0...agera@1.0.0-beta.1) (2026-04-26)
+
+### Features
+
+* add `nextValue` and `signalNextValue` helpers ([4519b57](https://github.com/TrigenSoftware/nano_kit/commit/4519b57866cbd449c78e8c00db391487e12295f2))
+
 ## [1.0.0-beta.0](https://github.com/TrigenSoftware/nano_kit/compare/agera@1.0.0-alpha.5...agera@1.0.0-beta.0) (2026-04-12)
 
 ### Features

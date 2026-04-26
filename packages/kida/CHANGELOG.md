@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.1](https://github.com/TrigenSoftware/nano_kit/compare/kida@1.0.0-beta.0...kida@1.0.0-beta.1) (2026-04-26)
+
+### Features
+
+* `resolved` now also accepts raw value ([ece95b5](https://github.com/TrigenSoftware/nano_kit/commit/ece95b56df943d9ee9cc56ade4ca68d2dbec70a0))
+
 ## [1.0.0-beta.0](https://github.com/TrigenSoftware/nano_kit/compare/kida@1.0.0-alpha.6...kida@1.0.0-beta.0) (2026-04-12)
 
 ### Features
