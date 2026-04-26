@@ -1,6 +1,7 @@
 import {
   type AnyAccessor,
   type AnyWritableSignal,
+  type AccessorValue,
   ExternalModesBase,
   start,
   InjectionContext,
@@ -15,6 +16,10 @@ import {
   TasksPool$,
   waitTasks
 } from './tasks.js'
+import {
+  type Codec,
+  NoopCodec
+} from './codec.js'
 
 export interface Hydrator {
   /**
@@ -110,12 +115,20 @@ export function Hydratables$(): Map<string, AnyAccessor> | null {
  * @param $signal - The signal to mark as hydratable.
  * @returns The signal.
  */
-export function hydratable<T extends AnyWritableSignal>(id: string, $signal: T): T {
+export function hydratable<
+  T extends AnyWritableSignal,
+  D = AccessorValue<T>,
+  E = D
+>(
+  id: string,
+  $signal: T,
+  codec: Codec<D, E> = NoopCodec as Codec<D, E>
+): T {
   const hydrator = inject(Hydrator$)
 
   if (hydrator) {
     hydrator.pull(id, (value) => {
-      $signal(value)
+      $signal(codec.decode(value as E))
 
       if (!isHydrated($signal)) {
         $signal.node.modes |= HydratedMode
@@ -130,7 +143,7 @@ export function hydratable<T extends AnyWritableSignal>(id: string, $signal: T):
     const hydratables = inject(Hydratables$)
 
     if (hydratables) {
-      hydratables.set(id, $signal)
+      hydratables.set(id, () => codec.encode($signal() as D))
     }
   }
 

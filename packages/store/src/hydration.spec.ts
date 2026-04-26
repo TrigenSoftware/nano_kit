@@ -13,6 +13,7 @@ import {
   onMount
 } from 'kida'
 import { TasksRunner$ } from './tasks.js'
+import { JsonCodec } from './codec.js'
 import {
   Hydrator$,
   hydratable,
@@ -64,6 +65,27 @@ describe('store', () => {
       ])
     })
 
+    it('should dehydrate with codec', async () => {
+      const dehydrated = await dehydrate(() => {
+        const $user = hydratable(
+          'user',
+          signal<User>({
+            name: 'John'
+          }),
+          JsonCodec
+        )
+
+        return [$user]
+      })
+
+      expect(dehydrated).toEqual([
+        [
+          'user',
+          '{"name":"John"}'
+        ]
+      ])
+    })
+
     it('should hydrate', () => {
       const dehydrated = Object.entries({
         user: {
@@ -74,6 +96,24 @@ describe('store', () => {
         provide(Hydrator$, new StaticHydrator(dehydrated))
       ])
       const { $user } = run(context, () => inject(User$))
+
+      expect($user()).toEqual({
+        name: 'John'
+      })
+    })
+
+    it('should hydrate with codec', () => {
+      const dehydrated = Object.entries({
+        user: '{"name":"John"}'
+      })
+      const context = new InjectionContext([
+        provide(Hydrator$, new StaticHydrator(dehydrated))
+      ])
+      const $user = run(context, () => hydratable(
+        'user',
+        signal<User | null>(null),
+        JsonCodec
+      ))
 
       expect($user()).toEqual({
         name: 'John'
