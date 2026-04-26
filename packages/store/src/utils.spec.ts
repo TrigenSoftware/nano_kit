@@ -1,5 +1,7 @@
 import {
   vi,
+  afterEach,
+  beforeEach,
   describe,
   it,
   expect
@@ -8,7 +10,10 @@ import {
   effect,
   signal
 } from 'kida'
-import { previous } from './utils.js'
+import {
+  interval,
+  previous
+} from './utils.js'
 
 describe('store', () => {
   describe('utils', () => {
@@ -45,6 +50,52 @@ describe('store', () => {
         expect(fn).toHaveBeenCalledTimes(3)
 
         stop()
+      })
+    })
+
+    describe('interval', () => {
+      beforeEach(() => {
+        vi.useFakeTimers()
+      })
+
+      afterEach(() => {
+        vi.useRealTimers()
+        vi.restoreAllMocks()
+      })
+
+      it('should increment while mounted', () => {
+        const $interval = interval(100)
+        const stop = effect(() => {
+          $interval()
+        })
+
+        expect($interval()).toBe(0)
+
+        vi.advanceTimersByTime(100)
+        expect($interval()).toBe(1)
+
+        vi.advanceTimersByTime(200)
+        expect($interval()).toBe(3)
+
+        stop()
+      })
+
+      it('should stop incrementing after unmount', () => {
+        const $interval = interval(100)
+        const stop = effect(() => {
+          $interval()
+        })
+
+        vi.advanceTimersByTime(200)
+        expect($interval()).toBe(2)
+
+        stop()
+
+        const valueAfterUnmount = $interval()
+
+        vi.advanceTimersByTime(300)
+
+        expect($interval()).toBe(valueAfterUnmount)
       })
     })
   })

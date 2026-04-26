@@ -1,7 +1,11 @@
 import {
   type Accessor,
+  type WritableSignal,
+  computed,
   isFunction,
-  computed
+  mountable,
+  onStart,
+  signal
 } from 'kida'
 import type { RateLimiter } from './types.js'
 
@@ -21,6 +25,24 @@ export function previous<T>($signal: Accessor<T>): Accessor<T | undefined> {
 
     return result
   })
+}
+
+/**
+ * Create a signal that increments on an interval while mounted.
+ * @param ms - Interval duration in milliseconds.
+ * @returns A signal containing the current tick count.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function interval(ms: number): WritableSignal<number> {
+  const $interval = mountable(signal(0))
+
+  onStart($interval, () => {
+    const timer = setInterval(() => $interval(prev => prev + 1), ms)
+
+    return () => clearInterval(timer)
+  })
+
+  return $interval
 }
 
 /**
@@ -109,4 +131,14 @@ export function throttle(fnOrDelay?: (() => void) | number) {
         }
     }
   }
+}
+
+/**
+ * Return the original function without rate limiting.
+ * @param fn - Function to return as-is.
+ * @returns The original function.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function noLimit<T extends unknown[]>(fn: (...args: T) => void): (...args: T) => void {
+  return fn
 }
