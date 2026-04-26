@@ -11,7 +11,9 @@ import {
   signal,
   computed,
   batch,
-  createSignal
+  createSignal,
+  nextValue,
+  signalNextValue
 } from './internals/system.js'
 import { noMount } from './internals/lifecycle.js'
 import { listen } from './effect.js'
@@ -19,7 +21,9 @@ import { listen } from './effect.js'
 export {
   signal,
   computed,
-  batch
+  batch,
+  nextValue,
+  signalNextValue
 }
 
 /**

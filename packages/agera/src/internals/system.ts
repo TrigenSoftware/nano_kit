@@ -738,12 +738,19 @@ function computedOper<T>(this: ComputedNode<T>): T {
   return this.value!
 }
 
+export function nextValue<T>(prevValue: T, nextValue: NewValue<T>): T {
+  return isFunction(nextValue) ? nextValue(prevValue) : nextValue
+}
+
+export function signalNextValue<T>($signal: WritableSignal<T>, newValue: NewValue<T>): T {
+  return nextValue($signal.node.pendingValue, newValue)
+}
+
 function signalOper<T>(this: SignalNode<T>, ...value: [NewValue<T>]): T | void {
   if (value.length) {
-    const newValue = value[0]
     const prevValue = this.pendingValue
 
-    if (prevValue !== (this.pendingValue = isFunction(newValue) ? newValue(prevValue) : newValue)) {
+    if (prevValue !== (this.pendingValue = nextValue(prevValue, value[0]))) {
       this.flags = MutableFlag | DirtyFlag
 
       const subs = this.subs
