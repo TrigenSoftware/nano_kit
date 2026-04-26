@@ -91,22 +91,22 @@ export class VirtualCookieStore implements CookieStore {
   }
 
   /**
-   * Returns the first cookie matching the provided name synchronously.
+   * Returns the first cookie value matching the provided name synchronously.
    * @param name - Cookie name.
-   * @returns The first matching cookie, or `null` if none was found.
+   * @returns The first matching cookie value, or `null` if none was found.
    */
-  peek(name: string): VirtualCookieListItem | null
+  peek(name: string): string | null
   /**
-   * Returns the first cookie matching the provided lookup options synchronously.
+   * Returns the first cookie value matching the provided lookup options synchronously.
    * @param options - Cookie lookup options.
-   * @returns The first matching cookie, or `null` if none was found.
+   * @returns The first matching cookie value, or `null` if none was found.
    */
-  peek(options?: CookieStoreGetOptions): VirtualCookieListItem | null
+  peek(options?: CookieStoreGetOptions): string | null
 
   peek(
     nameOrOptions: string | CookieStoreGetOptions = {}
-  ): VirtualCookieListItem | null {
-    return this.#find(nameOrOptions, true)
+  ): string | null {
+    return this.#find(nameOrOptions, true)?.value ?? null
   }
 
   /**

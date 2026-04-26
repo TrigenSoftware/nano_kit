@@ -6,10 +6,7 @@ describe('cookie-store', () => {
     it('should read cookies from a request header', async () => {
       const store = new VirtualCookieStore('theme=dark; session=abc123')
 
-      expect(store.peek('theme')).toEqual({
-        name: 'theme',
-        value: 'dark'
-      })
+      expect(store.peek('theme')).toBe('dark')
       await expect(store.get('theme')).resolves.toEqual({
         name: 'theme',
         value: 'dark'
