@@ -24,7 +24,7 @@ export default defineConfig({
     exclude: [...configDefaults.exclude, './package'],
     coverage: {
       reporter: ['lcovonly', 'text'],
-      include: ['src/**/*', '!**/*.stories.ts']
+      include: ['src/**/*.ts', '!**/*.stories.ts']
     }
   }
 })

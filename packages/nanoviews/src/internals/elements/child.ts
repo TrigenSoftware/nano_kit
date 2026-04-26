@@ -1,4 +1,7 @@
-import { isAccessor } from 'kida'
+import {
+  isAccessor,
+  isFunction
+} from 'kida'
 import type {
   Child,
   EmptyValue,
@@ -14,7 +17,7 @@ import {
 export function isLazyChild<T extends () => Child = () => Child>(
   child: unknown
 ): child is LazyChild<T> {
-  return typeof child === 'function' && 'c' in child
+  return isFunction(child) && 'c' in child
 }
 
 export function lazyChild<T extends () => Child>(

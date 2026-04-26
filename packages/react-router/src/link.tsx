@@ -3,7 +3,10 @@ import {
   type MouseEvent,
   useEffect
 } from 'react'
-import { inject } from '@nano_kit/store'
+import {
+  inject,
+  isFunction
+} from '@nano_kit/store'
 import { useInject } from '@nano_kit/react'
 import {
   type Navigation,
@@ -52,7 +55,7 @@ function createLinkComponent<R extends Routes>(
     const paths = usePaths()
     const path = (to && paths[to]) as string | ((params: unknown) => string) | undefined
     const href = hrefProp ?? (path && (
-      typeof path === 'function'
+      isFunction(path)
         ? path(params)
         : path
     ))

@@ -1,4 +1,5 @@
 import {
+  isFunction,
   isSignal,
   signal
 } from 'kida'
@@ -18,7 +19,7 @@ function propsToStores(props) {
   const entries = Object.entries(props).map(
     ([key, value]) => [
       key,
-      typeof value === 'function' || isSignal(value)
+      isFunction(value) || isSignal(value)
         ? value
         : signal(value)
     ]

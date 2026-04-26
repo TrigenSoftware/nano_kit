@@ -1,5 +1,6 @@
 import {
   type Accessor,
+  isFunction,
   computed,
   signal
 } from '@nano_kit/store'
@@ -67,7 +68,7 @@ export function loadable<const V>(
 }
 
 function isLoadable<C = unknown>(ref: unknown): ref is PageModuleRef<C> {
-  return typeof (ref as PageModuleRef<C>)?.load === 'function'
+  return isFunction((ref as PageModuleRef<C>)?.load)
 }
 
 function isModule<C = unknown>(ref: unknown): ref is PageModule<C> {
