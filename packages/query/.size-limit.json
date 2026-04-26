@@ -3,12 +3,12 @@
     "name": "All publics",
     "path": "dist/index.js",
     "import": "*",
-    "limit": "4 kB"
+    "limit": "3.8 kB"
   },
   {
     "name": "Minimal set",
     "path": "dist/index.js",
     "import": "{ client, mutations }",
-    "limit": "1.7 kB"
+    "limit": "1.6 kB"
   }
 ]

@@ -1,4 +1,7 @@
-import type { NewValue } from '@nano_kit/store'
+import {
+  type NewValue,
+  isFunction
+} from '@nano_kit/store'
 import type {
   CacheKeyBuilder,
   CacheDataFacade,
@@ -69,7 +72,7 @@ function dataCacheGetterSetter<P extends unknown[], R>(
 
     this.set(key, (entry = this.initial()) => ({
       ...entry,
-      data: typeof newValue === 'function'
+      data: isFunction(newValue)
         ? (newValue as (value: unknown) => unknown)(entry.data)
         : newValue
     }))
