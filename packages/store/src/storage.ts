@@ -172,7 +172,7 @@ export function stored<D, E>(
     codecOrRateLimiter,
     maybeRateLimiter
   )
-  const set = rateLimiter(storage.set)
+  const set = rateLimiter(storage.set.bind(storage))
 
   return external<D | undefined>(($signal, ops) => {
     $signal(codec.decode(storage.get(key)) ?? defaultValue)
@@ -281,7 +281,7 @@ export function syncedStored<D, E>(
     codecOrRateLimiter,
     maybeRateLimiter
   )
-  const set = rateLimiter(storage.set)
+  const set = rateLimiter(storage.set.bind(storage))
   let prevRawValue: E | null = null
 
   return external<D | undefined>(($signal, ops) => {
