@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.2](https://github.com/TrigenSoftware/nano_kit/compare/store@1.0.0-beta.1...store@1.0.0-beta.2) (2026-04-26)
+
+### Features
+
+* introduce codecs and `stored` and `syncedStored` signals ([0af4852](https://github.com/TrigenSoftware/nano_kit/commit/0af48523b16a893f43ed5a6f1c974b6074f4af69))
+* new `interval(ms)` signal util ([dd8b566](https://github.com/TrigenSoftware/nano_kit/commit/dd8b566f7584922c5f8ed30cfb30e2e0773ad78a))
+* new store methods overrides mechanism in `external` ([2321596](https://github.com/TrigenSoftware/nano_kit/commit/2321596a92ca636a88874e7b808fc3ca4c9d3982))
+
+### Bug Fixes
+
+* bind storage setter in `stored` and `syncedStored` ([9f7f6fe](https://github.com/TrigenSoftware/nano_kit/commit/9f7f6fe3d2b9b5580a042392d7e72407ff99b21b))
+
 ## [1.0.0-beta.1](https://github.com/TrigenSoftware/nano_kit/compare/store@1.0.0-beta.0...store@1.0.0-beta.1) (2026-04-18)
 
 ### Features
