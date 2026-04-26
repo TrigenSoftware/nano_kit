@@ -60,7 +60,7 @@
   },
   "devDependencies": {
     "@nanoviews/storybook": "workspace:^",
-    "storybook": "^10.3.5",
+    "storybook": "catalog:",
     "vite": "catalog:"
   }
 }

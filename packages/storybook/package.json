@@ -61,6 +61,6 @@
   "devDependencies": {
     "kida": "workspace:^",
     "nanoviews": "workspace:^",
-    "storybook": "^10.3.5"
+    "storybook": "catalog:"
   }
 }
