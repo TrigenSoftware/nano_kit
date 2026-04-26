@@ -7,7 +7,9 @@ import {
   untracked
 } from 'kida'
 
-export type ExternalFactory<T> = (set: WritableSignal<T>) => ((value: NewValue<T>) => void) | void
+export interface ExternalOverrides<T> extends Partial<Omit<Morph<T>, 'source'>> {}
+
+export type ExternalFactory<T> = ($source: WritableSignal<T>, ops: ExternalOverrides<T>) => void
 
 export interface External<T> extends Morph<T> {
   factory: ExternalFactory<T>
@@ -15,17 +17,17 @@ export interface External<T> extends Morph<T> {
 
 function lazyGetterSetter<T>(this: External<T>, ...value: [NewValue<T>]): T | void {
   const $source = this.source
-  const setter = untracked(() => this.factory($source))
+  const ops: ExternalOverrides<T> = {}
 
-  this.get = $source
-  this.set = setter === undefined
-    ? $source
-    : setter
+  untracked(() => this.factory($source, ops))
+
+  this.get = ops.get ?? $source
+  this.set = ops.set ?? $source
 
   if (value.length) {
     this.set(value[0])
   } else {
-    return $source()
+    return this.get()
   }
 }
 

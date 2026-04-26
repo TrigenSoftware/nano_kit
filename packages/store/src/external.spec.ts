@@ -70,8 +70,6 @@ describe('store', () => {
     it('should run factory only once', () => {
       const factory = vi.fn(($source: WritableSignal<number>) => {
         $source(404)
-
-        return vi.fn()
       })
       const $ext = external(factory)
 
@@ -108,16 +106,16 @@ describe('store', () => {
       expect(mountListener).toHaveBeenCalledTimes(1)
     })
 
-    it('should call setter returned from factory', () => {
+    it('should call custom setter from ops', () => {
       let setListener
-      const factory = vi.fn(($source: WritableSignal<number>) => {
+      const factory = vi.fn(($source: WritableSignal<number>, ops) => {
         setListener = vi.fn((value: NewValue<number>) => $source(
           isFunction(value)
             ? newValue => value(newValue) * 2
             : value * 2
         ))
 
-        return setListener
+        ops.set = setListener
       })
       const $ext = external<number>(factory)
 
@@ -150,6 +148,22 @@ describe('store', () => {
       vi.runAllTimers()
 
       expect(setListener).toHaveBeenCalledTimes(3)
+    })
+
+    it('should call custom getter from ops', () => {
+      const getListener = vi.fn(() => 404)
+      const factory = vi.fn((_$source: WritableSignal<number>, ops) => {
+        ops.get = getListener
+      })
+      const $ext = external<number>(factory)
+
+      expect($ext()).toBe(404)
+      expect(factory).toHaveBeenCalledTimes(1)
+      expect(getListener).toHaveBeenCalledTimes(1)
+
+      expect($ext()).toBe(404)
+      expect(factory).toHaveBeenCalledTimes(1)
+      expect(getListener).toHaveBeenCalledTimes(2)
     })
   })
 })
