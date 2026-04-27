@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.8](https://github.com/TrigenSoftware/nano_kit/compare/router@1.0.0-alpha.7...router@1.0.0-alpha.8) (2026-04-27)
+
+### Bug Fixes
+
+* use `noop` and `identity` ([bfcc93f](https://github.com/TrigenSoftware/nano_kit/commit/bfcc93f4a366fcc2492a7ecae2594efc352ae213))
+
 ## [1.0.0-alpha.7](https://github.com/TrigenSoftware/nano_kit/compare/router@1.0.0-alpha.6...router@1.0.0-alpha.7) (2026-04-12)
 
 ### Features
