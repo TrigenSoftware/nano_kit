@@ -115,22 +115,54 @@ const $dynamic = morph($source, {
 })
 ```
 
+## Next Values
+
+**`nextValue`** resolves a signal setter value against the previous value. Use it when your low-level API accepts the same `value | updater` shape as writable signals.
+
+```ts
+import { nextValue } from '@nano_kit/store'
+
+const prev = 1
+
+nextValue(prev, 2) /* 2 */
+nextValue(prev, value => value + 1) /* 2 */
+```
+
+**`signalNextValue`** resolves a signal setter value against a writable signal's pending value. This is useful inside custom setters where several writes may happen during the same propagation cycle.
+
+```ts
+import { signal, morph, signalNextValue } from '@nano_kit/store'
+
+const $count = signal(0)
+const $positiveCount = morph($count, {
+  set(next) {
+    const value = signalNextValue(this.source, next)
+
+    this.source(Math.max(0, value))
+  }
+})
+
+$positiveCount(count => count + 1)
+```
+
 ## External Signals
 
 **`external`** creates a signal controlled by an external source. The factory function is called lazily on first read or write, allowing you to set up subscriptions to external data sources (WebSocket, DOM events, etc.) only when needed.
 
+The factory receives the internal source signal and an `ops` object. You can optionally define `ops.get` and `ops.set` to customize how the external signal reads and writes. If either operation is not defined, `external` falls back to the internal source signal.
+
 ```ts
-import { signal, mountable, onMount, external, untracked } from '@nano_kit/store'
+import { external, mountable, onStart, signalNextValue } from '@nano_kit/store'
 
 /* Create signal synced with localStorage */
-const $theme = external(($theme) => {
+const $theme = external<string>(($theme, ops) => {
   const sync = () => $theme(localStorage.getItem('theme') || 'light')
 
   /* Initialize value */
   sync()
 
   /* Set up lifecycle */
-  onMount(mountable($theme), () => {
+  onStart(mountable($theme), () => {
     const handler = (event: StorageEvent) => {
       if (event.key === 'theme') {
         sync()
@@ -146,11 +178,12 @@ const $theme = external(($theme) => {
     return () => window.removeEventListener('storage', handler)
   })
 
-  /* Return custom setter that syncs to localStorage */
-  return (value) => {
-    $theme(value)
+  /* Set custom setter that syncs to localStorage */
+  ops.set = (newValue) => {
+    const value = signalNextValue($theme, newValue)
 
-    localStorage.setItem('theme', untracked($theme))
+    $theme(value)
+    localStorage.setItem('theme', value)
   }
 })
 
@@ -160,6 +193,81 @@ console.log($theme()) /* 'light' */
 /* Custom setter is used */
 $theme('dark') /* Updates localStorage and signal */
 ```
+
+## Stored Signals
+
+**`stored`** creates a writable signal backed by a storage adapter. The adapter only needs synchronous `get` and `set` methods, so the same helper can wrap `localStorage`, cookies, in-memory maps, or any other synchronous key/value storage.
+
+```ts
+import { stored, JsonCodec, debounce } from '@nano_kit/store'
+
+const storage = {
+  get(key: string) {
+    return localStorage.getItem(key)
+  },
+  set(key: string, value: string) {
+    localStorage.setItem(key, value)
+  }
+}
+
+const $cart = stored(storage, 'cart', [] as number[], JsonCodec, debounce(300))
+
+$cart(items => [
+  ...items,
+  42
+])
+```
+
+The storage adapter shape is intentionally small:
+
+```ts
+interface Storage<T> {
+  get(key: string): T | null
+  set(key: string, value: T): void
+}
+```
+
+**`syncedStored`** uses the same storage adapter idea, but also listens for external changes through `sub`. The subscription starts only while the signal is active.
+
+```ts
+import { syncedStored, effect } from '@nano_kit/store'
+
+const syncedStorage = {
+  get(key: string) {
+    return localStorage.getItem(key)
+  },
+  set(key: string, value: string) {
+    localStorage.setItem(key, value)
+  },
+  sub(key: string, callback: (value: string | null) => void) {
+    const listener = (event: StorageEvent) => {
+      if (event.key === key && event.storageArea === localStorage) {
+        callback(event.newValue)
+      }
+    }
+
+    window.addEventListener('storage', listener)
+
+    return () => window.removeEventListener('storage', listener)
+  }
+}
+
+const $theme = syncedStored(syncedStorage, 'theme', 'light')
+
+const stop = effect(() => {
+  document.documentElement.dataset.theme = $theme()
+})
+```
+
+The synced storage adapter extends the base storage shape:
+
+```ts
+interface SyncedStorage<T> extends Storage<T> {
+  sub(key: string, callback: (value: T | null) => void): () => void
+}
+```
+
+Both helpers support the same optional arguments: a default value, a [codec](/store/advanced/#codecs), and a [setter rate limiter](/store/advanced/#rate-limiting) for storage writes.
 
 ## Child Signals
 

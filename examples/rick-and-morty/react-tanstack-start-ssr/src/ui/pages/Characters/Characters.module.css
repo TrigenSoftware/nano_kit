@@ -1,0 +1,72 @@
+/* DISCLAIMER! VIBECODED! */
+.container {
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Loading state */
+/* Error state */
+.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.error h2 {
+  color: #dc2626;
+  font-size: 1.5rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.error p {
+  color: #6b7280;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Empty state */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.empty h2 {
+  color: #374151;
+  font-size: 1.5rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.empty p {
+  color: #6b7280;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    padding: 0.75rem;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .error p {
+    color: #9ca3af;
+  }
+
+  .empty h2 {
+    color: #f9fafb;
+  }
+
+  .empty p {
+    color: #9ca3af;
+  }
+}

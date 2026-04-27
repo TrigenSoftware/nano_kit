@@ -17,6 +17,8 @@ Without arguments, it reads hydration dependencies from the current injection co
 
 In a manual setup, it is typically paired with `tasks()`, which works the same way: without arguments it reads `TasksRunner$` from the current injection context, and outside DI you can pass the runner explicitly.
 
+If the client uses [`codec(...)`](/query/advanced/#codec), `hydratable()` encodes cached data before dehydration and decodes it during hydration.
+
 ```ts
 import { client, tasks, hydratable } from '@nano_kit/query'
 
@@ -33,6 +35,8 @@ Use this when you want to customize task handling or hydration setup independent
 `ssr()` is a convenience setting that combines `tasks()` and `hydratable()`.
 
 Inside an SSR injection context, it reads the task runner and hydration dependencies automatically. If you need explicit control instead, use `tasks(...)` and `hydratable(...)` directly.
+
+Because `ssr()` uses `hydratable()` internally, it also respects the current [`codec(...)`](/query/advanced/#codec) setting.
 
 ```ts
 import { client, dedupeTime, ssr } from '@nano_kit/query'

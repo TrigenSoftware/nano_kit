@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@nano_kit/platform-web": "*",
     "@nano_kit/query": "*",
     "@nano_kit/store": "*",
     "nanoviews": "*"

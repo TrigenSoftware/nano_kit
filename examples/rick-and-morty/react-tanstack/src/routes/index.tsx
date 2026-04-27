@@ -1,5 +1,7 @@
-import { createLazyRoute } from '@tanstack/react-router'
+import { createRoute } from '@tanstack/react-router'
+import { rootRoute } from './root'
 
-export const Route = createLazyRoute('/')({
-  component: () => <div>Home</div>
-})
+export const Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/'
+}).lazy(() => import('./index.lazy').then(d => d.Route))

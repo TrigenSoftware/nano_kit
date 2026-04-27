@@ -1,0 +1,154 @@
+/* DISCLAIMER! VIBECODED! */
+.container {
+  width: 100%;
+}
+
+/* Header */
+.header {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  align-items: flex-start;
+}
+
+.image {
+  width: 200px;
+  height: 200px;
+  border-radius: 12px;
+  object-fit: cover;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.info {
+  flex: 1;
+}
+
+.name {
+  font-size: 2rem;
+  font-weight: 500;
+  margin: 0 0 1rem 0;
+  color: #212121;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: #424242;
+}
+
+.statusIndicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.alive {
+  background-color: #2e7d32;
+}
+
+.dead {
+  background-color: #c62828;
+}
+
+.unknown {
+  background-color: #757575;
+}
+
+.type,
+.gender {
+  margin: 0.5rem 0;
+  color: #757575;
+  font-size: 1rem;
+}
+
+/* Details */
+.details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.section {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.section h2 {
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin: 0 0 1rem 0;
+  color: #212121;
+}
+
+.section p {
+  margin: 0;
+  color: #424242;
+  font-size: 1rem;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .name {
+    color: #e0e0e0;
+  }
+
+  .status {
+    color: #bdbdbd;
+  }
+
+  .type,
+  .gender {
+    color: #9e9e9e;
+  }
+
+  .section {
+    background: #424242;
+    border-color: #616161;
+  }
+
+  .section h2 {
+    color: #e0e0e0;
+  }
+
+  .section p {
+    color: #bdbdbd;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .image {
+    width: 150px;
+    height: 150px;
+  }
+
+  .name {
+    font-size: 1.75rem;
+  }
+
+  .details {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .section {
+    padding: 1rem;
+  }
+}

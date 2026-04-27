@@ -1,0 +1,134 @@
+/* DISCLAIMER! VIBECODED! */
+.container {
+  margin: 0 auto;
+  padding: 1rem;
+  min-height: 60vh;
+}
+
+/* Loading state */
+/* Error state */
+.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.error h2 {
+  color: #c62828;
+  font-size: 1.5rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.error p {
+  color: #757575;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Episodes section */
+.episodesSection {
+  margin-top: 2rem;
+}
+
+.episodesTitle {
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin: 0 0 1.5rem 0;
+  color: #212121;
+}
+
+.episodesTitle a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.episodesTitle a:hover {
+  color: #1976d2;
+  text-decoration: underline;
+}
+
+/* Not found state */
+.notFound {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.notFound h2 {
+  color: #374151;
+  font-size: 1.5rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.notFound p {
+  color: #6b7280;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* No episodes state */
+.noEpisodes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.noEpisodes h2 {
+  color: #757575;
+  font-size: 1.25rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.noEpisodes p {
+  color: #9e9e9e;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    padding: 0.75rem;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .error p {
+    color: #bdbdbd;
+  }
+
+  .episodesTitle {
+    color: #e0e0e0;
+  }
+
+  .episodesTitle a:hover {
+    color: #42a5f5;
+  }
+
+  .notFound h2 {
+    color: #f9fafb;
+  }
+
+  .notFound p {
+    color: #9ca3af;
+  }
+
+  .noEpisodes h2 {
+    color: #bdbdbd;
+  }
+
+  .noEpisodes p {
+    color: #9e9e9e;
+  }
+}

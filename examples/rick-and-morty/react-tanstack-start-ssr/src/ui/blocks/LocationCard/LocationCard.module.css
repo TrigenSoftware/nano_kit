@@ -1,0 +1,108 @@
+/* DISCLAIMER! VIBECODED! */
+/* Location Card - Material Design */
+.card {
+  background: #ffffff;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+.card:hover {
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+}
+
+.link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.content {
+  padding: 1rem;
+}
+
+.name {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #212121;
+  margin: 0 0 1rem 0;
+  line-height: 1.4;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.label {
+  font-weight: 400;
+  color: #757575;
+  font-size: 0.875rem;
+}
+
+.value {
+  font-weight: 500;
+  color: #424242;
+  font-size: 0.875rem;
+  text-align: right;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .card {
+    background: #424242;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.24), 0 1px 2px rgba(0, 0, 0, 0.32);
+  }
+
+  .card:hover {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.32), 0 3px 6px rgba(0, 0, 0, 0.32);
+  }
+
+  .name {
+    color: #ffffff;
+  }
+
+  .label {
+    color: #bdbdbd;
+  }
+
+  .value {
+    color: #e0e0e0;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .content {
+    padding: 0.875rem;
+  }
+
+  .name {
+    font-size: 1rem;
+    margin-bottom: 0.875rem;
+  }
+
+  .row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .value {
+    text-align: left;
+    font-size: 0.8125rem;
+  }
+
+  .label {
+    font-size: 0.8125rem;
+  }
+}

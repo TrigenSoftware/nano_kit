@@ -93,6 +93,38 @@ const [$post] = query(PostKey, [$postId], fetchPost, [
 
 **When to use:** Custom error formatting, localization, or extracting specific information from custom error types.
 
+### `codec`
+
+Sets a [`Codec`](/store/advanced/#codecs) for query cache entry data when the cache crosses a serialization boundary.
+
+You do not need this for ordinary in-memory browser cache usage. While the app is running in the browser, cache entries can hold any JavaScript value directly. A codec is only needed when query cache data must be serialized: for SSR dehydration/hydration or for persistent storage.
+
+Use it when serialized cache entries contain values that need custom encoding, such as `Date`, `Map`, `Set`, class instances, or encrypted/compact payloads.
+
+[`hydratable()`](/query/ssr/#hydratable), [`ssr()`](/query/ssr/#ssr), and [`persistence()`](#persistence) use the codec when they dehydrate data, hydrate it back, write it to persistent storage, or read it back.
+
+```ts
+import type { Codec } from '@nano_kit/store'
+import { parse, stringify } from 'devalue'
+import { client, codec, ssr } from '@nano_kit/query'
+
+const DevalueCodec: Codec<unknown, string> = {
+  encode: stringify,
+  decode: value => value === null ? null : parse(value)
+}
+
+const { query } = client(
+  codec(DevalueCodec),
+  ssr()
+)
+```
+
+With a codec like this, data containing values such as `Date`, `Map`, or `Set` can be dehydrated on the server and restored on the client without losing those types.
+
+The codec applies to cached `data`. Query metadata such as revision, dedupe time, and expiration time is handled by the query package itself.
+
+**When to use:** SSR hydration or persistent storage for cache entries that contain non-plain values or require a custom serialized format.
+
 ### `onEveryError`
 
 Registers a global error handler called for every query or mutation error. The callback receives the error and a `stopped` boolean indicating if error propagation was stopped.
@@ -367,52 +399,57 @@ abort(promise)
 
 **When to use:** Data fetching where cancellation prevents race conditions and saves bandwidth when the user navigates away or parameters change quickly (e.g., search-as-you-type).
 
-### `revalidateOnFocus`
+### `revalidateOn`
 
-Automatically triggers revalidation of queries when the window gains focus (e.g., user switches back to the tab).
+Revalidates queries when one or more reactive conditions become truthy. Pass any accessor that represents the moment when cached data should be refreshed: page visibility, network state, polling ticks, or your own domain-specific condition.
 
 ```ts
-import { client, revalidateOnFocus } from '@nano_kit/query'
+import { interval } from '@nano_kit/store'
+import {
+  $networkOnline,
+  $pageVisible
+} from '@nano_kit/platform-web'
+import { client, revalidateOn } from '@nano_kit/query'
 
 const { query } = client(
-  revalidateOnFocus()
+  revalidateOn(
+    /* Revalidate when page becomes visible again... */
+    $pageVisible,
+    /* ...or when network comes back online... */
+    $networkOnline,
+    /* ...or every minute */
+    interval(60 * 1000)
+  )
 )
 ```
 
-**When to use:** Keep data up to date when the user returns to your application.
+Use built-in browser signals from [`@nano_kit/platform-web`](/platform/web) for common app lifecycle events:
 
-### `revalidateOnReconnect`
+- `$pageVisible` revalidates when the user returns to the page.
+- `$networkOnline` revalidates when the browser comes back online.
+- `interval(ms)` from [`@nano_kit/store`](/store/advanced/#interval) revalidates on a timer.
 
-Automatically triggers revalidation of queries when the browser regains network connection.
+You can also pass your own signal or computed condition:
 
 ```ts
-import { client, revalidateOnReconnect } from '@nano_kit/query'
+import { computed, signal } from '@nano_kit/store'
+import { client, revalidateOn } from '@nano_kit/query'
+
+const $userId = signal<string | null>(null)
+const $ready = computed(() => $userId() !== null)
 
 const { query } = client(
-  revalidateOnReconnect()
+  revalidateOn($ready)
 )
 ```
 
-**When to use:** Recover data synchronization automatically after an outage, especially on mobile devices or unreliable networks.
-
-### `revalidateOnInterval`
-
-Sets up polling to revalidate queries at a fixed interval.
-
-```ts
-import { client, revalidateOnInterval } from '@nano_kit/query'
-
-/* Refresh every minute */
-const { query } = client(
-  revalidateOnInterval(60 * 1000)
-)
-```
-
-**When to use:** Data that changes frequently on the server, such as stock prices, live scores, or status dashboards.
+**When to use:** Keep data fresh when the page becomes visible again, recover after network outages, poll server state, or revalidate from any domain-specific condition.
 
 ### `persistence`
 
 Persists the query cache using any storage adapter that implements the `Storage` interface. The second argument is the data lifetime in milliseconds.
+
+If the client has a [`codec`](#codec) setting, persisted entry data is encoded before writing and decoded after reading.
 
 ```ts
 import { client, persistence, indexedDbStorage } from '@nano_kit/query'
@@ -425,7 +462,9 @@ const { query } = client(
 
 ### `indexedDbStorage`
 
-Creates an IndexedDB storage adapter for `persistence()`, allowing cached data to survive page reloads and act as a cache for offline mode.
+Creates an IndexedDB storage adapter for [`persistence()`](#persistence), allowing cached data to survive page reloads and act as a cache for offline mode.
+
+It stores entries prepared by [`persistence()`](#persistence), including data encoded by the current [`codec`](#codec) setting.
 
 ```ts
 import { client, persistence, indexedDbStorage } from '@nano_kit/query'

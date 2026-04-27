@@ -3,6 +3,8 @@ import starlight from '@astrojs/starlight'
 import llmsTxt from 'starlight-llms-txt'
 import { viewTransitions } from 'astro-vtbot/starlight-view-transitions'
 
+const isProduction = process.env.NODE_ENV === 'production'
+
 export default defineConfig({
   site: 'https://nano-kit.js.org',
   integrations: [
@@ -58,7 +60,7 @@ export default defineConfig({
             content: 'https://nano-kit.js.org/og-image.jpg'
           }
         },
-        {
+        isProduction && {
           tag: 'script',
           attrs: {
             'src': 'https://cloud.umami.is/script.js',
@@ -73,7 +75,7 @@ export default defineConfig({
             content: 'JbpBLn9A_qAr4OqSunPoFWeahyME9dMplBMUsaOK_I4'
           }
         }
-      ],
+      ].filter(Boolean),
       social: [
         {
           label: 'GitHub',
@@ -114,6 +116,12 @@ export default defineConfig({
           label: 'SSR',
           autogenerate: {
             directory: 'ssr'
+          }
+        },
+        {
+          label: 'Platforms',
+          autogenerate: {
+            directory: 'platform'
           }
         },
         {
