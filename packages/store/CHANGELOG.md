@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.3](https://github.com/TrigenSoftware/nano_kit/compare/store@1.0.0-beta.2...store@1.0.0-beta.3) (2026-04-27)
+
+### Bug Fixes
+
+* fix circular self import ([b792721](https://github.com/TrigenSoftware/nano_kit/commit/b792721fab2fac0f9d827f811a3a4072c681efd2))
+
 ## [1.0.0-beta.2](https://github.com/TrigenSoftware/nano_kit/compare/store@1.0.0-beta.1...store@1.0.0-beta.2) (2026-04-27)
 
 ### Features
