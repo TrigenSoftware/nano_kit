@@ -1,7 +1,7 @@
 import {
   identity,
   isFunction
-} from '@nano_kit/store'
+} from 'kida'
 
 export interface Codec<D, E> {
   encode(value: D): E
