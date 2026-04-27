@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.5](https://github.com/TrigenSoftware/nano_kit/compare/query@1.0.0-alpha.4...query@1.0.0-alpha.5) (2026-04-27)
+
+### Features
+
+* `hydratable` and `persistence` now supports codecs via `codec` setting ([b2711cb](https://github.com/TrigenSoftware/nano_kit/commit/b2711cbc25f861dcb512a84e4e39a8c5876c2297))
+* drop `revalidateOnFoucs`, `revalidateOnInterval` and `revalidateOnReconnect` in favor of universal `revalidateOn` extension ([5b7bd8f](https://github.com/TrigenSoftware/nano_kit/commit/5b7bd8f70c46218768c65b6f240d599b3ee48f52))
+
 ## [1.0.0-alpha.4](https://github.com/TrigenSoftware/nano_kit/compare/query@1.0.0-alpha.3...query@1.0.0-alpha.4) (2026-04-19)
 
 ### Bug Fixes
