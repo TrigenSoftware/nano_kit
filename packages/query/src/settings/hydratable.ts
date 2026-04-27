@@ -7,73 +7,58 @@ import {
 } from '@nano_kit/store'
 import type { ClientSetting } from '../client.types.js'
 import type { ClientContext } from '../ClientContext.js'
-import type {
-  CacheMap,
-  CacheEntry,
-  SerializedCacheEntry
-} from '../CacheStorage.types.js'
+import type { EncodedCacheEntry } from '../CacheStorage.types.js'
 import { setShardedMapKey } from '../map.js'
+import {
+  encodeEntry,
+  decodeEntry
+} from './codec.js'
 
 interface HydratableContext extends ClientContext {
   hydratable?: boolean
 }
 
-type SerializedShardedMap = [string, string, SerializedCacheEntry][]
+type EncodedShardedMap = [string, string, EncodedCacheEntry][]
 
 const id = '@nano_kit/query'
 
-function mapEntry(
-  entry: CacheEntry,
-  map: StringConstructor
-): SerializedCacheEntry
-
-function mapEntry(
-  entry: SerializedCacheEntry,
-  map: NumberConstructor
-): CacheEntry
-
-function mapEntry(
-  entry: CacheEntry | SerializedCacheEntry,
-  map: StringConstructor | NumberConstructor
-) {
-  return {
-    ...entry,
-    rev: map(entry.rev),
-    dedupes: map(entry.dedupes),
-    expires: map(entry.expires)
-  }
-}
-
-function serialize(cache: CacheMap) {
-  const serialized: SerializedShardedMap = []
+function encode({
+  cache,
+  codec
+}: HydratableContext) {
+  const encoded: EncodedShardedMap = []
 
   cache.forEach((shard, shardKey) => {
     shard.forEach(($signal, key) => {
       const value = $signal?.()
 
       if (value !== undefined) {
-        serialized.push([shardKey, key, mapEntry(value, String)])
+        encoded.push([shardKey, key, encodeEntry(value, codec)])
       }
     })
   })
 
-  return serialized
+  return encoded
 }
 
-function deserialize(cache: CacheMap, serialized: SerializedShardedMap) {
-  serialized.forEach(([shard, key, value]) => {
-    setShardedMapKey(cache, {
-      shard,
-      key
-    }, mapEntry(value, Number))
-  })
+function decode(
+  {
+    cache,
+    codec
+  }: HydratableContext,
+  encoded: EncodedShardedMap
+) {
+  encoded.forEach(([shard, key, value]) => setShardedMapKey(cache, {
+    shard,
+    key
+  }, decodeEntry(value, codec)))
 }
 
 /**
  * Make client cache hydratable.
  * Without arguments, it will try to inject {@link Hydrator$} and {@link Hydratables$} from the injection context.
  * @param hydrator - Optional hydrator to use for rehydrating the cache. Pass `null` to skip hydration and only register for dehydration.
- * @param hydratables - Optional map to register the cache serializer for dehydration.
+ * @param hydratables - Optional map to register the cache collector for dehydration.
  * @returns The client setting function.
  */
 /* @__NO_SIDE_EFFECTS__ */
@@ -88,16 +73,14 @@ export function hydratable(
         : hydrator
 
       if (finalHydrator) {
-        finalHydrator.pull(id, (value) => {
-          deserialize(ctx.cache, value as SerializedShardedMap)
-        })
+        finalHydrator.pull(id, value => decode(ctx, value as EncodedShardedMap))
       } else {
         const finalHydratables = hydratables === undefined
           ? inject(Hydratables$)
           : hydratables
 
         if (finalHydratables) {
-          finalHydratables.set(id, () => serialize(ctx.cache))
+          finalHydratables.set(id, () => encode(ctx))
         }
       }
     }

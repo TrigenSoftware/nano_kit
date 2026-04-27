@@ -15,7 +15,8 @@ import {
   waitTasks,
   run,
   provide,
-  StaticHydrator
+  StaticHydrator,
+  JsonCodec
 } from '@nano_kit/store'
 import { queryKey } from '../cache.js'
 import { tasks } from '../ClientContext.js'
@@ -26,6 +27,7 @@ import {
   getPost
 } from '../client.mock.js'
 import { hydratable } from './hydratable.js'
+import { codec } from './codec.js'
 
 const PostKey = queryKey<[id: number], Post | null>('post')
 
@@ -121,6 +123,69 @@ describe('query', () => {
         ])
 
         off()
+      })
+
+      it('should serialize and deserialize cache with codec', async () => {
+        const hydratables = new Map()
+        const { query } = client(
+          tasks(tasksRunner(tasksPool)),
+          codec(JsonCodec),
+          hydratable(null, hydratables)
+        )
+        const [$post] = query(PostKey, [signal(1)], getPost)
+        const off = effect(() => {
+          $post()
+        })
+
+        await waitTasks(tasksPool)
+
+        const dehydrated = hydratables.get('@nano_kit/query')!()
+
+        expect(dehydrated).toMatchObject([
+          [
+            'post',
+            '[1]',
+            {
+              rev: expect.any(String),
+              dedupes: expect.any(String),
+              expires: expect.any(String),
+              data: JSON.stringify({
+                id: 1,
+                title: 'First Post',
+                content: 'Hello World!'
+              }),
+              error: null,
+              loading: false
+            }
+          ]
+        ])
+
+        off()
+        tasksPool.clear()
+
+        const { query: hydratedQuery } = client(
+          tasks(tasksRunner(tasksPool)),
+          codec(JsonCodec),
+          hydratable(new StaticHydrator([
+            [
+              '@nano_kit/query',
+              dehydrated
+            ]
+          ]))
+        )
+        const [$hydratedPost] = hydratedQuery(PostKey, [signal(1)], getPost)
+        const offHydrated = effect(() => {
+          $hydratedPost()
+        })
+
+        expect(tasksPool.size).toBe(0)
+        expect($hydratedPost()).toEqual({
+          id: 1,
+          title: 'First Post',
+          content: 'Hello World!'
+        })
+
+        offHydrated()
       })
 
       it('should deserialize cache from dehydrated map', () => {

@@ -13,7 +13,7 @@ export interface CacheEntry<T = unknown> {
   loading: boolean
 }
 
-export interface SerializedCacheEntry extends Omit<CacheEntry, 'rev' | 'dedupes' | 'expires'> {
+export interface EncodedCacheEntry extends Omit<CacheEntry, 'rev' | 'dedupes' | 'expires'> {
   rev: string
   dedupes: string
   expires: string

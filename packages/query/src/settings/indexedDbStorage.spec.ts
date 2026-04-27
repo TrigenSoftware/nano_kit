@@ -11,7 +11,8 @@ import {
   effect,
   signal,
   tasksRunner,
-  waitTasks
+  waitTasks,
+  JsonCodec
 } from '@nano_kit/store'
 import { queryKey } from '../cache.js'
 import { tasks } from '../ClientContext.js'
@@ -22,6 +23,7 @@ import {
   getPost
 } from '../client.mock.js'
 import { persistence } from './persistence.js'
+import { codec } from './codec.js'
 import {
   indexedDbStorage,
   connect,
@@ -119,6 +121,57 @@ describe('query', () => {
 
         expect(fetcher2).not.toHaveBeenCalled()
         expect($data2()?.id).toBe(1)
+
+        off2()
+      })
+
+      it('should persist and load entry with codec', async () => {
+        const { query } = client(
+          codec(JsonCodec),
+          persistence(indexedDbStorage(), 60000),
+          tasks(tasksRunner(tasksPool))
+        )
+        const $id = signal(1)
+        const fetcher = vi.fn(getPost)
+        const [$data] = query(PostKey, [$id], fetcher)
+        const off1 = effect(() => {
+          $data()
+        })
+
+        await waitTasks(tasksPool)
+
+        expect(fetcher).toHaveBeenCalledTimes(1)
+
+        const storedEntry = await SELECT(db, PostKey(1))
+
+        expect(storedEntry?.data).toBe(JSON.stringify({
+          id: 1,
+          title: 'First Post',
+          content: 'Hello World!'
+        }))
+
+        off1()
+        tasksPool.clear()
+
+        const { query: query2 } = client(
+          codec(JsonCodec),
+          persistence(indexedDbStorage(), 60000),
+          tasks(tasksRunner(tasksPool))
+        )
+        const fetcher2 = vi.fn(getPost)
+        const [$data2] = query2(PostKey, [signal(1)], fetcher2)
+        const off2 = effect(() => {
+          $data2()
+        })
+
+        await waitTasks(tasksPool)
+
+        expect(fetcher2).not.toHaveBeenCalled()
+        expect($data2()).toEqual({
+          id: 1,
+          title: 'First Post',
+          content: 'Hello World!'
+        })
 
         off2()
       })

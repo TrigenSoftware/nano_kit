@@ -8,6 +8,10 @@ import type {
 import type { QueryClientContext } from '../ClientContext.js'
 import { revLock, revLocked, UNSET_REV } from '../CacheStorage.js'
 import { hasShardedMapKey } from '../map.js'
+import {
+  encodeEntryData,
+  decodeEntryData
+} from './codec.js'
 
 interface PersistenceContext extends QueryClientContext {
   persistenceLifetime?: number
@@ -53,7 +57,7 @@ export function persistence(storage: Storage | null, lifetime: number): ClientSe
 
         void this.task(storage.get(key).then(storedEntry => superSet.call(this, key, {
           ...entry,
-          ...storedEntry,
+          ...storedEntry && decodeEntryData(storedEntry, this.codec),
           rev: UNSET_REV
         })))
 
@@ -67,7 +71,13 @@ export function persistence(storage: Storage | null, lifetime: number): ClientSe
         const entry = untracked(superGet.bind(this, key))
 
         if (entry && !entry.loading && !entry.error && !revLocked(entry.rev)) {
-          void this.task(storage!.set(key, entry, this.persistenceLifetime!))
+          void this.task(
+            storage!.set(
+              key,
+              encodeEntryData(entry, this.codec),
+              this.persistenceLifetime!
+            )
+          )
         }
       }
 

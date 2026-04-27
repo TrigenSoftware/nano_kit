@@ -1,11 +1,13 @@
 import {
+  type AnyCodec,
   type ReadableSignal,
   type Accessor,
   type TasksRunner,
   type Task,
   TasksRunner$,
   taskPromise,
-  inject
+  inject,
+  NoopCodec
 } from '@nano_kit/store'
 import type { ClientSetting } from './client.types.js'
 import type { RequestContext } from './RequestContext.js'
@@ -27,6 +29,7 @@ export class ClientContext<T = unknown> extends CacheStorage {
   loadingDedupe = true
   timeDedupe = true
   onEveryError: OnEveryError | undefined = undefined
+  codec: AnyCodec = NoopCodec
 
   task<T>(task: Task<T>): Promise<T> {
     return taskPromise(task)
