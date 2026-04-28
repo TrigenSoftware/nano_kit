@@ -99,6 +99,38 @@ describe('platform-web', () => {
       })
     })
 
+    it('should delete cookie values when the next value is null or undefined', async () => {
+      await cookieStore.set('language', 'en')
+
+      const $language = cookieStored<string | null | undefined>(cookieStore, 'language', 'ru')
+
+      expect($language()).toBe('en')
+
+      $language(null)
+
+      expect($language()).toBe('ru')
+
+      await waitFor(async () => {
+        await expect(cookieStore.get('language')).resolves.toBe(null)
+      })
+
+      $language('fr')
+
+      await waitFor(async () => {
+        await expect(cookieStore.get('language')).resolves.toMatchObject({
+          value: 'fr'
+        })
+      })
+
+      $language(undefined)
+
+      expect($language()).toBe('ru')
+
+      await waitFor(async () => {
+        await expect(cookieStore.get('language')).resolves.toBe(null)
+      })
+    })
+
     it('should support rate limited writes', async () => {
       vi.useFakeTimers()
 

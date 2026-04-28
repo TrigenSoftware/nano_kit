@@ -25,6 +25,9 @@ function createStorage(initial: Record<string, string> = {}) {
     },
     set(key, value) {
       map.set(key, value)
+    },
+    del(key) {
+      map.delete(key)
     }
   }
 
@@ -173,6 +176,30 @@ describe('store', () => {
         expect(spy).toHaveBeenCalledTimes(1)
         expect(map.get('dark')).toBe('0')
       })
+
+      it('should delete the storage entry when the next value is null or undefined', () => {
+        const { storage, map } = createStorage({
+          language: 'en'
+        })
+        const $language = stored<string | null | undefined, string>(storage, 'language', 'ru')
+        const del = vi.spyOn(storage, 'del')
+
+        expect($language()).toBe('en')
+
+        $language(null)
+
+        expect(del).toHaveBeenCalledWith('language')
+        expect(map.has('language')).toBe(false)
+        expect($language()).toBe('ru')
+
+        map.set('language', 'fr')
+        $language('fr')
+        $language(undefined)
+
+        expect(del).toHaveBeenCalledTimes(2)
+        expect(map.has('language')).toBe(false)
+        expect($language()).toBe('ru')
+      })
     })
 
     describe('syncedStored', () => {
@@ -260,6 +287,32 @@ describe('store', () => {
 
         expect(spy).toHaveBeenCalledTimes(1)
         expect(map.get('dark')).toBe('0')
+      })
+
+      it('should delete the storage entry when the next value is null or undefined', () => {
+        const { storage, map } = createSyncedStorage({
+          language: 'en'
+        })
+        const { rateLimiter, spy } = createRateLimiterSpy()
+        const $language = syncedStored<string | null | undefined, string>(storage, 'language', 'ru', rateLimiter)
+        const del = vi.spyOn(storage, 'del')
+
+        expect($language()).toBe('en')
+
+        $language(null)
+
+        expect(del).toHaveBeenCalledWith('language')
+        expect(spy).not.toHaveBeenCalled()
+        expect(map.has('language')).toBe(false)
+        expect($language()).toBe('ru')
+
+        map.set('language', 'fr')
+        $language('fr')
+        $language(undefined)
+
+        expect(del).toHaveBeenCalledTimes(2)
+        expect(map.has('language')).toBe(false)
+        expect($language()).toBe('ru')
       })
 
       it('should react to external updates', () => {

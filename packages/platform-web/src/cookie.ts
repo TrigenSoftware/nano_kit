@@ -60,6 +60,10 @@ class CookieStorage implements Storage<string> {
         : expires
     })
   }
+
+  del(key: string) {
+    void this.store.delete(key)
+  }
 }
 
 class SyncedCookieStorage extends CookieStorage implements SyncedStorage<string> {

@@ -52,6 +52,28 @@ describe('platform-web', () => {
       expect(sessionStorage.getItem('dark')).toBe('0')
     })
 
+    it('should delete sessionStored values when the next value is null or undefined', () => {
+      sessionStorage.setItem('language', 'en')
+
+      const $language = sessionStored<string | null | undefined>('language', 'ru')
+
+      expect($language()).toBe('en')
+
+      $language(null)
+
+      expect(sessionStorage.getItem('language')).toBe(null)
+      expect($language()).toBe('ru')
+
+      $language('fr')
+
+      expect(sessionStorage.getItem('language')).toBe('fr')
+
+      $language(undefined)
+
+      expect(sessionStorage.getItem('language')).toBe(null)
+      expect($language()).toBe('ru')
+    })
+
     it('should support rate limited writes', () => {
       vi.useFakeTimers()
 
@@ -91,6 +113,33 @@ describe('platform-web', () => {
       await commands.setSessionStorage('theme', 'dark')
 
       expect($language()).toBe('en')
+
+      off()
+    })
+
+    it('should delete syncedSessionStored values when the next value is null or undefined', () => {
+      sessionStorage.setItem('language', 'en')
+
+      const $language = syncedSessionStored<string | null | undefined>('language', 'ru')
+      const off = effect(() => {
+        $language()
+      })
+
+      expect($language()).toBe('en')
+
+      $language(null)
+
+      expect(sessionStorage.getItem('language')).toBe(null)
+      expect($language()).toBe('ru')
+
+      $language('fr')
+
+      expect(sessionStorage.getItem('language')).toBe('fr')
+
+      $language(undefined)
+
+      expect(sessionStorage.getItem('language')).toBe(null)
+      expect($language()).toBe('ru')
 
       off()
     })

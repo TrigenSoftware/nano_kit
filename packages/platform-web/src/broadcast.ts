@@ -32,6 +32,8 @@ class BroadcastChannelStorage<T> implements SyncedStorage<T> {
       this.#channel = null
     }
   }
+
+  del() { /* no-op */ }
 }
 
 /**

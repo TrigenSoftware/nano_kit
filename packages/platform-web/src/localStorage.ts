@@ -23,6 +23,9 @@ try {
       },
       set(key, value) {
         localStorage[key] = value
+      },
+      del(key) {
+        localStorage.removeItem(key)
       }
     }
     syncedLocalStorageAdapter = {

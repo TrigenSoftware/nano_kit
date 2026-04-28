@@ -52,6 +52,28 @@ describe('platform-web', () => {
       expect(localStorage.getItem('dark')).toBe('0')
     })
 
+    it('should delete localStored values when the next value is null or undefined', () => {
+      localStorage.setItem('language', 'en')
+
+      const $language = localStored<string | null | undefined>('language', 'ru')
+
+      expect($language()).toBe('en')
+
+      $language(null)
+
+      expect(localStorage.getItem('language')).toBe(null)
+      expect($language()).toBe('ru')
+
+      $language('fr')
+
+      expect(localStorage.getItem('language')).toBe('fr')
+
+      $language(undefined)
+
+      expect(localStorage.getItem('language')).toBe(null)
+      expect($language()).toBe('ru')
+    })
+
     it('should support rate limited writes', () => {
       vi.useFakeTimers()
 
@@ -90,6 +112,33 @@ describe('platform-web', () => {
       await commands.setLocalStorage('theme', 'dark')
 
       expect($language()).toBe('en')
+
+      off()
+    })
+
+    it('should delete syncedLocalStored values when the next value is null or undefined', () => {
+      localStorage.setItem('language', 'en')
+
+      const $language = syncedLocalStored<string | null | undefined>('language', 'ru')
+      const off = effect(() => {
+        $language()
+      })
+
+      expect($language()).toBe('en')
+
+      $language(null)
+
+      expect(localStorage.getItem('language')).toBe(null)
+      expect($language()).toBe('ru')
+
+      $language('fr')
+
+      expect(localStorage.getItem('language')).toBe('fr')
+
+      $language(undefined)
+
+      expect(localStorage.getItem('language')).toBe(null)
+      expect($language()).toBe('ru')
 
       off()
     })

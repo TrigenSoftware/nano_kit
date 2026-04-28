@@ -3,6 +3,7 @@ import {
   mountable,
   onStart,
   isFunction,
+  isEmpty,
   signalNextValue,
   noop
 } from 'kida'
@@ -20,6 +21,8 @@ export interface Storage<T> {
   get(key: string): T | null
   /** Writes a raw value by key. */
   set(key: string, value: T): void
+  /** Deletes a value by key. */
+  del(key: string): void
 }
 
 export interface SyncedStorage<T> extends Storage<T> {
@@ -42,7 +45,8 @@ export const noopStorage: SyncedStorage<any> = {
   set: noop,
   sub() {
     return noop
-  }
+  },
+  del: noop
 }
 
 function args<D, E>(
@@ -181,7 +185,12 @@ export function stored<D, E>(
     ops.set = (newValue) => {
       const value = signalNextValue($signal, newValue)
 
-      set(key, codec.encode(value as D))
+      if (isEmpty(value)) {
+        storage.del(key)
+      } else {
+        set(key, codec.encode(value))
+      }
+
       $signal(value ?? defaultValue)
     }
   })
@@ -289,7 +298,8 @@ export function syncedStored<D, E>(
     $signal(codec.decode(prevRawValue = storage.get(key)) ?? defaultValue)
 
     onStart(mountable($signal), () => storage.sub(key, (rawValue) => {
-      if (rawValue === null) {
+      if (isEmpty(rawValue)) {
+        prevRawValue = null
         $signal(defaultValue)
       } else if (rawValue !== prevRawValue) {
         $signal(codec.decode(prevRawValue = rawValue) ?? defaultValue)
@@ -299,7 +309,13 @@ export function syncedStored<D, E>(
     ops.set = (newValue) => {
       const value = signalNextValue($signal, newValue)
 
-      set(key, prevRawValue = codec.encode(value as D))
+      if (isEmpty(value)) {
+        storage.del(key)
+        prevRawValue = null
+      } else {
+        set(key, prevRawValue = codec.encode(value))
+      }
+
       $signal(value ?? defaultValue)
     }
   })

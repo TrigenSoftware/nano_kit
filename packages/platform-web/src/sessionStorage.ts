@@ -23,6 +23,9 @@ try {
       },
       set(key, value) {
         sessionStorage[key] = value
+      },
+      del(key) {
+        sessionStorage.removeItem(key)
       }
     }
     syncedSessionStorageAdapter = {
