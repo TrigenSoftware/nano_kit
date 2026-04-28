@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.4](https://github.com/TrigenSoftware/nano_kit/compare/store@1.0.0-beta.3...store@1.0.0-beta.4) (2026-04-28)
+
+### Features
+
+* `del` method is added to `Storage` interface ([21e8e2d](https://github.com/TrigenSoftware/nano_kit/commit/21e8e2d610e943ad71ae387155ca75f453e8fa19))
+
 ## [1.0.0-beta.3](https://github.com/TrigenSoftware/nano_kit/compare/store@1.0.0-beta.2...store@1.0.0-beta.3) (2026-04-27)
 
 ### Bug Fixes
