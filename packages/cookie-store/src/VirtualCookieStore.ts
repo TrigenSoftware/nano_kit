@@ -22,35 +22,28 @@ export type {
 }
 
 export class VirtualCookieStore implements CookieStore {
-  readonly #entries: CookieEntry[] = []
+  readonly #cookieHeader: string
   readonly #requestUrl?: URL
   readonly #setCookieHeaders = new Map<string, string>()
+  #entries: CookieEntry[] | null = null
   onchange: ((event: unknown) => unknown) | null = null
 
   /**
    * Creates a request-bound virtual cookie store.
    * @param cookieHeader - Raw `Cookie` header value from the incoming request.
-   * @param requestUrl - Request URL used to validate `get({ url })` and `getAll({ url })`.
+   * @param requestUrl - Request URL string used to validate `get({ url })` and `getAll({ url })`.
    */
   constructor(
     cookieHeader = '',
-    requestUrl?: string | URL
+    requestUrl?: string
   ) {
-    if (requestUrl) {
-      this.#requestUrl = new URL(requestUrl)
-    }
+    this.#cookieHeader = cookieHeader
 
-    this.#entries = parseCookie(cookieHeader).map(({ name, value }) => ({
-      knownScope: false,
-      name,
-      value,
-      domain: null,
-      expires: null,
-      maxAge: null,
-      partitioned: false,
-      path: null,
-      secure: false
-    }))
+    if (requestUrl) {
+      this.#requestUrl = requestUrl.startsWith('http')
+        ? new URL(requestUrl)
+        : new URL(requestUrl, 'http://localhost')
+    }
   }
 
   /**
@@ -151,9 +144,10 @@ export class VirtualCookieStore implements CookieStore {
     this.#assertUrl(options.url)
 
     const cookies: VirtualCookieListItem[] = []
+    const entries = this.#getEntries()
 
-    for (let i = 0, len = this.#entries.length; i < len; i++) {
-      const entry = this.#entries[i]
+    for (let i = 0, entry, len = entries.length; i < len; i++) {
+      entry = entries[i]
 
       if (!options.name || entry.name === options.name) {
         const cookie = toCookieListItem(entry)
@@ -190,11 +184,12 @@ export class VirtualCookieStore implements CookieStore {
     const entry = entryFromCookieInit(nameOrOptions, maybeValue)
     const key = cookieIdentity(entry)
     const expired = isExpired(entry.expires, entry.maxAge)
+    const entries = this.#getEntries()
 
     this.#removeMatchingEntries(entry)
 
     if (!expired) {
-      this.#entries.push(entry)
+      entries.push(entry)
     }
 
     this.#setCookieHeaders.set(
@@ -260,8 +255,10 @@ export class VirtualCookieStore implements CookieStore {
   }
 
   #removeMatchingEntries(target: CookieEntry) {
-    for (let i = this.#entries.length - 1; i >= 0; i--) {
-      const entry = this.#entries[i]
+    const entries = this.#getEntries()
+
+    for (let i = entries.length - 1, entry; i >= 0; i--) {
+      entry = entries[i]
 
       if (
         entry.name === target.name
@@ -271,9 +268,29 @@ export class VirtualCookieStore implements CookieStore {
           || cookieIdentity(entry) === cookieIdentity(target)
         )
       ) {
-        this.#entries.splice(i, 1)
+        entries.splice(i, 1)
       }
     }
+  }
+
+  #getEntries() {
+    if (this.#entries) {
+      return this.#entries
+    }
+
+    this.#entries = parseCookie(this.#cookieHeader).map(({ name, value }) => ({
+      knownScope: false,
+      name,
+      value,
+      domain: null,
+      expires: null,
+      maxAge: null,
+      partitioned: false,
+      path: null,
+      secure: false
+    }))
+
+    return this.#entries
   }
 }
 
