@@ -376,6 +376,40 @@ const $canDrive = and(gt($age, 18), $hasLicense)
 const $canDriveCached = computed($canDrive)
 ```
 
+## Codecs
+
+A codec is a small universal interface for converting values from one representation to another and back.
+
+```ts
+interface Codec<D, E> {
+  encode(value: D): E
+  decode(value: E | null): D | null
+}
+```
+
+Codecs are used by storage, hydration, and other APIs that need to serialize values without owning the serialization format.
+
+```ts
+import { JsonCodec, BooleanCodec, NoopCodec, isCodec } from '@nano_kit/store'
+
+JsonCodec.encode({ count: 1 }) /* '{"count":1}' */
+JsonCodec.decode<{ count: number }>('{"count":1}') /* { count: 1 } */
+
+BooleanCodec.encode(true) /* '1' */
+BooleanCodec.decode('0') /* false */
+
+NoopCodec.encode('value') /* 'value' */
+NoopCodec.decode('value') /* 'value' */
+
+isCodec(JsonCodec) /* true */
+```
+
+Built-in codecs:
+
+- `JsonCodec` - encodes values with `JSON.stringify` and decodes with `JSON.parse`
+- `BooleanCodec` - encodes booleans as `'1'` / `'0'`
+- `NoopCodec` - passes values through unchanged
+
 ## Utilities
 
 The library provides a set of utility functions for common tasks like rate limiting, value extraction, type checking, and working with signal properties.
@@ -480,6 +514,23 @@ const performSearch = debounce(300)((query: string) => {
 const handleScroll = throttle(100)(() => {
   console.log('Scroll position:', window.scrollY)
 })
+```
+
+### Interval
+
+**`interval`** creates a signal with a tick counter. The timer starts when the signal becomes active and is cleared when it becomes inactive.
+
+```ts
+import { interval, effect } from '@nano_kit/store'
+
+const $tick = interval(1000)
+
+const stop = effect(() => {
+  console.log('Tick:', $tick())
+})
+
+/* Later: clears the underlying interval */
+stop()
 ```
 
 ### Previous Value
@@ -669,4 +720,21 @@ const stop = effect(() => {
 })
 
 stop() /* Logs: Cleanup 1, Cleanup 2 */
+```
+
+### Reusable Helpers
+
+**`noop`** is a shared empty function, and **`identity`** returns the value it receives. Use them when you need a reusable no-op or identity callback instead of creating new local functions.
+
+```ts
+import { noop, identity } from '@nano_kit/store'
+
+const cleanup = enabled
+  ? subscribe($value, onValue)
+  : noop
+
+const codec = {
+  encode: identity,
+  decode: identity
+}
 ```

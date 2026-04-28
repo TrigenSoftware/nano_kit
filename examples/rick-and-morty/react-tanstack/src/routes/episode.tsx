@@ -1,6 +1,19 @@
-import { createLazyRoute } from '@tanstack/react-router'
-import { Episode } from '#src/ui/pages/Episode'
+import { createRoute } from '@tanstack/react-router'
+import { idsFromUrls } from '#src/services/api'
+import { charactersByIdsOptions } from '#src/stores/characters'
+import { episodeOptions } from '#src/stores/episodes'
+import { rootRoute } from './root'
+import { idFromParam } from './utils'
 
-export const Route = createLazyRoute('/episode/$episodeId')({
-  component: Episode
-})
+export const Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/episode/$episodeId',
+  parseParams: params => ({
+    episodeId: idFromParam(params.episodeId)
+  }),
+  loader: async ({ context, params }) => {
+    const episode = await context.queryClient.ensureQueryData(episodeOptions(params.episodeId))
+
+    await context.queryClient.ensureQueryData(charactersByIdsOptions(idsFromUrls(episode.characters)))
+  }
+}).lazy(() => import('./episode.lazy').then(d => d.Route))

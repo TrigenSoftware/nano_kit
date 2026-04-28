@@ -10,13 +10,13 @@ import {
 import styles from './CityInput.module.css'
 
 export function CityInput() {
-  const { $searchQueryPaced } = useInject(LocationSearch$)
+  const { $searchInputValue } = useInject(LocationSearch$)
   const { $suggestions } = useInject(CitySuggestions$)
-  const searchQueryPaced = useSignal($searchQueryPaced)
+  const searchQuery = useSignal($searchInputValue)
   const suggestions = useSignal($suggestions)
   const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => $searchQueryPaced(e.target.value),
-    [$searchQueryPaced]
+    (e: React.ChangeEvent<HTMLInputElement>) => $searchInputValue(e.target.value),
+    [$searchInputValue]
   )
 
   return (
@@ -33,7 +33,7 @@ export function CityInput() {
         type='text'
         list='cities'
         name='city'
-        value={searchQueryPaced}
+        value={searchQuery}
         onChange={handleChange}
       />
       <datalist id='cities'>

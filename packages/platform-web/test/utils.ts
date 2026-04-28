@@ -1,16 +1,24 @@
-export async function waitFor(assertion: () => void | Promise<void>) {
-  let error: unknown
+const DEFAULT_WAIT_TIMEOUT = 60_000
 
-  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
-  for (let i = 0; i < 20; i++) {
+export async function waitFor(
+  assertion: () => void | Promise<void>,
+  timeout = DEFAULT_WAIT_TIMEOUT
+) {
+  let error: unknown
+  const deadline = Date.now() + timeout
+
+  for (;;) {
     try {
       await assertion()
       return
     } catch (nextError) {
       error = nextError
-      await new Promise(resolve => setTimeout(resolve))
+
+      if (Date.now() >= deadline) {
+        throw error
+      }
+
+      await new Promise(resolve => setTimeout(resolve, 100))
     }
   }
-
-  throw error
 }

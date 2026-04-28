@@ -129,6 +129,22 @@ export function ActiveLink({ route }) {
 }
 ```
 
+### `Isolate`
+
+`Isolate` renders children with a fresh injection boundary. Use it when a subtree must not inherit dependencies from the parent context.
+
+```tsx
+import { Isolate } from '@nano_kit/react'
+
+export function Preview({ children }) {
+  return (
+    <Isolate>
+      {children}
+    </Isolate>
+  )
+}
+```
+
 ## SSR
 
 ### RSC-Side Dehydration

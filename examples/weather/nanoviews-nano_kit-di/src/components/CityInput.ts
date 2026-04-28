@@ -16,7 +16,7 @@ import {
 import styles from './CityInput.module.css'
 
 export function CityInput() {
-  const { $searchQueryPaced } = inject(LocationSearch$)
+  const { $searchInputValue } = inject(LocationSearch$)
   const { $suggestions } = inject(CitySuggestions$)
 
   return div({
@@ -34,7 +34,7 @@ export function CityInput() {
       type: 'text',
       list: 'cities',
       name: 'city',
-      [$$value]: $searchQueryPaced
+      [$$value]: $searchInputValue
     }),
     datalist({
       id: 'cities'

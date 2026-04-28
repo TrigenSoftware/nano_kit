@@ -1,16 +1,16 @@
 import { useCallback } from 'react'
 import { useSignal } from '@nano_kit/react'
 import {
-  $locationSearchQueryPaced,
+  $locationSearchInputValue,
   $citySuggestions
 } from '../stores/location.js'
 import styles from './CityInput.module.css'
 
 export function CityInput() {
-  const locationSearchQuery = useSignal($locationSearchQueryPaced)
+  const locationSearchQuery = useSignal($locationSearchInputValue)
   const citySuggestions = useSignal($citySuggestions)
   const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => $locationSearchQueryPaced(e.target.value),
+    (e: React.ChangeEvent<HTMLInputElement>) => $locationSearchInputValue(e.target.value),
     []
   )
 

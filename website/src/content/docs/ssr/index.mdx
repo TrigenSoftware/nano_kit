@@ -10,7 +10,7 @@ import { Steps, Tabs, TabItem, Code, Aside } from '@astrojs/starlight/components
 `@nano_kit/ssr` is the base package for server-side rendering in Nano Kit. It provides the core rendering infrastructure — Vite manifest parsing, virtual navigation, store dehydration, and a Vite plugin — that adapter packages build on top of.
 
 <Aside>
-  If you are looking to add SSR to a React app, use [`@nano_kit/react-ssr`](/integrations/react-ssr) instead. This page is for authors building new framework adapters.
+  If you are looking to add SSR to app code, use the matching [framework integration](/integrations) instead. This page is for authors building new framework adapters.
 </Aside>
 
 ## Installation
@@ -213,4 +213,5 @@ app.get('*', async (req, res) => {
 ## Next Steps
 
 - [`@nano_kit/react-ssr`](/integrations/react-ssr) — The React adapter built with this package.
+- [`@nano_kit/preact-ssr`](/integrations/preact-ssr) — The Preact adapter built with this package.
 - [Router SSR](/router/ssr) — [`Stores$`](/router/ssr#stores-data-dehydration), [`Head$`](/router/ssr#head-management), and other page-level SSR hooks.

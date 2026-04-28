@@ -1,0 +1,133 @@
+/* App - Material Design */
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  background: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.container {
+  margin: 0 auto;
+  padding: 0 1rem;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  height: 4rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: #212121;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-self: start;
+}
+
+.logo {
+  font-size: 1.75rem;
+}
+
+.nav {
+  display: flex;
+  gap: 0.5rem;
+  justify-self: center;
+}
+
+.navLink {
+  padding: 0.5rem 1rem;
+  color: #757575;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.875rem;
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.navLink:hover {
+  background-color: #f5f5f5;
+  color: #424242;
+}
+
+.navLink.active {
+  background-color: #1976d2;
+  color: white;
+}
+
+.navLink.active:hover {
+  background-color: #1565c0;
+}
+
+.main {
+  flex: 1;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .header {
+    background: #424242;
+    border-bottom-color: #616161;
+  }
+
+  .title {
+    color: #ffffff;
+  }
+
+  .navLink {
+    color: #bdbdbd;
+  }
+
+  .navLink:hover {
+    background-color: #616161;
+    color: #ffffff;
+  }
+
+  .navLink.active {
+    background-color: #1976d2;
+    color: white;
+  }
+
+  .navLink.active:hover {
+    background-color: #1565c0;
+  }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .container {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .title {
+    font-size: 1.25rem;
+    justify-self: auto;
+  }
+
+  .nav {
+    width: 100%;
+    justify-content: center;
+    justify-self: auto;
+  }
+
+  .navLink {
+    flex: 1;
+    text-align: center;
+    padding: 0.75rem 0.5rem;
+  }
+}

@@ -1,0 +1,229 @@
+---
+title: Web
+description: "Reactive Web API helpers for @nano_kit/store."
+sidebar:
+  order: 1
+---
+
+import { Tabs, TabItem, Code } from '@astrojs/starlight/components'
+
+`@nano_kit/platform-web` provides small reactive wrappers around browser APIs. The package is built on top of [`@nano_kit/store`](/store), so every helper returns a signal that can be used with [`effect`](/store/core-concepts/#signals), [`computed`](/store/core-concepts/#using-computed), framework integrations, query settings, or your own store utilities.
+
+Instead of wiring browser event listeners by hand, use these helpers when you want Web API state to participate in Nano Kit reactivity.
+
+## Installation
+
+Install the package using your favorite package manager:
+
+<Tabs syncKey='pkg'>
+  <TabItem label='pnpm' icon='pnpm'>
+    <Code frame='none' lang='bash' code='pnpm add @nano_kit/store @nano_kit/platform-web' />
+  </TabItem>
+  <TabItem label='Yarn' icon='seti:yarn'>
+    <Code frame='none' lang='bash' code='yarn add @nano_kit/store @nano_kit/platform-web' />
+  </TabItem>
+  <TabItem label='npm' icon='seti:npm'>
+    <Code frame='none' lang='bash' code='npm install @nano_kit/store @nano_kit/platform-web' />
+  </TabItem>
+</Tabs>
+
+## Quick Start
+
+```ts
+import {
+  BooleanCodec,
+  effect
+} from '@nano_kit/store'
+import {
+  $networkOnline,
+  $pageVisible,
+  localStored,
+  mediaQuery
+} from '@nano_kit/platform-web'
+
+const $dark = localStored('dark', false, BooleanCodec)
+const $wide = mediaQuery('(min-width: 768px)', false)
+
+const stop = effect(() => {
+  console.log({
+    dark: $dark(),
+    online: $networkOnline(),
+    pageVisible: $pageVisible(),
+    wide: $wide()
+  })
+})
+
+$dark(true)
+
+stop()
+```
+
+## Storage
+
+`localStored` and `sessionStored` create writable signals backed by `localStorage` and `sessionStorage`.
+
+```ts
+import { BooleanCodec, debounce } from '@nano_kit/store'
+import { localStored, sessionStored } from '@nano_kit/platform-web'
+
+const $dark = localStored('dark', false, BooleanCodec)
+const $draft = sessionStored('draft', '', debounce(300))
+
+$dark(true)
+$draft('Hello')
+```
+
+`syncedLocalStored` and `syncedSessionStored` also listen for storage events, so the signal can react to changes from other browsing contexts.
+
+```ts
+import { effect } from '@nano_kit/store'
+import { syncedLocalStored } from '@nano_kit/platform-web'
+
+const $language = syncedLocalStored('language', 'en')
+
+const stop = effect(() => {
+  document.documentElement.lang = $language()
+})
+```
+
+All storage helpers support the same optional arguments as [`stored`](/store/low-level/#stored-signals): default values, [codecs](/store/advanced/#codecs), and [setter rate limiters](/store/advanced/#rate-limiting).
+
+## Media Queries
+
+`mediaQuery` wraps `window.matchMedia(...)`.
+
+```ts
+import { mediaQuery } from '@nano_kit/platform-web'
+
+const $wide = mediaQuery('(min-width: 768px)', false)
+const $reducedMotion = mediaQuery('(prefers-reduced-motion: reduce)', false)
+```
+
+The optional second argument is the fallback value used when `window` is not available.
+
+## Browser Properties
+
+The package exports shared singleton signals for common browser state.
+
+```ts
+import {
+  $devicePixelRatio,
+  $fullscreen,
+  $innerHeight,
+  $innerWidth,
+  $networkOnline,
+  $outerHeight,
+  $outerWidth,
+  $pageVisible,
+  $screenLeft,
+  $screenOrientation,
+  $screenTop,
+  $scrollX,
+  $scrollY
+} from '@nano_kit/platform-web'
+```
+
+Window size and position:
+
+- `$innerWidth`
+- `$innerHeight`
+- `$outerWidth`
+- `$outerHeight`
+- `$scrollX`
+- `$scrollY`
+- `$screenLeft`
+- `$screenTop`
+- `$devicePixelRatio`
+
+Page and device state:
+
+- `$networkOnline`
+- `$pageVisible`
+- `$screenOrientation`
+- `$fullscreen`
+
+Numeric window values use `NaN` when the browser value is not available. Boolean values use browser-friendly fallbacks: `$networkOnline` and `$pageVisible` start as `true`, and `$fullscreen` starts as `false`.
+
+## Permissions
+
+`permission` creates a writable signal for the current Permissions API state. The value is `'granted'`, `'denied'`, `'prompt'`, `Error`, or `undefined` before the first result.
+
+```ts
+import { effect } from '@nano_kit/store'
+import { permission } from '@nano_kit/platform-web'
+
+const $geolocationPermission = permission('geolocation')
+
+const stop = effect(() => {
+  const state = $geolocationPermission()
+
+  if (state === 'granted') {
+    console.log('Geolocation is available')
+  }
+})
+```
+
+The argument can be a permission name string or a full [`PermissionDescriptor`](https://developer.mozilla.org/en-US/docs/Web/API/Permissions/query#permissiondescriptor).
+
+## Geolocation
+
+`$geolocation` is backed by `navigator.geolocation.watchPosition(...)` and updates while the signal is active.
+
+`$staticGeolocation` is backed by `navigator.geolocation.getCurrentPosition(...)` and reads a single snapshot when the signal starts.
+
+```ts
+import { effect } from '@nano_kit/store'
+import { $geolocation } from '@nano_kit/platform-web'
+
+const stopLive = effect(() => {
+  const result = $geolocation()
+
+  if (result && 'coords' in result) {
+    console.log(result.coords.latitude, result.coords.longitude)
+  }
+})
+```
+
+Both signals can contain `GeolocationPosition`, `GeolocationPositionError`, or `undefined`.
+
+## Cookies
+
+`cookieStored` and `syncedCookieStored` adapt a [`CookieStore`](https://developer.mozilla.org/en-US/docs/Web/API/Cookie_Store_API)-compatible object to Nano Kit storage signals.
+
+```ts
+import { JsonCodec } from '@nano_kit/store'
+import { cookieStored, syncedCookieStored } from '@nano_kit/platform-web'
+
+const $theme = cookieStored(cookieStore, {
+  name: 'theme',
+  maxAge: 60 * 60 * 24 * 30,
+  path: '/'
+}, 'light')
+
+const $profile = syncedCookieStored(cookieStore, 'profile', {}, JsonCodec)
+
+$theme('dark')
+```
+
+Use `cookieStored` when you only need reads and writes. Use `syncedCookieStored` when the cookie store supports change events and you want the signal to react to external cookie changes.
+
+## Broadcast Channel
+
+`broadcasted` creates a signal synchronized through `BroadcastChannel`. It is useful for transient cross-tab messages such as logout, refresh, or UI coordination events.
+
+```ts
+import { effect } from '@nano_kit/store'
+import { broadcasted } from '@nano_kit/platform-web'
+
+const $authEvent = broadcasted<'logout' | 'refresh'>('auth')
+
+const stop = effect(() => {
+  if ($authEvent() === 'logout') {
+    console.log('Log out this tab')
+  }
+})
+
+$authEvent('logout')
+```
+
+`broadcasted` supports the same default value, [codec](/store/advanced/#codecs), and [setter rate limiter](/store/advanced/#rate-limiting) overloads as the storage helpers.

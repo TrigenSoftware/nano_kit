@@ -5,7 +5,7 @@ import ssr from '@nano_kit/react-ssr/vite-plugin'
 export default defineConfig({
   build: {
     target: 'esnext',
-    minify: false
+    minify: true
   },
   plugins: [
     react(),

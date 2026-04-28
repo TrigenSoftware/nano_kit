@@ -26,6 +26,37 @@ function User$() {
 
 On the server, `hydratable` registers the signal in an internal map with its key. On the client, if dehydrated data exists for that key, the signal is immediately initialized with the hydrated value instead of the default.
 
+`hydratable` also accepts a [`Codec`](/store/advanced/#codecs) as the third argument. You only need it when the dehydrated payload must serialize values that need custom encoding, such as `Date`, `Map`, `Set`, class instances, or encrypted/compact payloads.
+
+```ts
+import type { Codec } from '@nano_kit/store'
+import { parse, stringify } from 'devalue'
+import { signal, hydratable } from '@nano_kit/store'
+
+interface DashboardSnapshot {
+  generatedAt: Date
+  selectedUserIds: Set<number>
+  usersById: Map<number, { name: string }>
+}
+
+const DevalueCodec: Codec<unknown, string> = {
+  encode: stringify,
+  decode: value => value === null ? null : parse(value)
+}
+
+function Dashboard$() {
+  const $snapshot = hydratable(
+    'dashboard',
+    signal<DashboardSnapshot | null>(null),
+    DevalueCodec
+  )
+
+  return { $snapshot }
+}
+```
+
+On the server, the codec encodes the signal value before it is added to the dehydrated data. On the client, it decodes the dehydrated value before writing it into the signal.
+
 ## Checking Hydration State
 
 Use `isHydrated` to check whether a signal has been populated from hydration data. The hydrated flag is cleared on the signal's first user-driven update.
@@ -84,7 +115,7 @@ The `task` function wraps async operations and adds them to the tasks pool. The 
 ## Manual Hydration Flow
 
 <Aside>
-  Most apps do not need to call `dehydrate` or wire `Hydrator$` manually. Framework integrations such as [`@nano_kit/react-ssr`](/integrations/react-ssr) and the SSR/RSC helpers in [`@nano_kit/react`](/integrations/react#ssr) use these mechanisms under the hood. This manual flow is useful when you are building a custom SSR setup or want to understand how hydration works internally.
+  Most apps do not need to call `dehydrate` or wire `Hydrator$` manually. [Framework integrations](/integrations) use these mechanisms under the hood. This manual flow is useful when you are building a custom SSR setup or want to understand how hydration works internally.
 </Aside>
 
 ### Server-Side Dehydration

@@ -27,6 +27,8 @@ package
 build
 .astro
 .next
+.output
+.tanstack
 next-env.d.ts
 
 # Env files

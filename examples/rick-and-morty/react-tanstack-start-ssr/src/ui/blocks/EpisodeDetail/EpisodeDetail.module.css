@@ -1,0 +1,127 @@
+/* DISCLAIMER! VIBECODED! */
+.container {
+  width: 100%;
+}
+
+/* Header */
+.header {
+  margin-bottom: 2rem;
+}
+
+.info {
+  max-width: 600px;
+}
+
+.name {
+  font-size: 2.5rem;
+  font-weight: 500;
+  margin: 0 0 1.5rem 0;
+  color: #212121;
+}
+
+.episode,
+.airDate {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  font-size: 1.125rem;
+}
+
+.label {
+  font-weight: 500;
+  color: #757575;
+  min-width: 80px;
+}
+
+.value {
+  font-weight: 500;
+  color: #424242;
+}
+
+/* Details */
+.details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.section {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.section h2 {
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin: 0 0 1rem 0;
+  color: #212121;
+}
+
+.section p {
+  margin: 0;
+  color: #424242;
+  font-size: 1rem;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .name {
+    color: #e0e0e0;
+  }
+
+  .label {
+    color: #9e9e9e;
+  }
+
+  .value {
+    color: #bdbdbd;
+  }
+
+  .section {
+    background: #424242;
+    border-color: #616161;
+  }
+
+  .section h2 {
+    color: #e0e0e0;
+  }
+
+  .section p {
+    color: #bdbdbd;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .name {
+    font-size: 2rem;
+  }
+
+  .episode,
+  .airDate {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .label {
+    min-width: auto;
+  }
+
+  .details {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .section {
+    padding: 1rem;
+  }
+}

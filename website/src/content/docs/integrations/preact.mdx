@@ -1,0 +1,187 @@
+---
+title: Preact
+description: "Integrate @nano_kit/store with Preact using @nano_kit/preact."
+sidebar:
+  order: 5
+---
+
+import { Steps, Tabs, TabItem, Code, Aside } from '@astrojs/starlight/components'
+
+The `@nano_kit/preact` package integrates `@nano_kit/store` signals and Dependency Injection with Preact components.
+
+## Installation
+
+Install the package using your favorite package manager:
+
+<Tabs syncKey='pkg'>
+  <TabItem label='pnpm' icon='pnpm'>
+    <Code frame='none' lang='bash' code='pnpm add @nano_kit/store @nano_kit/preact' />
+  </TabItem>
+  <TabItem label='Yarn' icon='seti:yarn'>
+    <Code frame='none' lang='bash' code='yarn add @nano_kit/store @nano_kit/preact' />
+  </TabItem>
+  <TabItem label='npm' icon='seti:npm'>
+    <Code frame='none' lang='bash' code='npm install @nano_kit/store @nano_kit/preact' />
+  </TabItem>
+</Tabs>
+
+## Signals
+
+### `useSignal`
+
+The `useSignal` hook subscribes a Preact component to any accessor. The component will re-render automatically whenever the value changes.
+
+```tsx
+import { signal } from '@nano_kit/store'
+import { useSignal } from '@nano_kit/preact'
+
+const $count = signal(0)
+
+export function Counter() {
+  const count = useSignal($count)
+
+  return (
+    <button onClick={() => $count(count => count + 1)}>
+      Count: {count}
+    </button>
+  )
+}
+```
+
+## Dependency Injection
+
+### `InjectionContextProvider`
+
+To use the Dependency Injection system within Preact, wrap your application (or part of it) in `InjectionContextProvider`. This component initializes an `InjectionContext` and makes it available to child components via the Preact Context API.
+
+You can provide an existing context instance or an array of providers/values.
+
+```tsx
+import { provide } from '@nano_kit/store'
+import { InjectionContextProvider } from '@nano_kit/preact'
+import { Theme$ } from './tokens'
+import { App } from './App'
+
+function Root() {
+  return (
+    <InjectionContextProvider
+      context={[
+        provide(Theme$, 'dark')
+      ]}
+    >
+      <App />
+    </InjectionContextProvider>
+  )
+}
+```
+
+### `useInject`
+
+The `useInject` hook retrieves a dependency from the current injection context. It throws an error if the context is missing, ensuring your dependencies are always resolved.
+
+```tsx
+import { useInject } from '@nano_kit/preact'
+import { Theme$ } from './tokens'
+
+export function ThemedButton() {
+  const theme = useInject(Theme$)
+
+  return <button className={`btn-${theme}`}>Click me</button>
+}
+```
+
+### `injectHook`
+
+`injectHook` creates a reusable hook for a given injection token. This is useful for encapsulating injection logic away from components.
+
+```tsx
+import { injectHook } from '@nano_kit/preact'
+
+/* Define token */
+function Theme$(): 'light' | 'dark' {
+  return 'light'
+}
+
+/* Create custom hook */
+const useTheme = injectHook(Theme$)
+
+export function ThemedButton() {
+  const theme = useTheme() // Type-safe 'light' | 'dark'
+
+  return <button className={`btn-${theme}`}>Click me</button>
+}
+```
+
+### `signalHook`
+
+`signalHook` creates a hook that subscribes to a signal returned by a getter function. Useful for wrapping signal-valued injection tokens into stable hooks.
+
+```tsx
+import { signalHook, injectHook } from '@nano_kit/preact'
+import { Location$ } from '@nano_kit/router'
+
+/* Creates a hook that reads and subscribes to the location signal */
+const useLocation = signalHook(injectHook(Location$))
+
+export function ActiveLink({ route }) {
+  const location = useLocation()
+  /* ... */
+}
+```
+
+### `Isolate`
+
+`Isolate` renders children with a fresh injection boundary. Use it when a subtree must not inherit dependencies from the parent context.
+
+```tsx
+import { Isolate } from '@nano_kit/preact'
+
+export function Preview({ children }) {
+  return (
+    <Isolate>
+      {children}
+    </Isolate>
+  )
+}
+```
+
+## SSR
+
+### Client-Side Hydration
+
+#### `HydrationProvider`
+
+`HydrationProvider` sets up a reactive hydration context for client-side hydration. It uses [`ActiveHydrator`](/store/ssr/#client-side-hydration) under the hood, which supports streaming — the `dehydrated` prop can be updated on re-renders to feed new data.
+
+```tsx
+import { HydrationProvider } from '@nano_kit/preact'
+
+function App({ dehydrated }) {
+  return (
+    <HydrationProvider dehydrated={dehydrated}>
+      <UserProfile />
+    </HydrationProvider>
+  )
+}
+```
+
+Props:
+- `dehydrated?` — dehydrated key-value pairs `[string, unknown][]`, or a falsy value to skip hydration
+- `context?` — additional injection providers
+- `reuse?` — reuse an existing `InjectionContext` instead of creating a new one; set to `true` if you want the hydration context to be shared with the rest of your app instead of isolated
+
+#### `StaticHydrationProvider`
+
+`StaticHydrationProvider` is a simpler one-shot variant using [`StaticHydrator`](/store/ssr/#client-side-hydration). It applies the initial `dehydrated` snapshot once and never updates. Use this for classic SSR where the full snapshot is available at first render.
+
+```tsx
+import { StaticHydrationProvider } from '@nano_kit/preact'
+
+function App({ dehydrated }) {
+  return (
+    <StaticHydrationProvider dehydrated={dehydrated}>
+      <UserProfile />
+    </StaticHydrationProvider>
+  )
+}
+```

@@ -1,15 +1,12 @@
 import {
   paced,
   debounce,
-  external,
   onMount,
-  effect,
-  untracked,
   mountable,
   computed,
-  Destroy,
   atIndex
 } from '@nano_kit/store'
+import { localStored } from '@nano_kit/platform-web'
 import { queryKey } from '@nano_kit/query'
 import type { City } from '../services/types.js'
 import * as Cities from '../services/cities.js'
@@ -18,34 +15,20 @@ import { query } from './query.js'
 
 const INPUT_DEBOUNCE = 300
 
-export const $locationSearchQuery = mountable(external<string>(($locationSearchQuery) => {
-  $locationSearchQuery(localStorage.getItem('locationSearch') || '')
+export const $locationSearchQuery = mountable(localStored('locationSearch', ''))
 
-  return (nextValue) => {
-    $locationSearchQuery(nextValue)
-    localStorage.setItem('locationSearch', untracked($locationSearchQuery))
-  }
-}))
-
-export const $locationSearchQueryPaced = paced($locationSearchQuery, debounce(INPUT_DEBOUNCE))
+export const $locationSearchInputValue = paced($locationSearchQuery, debounce(INPUT_DEBOUNCE))
 
 export const [$geolocation] = query<[], City | null>(queryKey('geolocation'), [], () => Location.fetchCurrentCity())
 
 onMount($locationSearchQuery, () => {
-  let stop: Destroy | undefined
-
   if (!$locationSearchQuery()) {
-    stop = effect(() => {
-      const geolocation = $geolocation()
-
-      if (geolocation && !untracked($locationSearchQuery)) {
-        $locationSearchQuery(geolocation.label)
-        stop!()
+    Location.fetchCurrentCity().then((city) => {
+      if (city && !$locationSearchQuery()) {
+        $locationSearchQuery(city.label)
       }
     })
   }
-
-  return stop
 })
 
 export const [

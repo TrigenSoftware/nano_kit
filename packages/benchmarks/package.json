@@ -22,6 +22,9 @@
   "engines": {
     "node": ">=20"
   },
+  "scripts": {
+    "js-size": "node js-size.js"
+  },
   "dependencies": {
     "@reatom/core": "^1000.15.1",
     "alien-signals-1": "npm:alien-signals@1.0.4",
@@ -30,6 +33,7 @@
     "jotai": "^2.17.0",
     "mobx": "^6.15.0",
     "nanostores": "^1.0.1",
+    "playwright": "^1.59.1",
     "rxjs": "^7.8.2",
     "svelte": "^5.48.5",
     "tinybench": "^4.0.1",

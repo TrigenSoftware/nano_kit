@@ -1,6 +1,16 @@
-import { createLazyRoute } from '@tanstack/react-router'
-import { Characters } from '#src/ui/pages/Characters'
+import { createRoute } from '@tanstack/react-router'
+import { charactersOptions } from '#src/stores/characters'
+import { rootRoute } from './root'
+import { pageFromSearch } from './utils'
 
-export const Route = createLazyRoute('/characters')({
-  component: Characters
-})
+export const Route = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/characters',
+  validateSearch: (search: Record<string, unknown>) => ({
+    page: pageFromSearch(search.page)
+  }),
+  loaderDeps: ({ search: { page } }) => ({
+    page
+  }),
+  loader: ({ context, deps }) => context.queryClient.ensureQueryData(charactersOptions(deps.page))
+}).lazy(() => import('./characters.lazy').then(d => d.Route))

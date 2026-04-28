@@ -3,6 +3,7 @@ import {
   computed,
   onMount
 } from 'nanostores'
+import { persistentAtom } from '@nanostores/persistent'
 import type { City } from '../services/types.js'
 import * as Cities from '../services/cities.js'
 import * as Location from '../services/location.js'
@@ -19,20 +20,12 @@ function debounce<T extends unknown[]>(fn: (...args: [...T]) => void, ms: number
 
 const INPUT_DEBOUNCE = 300
 
-export const $locationSearch = atom('')
+export const $locationSearch = persistentAtom<string>('locationSearch', '')
 
 onMount($locationSearch, () => {
-  const savedQuery = localStorage.getItem('locationSearch')
-
-  if (savedQuery) {
-    setTimeout(() => $locationSearch.set(savedQuery))
-  } else {
+  if (!$locationSearch.get()) {
     fetchCurrentCity()
   }
-
-  return $locationSearch.listen(debounce((locationSearch) => {
-    localStorage.setItem('locationSearch', locationSearch)
-  }, INPUT_DEBOUNCE))
 })
 
 export const $locationSearchDebounced = atom('')
