@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.1](https://github.com/TrigenSoftware/nano_kit/compare/cookie-store@1.0.0-alpha.0...cookie-store@1.0.0-alpha.1) (2026-04-28)
+
+### Features
+
+* lazy cookie string parsing ([32d7045](https://github.com/TrigenSoftware/nano_kit/commit/32d704580d699c8e319614ee8b86d1bccadb8c34))
+
 ## 1.0.0-alpha.0 (2026-04-27)
 
 ### Features

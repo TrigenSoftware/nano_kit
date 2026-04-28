@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.1](https://github.com/TrigenSoftware/nano_kit/compare/platform-web@1.0.0-alpha.0...platform-web@1.0.0-alpha.1) (2026-04-28)
+
+### Features
+
+* `del` method is added to `Storage` interface ([21e8e2d](https://github.com/TrigenSoftware/nano_kit/commit/21e8e2d610e943ad71ae387155ca75f453e8fa19))
+
 ## 1.0.0-alpha.0 (2026-04-27)
 
 ### Features
