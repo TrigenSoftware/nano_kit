@@ -24,6 +24,7 @@ export default function SsrPlugin(options, adapter) {
     clientDir = 'client',
     rendererDir = 'renderer',
     nativeMagicString = true,
+    cookieStore = false,
     dev = {}
   } = options
   let sourceConfig = {}
@@ -152,6 +153,7 @@ export default function SsrPlugin(options, adapter) {
               const { renderer } = await server.ssrLoadModule(rendererPath)
 
               renderer.options.dehydrate = dev.dehydrate !== false
+              renderer.options.cookieStore = cookieStore
               renderer.manifest[clientPath] = {
                 file: clientPath,
                 name: 'client',
@@ -159,7 +161,12 @@ export default function SsrPlugin(options, adapter) {
                 isEntry: true
               }
 
-              const result = await renderer.render(url)
+              const result = await renderer.render(url, req.headers.cookie)
+              const setCookieHeaders = result.setCookieHeaders
+                ? {
+                  'Set-Cookie': result.setCookieHeaders
+                }
+                : null
 
               if (result.redirect) {
                 logger.info(`redirecting ${url} to ${result.redirect} with status ${result.statusCode} in ${Date.now() - started}ms`, {
@@ -167,7 +174,8 @@ export default function SsrPlugin(options, adapter) {
                 })
 
                 res.writeHead(result.statusCode, {
-                  Location: result.redirect
+                  Location: result.redirect,
+                  ...setCookieHeaders
                 })
                 res.end()
               } else if (result.html !== null) {
@@ -178,7 +186,8 @@ export default function SsrPlugin(options, adapter) {
                 })
 
                 res.writeHead(result.statusCode, {
-                  'Content-Type': 'text/html'
+                  'Content-Type': 'text/html',
+                  ...setCookieHeaders
                 })
                 res.end(html)
               } else {
@@ -214,7 +223,8 @@ export default function SsrPlugin(options, adapter) {
           ? path.join(outClientDir, manifestOption)
           : path.join(outClientDir, '.vite', 'manifest.json')
         const define = {
-          'import.meta.env.MANIFEST': JSON.stringify(manifestPath)
+          'import.meta.env.MANIFEST': JSON.stringify(manifestPath),
+          'import.meta.env.SSR_COOKIE_STORE': JSON.stringify(cookieStore)
         }
 
         if (isSsrBuild) {

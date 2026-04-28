@@ -19,6 +19,7 @@ import {
   precompose,
   sharedRouter
 } from '@nano_kit/router'
+import type { VirtualCookieStore } from '@nano_kit/cookie-store'
 import type {
   RendererOptions,
   RenderData,
@@ -31,6 +32,9 @@ import {
 } from './utils.js'
 
 export * from './renderer.types.js'
+
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+let cookeStorePromise: Promise<typeof import('@nano_kit/cookie-store')>
 
 /**
  * A base class for renderers. It provides methods to load the manifest, preload the pages, and render the view. The actual rendering logic should be implemented in the subclasses.
@@ -61,20 +65,42 @@ export abstract class Renderer extends Manifest {
   /**
    * Prepares the data needed for rendering the view.
    * @param url - The URL for which the view should be rendered.
+   * @param cookies - The raw `Cookie` header value from the incoming request.
    * @returns Render data.
    */
-  async data(url: string): Promise<RenderData> {
+  async data(
+    url: string,
+    cookies?: string
+  ): Promise<RenderData> {
     await this.#preloading
 
-    const { routes, pages } = this.options
+    const {
+      routes,
+      pages,
+      cookieStore
+    } = this.options
     const [$location, navigation] = virtualNavigation(url, routes)
     const $page = this.#router($location)
-    const context = new InjectionContext([
+    const dependecies = [
       provide(Location$, $location),
       provide(Navigation$, navigation),
       provide(Page$, $page),
       provide(Pages$, pages)
-    ])
+    ]
+    let virtualCookieStore: VirtualCookieStore | undefined
+
+    if (cookieStore) {
+      const {
+        VirtualCookieStore,
+        CookieStore$
+      } = await (cookeStorePromise ??= import('@nano_kit/cookie-store'))
+
+      virtualCookieStore = new VirtualCookieStore(cookies, url)
+
+      dependecies.push(provide(CookieStore$, virtualCookieStore))
+    }
+
+    const context = new InjectionContext(dependecies)
     const page = $page()
     let head: HeadDescriptor[] = []
     let dehydrated: [string, unknown][] = []
@@ -92,6 +118,15 @@ export abstract class Renderer extends Manifest {
     }
 
     const [statusCode, redirect] = responseStatus($location(), page)
+    let setCookieHeaders = null
+
+    if (virtualCookieStore) {
+      setCookieHeaders = virtualCookieStore.getSetCookieHeaders()
+
+      if (!setCookieHeaders.length) {
+        setCookieHeaders = null
+      }
+    }
 
     return {
       page,
@@ -99,7 +134,8 @@ export abstract class Renderer extends Manifest {
       redirect,
       context,
       head,
-      dehydrated
+      dehydrated,
+      setCookieHeaders
     }
   }
 
@@ -114,10 +150,14 @@ export abstract class Renderer extends Manifest {
   /**
    * Renders the view for the given URL and returns the result.
    * @param url - The URL for which the view should be rendered.
+   * @param cookies - The raw `Cookie` header value from the incoming request.
    * @returns An object containing the rendered HTML and other render artifacts.
    */
-  async render(url: string): Promise<RenderResult> {
-    const data = await this.data(url)
+  async render(
+    url: string,
+    cookies?: string
+  ): Promise<RenderResult> {
+    const data = await this.data(url, cookies)
     let html: string | null = null
 
     if (!data.redirect && data.page) {

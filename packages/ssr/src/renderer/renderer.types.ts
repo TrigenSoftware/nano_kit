@@ -17,6 +17,10 @@ export interface RendererOptions extends ManifestOptions {
    */
   compose: UnknownComposer<any>
   dehydrate?: boolean
+  /**
+   * Whether to inject a CookieStore-compatible virtual implementation during SSR.
+   */
+  cookieStore?: boolean
 }
 
 export interface RenderViewData {
@@ -31,6 +35,7 @@ export interface RenderData {
   statusCode: number
   redirect: string | null
   page: PageRef<unknown> | null
+  setCookieHeaders: string[] | null
 }
 
 export interface RenderResult extends RenderData {

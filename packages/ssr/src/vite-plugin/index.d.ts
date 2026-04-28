@@ -28,6 +28,11 @@ export interface BaseSsrPluginOptions {
    */
   nativeMagicString?: boolean
   /**
+   * Whether to inject a CookieStore-compatible virtual implementation during SSR.
+   * @default false
+   */
+  cookieStore?: boolean
+  /**
    * Directory inside the build output for client assets.
    * @default 'client'
    */

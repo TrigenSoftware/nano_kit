@@ -7,6 +7,7 @@ import {
 export const renderer = new PreactRenderer({
   base: import.meta.env.BASE_URL,
   manifestPath: import.meta.env.MANIFEST,
+  cookieStore: import.meta.env.SSR_COOKIE_STORE,
   routes,
   pages
 })

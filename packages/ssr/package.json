@@ -70,14 +70,21 @@
     "test": "run -p lint test:unit test:types"
   },
   "peerDependencies": {
+    "@nano_kit/cookie-store": "workspace:^",
     "@nano_kit/router": "workspace:^",
     "@nano_kit/store": "workspace:^",
     "vite": "^7.0.0 || ^8.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@nano_kit/cookie-store": {
+      "optional": true
+    }
   },
   "dependencies": {
     "magic-string": "^0.30.21"
   },
   "devDependencies": {
+    "@nano_kit/cookie-store": "workspace:^",
     "@nano_kit/router": "workspace:^",
     "@nano_kit/store": "workspace:^",
     "@vitest/coverage-v8": "catalog:",
