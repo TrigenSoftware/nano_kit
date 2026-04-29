@@ -1,6 +1,5 @@
 import {
   type AnyAccessor,
-  type InjectionProvider,
   type InjectionFactory,
   type FalsyValue,
   type AnyFn,
@@ -75,10 +74,6 @@ export interface DehydrationProps extends InjectionContextProps {
    */
   dehydrated?: [string, unknown][] | FalsyValue
   /**
-   * Additional injection providers to merge into the child context.
-   */
-  context?: InjectionProvider[]
-  /**
    * Whether to create a new InjectionContext for this dehydration or reuse an existing one from the context.
    */
   isolate?: boolean
@@ -91,14 +86,12 @@ export interface DehydrationProps extends InjectionContextProps {
 export async function Dehydration({
   stores,
   dehydrated,
-  context,
   isolate,
   children
 }: DehydrationProps) {
   return (
     <HydrationProvider
       dehydrated={dehydrated || stores && await serverDehydrate(stores)}
-      context={context}
       reuse={!isolate}
     >
       {children}
@@ -136,7 +129,6 @@ export async function StaticDehydration({
   flight,
   stores,
   dehydrated,
-  context,
   isolate,
   children
 }: StaticDehydrationProps) {
@@ -146,7 +138,6 @@ export async function StaticDehydration({
   return (
     <HydrationProvider
       dehydrated={isFlight ? null : dehydrated || stores && await serverDehydrate(stores)}
-      context={context}
       reuse={!isolate}
     >
       {children}
