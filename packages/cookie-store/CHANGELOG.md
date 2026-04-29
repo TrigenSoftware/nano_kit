@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.2](https://github.com/TrigenSoftware/nano_kit/compare/cookie-store@1.0.0-alpha.1...cookie-store@1.0.0-alpha.2) (2026-04-29)
+
+### Bug Fixes
+
+* use Max-Age without Expires to delete cookie ([10bd8e1](https://github.com/TrigenSoftware/nano_kit/commit/10bd8e1b1915563f68893dbc57499123ca509736))
+
 ## [1.0.0-alpha.1](https://github.com/TrigenSoftware/nano_kit/compare/cookie-store@1.0.0-alpha.0...cookie-store@1.0.0-alpha.1) (2026-04-28)
 
 ### Features

@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.2](https://github.com/TrigenSoftware/nano_kit/compare/platform-web@1.0.0-alpha.1...platform-web@1.0.0-alpha.2) (2026-04-29)
+
+### Bug Fixes
+
+* respect options when deleting cookie ([5ab0c9f](https://github.com/TrigenSoftware/nano_kit/commit/5ab0c9f285bf809d0bdc049707b227af33aec607))
+
 ## [1.0.0-alpha.1](https://github.com/TrigenSoftware/nano_kit/compare/platform-web@1.0.0-alpha.0...platform-web@1.0.0-alpha.1) (2026-04-28)
 
 ### Features

@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.7](https://github.com/TrigenSoftware/nano_kit/compare/react@1.0.0-alpha.6...react@1.0.0-alpha.7) (2026-04-29)
+
+### Bug Fixes
+
+* remove useless "context" prop in `Dehydration` ([32ffefd](https://github.com/TrigenSoftware/nano_kit/commit/32ffefd7697c102577117d71ffbcf92137734c9d))
+
 ## [1.0.0-alpha.6](https://github.com/TrigenSoftware/nano_kit/compare/react@1.0.0-alpha.5...react@1.0.0-alpha.6) (2026-04-12)
 
 ### Features
