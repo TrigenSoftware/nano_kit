@@ -16,6 +16,7 @@ import {
   sessionStored,
   syncedSessionStored
 } from './sessionStorage.js'
+import { waitFor } from '../test/utils.js'
 
 describe('platform-web', () => {
   describe('sessionStorage', () => {
@@ -99,7 +100,9 @@ describe('platform-web', () => {
 
       await commands.setSessionStorage('language', 'fr')
 
-      expect($language()).toBe('fr')
+      await waitFor(() => {
+        expect($language()).toBe('fr')
+      })
 
       off()
     })
@@ -112,7 +115,9 @@ describe('platform-web', () => {
 
       await commands.setSessionStorage('theme', 'dark')
 
-      expect($language()).toBe('en')
+      await waitFor(() => {
+        expect($language()).toBe('en')
+      })
 
       off()
     })

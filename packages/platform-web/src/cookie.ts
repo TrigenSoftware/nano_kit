@@ -61,8 +61,19 @@ class CookieStorage implements Storage<string> {
     })
   }
 
-  del(key: string) {
-    void this.store.delete(key)
+  del(name: string) {
+    const {
+      domain,
+      partitioned,
+      path
+    } = this.#options
+
+    void this.store.delete({
+      name,
+      domain,
+      partitioned,
+      path
+    })
   }
 }
 

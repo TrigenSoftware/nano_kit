@@ -16,6 +16,7 @@ import {
   localStored,
   syncedLocalStored
 } from './localStorage.js'
+import { waitFor } from '../test/utils.js'
 
 describe('platform-web', () => {
   describe('localStorage', () => {
@@ -98,7 +99,9 @@ describe('platform-web', () => {
 
       await commands.setLocalStorage('language', 'fr')
 
-      expect($language()).toBe('fr')
+      await waitFor(() => {
+        expect($language()).toBe('fr')
+      })
 
       off()
     })
@@ -111,7 +114,9 @@ describe('platform-web', () => {
 
       await commands.setLocalStorage('theme', 'dark')
 
-      expect($language()).toBe('en')
+      await waitFor(() => {
+        expect($language()).toBe('en')
+      })
 
       off()
     })

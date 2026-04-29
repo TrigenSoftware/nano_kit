@@ -131,6 +131,31 @@ describe('platform-web', () => {
       })
     })
 
+    it('should delete cookie values with matching options', () => {
+      const store = {
+        delete: vi.fn(),
+        peek: () => 'en',
+        set: vi.fn()
+      } as unknown as CookieStore & {
+        peek(name: string): string | null
+      }
+      const $language = cookieStored<string | null>(store, {
+        name: 'language',
+        domain: 'example.com',
+        partitioned: true,
+        path: '/app'
+      }, null)
+
+      $language(null)
+
+      expect(store.delete).toHaveBeenCalledWith({
+        name: 'language',
+        domain: 'example.com',
+        partitioned: true,
+        path: '/app'
+      })
+    })
+
     it('should support rate limited writes', async () => {
       vi.useFakeTimers()
 
