@@ -1,5 +1,5 @@
 - tweark colors on the website
-- integrate cookie-store into ssr + example
+- no-magic-numbers pain
 
 ## Agera/Kida/Store
 

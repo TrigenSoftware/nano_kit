@@ -206,12 +206,12 @@ const $theme = cookieStored<string | null>(cookieStore, {
 const $profile = syncedCookieStored(cookieStore, 'profile', {}, JsonCodec)
 
 $theme('dark')
-$theme(null) /* Calls cookieStore.delete('theme') */
+$theme(null) /* Calls cookieStore.delete({ name: 'theme', path: '/' }) */
 ```
 
 Use `cookieStored` when you only need reads and writes. Use `syncedCookieStored` when the cookie store supports change events and you want the signal to react to external cookie changes.
 
-Assigning `null` or `undefined` deletes the underlying cookie through the provided [`CookieStore`](https://developer.mozilla.org/en-US/docs/Web/API/Cookie_Store_API)-compatible object. If a default value was provided, the signal falls back to it after deletion.
+Assigning `null` or `undefined` deletes the underlying cookie through the provided [`CookieStore`](https://developer.mozilla.org/en-US/docs/Web/API/Cookie_Store_API)-compatible object. When `cookieStored` was created from options, deletion reuses the matching `path`, `domain`, and `partitioned` attributes so the browser removes the same cookie scope. If a default value was provided, the signal falls back to it after deletion.
 
 ## Broadcast Channel
 

@@ -206,7 +206,6 @@ export default async function Page() {
 Props:
 - `stores?` — function returning an array of accessors to dehydrate
 - `dehydrated?` — pre-dehydrated data (skips `stores` dehydration if provided)
-- `context?` — additional injection providers
 - `isolate?` — create a new `InjectionContext` on the client instead of reusing the existing one
 
 #### `StaticDehydration`
@@ -239,7 +238,6 @@ export default function Page() {
 Props:
 - `stores?` — function returning an array of accessors to dehydrate
 - `dehydrated?` — pre-dehydrated data (skips `stores` dehydration if provided)
-- `context?` — additional injection providers
 - `isolate?` — create a new `InjectionContext` on the client instead of reusing the existing one
 - `flight?` — override flight detection; when `false`, dehydration is always included
 
