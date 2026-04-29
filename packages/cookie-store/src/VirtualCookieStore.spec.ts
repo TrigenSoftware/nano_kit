@@ -77,7 +77,7 @@ describe('cookie-store', () => {
       await store.delete('session')
 
       expect(store.getSetCookieHeaders()).toEqual([
-        'session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0'
+        'session=; Path=/; Max-Age=0'
       ])
       await expect(store.get('session')).resolves.toBe(null)
     })
@@ -92,7 +92,7 @@ describe('cookie-store', () => {
       })
 
       expect(store.getSetCookieHeaders()).toEqual([
-        'theme=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0'
+        'theme=; Path=/; Max-Age=0'
       ])
     })
 
@@ -140,7 +140,7 @@ describe('cookie-store', () => {
       await store.delete('theme')
 
       expect(store.getSetCookieHeaders()).toEqual([
-        'theme=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0'
+        'theme=; Path=/; Max-Age=0'
       ])
     })
   })

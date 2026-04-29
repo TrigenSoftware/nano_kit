@@ -80,7 +80,7 @@ describe('cookie-store', () => {
           path: '/app',
           secure: false
         })).toBe(
-          'theme=; Domain=example.com; Path=/app; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0; Partitioned'
+          'theme=; Domain=example.com; Path=/app; Max-Age=0; Partitioned'
         )
       })
     })

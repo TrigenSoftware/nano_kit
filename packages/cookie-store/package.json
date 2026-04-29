@@ -5,7 +5,7 @@
   "description": "A virutal CookieStore-compatible implementation for SSR and testing environments.",
   "author": "dangreen",
   "license": "MIT",
-  "homepage": "https://nano-kit.js.org/cookie-store",
+  "homepage": "https://nano-kit.js.org/ssr/cookies",
   "funding": "https://ko-fi.com/dangreen",
   "repository": {
     "type": "git",

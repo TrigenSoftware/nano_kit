@@ -76,6 +76,7 @@ export class VirtualCookieStore implements CookieStore {
    * @returns The first matching cookie, or `null` if none was found.
    */
   get(options?: CookieStoreGetOptions): Promise<VirtualCookieListItem | null>
+  get(nameOrOptions?: string | CookieStoreGetOptions): Promise<VirtualCookieListItem | null>
 
   async get(
     nameOrOptions: string | CookieStoreGetOptions = {}
@@ -89,17 +90,9 @@ export class VirtualCookieStore implements CookieStore {
    * @returns The first matching cookie value, or `null` if none was found.
    */
   peek(name: string): string | null
-  /**
-   * Returns the first cookie value matching the provided lookup options synchronously.
-   * @param options - Cookie lookup options.
-   * @returns The first matching cookie value, or `null` if none was found.
-   */
-  peek(options?: CookieStoreGetOptions): string | null
 
-  peek(
-    nameOrOptions: string | CookieStoreGetOptions = {}
-  ): string | null {
-    return this.#find(nameOrOptions, true)?.value ?? null
+  peek(name: string): string | null {
+    return this.#find(name, true)?.value ?? null
   }
 
   /**
@@ -114,6 +107,7 @@ export class VirtualCookieStore implements CookieStore {
    * @returns Matching cookies in their current in-store order.
    */
   getAll(options?: CookieStoreGetOptions): Promise<VirtualCookieListItem[]>
+  getAll(nameOrOptions?: string | CookieStoreGetOptions): Promise<VirtualCookieListItem[]>
 
   async getAll(
     nameOrOptions: string | CookieStoreGetOptions = {}
@@ -176,6 +170,7 @@ export class VirtualCookieStore implements CookieStore {
    * @param options - Cookie initialization options.
    */
   set(options: VirtualCookieInit): Promise<void>
+  set(nameOrOptions: string | VirtualCookieInit, value?: string): Promise<void>
 
   async set(
     nameOrOptions: string | VirtualCookieInit,
@@ -210,6 +205,7 @@ export class VirtualCookieStore implements CookieStore {
    * @param options - Cookie deletion options.
    */
   delete(options: CookieStoreDeleteOptions): Promise<void>
+  delete(nameOrOptions: string | CookieStoreDeleteOptions): Promise<void>
 
   async delete(
     nameOrOptions: string | CookieStoreDeleteOptions

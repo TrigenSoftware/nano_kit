@@ -89,7 +89,6 @@ export function serializeDeleteCookie(entry: CookieEntry) {
     parts.push(`Path=${entry.path}`)
   }
 
-  parts.push('Expires=Thu, 01 Jan 1970 00:00:00 GMT')
   parts.push('Max-Age=0')
 
   if (entry.partitioned) {
