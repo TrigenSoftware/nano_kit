@@ -1,0 +1,228 @@
+---
+title: Cookies
+description: "Use request cookies during Nano Kit SSR with @nano_kit/cookie-store."
+sidebar:
+  order: 2
+---
+
+import { Tabs, TabItem, Code, Aside } from '@astrojs/starlight/components'
+
+`@nano_kit/cookie-store` provides a request-bound, [`CookieStore`](https://developer.mozilla.org/en-US/docs/Web/API/Cookie_Store_API)-compatible implementation for SSR and tests.
+
+Use it when server-rendered code needs to read incoming cookies, write `Set-Cookie` headers, or provide cookie state through Nano Kit dependency injection. You can use it directly through the [`CookieStore` API](https://developer.mozilla.org/en-US/docs/Web/API/Cookie_Store_API), or combine it with [`cookieStored`](/platform/web/#cookies) from `@nano_kit/platform-web` when you want cookie-backed signals.
+
+## Installation
+
+`@nano_kit/cookie-store` is an optional peer dependency of `@nano_kit/ssr`. Install it only when your SSR app uses cookies.
+
+<Tabs syncKey='pkg'>
+  <TabItem label='pnpm' icon='pnpm'>
+    <Code frame='none' lang='bash' code='pnpm add @nano_kit/cookie-store' />
+  </TabItem>
+  <TabItem label='Yarn' icon='seti:yarn'>
+    <Code frame='none' lang='bash' code='yarn add @nano_kit/cookie-store' />
+  </TabItem>
+  <TabItem label='npm' icon='seti:npm'>
+    <Code frame='none' lang='bash' code='npm install @nano_kit/cookie-store' />
+  </TabItem>
+</Tabs>
+
+## Vite Plugin
+
+Enable request-bound cookie stores with the SSR plugin option:
+
+```ts
+// vite.config.ts
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import ssr from '@nano_kit/react-ssr/vite-plugin'
+
+export default defineConfig({
+  plugins: [
+    react(),
+    ssr({
+      index: 'src/index.tsx',
+      cookieStore: true
+    })
+  ]
+})
+```
+
+The option makes the renderer create a `VirtualCookieStore` for each request and provide it through `CookieStore$`.
+
+<Aside>
+  `cookieStore: true` requires `@nano_kit/cookie-store` to be installed. Keep the option disabled when the app does not read or write cookies during SSR.
+</Aside>
+
+## Direct Cookie Store Usage
+
+Read `CookieStore$` inside a store factory when you want to work with the [`CookieStore` API](https://developer.mozilla.org/en-US/docs/Web/API/Cookie_Store_API) directly.
+
+```ts
+// src/stores/session.ts
+import { action, inject } from '@nano_kit/store'
+import { CookieStore$ } from '@nano_kit/cookie-store'
+
+const SESSION_MAX_AGE = 60 * 60 * 24 * 30
+
+export function Session$() {
+  const cookieStore = inject(CookieStore$)
+  const getUsername = () => cookieStore.get('session')
+  const login = action((username: string) => {
+    const value = username.trim()
+
+    if (value) {
+      void cookieStore.set({
+        name: 'session',
+        value,
+        path: '/',
+        sameSite: 'lax',
+        expires: Date.now() + SESSION_MAX_AGE * 1000
+      })
+    }
+  })
+  const logout = action(() => {
+    void cookieStore.delete({
+      name: 'session',
+      path: '/'
+    })
+  })
+
+  return {
+    getUsername,
+    login,
+    logout
+  }
+}
+```
+
+In the browser, `CookieStore$` resolves to the native browser `cookieStore`. During SSR, it resolves to a virtual store created from the incoming `Cookie` header for the current request.
+
+## Cookie-Backed Signals
+
+If you want a writable signal backed by cookies, pass the injected `CookieStore$` value to [`cookieStored`](/platform/web/#cookies):
+
+```ts
+// src/stores/session.ts
+import { action, inject } from '@nano_kit/store'
+import { CookieStore$ } from '@nano_kit/cookie-store'
+import { cookieStored } from '@nano_kit/platform-web'
+
+const SESSION_MAX_AGE = 60 * 60 * 24 * 30
+
+export function Session$() {
+  const cookieStore = inject(CookieStore$)
+  const $username = cookieStored<string | null>(cookieStore, {
+    name: 'session',
+    path: '/',
+    sameSite: 'lax',
+    maxAge: SESSION_MAX_AGE
+  }, null)
+  const login = action((username: string) => {
+    const value = username.trim()
+
+    if (value) {
+      $username(value)
+    }
+  })
+  const logout = action(() => {
+    $username(null)
+  })
+
+  return {
+    $username,
+    login,
+    logout
+  }
+}
+```
+
+## Production Server
+
+Pass the incoming `Cookie` header to `renderer.render(url, cookieHeader)`, and forward returned `Set-Cookie` headers to the HTTP response.
+
+```js
+// server.js
+import { renderer } from './dist/renderer/index.js'
+
+app.get('*', async (req, res) => {
+  const result = await renderer.render(req.url, req.headers.cookie)
+
+  if (result.setCookieHeaders) {
+    res.setHeader('Set-Cookie', result.setCookieHeaders)
+  }
+
+  if (result.redirect) {
+    return res.redirect(result.statusCode, result.redirect)
+  }
+
+  if (result.html !== null) {
+    return res.status(result.statusCode).send(result.html)
+  }
+
+  res.status(result.statusCode).send('Not Found')
+})
+```
+
+## Server-Side Logout
+
+Because cookies are available in `Stores$`, a route can mutate cookies on the server and redirect without rendering UI.
+
+```tsx
+// src/pages/Logout.tsx
+import { Navigation$ } from '@nano_kit/router'
+import { inject } from '@nano_kit/store'
+import { Session$ } from '../stores/session'
+
+export function Stores$() {
+  const navigation = inject(Navigation$)
+  const { logout } = inject(Session$)
+
+  logout()
+  navigation.replace('/')
+
+  return []
+}
+
+export default function Logout() {
+  return <></>
+}
+```
+
+The renderer returns a redirect and a deletion `Set-Cookie` header. The browser receives both in the same response.
+
+## Low-Level Usage
+
+You can also use `VirtualCookieStore` directly in tests or custom render pipelines:
+
+```ts
+import { InjectionContext, provide } from '@nano_kit/store'
+import {
+  CookieStore$,
+  VirtualCookieStore
+} from '@nano_kit/cookie-store'
+
+const cookieStore = new VirtualCookieStore(
+  'theme=dark; session=abc123',
+  '/dashboard'
+)
+
+const context = new InjectionContext([
+  provide(CookieStore$, cookieStore)
+])
+
+await cookieStore.set({
+  name: 'theme',
+  value: 'light',
+  path: '/',
+  sameSite: 'lax'
+})
+
+cookieStore.peek('theme') // 'light'
+cookieStore.drainSetCookieHeaders()
+// ['theme=light; Path=/; SameSite=Lax']
+```
+
+## Example
+
+See the [Session Cookies example](/examples/session) for a complete React SSR app using request cookies, cookie-backed signals, server-side logout, and hydration without mismatches.

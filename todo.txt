@@ -19,6 +19,8 @@
 
 ## React Router
 
+- try to change types to remove asModule helper
+
 ## ssr
 
 - cache handler

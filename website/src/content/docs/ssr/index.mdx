@@ -107,6 +107,7 @@ An adapter consists of three parts: a **renderer**, a **client entry**, and a **
    export const renderer = new FrameworkRenderer({
      base: import.meta.env.BASE_URL,
      manifestPath: import.meta.env.MANIFEST,
+     cookieStore: import.meta.env.SSR_COOKIE_STORE,
      routes,
      pages
    })
@@ -186,6 +187,15 @@ export default defineConfig({
 })
 ```
 
+Use `cookieStore: true` when the renderer should provide a request-bound `CookieStore$` during SSR. This feature uses the optional peer package `@nano_kit/cookie-store`, so install it in the app before enabling the option. See [SSR Cookies](/ssr/cookies) for the full setup, including store code and `Set-Cookie` forwarding.
+
+```js
+ssr({
+  index: 'src/index.js',
+  cookieStore: true
+})
+```
+
 - **`vite dev`** — starts the development server with SSR rendering handled in-process via Vite's dev middleware.
 - **`vite build`** — produces two output directories: `dist/client/` (browser assets) and `dist/renderer/` (SSR renderer bundle).
 
@@ -196,7 +206,11 @@ For production, you need to write your own HTTP server that imports the renderer
 import { renderer } from './dist/renderer/index.js'
 
 app.get('*', async (req, res) => {
-  const result = await renderer.render(req.url)
+  const result = await renderer.render(req.url, req.headers.cookie)
+
+  if (result.setCookieHeaders) {
+    res.setHeader('Set-Cookie', result.setCookieHeaders)
+  }
 
   if (result.redirect) {
     return res.redirect(result.statusCode, result.redirect)
@@ -214,4 +228,5 @@ app.get('*', async (req, res) => {
 
 - [`@nano_kit/react-ssr`](/integrations/react-ssr) — The React adapter built with this package.
 - [`@nano_kit/preact-ssr`](/integrations/preact-ssr) — The Preact adapter built with this package.
+- [SSR Cookies](/ssr/cookies) — Request-bound cookie stores and `cookieStore: true`.
 - [Router SSR](/router/ssr) — [`Stores$`](/router/ssr#stores-data-dehydration), [`Head$`](/router/ssr#head-management), and other page-level SSR hooks.

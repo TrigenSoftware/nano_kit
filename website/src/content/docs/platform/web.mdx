@@ -67,10 +67,11 @@ import { BooleanCodec, debounce } from '@nano_kit/store'
 import { localStored, sessionStored } from '@nano_kit/platform-web'
 
 const $dark = localStored('dark', false, BooleanCodec)
-const $draft = sessionStored('draft', '', debounce(300))
+const $draft = sessionStored<string | null>('draft', '', debounce(300))
 
 $dark(true)
 $draft('Hello')
+$draft(null) /* Removes sessionStorage.draft */
 ```
 
 `syncedLocalStored` and `syncedSessionStored` also listen for storage events, so the signal can react to changes from other browsing contexts.
@@ -87,6 +88,8 @@ const stop = effect(() => {
 ```
 
 All storage helpers support the same optional arguments as [`stored`](/store/low-level/#stored-signals): default values, [codecs](/store/advanced/#codecs), and [setter rate limiters](/store/advanced/#rate-limiting).
+
+Assigning `null` or `undefined` removes the underlying `localStorage` or `sessionStorage` entry. If the signal has a default value, the signal falls back to that default after deletion.
 
 ## Media Queries
 
@@ -194,7 +197,7 @@ Both signals can contain `GeolocationPosition`, `GeolocationPositionError`, or `
 import { JsonCodec } from '@nano_kit/store'
 import { cookieStored, syncedCookieStored } from '@nano_kit/platform-web'
 
-const $theme = cookieStored(cookieStore, {
+const $theme = cookieStored<string | null>(cookieStore, {
   name: 'theme',
   maxAge: 60 * 60 * 24 * 30,
   path: '/'
@@ -203,9 +206,12 @@ const $theme = cookieStored(cookieStore, {
 const $profile = syncedCookieStored(cookieStore, 'profile', {}, JsonCodec)
 
 $theme('dark')
+$theme(null) /* Calls cookieStore.delete('theme') */
 ```
 
 Use `cookieStored` when you only need reads and writes. Use `syncedCookieStored` when the cookie store supports change events and you want the signal to react to external cookie changes.
+
+Assigning `null` or `undefined` deletes the underlying cookie through the provided [`CookieStore`](https://developer.mozilla.org/en-US/docs/Web/API/Cookie_Store_API)-compatible object. If a default value was provided, the signal falls back to it after deletion.
 
 ## Broadcast Channel
 

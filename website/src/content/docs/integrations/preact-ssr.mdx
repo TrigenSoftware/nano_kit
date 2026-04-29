@@ -76,6 +76,8 @@ import { Steps, Tabs, TabItem, Code, Aside } from '@astrojs/starlight/components
    - **`vite dev`** — starts the development server with SSR rendering handled in-process.
    - **`vite build`** — produces `dist/client/` (browser assets) and `dist/renderer/` (SSR renderer bundle).
 
+   Add `cookieStore: true` when SSR stores need access to request cookies. See [SSR Cookies](/ssr/cookies) for the full setup.
+
 3. **Write your production HTTP server**
 
    For production, write your own HTTP server that imports the built renderer and calls `renderer.render(url)` for every incoming request:
@@ -86,7 +88,11 @@ import { Steps, Tabs, TabItem, Code, Aside } from '@astrojs/starlight/components
 
    // Express example
    app.get('*', async (req, res) => {
-     const result = await renderer.render(req.url)
+     const result = await renderer.render(req.url, req.headers.cookie)
+
+     if (result.setCookieHeaders) {
+       res.setHeader('Set-Cookie', result.setCookieHeaders)
+     }
 
      if (result.redirect) {
        return res.redirect(result.statusCode, result.redirect)
@@ -121,6 +127,7 @@ class AppRenderer extends PreactRenderer {
 export const renderer = new AppRenderer({
   base: import.meta.env.BASE_URL,
   manifestPath: import.meta.env.MANIFEST,
+  cookieStore: import.meta.env.SSR_COOKIE_STORE,
   routes,
   pages
 })
@@ -171,5 +178,6 @@ ssr({
 ## See Also
 
 - [SSR — Getting Started](/ssr) — how the base SSR package works
+- [SSR Cookies](/ssr/cookies) — request-bound cookies, `cookieStore: true`, and `Set-Cookie` forwarding
 - [Router SSR](/router/ssr) — how to add [`Stores$`](/router/ssr#stores-data-dehydration) and [`Head$`](/router/ssr#head-management) to page modules
 - [Preact Router](/integrations/preact-router) — [`App`](/integrations/preact-router#app), [`browserNavigation`](/integrations/preact-router#setup), [`router`](/integrations/preact-router#router), and other Preact router APIs

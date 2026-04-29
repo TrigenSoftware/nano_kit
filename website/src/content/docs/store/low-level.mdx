@@ -196,7 +196,7 @@ $theme('dark') /* Updates localStorage and signal */
 
 ## Stored Signals
 
-**`stored`** creates a writable signal backed by a storage adapter. The adapter only needs synchronous `get` and `set` methods, so the same helper can wrap `localStorage`, cookies, in-memory maps, or any other synchronous key/value storage.
+**`stored`** creates a writable signal backed by a storage adapter. The adapter only needs synchronous `get`, `set`, and `del` methods, so the same helper can wrap `localStorage`, cookies, in-memory maps, or any other synchronous key/value storage.
 
 ```ts
 import { stored, JsonCodec, debounce } from '@nano_kit/store'
@@ -207,16 +207,23 @@ const storage = {
   },
   set(key: string, value: string) {
     localStorage.setItem(key, value)
+  },
+  del(key: string) {
+    localStorage.removeItem(key)
   }
 }
 
-const $cart = stored(storage, 'cart', [] as number[], JsonCodec, debounce(300))
+const $cart = stored(storage, 'cart', [] as number[] | null, JsonCodec, debounce(300))
 
 $cart(items => [
   ...items,
   42
 ])
+
+$cart(null) /* Calls storage.del('cart') */
 ```
+
+Assigning `null` or `undefined` deletes the storage entry by calling `storage.del(key)`. If the signal has a default value, the signal value falls back to that default after deletion.
 
 The storage adapter shape is intentionally small:
 
@@ -224,6 +231,7 @@ The storage adapter shape is intentionally small:
 interface Storage<T> {
   get(key: string): T | null
   set(key: string, value: T): void
+  del(key: string): void
 }
 ```
 
@@ -238,6 +246,9 @@ const syncedStorage = {
   },
   set(key: string, value: string) {
     localStorage.setItem(key, value)
+  },
+  del(key: string) {
+    localStorage.removeItem(key)
   },
   sub(key: string, callback: (value: string | null) => void) {
     const listener = (event: StorageEvent) => {
@@ -268,6 +279,8 @@ interface SyncedStorage<T> extends Storage<T> {
 ```
 
 Both helpers support the same optional arguments: a default value, a [codec](/store/advanced/#codecs), and a [setter rate limiter](/store/advanced/#rate-limiting) for storage writes.
+
+For both `stored` and `syncedStored`, assigning `null` or `undefined` uses `del` immediately instead of the setter rate limiter. Setter rate limiters only wrap `set` calls.
 
 ## Child Signals
 
