@@ -637,7 +637,7 @@ function updateSignal(s: SignalNode): boolean {
 
 function runEffect(e: EffectNode, warmup?: true): void {
   const prevSub = pushActiveSub(e)
-  const prevNoMount = pushNoMount(e.noMount)
+  const prevNoMount = isMountableUsed ? pushNoMount(e.noMount) : undefined
 
   try {
     destroyEffect(e)
