@@ -13,7 +13,8 @@ export default [
       'no-label-var': 'off',
       'no-labels': 'off',
       'no-constant-condition': 'off',
-      'no-multi-assign': 'off'
+      'no-multi-assign': 'off',
+      'no-sequences': 'off'
     }
   }
 ]

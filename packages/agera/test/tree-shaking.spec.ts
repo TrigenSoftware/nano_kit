@@ -102,34 +102,55 @@ describe('agera', () => {
         const signal = await vite7('signal', '{ signal }')
         const mountableSignal = await vite7('mountable-signal', '{ mountable, signal }')
 
-        expect(mountableSignal).toContain('pushNoMount')
-        expect(mountableSignal).toContain('popNoMount')
-        expect(mountableSignal).toContain('incrementEffectCount')
-        expect(mountableSignal).toContain('decrementEffectCount')
-
         expect(signal).not.toContain('pushNoMount')
         expect(signal).not.toContain('popNoMount')
         expect(signal).not.toContain('incrementEffectCount')
         expect(signal).not.toContain('decrementEffectCount')
+
+        expect(mountableSignal).toContain('pushNoMount')
+        expect(mountableSignal).toContain('popNoMount')
+        expect(mountableSignal).toContain('incrementEffectCount')
+        expect(mountableSignal).toContain('decrementEffectCount')
+      })
+
+      it('should remove signal callback hook when onSignal is not imported', async () => {
+        const signal = await vite7('signal-callback-free', '{ signal }')
+        const hookedSignal = await vite7('hooked-signal', '{ onSignal, signal }')
+
+        expect(signal).not.toContain('signalCallback')
+        expect(signal).not.toContain('onSignal')
+        expect(hookedSignal).toContain('signalCallback')
+        expect(hookedSignal).toContain('onSignal')
       })
     })
 
     // https://github.com/rolldown/rolldown/issues/9272
     // https://github.com/rolldown/rolldown/issues/9279
+    // https://github.com/rolldown/rolldown/issues/9281
     describe('Vite 8 [fails]', () => {
       it.fails('should remove mountable effect count helpers when mountable is not imported', async () => {
         const signal = await vite8('signal', '{ signal }')
         const mountableSignal = await vite8('mountable-signal', '{ mountable, signal }')
 
-        expect(mountableSignal).toContain('pushNoMount')
-        expect(mountableSignal).toContain('popNoMount')
-        expect(mountableSignal).toContain('incrementEffectCount')
-        expect(mountableSignal).toContain('decrementEffectCount')
-
         expect(signal).not.toContain('pushNoMount')
         expect(signal).not.toContain('popNoMount')
         expect(signal).not.toContain('incrementEffectCount')
         expect(signal).not.toContain('decrementEffectCount')
+
+        expect(mountableSignal).toContain('pushNoMount')
+        expect(mountableSignal).toContain('popNoMount')
+        expect(mountableSignal).toContain('incrementEffectCount')
+        expect(mountableSignal).toContain('decrementEffectCount')
+      })
+
+      it.fails('should remove signal callback hook when onSignal is not imported', async () => {
+        const signal = await vite8('signal-callback-free', '{ signal }')
+        const hookedSignal = await vite8('hooked-signal', '{ onSignal, signal }')
+
+        expect(signal).not.toContain('signalCallback')
+        expect(signal).not.toContain('onSignal')
+        expect(hookedSignal).toContain('signalCallback')
+        expect(hookedSignal).toContain('onSignal')
       })
     })
   })

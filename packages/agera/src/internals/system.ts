@@ -418,6 +418,16 @@ export function batch<T>(fn: () => T): T {
   }
 }
 
+let signalCallback: (($signal: AnySignal) => void) | undefined
+
+export function onSignal(callback: ($signal: AnySignal) => void) {
+  const prevCallback = signalCallback
+
+  signalCallback = prevCallback
+    ? $signal => (prevCallback($signal), callback($signal))
+    : callback
+}
+
 export function createSignal(
   constructor: (value?: unknown) => unknown,
   node: ComputedNode | SignalNode,
@@ -426,6 +436,8 @@ export function createSignal(
   const $signal = constructor.bind(ctx) as AnySignal
 
   $signal.node = node
+
+  signalCallback?.($signal)
 
   return $signal
 }
