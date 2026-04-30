@@ -68,7 +68,7 @@
     "size-limit": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "vite-7": "npm:vite@^7.3.1",
+    "vite-7": "npm:vite@^8.0.0",
     "vitest": "catalog:"
   }
 }
