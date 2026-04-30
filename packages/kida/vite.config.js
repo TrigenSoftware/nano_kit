@@ -11,7 +11,10 @@ export default defineConfig({
       }
     },
     rolldownOptions: {
-      external: ['agera']
+      external: ['agera'],
+      output: {
+        topLevelVar: false
+      }
     },
     sourcemap: true,
     minify: false,

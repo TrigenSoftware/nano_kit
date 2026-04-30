@@ -11,7 +11,10 @@ export default defineConfig({
       }
     },
     rolldownOptions: {
-      external: ['kida']
+      external: ['kida'],
+      output: {
+        topLevelVar: false
+      }
     },
     sourcemap: true,
     minify: false,

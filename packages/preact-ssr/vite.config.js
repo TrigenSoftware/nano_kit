@@ -4,6 +4,13 @@ import preact from '@preact/preset-vite'
 
 export default defineConfig({
   plugins: [preact()],
+  build: {
+    rolldownOptions: {
+      output: {
+        topLevelVar: false
+      }
+    }
+  },
   test: {
     exclude: [...configDefaults.exclude, './package'],
     coverage: {

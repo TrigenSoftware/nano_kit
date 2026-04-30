@@ -11,7 +11,10 @@ export default defineConfig({
       }
     },
     rolldownOptions: {
-      external: ['@nano_kit/store']
+      external: ['@nano_kit/store'],
+      output: {
+        topLevelVar: false
+      }
     },
     sourcemap: true,
     minify: false,

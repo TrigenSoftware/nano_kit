@@ -9,18 +9,18 @@
     "name": "Signal",
     "path": "dist/index.js",
     "import": "{ signal }",
-    "limit": "1.65 kB"
+    "limit": "1.58 kB"
   },
   {
     "name": "Minimal set",
     "path": "dist/index.js",
     "import": "{ signal, computed, effect }",
-    "limit": "1.8 kB"
+    "limit": "1.76 kB"
   },
   {
     "name": "Popular set",
     "path": "dist/index.js",
     "import": "{ signal, computed, effect, mountable, onMounted }",
-    "limit": "1.91 kB"
+    "limit": "1.87 kB"
   }
 ]

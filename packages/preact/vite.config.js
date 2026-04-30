@@ -13,7 +13,10 @@ export default defineConfig({
       }
     },
     rolldownOptions: {
-      external: id => /^(preact|@nano_kit)\/?/.test(id)
+      external: id => /^(preact|@nano_kit)\/?/.test(id),
+      output: {
+        topLevelVar: false
+      }
     },
     sourcemap: true,
     minify: false,

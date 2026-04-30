@@ -15,6 +15,7 @@ export default defineConfig({
     rolldownOptions: {
       external: id => /^(react|@nano_kit)\/?/.test(id),
       output: {
+        topLevelVar: false,
         codeSplitting: {
           groups: [
             {

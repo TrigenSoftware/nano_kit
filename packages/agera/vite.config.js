@@ -12,7 +12,12 @@ export default defineConfig({
     },
     sourcemap: true,
     minify: false,
-    emptyOutDir: false
+    emptyOutDir: false,
+    rolldownOptions: {
+      output: {
+        topLevelVar: false
+      }
+    }
   },
   test: {
     exclude: [...configDefaults.exclude, './package'],
