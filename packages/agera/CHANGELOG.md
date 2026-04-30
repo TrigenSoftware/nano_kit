@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.2](https://github.com/TrigenSoftware/nano_kit/compare/agera@1.0.0-beta.1...agera@1.0.0-beta.2) (2026-04-30)
+
+### Features
+
+* `onSignal` method to intercept each new signal instance ([6b59d15](https://github.com/TrigenSoftware/nano_kit/commit/6b59d159683e46665b326aa59cec0055102f2ae0))
+
+### Bug Fixes
+
+* improve tree-shaking ([6dfcaa8](https://github.com/TrigenSoftware/nano_kit/commit/6dfcaa83c7d35ad3b44139620d5a93d885cfc3e8))
+
 ## [1.0.0-beta.1](https://github.com/TrigenSoftware/nano_kit/compare/agera@1.0.0-beta.0...agera@1.0.0-beta.1) (2026-04-27)
 
 ### Features
