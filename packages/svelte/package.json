@@ -1,0 +1,82 @@
+{
+  "name": "@nano_kit/svelte",
+  "type": "module",
+  "version": "1.0.0-alpha.0",
+  "description": "Integrates @nano_kit/store signals with Svelte stores.",
+  "author": "dangreen",
+  "license": "MIT",
+  "homepage": "https://nano-kit.js.org/integrations/svelte",
+  "funding": "https://ko-fi.com/dangreen",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TrigenSoftware/nano_kit.git",
+    "directory": "packages/svelte"
+  },
+  "bugs": {
+    "url": "https://github.com/TrigenSoftware/nano_kit/issues"
+  },
+  "keywords": [
+    "svelte",
+    "store",
+    "state",
+    "state-management",
+    "signal",
+    "reactive",
+    "nano_kit"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "sideEffects": true,
+  "exports": {
+    "./package.json": "./package.json",
+    ".": "./src/index.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      "./package.json": "./package.json",
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    },
+    "directory": "package",
+    "linkDirectory": false
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clear:package": "del ./package",
+    "clear:dist": "del ./dist",
+    "clear": "del ./package ./dist ./coverage",
+    "prepublishOnly": "run build clear:package clean-publish",
+    "postpublish": "pnpm clear:package",
+    "emitDeclarations": "tsgo -p ./tsconfig.build.json --emitDeclarationOnly",
+    "build:dist": "run -p emitDeclarations [ vite build ]",
+    "build": "run clear:dist build:dist",
+    "lint": "eslint --flag v10_config_lookup_from_file",
+    "test:unit": "vitest run --coverage",
+    "test:unit:watch": "vitest watch",
+    "test:size": "size-limit",
+    "test:types": "tsgo --noEmit",
+    "test": "run -p lint test:unit test:types"
+  },
+  "peerDependencies": {
+    "@nano_kit/store": "workspace:^",
+    "svelte": "^5.0.0"
+  },
+  "devDependencies": {
+    "@nano_kit/store": "workspace:^",
+    "@sveltejs/vite-plugin-svelte": "catalog:",
+    "@size-limit/preset-small-lib": "catalog:",
+    "@testing-library/svelte": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "happy-dom": "catalog:",
+    "size-limit": "catalog:",
+    "svelte": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}
