@@ -1,6 +1,5 @@
 import { useMemo } from 'react'
 import type { Weather } from '../services/types.js'
-import styles from './ForecastWeather.module.css'
 
 export interface Props {
   weather: Weather
@@ -32,22 +31,22 @@ export function ForecastWeather({
   }, [weather, mode])
 
   return (
-    <div className={styles.root}>
+    <div className='forecast-item'>
       <time
-        className={styles.time}
+        className='forecast-time'
         dateTime={weather.dateText}
       >
         {weatherTime}
       </time>
       <img
-        className={styles.image}
+        className='forecast-icon'
         src={weather.icon}
         alt={weather.description}
       />
-      <h3 className={styles.temp}>
+      <h3 className='forecast-temp'>
         {weather.tempText}
       </h3>
-      <p className={styles.description}>
+      <p className='forecast-description'>
         {weather.description}
       </p>
     </div>

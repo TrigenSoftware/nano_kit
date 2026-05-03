@@ -13,7 +13,7 @@ import { NewEventForm$ } from '#src/stores/events'
 
 export function Head$() {
   return [
-    title('Event Board | New event')
+    title('New event | Event Board')
   ]
 }
 

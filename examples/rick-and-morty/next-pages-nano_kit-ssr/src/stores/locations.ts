@@ -4,8 +4,8 @@ import {
   type Location,
   getLocation,
   getLocations
-} from '@/services/api'
-import { OK_STATUS } from '@/common/constants'
+} from '../services/api'
+import { OK_STATUS } from '../common/constants'
 import {
   type Page,
   Client$

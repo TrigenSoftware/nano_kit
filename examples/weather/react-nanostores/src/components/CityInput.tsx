@@ -4,41 +4,24 @@ import {
   $locationSearch,
   $citySuggestions
 } from '../stores/location.js'
-import styles from './CityInput.module.css'
+import { Autocomplete } from './Autocomplete.jsx'
 
 export function CityInput() {
   const locationSearch = useStore($locationSearch)
   const citySuggestions = useStore($citySuggestions)
   const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => $locationSearch.set(e.target.value),
+    (value: string) => $locationSearch.set(value),
     []
   )
 
   return (
-    <div className={styles.root}>
-      <label
-        className={styles.label}
-        htmlFor='city'
-      >
-        Search for a city:
-      </label>
-      <input
-        list='cities'
-        id='city'
-        type='text'
-        name='city'
-        className={styles.input}
-        value={locationSearch}
-        onChange={handleChange}
-      />
-      <datalist id='cities'>
-        {citySuggestions.map(city => (
-          <option
-            key={city.label}
-            value={city.label}
-          />
-        ))}
-      </datalist>
-    </div>
+    <Autocomplete
+      id='city'
+      label='Search for a city'
+      name='city'
+      value={locationSearch}
+      suggestions={citySuggestions}
+      onChange={handleChange}
+    />
   )
 }

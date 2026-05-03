@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "next dev --webpack",
     "build": "next build --webpack",
-    "start": "next start"
+    "build:only": "next build --webpack",
+    "preview": "next start",
+    "start": "next start",
+    "test:types": "tsgo"
   },
   "dependencies": {
     "@nano_kit/next-router": "*",
@@ -23,6 +26,7 @@
     "@types/node": "^24.0.0",
     "@types/react": "^19.2.4",
     "@types/react-dom": "^19.2.3",
-    "typescript": "^5.8.2"
+    "@typescript/native-preview": "latest",
+    "typescript": "^6.0.0"
   }
 }

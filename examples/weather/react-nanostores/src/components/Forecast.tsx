@@ -7,13 +7,13 @@ import {
 import { useStore } from '@nanostores/react'
 import { $weatherForecast } from '../stores/weather.js'
 import { ForecastWeather } from './ForecastWeather.jsx'
-import styles from './Forecast.module.css'
 
 export function Forecast() {
   const weatherForecast = useStore($weatherForecast)
   const [mode, setMode] = useState('hourly')
   const forecastToShow = useMemo(() => weatherForecast.filter(
-    (_, index) => (mode === 'hourly' && index < 10) || (mode === 'daily' && index % 8 === 0)
+    (weather, index) => mode === 'hourly' && weather.period === 'hourly' && index < 24
+        || mode === 'daily' && weather.period === 'daily'
   ), [weatherForecast, mode])
   const handleModeChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => setMode(e.target.value),
@@ -26,10 +26,10 @@ export function Forecast() {
 
   return (
     <section>
-      <header className={styles.header}>
-        <h2 className={styles.title}>Forecast</h2>
+      <header className='forecast-header'>
+        <h2 className='forecast-title'>Forecast</h2>
         <select
-          className={styles.mode}
+          className='forecast-mode'
           value={mode}
           onChange={handleModeChange}
         >
@@ -37,7 +37,7 @@ export function Forecast() {
           <option value='daily'>Daily</option>
         </select>
       </header>
-      <ul className={styles.list}>
+      <ul className='forecast-list'>
         {forecastToShow.map(weather => (
           <ForecastWeather
             key={weather.dateText}

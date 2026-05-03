@@ -1,6 +1,5 @@
 import { createRoute } from '@tanstack/react-router'
-import { idsFromUrls } from '#src/services/api'
-import { charactersByIdsOptions } from '#src/stores/characters'
+import { episodeCharactersOptions } from '#src/stores/characters'
 import { episodeOptions } from '#src/stores/episodes'
 import { rootRoute } from './root'
 import { idFromParam } from './utils'
@@ -12,8 +11,8 @@ export const Route = createRoute({
     episodeId: idFromParam(params.episodeId)
   }),
   loader: async ({ context, params }) => {
-    const episode = await context.queryClient.ensureQueryData(episodeOptions(params.episodeId))
+    await context.queryClient.ensureQueryData(episodeOptions(params.episodeId))
 
-    await context.queryClient.ensureQueryData(charactersByIdsOptions(idsFromUrls(episode.characters)))
+    await context.queryClient.ensureQueryData(episodeCharactersOptions(params.episodeId))
   }
 }).lazy(() => import('./episode.lazy').then(d => d.Route))

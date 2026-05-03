@@ -7,8 +7,11 @@ import {
   type Location,
   getLocation,
   getLocations
-} from '#src/services/api'
-import { STALE_TIME } from '#src/common/constants'
+} from '../services/api'
+import {
+  OK_STATUS,
+  STALE_TIME
+} from '../common/constants'
 
 export interface Page<T> {
   items: T[]
@@ -18,14 +21,18 @@ export interface Page<T> {
 export function locationsOptions(page: number) {
   return queryOptions({
     queryKey: ['locations', page],
-    queryFn: async ({ signal }): Promise<Page<Location>> => {
-      const data = await getLocations({
+    queryFn: async (): Promise<Page<Location>> => {
+      const response = await getLocations({
         page
-      }, signal)
+      })
+
+      if (response.status !== OK_STATUS) {
+        throw new Error(response.statusMessage)
+      }
 
       return {
-        items: data.results ?? [],
-        totalPages: data.info?.pages ?? 0
+        items: response.data.results ?? [],
+        totalPages: response.data.info?.pages ?? 0
       }
     },
     staleTime: STALE_TIME,
@@ -40,7 +47,15 @@ export function useLocations(page: number) {
 export function locationOptions(locationId: number) {
   return queryOptions({
     queryKey: ['location', locationId],
-    queryFn: ({ signal }) => getLocation(locationId, signal),
+    queryFn: async () => {
+      const response = await getLocation(locationId)
+
+      if (response.status !== OK_STATUS) {
+        throw new Error(response.statusMessage)
+      }
+
+      return response.data
+    },
     staleTime: STALE_TIME
   })
 }

@@ -11,7 +11,6 @@ import {
   p
 } from 'nanoviews'
 import type { Weather } from '../services/types.js'
-import styles from './ForecastWeather.module.css'
 
 export interface Props {
   weather: Accessor<Weather | undefined>
@@ -44,26 +43,26 @@ export function ForecastWeather({
   })
 
   return div({
-    class: styles.root
+    class: 'forecast-item'
   })(
     time({
-      class: styles.time,
+      class: 'forecast-time',
       dateTime: $weather.$dateText
     })(
       $weatherTime
     ),
     img({
-      class: styles.image,
+      class: 'forecast-icon',
       src: $weather.$icon,
       alt: $weather.$description
     }),
     h3({
-      class: styles.temp
+      class: 'forecast-temp'
     })(
       $weather.$tempText
     ),
     p({
-      class: styles.description
+      class: 'forecast-description'
     })(
       $weather.$description
     )

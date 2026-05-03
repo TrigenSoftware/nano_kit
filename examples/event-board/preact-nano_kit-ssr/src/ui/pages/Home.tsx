@@ -24,7 +24,7 @@ const DATE_FORMATTER = new Intl.DateTimeFormat('en', {
 
 export function Head$() {
   return [
-    title('Event Board | Upcoming events'),
+    title('Upcoming events | Event Board'),
     meta({
       name: 'description',
       content: 'Find meetups, workshops, webinars, and conferences.'

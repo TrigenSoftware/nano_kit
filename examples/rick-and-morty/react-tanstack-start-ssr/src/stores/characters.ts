@@ -5,10 +5,15 @@ import {
 } from '@tanstack/react-query'
 import {
   type Character,
+  getEpisodeCharacters,
   getCharacter,
-  getCharacters
-} from '#src/services/api'
-import { STALE_TIME } from '#src/common/constants'
+  getCharacters,
+  getLocationResidents
+} from '../services/api'
+import {
+  OK_STATUS,
+  STALE_TIME
+} from '../common/constants'
 
 export interface Page<T> {
   items: T[]
@@ -18,14 +23,18 @@ export interface Page<T> {
 export function charactersOptions(page: number) {
   return queryOptions({
     queryKey: ['characters', page],
-    queryFn: async ({ signal }): Promise<Page<Character>> => {
-      const data = await getCharacters({
+    queryFn: async (): Promise<Page<Character>> => {
+      const response = await getCharacters({
         page
-      }, signal)
+      })
+
+      if (response.status !== OK_STATUS) {
+        throw new Error(response.statusMessage)
+      }
 
       return {
-        items: data.results ?? [],
-        totalPages: data.info?.pages ?? 0
+        items: response.data.results ?? [],
+        totalPages: response.data.info?.pages ?? 0
       }
     },
     staleTime: STALE_TIME,
@@ -40,7 +49,15 @@ export function useCharacters(page: number) {
 export function characterOptions(characterId: number) {
   return queryOptions({
     queryKey: ['character', characterId],
-    queryFn: ({ signal }) => getCharacter(characterId, signal),
+    queryFn: async () => {
+      const response = await getCharacter(characterId)
+
+      if (response.status !== OK_STATUS) {
+        throw new Error(response.statusMessage)
+      }
+
+      return response.data
+    },
     staleTime: STALE_TIME
   })
 }
@@ -49,22 +66,42 @@ export function useCharacter(characterId: number) {
   return useQuery(characterOptions(characterId))
 }
 
-export function charactersByIdsOptions(ids: number[]) {
+export function locationResidentsOptions(locationId: number) {
   return queryOptions({
-    queryKey: ['charactersByIds', ids],
-    queryFn: async ({ signal }): Promise<Character[]> => {
-      if (ids.length === 0) {
-        return []
+    queryKey: ['locationResidents', locationId],
+    queryFn: async () => {
+      const response = await getLocationResidents(locationId)
+
+      if (response.status !== OK_STATUS) {
+        throw new Error(response.statusMessage)
       }
 
-      const data = await getCharacter(ids, signal)
-
-      return Array.isArray(data) ? data : [data]
+      return response.data
     },
     staleTime: STALE_TIME
   })
 }
 
-export function useResidents(ids: number[]) {
-  return useQuery(charactersByIdsOptions(ids))
+export function useLocationResidents(locationId: number) {
+  return useQuery(locationResidentsOptions(locationId))
+}
+
+export function episodeCharactersOptions(episodeId: number) {
+  return queryOptions({
+    queryKey: ['episodeCharacters', episodeId],
+    queryFn: async () => {
+      const response = await getEpisodeCharacters(episodeId)
+
+      if (response.status !== OK_STATUS) {
+        throw new Error(response.statusMessage)
+      }
+
+      return response.data
+    },
+    staleTime: STALE_TIME
+  })
+}
+
+export function useEpisodeCharacters(episodeId: number) {
+  return useQuery(episodeCharactersOptions(episodeId))
 }

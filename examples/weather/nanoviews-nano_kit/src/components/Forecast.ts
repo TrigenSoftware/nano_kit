@@ -18,7 +18,6 @@ import {
 } from 'nanoviews'
 import { $weatherForecast } from '../stores/weather.js'
 import { ForecastWeather } from './ForecastWeather.js'
-import styles from './Forecast.module.css'
 
 export function Forecast() {
   const $mode = signal('hourly')
@@ -27,22 +26,23 @@ export function Forecast() {
     const mode = $mode()
 
     return forecast.filter(
-      (_, index) => (mode === 'hourly' && index < 10) || (mode === 'daily' && index % 8 === 0)
+      (weather, index) => mode === 'hourly' && weather.period === 'hourly' && index < 24
+        || mode === 'daily' && weather.period === 'daily'
     )
   })
 
   return if_(length($weatherForecast))(
     () => section()(
       header({
-        class: styles.header
+        class: 'forecast-header'
       })(
         h2({
-          class: styles.title
+          class: 'forecast-title'
         })(
           'Forecast'
         ),
         select({
-          class: styles.mode,
+          class: 'forecast-mode',
           [$$selected]: $mode
         })(
           option({
@@ -58,7 +58,7 @@ export function Forecast() {
         )
       ),
       ul({
-        class: styles.list
+        class: 'forecast-list'
       })(
         for_($forecastToShow, trackBy('dateText'))(
           $weather => ForecastWeather({

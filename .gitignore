@@ -19,7 +19,8 @@ node_modules
 # Some caches
 .*cache
 .trash
-tsconfig.tsbuildinfo
+*.tsbuildinfo
+integration-test-cache.json
 
 # Compiled dist
 dist

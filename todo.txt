@@ -1,5 +1,7 @@
 - tweark colors on the website
 - no-magic-numbers pain
+- correct sandbox for session example
+- inspect object copies
 
 ## Agera/Kida/Store
 
@@ -24,7 +26,7 @@
 ## ssr
 
 - cache handler
-- prerender?
+- prerender / ssg
 - server cache
 - Compression
   https://www.npmjs.com/package/vite-plugin-compression2
@@ -42,6 +44,7 @@
 
 - fix TruthyValueOrSignal type, return signal if signal, not accessor
 - restore effect attributes naming to name$ ?)
+- hooks/effects naming convention
 
 - check old version -> defer effects wroked bottom->top, now it works top -> bottom -> its ok for stores, not ok for views
 - wrap into untracked needed parts

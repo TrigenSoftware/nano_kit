@@ -10,7 +10,6 @@ import {
 } from '@nano_kit/react'
 import { WeatherForecast$ } from '../stores/weather.js'
 import { ForecastWeather } from './ForecastWeather.jsx'
-import styles from './Forecast.module.css'
 
 export function Forecast() {
   const { $forecast } = useInject(WeatherForecast$)
@@ -18,7 +17,8 @@ export function Forecast() {
   const [mode, setMode] = useState('hourly')
   const forecastToShow = useMemo(
     () => forecast.filter(
-      (_, index) => (mode === 'hourly' && index < 10) || (mode === 'daily' && index % 8 === 0)
+      (weather, index) => mode === 'hourly' && weather.period === 'hourly' && index < 24
+        || mode === 'daily' && weather.period === 'daily'
     ),
     [forecast, mode]
   )
@@ -33,12 +33,12 @@ export function Forecast() {
 
   return (
     <section>
-      <header className={styles.header}>
-        <h2 className={styles.title}>
+      <header className='forecast-header'>
+        <h2 className='forecast-title'>
           Forecast
         </h2>
         <select
-          className={styles.mode}
+          className='forecast-mode'
           value={mode}
           onChange={handleModeChange}
         >
@@ -50,7 +50,7 @@ export function Forecast() {
           </option>
         </select>
       </header>
-      <ul className={styles.list}>
+      <ul className='forecast-list'>
         {forecastToShow.map(weather => (
           <ForecastWeather
             key={weather.dateText}

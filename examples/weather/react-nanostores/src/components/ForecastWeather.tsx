@@ -1,5 +1,4 @@
 import type { Weather } from '../services/types.js'
-import styles from './ForecastWeather.module.css'
 
 interface Props {
   weather: Readonly<Weather>
@@ -8,9 +7,9 @@ interface Props {
 
 export function ForecastWeather({ weather, mode }: Props) {
   return (
-    <div className={styles.root}>
+    <div className='forecast-item'>
       <time
-        className={styles.time}
+        className='forecast-time'
         dateTime={weather.dateText}
       >
         {mode === 'hourly'
@@ -24,16 +23,16 @@ export function ForecastWeather({ weather, mode }: Props) {
           })}
       </time>
       <img
-        className={styles.image}
+        className='forecast-icon'
         src={weather.icon}
         alt={weather.description}
       />
       <h3
-        className={styles.temp}
+        className='forecast-temp'
       >
         {weather.tempText}
       </h3>
-      <p className={styles.description}>
+      <p className='forecast-description'>
         {weather.description}
       </p>
     </div>
