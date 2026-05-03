@@ -69,6 +69,9 @@ catalogs:
     svelte:
       specifier: ^5.55.5
       version: 5.55.5
+    svelte-check:
+      specifier: ^4.4.7
+      version: 4.4.7
     typescript:
       specifier: ^6.0.0
       version: 6.0.2
@@ -94,6 +97,7 @@ overrides:
   '@nano_kit/ssr@*': workspace:^
   '@nano_kit/store@*': workspace:^
   '@nano_kit/svelte@*': workspace:^
+  '@nano_kit/svelte-router@*': workspace:^
   nanoviews@*: workspace:^
 
 importers:
@@ -1712,6 +1716,52 @@ importers:
       svelte:
         specifier: 'catalog:'
         version: 5.55.5(@typescript-eslint/types@8.46.4)
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.2
+      vite:
+        specifier: 'catalog:'
+        version: 8.0.8(@types/node@24.0.14)(esbuild@0.27.3)(jiti@2.6.1)(yaml@2.8.2)
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.4(@types/node@24.0.14)(@vitest/browser-playwright@4.1.4)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.0.8(@types/node@24.0.14)(esbuild@0.27.3)(jiti@2.6.1)(yaml@2.8.2))
+    publishDirectory: package
+
+  packages/svelte-router:
+    devDependencies:
+      '@nano_kit/router':
+        specifier: workspace:^
+        version: link:../router
+      '@nano_kit/store':
+        specifier: workspace:^
+        version: link:../store
+      '@nano_kit/svelte':
+        specifier: workspace:^
+        version: link:../svelte
+      '@size-limit/preset-small-lib':
+        specifier: 'catalog:'
+        version: 12.0.1(size-limit@12.0.1(jiti@2.6.1))
+      '@sveltejs/vite-plugin-svelte':
+        specifier: 'catalog:'
+        version: 7.0.0(svelte@5.55.5(@typescript-eslint/types@8.46.4))(vite@8.0.8(@types/node@24.0.14)(esbuild@0.27.3)(jiti@2.6.1)(yaml@2.8.2))
+      '@testing-library/svelte':
+        specifier: 'catalog:'
+        version: 5.3.1(svelte@5.55.5(@typescript-eslint/types@8.46.4))(vite@8.0.8(@types/node@24.0.14)(esbuild@0.27.3)(jiti@2.6.1)(yaml@2.8.2))(vitest@4.1.4)
+      '@vitest/coverage-v8':
+        specifier: 'catalog:'
+        version: 4.1.4(@vitest/browser@4.1.4)(vitest@4.1.4)
+      happy-dom:
+        specifier: 'catalog:'
+        version: 20.8.9
+      size-limit:
+        specifier: 'catalog:'
+        version: 12.0.1(jiti@2.6.1)
+      svelte:
+        specifier: 'catalog:'
+        version: 5.55.5(@typescript-eslint/types@8.46.4)
+      svelte-check:
+        specifier: 'catalog:'
+        version: 4.4.7(picomatch@4.0.4)(svelte@5.55.5(@typescript-eslint/types@8.46.4))(typescript@6.0.2)
       typescript:
         specifier: 'catalog:'
         version: 6.0.2
@@ -7540,6 +7590,14 @@ packages:
 
   svelte-check@4.3.6:
     resolution: {integrity: sha512-uBkz96ElE3G4pt9E1Tw0xvBfIUQkeH794kDQZdAUk795UVMr+NJZpuFSS62vcmO/DuSalK83LyOwhgWq8YGU1Q==}
+    engines: {node: '>= 18.0.0'}
+    hasBin: true
+    peerDependencies:
+      svelte: ^4.0.0 || ^5.0.0-next.0
+      typescript: '>=5.0.0'
+
+  svelte-check@4.4.7:
+    resolution: {integrity: sha512-JRafFTRmaPUOqmri4u1WuIKgBLiHi6wIaB57i99pmHq5BAc3ioIpzdUN/RX32ij9GhI6ALMHKvnVxu68sFZlag==}
     engines: {node: '>= 18.0.0'}
     hasBin: true
     peerDependencies:
@@ -15313,6 +15371,18 @@ snapshots:
       sade: 1.8.1
       svelte: 5.48.5
       typescript: 5.8.3
+    transitivePeerDependencies:
+      - picomatch
+
+  svelte-check@4.4.7(picomatch@4.0.4)(svelte@5.55.5(@typescript-eslint/types@8.46.4))(typescript@6.0.2):
+    dependencies:
+      '@jridgewell/trace-mapping': 0.3.31
+      chokidar: 4.0.3
+      fdir: 6.5.0(picomatch@4.0.4)
+      picocolors: 1.1.1
+      sade: 1.8.1
+      svelte: 5.55.5(@typescript-eslint/types@8.46.4)
+      typescript: 6.0.2
     transitivePeerDependencies:
       - picomatch
 

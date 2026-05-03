@@ -1,0 +1,91 @@
+{
+  "name": "@nano_kit/svelte-router",
+  "type": "module",
+  "version": "1.0.0-alpha.0",
+  "description": "Svelte integration for @nano_kit/router with code splitting, Dependency Injection, and state management.",
+  "author": "dangreen",
+  "license": "MIT",
+  "homepage": "https://nano-kit.js.org/integrations/svelte-router",
+  "funding": "https://ko-fi.com/dangreen",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TrigenSoftware/nano_kit.git",
+    "directory": "packages/svelte-router"
+  },
+  "bugs": {
+    "url": "https://github.com/TrigenSoftware/nano_kit/issues"
+  },
+  "keywords": [
+    "svelte",
+    "router",
+    "routing",
+    "navigation",
+    "store",
+    "state",
+    "signal",
+    "reactive",
+    "nano_kit"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "sideEffects": false,
+  "exports": {
+    "./package.json": "./package.json",
+    ".": "./src/index.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      "./package.json": "./package.json",
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    },
+    "directory": "package",
+    "linkDirectory": false
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clear:package": "del ./package",
+    "clear:dist": "del ./dist",
+    "clear": "del ./package ./dist ./coverage",
+    "prepublishOnly": "run build clear:package clean-publish",
+    "postpublish": "pnpm clear:package",
+    "emitDeclarations": "tsgo -p ./tsconfig.build.json --emitDeclarationOnly",
+    "build:dist": "run -p emitDeclarations [ vite build ]",
+    "build": "run clear:dist build:dist",
+    "lint": "eslint --flag v10_config_lookup_from_file",
+    "test:unit": "vitest run --coverage",
+    "test:unit:watch": "vitest watch",
+    "test:size": "size-limit",
+    "test:ts": "tsgo --noEmit",
+    "test:svelte": "svelte-check --tsconfig ./tsconfig.json",
+    "test:types": "run -p test:ts test:svelte",
+    "test": "run -p lint test:unit test:types"
+  },
+  "peerDependencies": {
+    "@nano_kit/router": "workspace:^",
+    "@nano_kit/store": "workspace:^",
+    "@nano_kit/svelte": "workspace:^",
+    "svelte": "^5.0.0"
+  },
+  "devDependencies": {
+    "@nano_kit/router": "workspace:^",
+    "@nano_kit/store": "workspace:^",
+    "@nano_kit/svelte": "workspace:^",
+    "@sveltejs/vite-plugin-svelte": "catalog:",
+    "@size-limit/preset-small-lib": "catalog:",
+    "@testing-library/svelte": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "happy-dom": "catalog:",
+    "size-limit": "catalog:",
+    "svelte": "catalog:",
+    "svelte-check": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}
