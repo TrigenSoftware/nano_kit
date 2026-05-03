@@ -613,6 +613,43 @@ importers:
         specifier: ^8.0.8
         version: 8.0.8(@types/node@24.0.14)(esbuild@0.27.3)(jiti@2.6.1)(yaml@2.8.2)
 
+  examples/rick-and-morty/svelte-nano_kit:
+    dependencies:
+      '@nano_kit/query':
+        specifier: workspace:^
+        version: link:../../../packages/query
+      '@nano_kit/router':
+        specifier: workspace:^
+        version: link:../../../packages/router
+      '@nano_kit/store':
+        specifier: workspace:^
+        version: link:../../../packages/store
+      '@nano_kit/svelte':
+        specifier: workspace:^
+        version: link:../../../packages/svelte
+      '@nano_kit/svelte-router':
+        specifier: workspace:^
+        version: link:../../../packages/svelte-router
+    devDependencies:
+      '@sveltejs/vite-plugin-svelte':
+        specifier: ^7.0.0
+        version: 7.0.0(svelte@5.55.5(@typescript-eslint/types@8.46.4))(vite@8.0.8(@types/node@24.0.14)(esbuild@0.27.3)(jiti@2.6.1)(yaml@2.8.2))
+      '@tsconfig/svelte':
+        specifier: ^5.0.4
+        version: 5.0.7
+      svelte:
+        specifier: ^5.55.5
+        version: 5.55.5(@typescript-eslint/types@8.46.4)
+      svelte-check:
+        specifier: ^4.4.7
+        version: 4.4.7(picomatch@4.0.4)(svelte@5.55.5(@typescript-eslint/types@8.46.4))(typescript@6.0.2)
+      typescript:
+        specifier: ^6.0.0
+        version: 6.0.2
+      vite:
+        specifier: ^8.0.8
+        version: 8.0.8(@types/node@24.0.14)(esbuild@0.27.3)(jiti@2.6.1)(yaml@2.8.2)
+
   examples/session/react-nano_kit-ssr:
     dependencies:
       '@hono/node-server':
@@ -956,6 +993,74 @@ importers:
       vite-plugin-solid:
         specifier: ^2.11.12
         version: 2.11.12(@testing-library/jest-dom@6.9.1)(solid-js@1.9.11)(vite@8.0.8(@types/node@24.0.14)(esbuild@0.27.3)(jiti@2.6.1)(yaml@2.8.2))
+
+  examples/weather/svelte-nano_kit:
+    dependencies:
+      '@nano_kit/platform-web':
+        specifier: workspace:^
+        version: link:../../../packages/platform-web
+      '@nano_kit/query':
+        specifier: workspace:^
+        version: link:../../../packages/query
+      '@nano_kit/store':
+        specifier: workspace:^
+        version: link:../../../packages/store
+      '@nano_kit/svelte':
+        specifier: workspace:^
+        version: link:../../../packages/svelte
+    devDependencies:
+      '@sveltejs/vite-plugin-svelte':
+        specifier: ^7.0.0
+        version: 7.0.0(svelte@5.55.5(@typescript-eslint/types@8.46.4))(vite@8.0.8(@types/node@24.0.14)(esbuild@0.27.3)(jiti@2.6.1)(yaml@2.8.2))
+      '@tsconfig/svelte':
+        specifier: ^5.0.4
+        version: 5.0.7
+      svelte:
+        specifier: ^5.55.5
+        version: 5.55.5(@typescript-eslint/types@8.46.4)
+      svelte-check:
+        specifier: ^4.4.7
+        version: 4.4.7(picomatch@4.0.4)(svelte@5.55.5(@typescript-eslint/types@8.46.4))(typescript@6.0.2)
+      typescript:
+        specifier: ^6.0.0
+        version: 6.0.2
+      vite:
+        specifier: ^8.0.8
+        version: 8.0.8(@types/node@24.0.14)(esbuild@0.27.3)(jiti@2.6.1)(yaml@2.8.2)
+
+  examples/weather/svelte-nano_kit-di:
+    dependencies:
+      '@nano_kit/platform-web':
+        specifier: workspace:^
+        version: link:../../../packages/platform-web
+      '@nano_kit/query':
+        specifier: workspace:^
+        version: link:../../../packages/query
+      '@nano_kit/store':
+        specifier: workspace:^
+        version: link:../../../packages/store
+      '@nano_kit/svelte':
+        specifier: workspace:^
+        version: link:../../../packages/svelte
+    devDependencies:
+      '@sveltejs/vite-plugin-svelte':
+        specifier: ^7.0.0
+        version: 7.0.0(svelte@5.55.5(@typescript-eslint/types@8.46.4))(vite@8.0.8(@types/node@24.0.14)(esbuild@0.27.3)(jiti@2.6.1)(yaml@2.8.2))
+      '@tsconfig/svelte':
+        specifier: ^5.0.4
+        version: 5.0.7
+      svelte:
+        specifier: ^5.55.5
+        version: 5.55.5(@typescript-eslint/types@8.46.4)
+      svelte-check:
+        specifier: ^4.4.7
+        version: 4.4.7(picomatch@4.0.4)(svelte@5.55.5(@typescript-eslint/types@8.46.4))(typescript@6.0.2)
+      typescript:
+        specifier: ^6.0.0
+        version: 6.0.2
+      vite:
+        specifier: ^8.0.8
+        version: 8.0.8(@types/node@24.0.14)(esbuild@0.27.3)(jiti@2.6.1)(yaml@2.8.2)
 
   examples/weather/svelte-nanostores:
     dependencies:
