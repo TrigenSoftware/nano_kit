@@ -124,7 +124,10 @@ export interface PseudoElement {
 export interface GenericHeadTagDescriptor {
   tag: string
   props: Record<string, AnyValueOrAccessor>
-  start(head?: PseudoElement[] | null): PseudoElement
+  start(
+    head: PseudoElement[],
+    prevHead?: PseudoElement[] | null
+  ): void
 }
 
 export interface LinkTagDescriptor extends GenericHeadTagDescriptor {
@@ -148,7 +151,10 @@ export interface GenericHeadPropertyDescriptor<T extends string = string> {
   tag: T
   value: ValueOrAccessor<string | EmptyValue>
   target(): Record<T, string>
-  start(head?: PseudoElement[] | null): PseudoElement
+  start(
+    head: PseudoElement[],
+    prevHead?: PseudoElement[] | null
+  ): void
 }
 
 export interface TitlePropertyDescriptor extends GenericHeadPropertyDescriptor<'title'> {

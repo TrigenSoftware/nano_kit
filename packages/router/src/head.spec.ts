@@ -71,6 +71,33 @@ describe('router', () => {
           stop()
         })
 
+        it('should keep title when duplicate title descriptors change', () => {
+          expect(document.title).toBe('')
+
+          const $page = signal({
+            default: null,
+            Head$: () => [
+              title('b'),
+              title('a')
+            ]
+          })
+          const stop = syncHead($page)
+
+          expect(document.title).toBe('b')
+
+          $page({
+            default: null,
+            Head$: () => [
+              title('c'),
+              title('a')
+            ]
+          })
+
+          expect(document.title).toBe('c')
+
+          stop()
+        })
+
         it('should update title signal', () => {
           expect(document.title).toBe('')
 

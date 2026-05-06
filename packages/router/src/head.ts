@@ -37,11 +37,18 @@ export * from './head.types.js'
 
 function startProperty<T extends string>(
   this: GenericHeadPropertyDescriptor<T>,
-  elements?: PseudoElement[] | null
+  head: PseudoElement[],
+  prevHead?: PseudoElement[] | null
 ) {
   const target = this.target()
   const property = this.tag
-  const element = elements?.find(el => el.matches(property)) || {
+  const predicate = (el: PseudoElement) => el.matches(property)
+
+  if (head.some(predicate)) {
+    return
+  }
+
+  const element = prevHead?.find(predicate) || {
     matches(tag) {
       return tag === property
     },
@@ -58,7 +65,7 @@ function startProperty<T extends string>(
     }
   })
 
-  return element
+  head.push(element)
 }
 
 /**
@@ -106,16 +113,12 @@ export function dir($value: DirValue): DirPropertyDescriptor {
   }
 }
 
-function queryElement(
-  tag: string,
-  attributes: [string, AnyValueOrAccessor][],
-  head?: PseudoElement[] | null
-) {
+function buildPredicate(tag: string, attributes: [string, AnyValueOrAccessor][]) {
   let selector = tag
   let count = 0
   let code: string | undefined
 
-  attributes.forEach(([key, value]) => {
+  for (const [key, value] of attributes) {
     const resolvedValue = get(value) as string | boolean | EmptyValue
 
     if (!isEmpty(resolvedValue)) {
@@ -126,20 +129,26 @@ function queryElement(
         selector += `[${key}="${String(resolvedValue).replace(/"/g, '\\"')}"]`
       }
     }
-  })
+  }
 
-  const elements = head
-    ? head.filter(el => el.matches(selector)) as HTMLElement[]
-    : document.head.querySelectorAll<HTMLElement>(selector)
+  return (
+    (element: HTMLElement) => element.matches(selector)
+      && element.attributes.length === count
+      && (code === undefined || element.textContent === code)
+  ) as (element: PseudoElement) => boolean
+}
+
+function queryElement(
+  collection: PseudoElement[] | null | undefined,
+  predicate: (element: PseudoElement) => boolean
+) {
+  const elements = collection || document.head.children
 
   for (let i = 0, len = elements.length, element; i < len; i++) {
     element = elements[i]
 
-    if (
-      element.attributes.length === count
-      && (code === undefined || element.textContent === code)
-    ) {
-      return element
+    if (predicate(element)) {
+      return element as HTMLElement
     }
   }
 
@@ -154,28 +163,38 @@ const reactiveAttributes = /* @__PURE__ */ new Set([
   'content'
 ])
 
-function startElement(this: GenericHeadTagDescriptor, elements?: PseudoElement[] | null) {
-  const entries = Object.entries(this.props)
-  let element = queryElement(this.tag, entries, elements)
+function startElement(
+  this: GenericHeadTagDescriptor,
+  head: PseudoElement[],
+  prevHead?: PseudoElement[] | null
+) {
+  const attributes = Object.entries(this.props)
+  const predicate = buildPredicate(this.tag, attributes)
+
+  if (head.some(predicate)) {
+    return
+  }
+
+  let element = queryElement(prevHead, predicate)
   const append = !element
 
   if (!element) {
     element = document.createElement(this.tag)
 
-    entries.forEach(([key, value]) => {
+    for (const [key, value] of attributes) {
       if (!reactiveAttributes.has(key) && !isEmpty(value)) {
         const stringValue = String(value)
 
         if (key === 'code') {
-          element!.textContent = stringValue
+          element.textContent = stringValue
         } else {
-          element!.setAttribute(key, stringValue)
+          element.setAttribute(key, stringValue)
         }
       }
-    })
+    }
   }
 
-  entries.forEach(([key, $value]) => {
+  for (const [key, $value] of attributes) {
     if (reactiveAttributes.has(key)) {
       subscribeAny($value, (value) => {
         if (isEmpty(value)) {
@@ -189,13 +208,13 @@ function startElement(this: GenericHeadTagDescriptor, elements?: PseudoElement[]
         }
       })
     }
-  })
+  }
 
   if (append) {
     document.head.appendChild(element)
   }
 
-  return element
+  head.push(element)
 }
 
 /**
@@ -246,12 +265,12 @@ function getHeadDescriptors(
 ): GenericHeadDescriptor[] {
   return page
     ? [
+      ...getHeadDescriptors(page.r, context),
       ...page.Head$
         ? context
           ? inject(page.Head$, context)
           : page.Head$()
-        : [],
-      ...getHeadDescriptors(page.r, context)
+        : []
     ]
     : []
 }
@@ -271,7 +290,11 @@ export function syncHead(
   return effect(() => {
     const page = $page()
     const tags = untracked(() => getHeadDescriptors(page, context))
-    const next = tags.map(tag => tag.start(current))
+    const next: PseudoElement[] = []
+
+    for (const tag of tags) {
+      tag.start(next, current)
+    }
 
     if (current) {
       for (const element of current) {
