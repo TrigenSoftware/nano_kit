@@ -8,7 +8,6 @@ import {
 } from 'solid-js'
 import { $weatherForecast } from '../stores/weather.js'
 import { ForecastWeather } from './ForecastWeather.jsx'
-import styles from './Forecast.module.css'
 
 export function Forecast() {
   const weatherForecast = useStore($weatherForecast)
@@ -18,17 +17,18 @@ export function Forecast() {
     const modeValue = mode()
 
     return weatherForecastValue.filter(
-      (_, index) => (modeValue === 'hourly' && index < 10) || (modeValue === 'daily' && index % 8 === 0)
+      (weather, index) => modeValue === 'hourly' && weather.period === 'hourly' && index < 24
+        || modeValue === 'daily' && weather.period === 'daily'
     )
   })
 
   return (
     <Show when={forecastToShow().length > 0}>
       <section>
-        <header class={styles.header}>
-          <h2 class={styles.title}>Forecast</h2>
+        <header class='forecast-header'>
+          <h2 class='forecast-title'>Forecast</h2>
           <select
-            class={styles.mode}
+            class='forecast-mode'
             value={mode()}
             onInput={e => setMode(e.currentTarget.value as 'hourly' | 'daily')}
           >
@@ -36,7 +36,7 @@ export function Forecast() {
             <option value='daily'>Daily</option>
           </select>
         </header>
-        <ul class={styles.list}>
+        <ul class='forecast-list'>
           <For each={forecastToShow()}>
             {weather => (
               <ForecastWeather

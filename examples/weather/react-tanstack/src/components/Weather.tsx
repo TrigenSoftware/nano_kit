@@ -1,7 +1,6 @@
 import { useWeather } from '../stores/context.jsx'
 import { useCitySuggestions } from '../stores/cities.js'
 import { useCurrentWeather } from '../stores/weather.js'
-import styles from './Weather.module.css'
 
 export function Weather() {
   const { locationSearch } = useWeather()
@@ -14,23 +13,26 @@ export function Weather() {
   }
 
   return (
-    <div className={styles.root}>
-      <h3 className={styles.currentTemp}>
+    <div
+      className='weather'
+      data-city={currentCity?.name}
+    >
+      <h3 className='weather-temp'>
         {currentWeather.tempText}
       </h3>
       <img
-        className={styles.image}
+        className='weather-icon'
         src={currentWeather.icon}
         alt={currentWeather.description}
       />
       <p
-        className={styles.feelsLike}
+        className='weather-feels-like'
       >
         Feels like
         {' '}
         {currentWeather.feelsLikeText}
       </p>
-      <p className={styles.description}>
+      <p className='weather-description'>
         {currentWeather.description}
         <br/>
         Humidity:

@@ -1,3 +1,4 @@
+import { record } from 'nanoviews/store'
 import {
   if_,
   div,
@@ -6,31 +7,34 @@ import {
   p,
   br
 } from 'nanoviews'
+import { $currentLocation } from '../stores/location.js'
 import { $currentWeather } from '../stores/weather.js'
-import styles from './Weather.module.css'
 
 export function Weather() {
+  const $city = record($currentLocation).$name
+
   return if_($currentWeather)(
     () => div({
-      class: styles.root
+      'class': 'weather',
+      'data-city': $city
     })(
       h3({
-        class: styles.currentTemp
+        class: 'weather-temp'
       })(
         $currentWeather.$tempText
       ),
       img({
-        class: styles.image,
+        class: 'weather-icon',
         src: $currentWeather.$icon,
         alt: $currentWeather.$description
       }),
       p({
-        class: styles.feelsLike
+        class: 'weather-feels-like'
       })(
         'Feels like ', $currentWeather.$feelsLikeText
       ),
       p({
-        class: styles.description
+        class: 'weather-description'
       })(
         $currentWeather.$description,
         br(),

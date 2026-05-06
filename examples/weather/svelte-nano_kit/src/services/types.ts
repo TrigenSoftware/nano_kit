@@ -11,9 +11,12 @@ export interface City {
   label: string
 }
 
+export type WeatherPeriod = 'current' | 'hourly' | 'daily'
+
 export interface Weather {
   date: Date
   dateText: string
+  period: WeatherPeriod
   temp: number
   tempText: string
   feelsLike: number

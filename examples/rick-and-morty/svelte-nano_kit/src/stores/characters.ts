@@ -1,11 +1,12 @@
-import { computed } from '@nano_kit/store'
 import { queryKey } from '@nano_kit/query'
 import {
   type Character,
+  getEpisodeCharacters,
   getCharacter,
-  getCharacters
-} from '#src/services/api'
-import { OK_STATUS } from '#src/common/constants'
+  getCharacters,
+  getLocationResidents
+} from '../services/api'
+import { OK_STATUS } from '../common/constants'
 import {
   type Page,
   query
@@ -16,8 +17,6 @@ import {
   $episodeId,
   $locationId
 } from './router'
-import { $location } from './locations'
-import { $episode } from './episodes'
 
 export const [
   $characters,
@@ -71,42 +70,27 @@ export const [
   }
 )
 
-const $residentsIds = computed(() => {
-  const locationId = $locationId()
-  const episodeId = $episodeId()
-  let refs
-
-  if (locationId) {
-    refs = $location()?.residents
-  } else if (episodeId) {
-    refs = $episode()?.characters
-  }
-
-  return refs?.map((ref) => {
-    const parts = ref.split('/')
-
-    return Number(parts[parts.length - 1])
-  }).sort() || []
-})
-
 export const [
   $residents,
   $residentsError,
   $residentsLoading
-] = query<[ids: number[]], Character[]>(
+] = query<[locationId: number | null, episodeId: number | null], Character[]>(
   queryKey('residents'),
-  [$residentsIds],
-  async (ids) => {
-    if (ids.length === 0) {
+  [
+    $locationId,
+    $episodeId
+  ],
+  async (locationId, episodeId) => {
+    if (!locationId && !episodeId) {
       return []
     }
 
-    const response = await getCharacter(ids)
+    const response = locationId
+      ? await getLocationResidents(locationId)
+      : await getEpisodeCharacters(episodeId as number)
 
     if (response.status === OK_STATUS) {
-      return Array.isArray(response.data)
-        ? response.data
-        : [response.data]
+      return response.data
     }
 
     throw new Error(response.statusMessage)

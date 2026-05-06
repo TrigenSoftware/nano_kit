@@ -1,4 +1,8 @@
-import type { City, Weather } from './types'
+import type {
+  City,
+  Weather,
+  WeatherPeriod
+} from './types'
 
 // Weather code mapping from Open-Meteo
 // https://open-meteo.com/en/docs
@@ -99,13 +103,14 @@ interface RawWeather {
   /* eslint-enable @typescript-eslint/naming-convention */
 }
 
-function toWeather(data: RawWeather): Weather {
+function toWeather(data: RawWeather, period: WeatherPeriod): Weather {
   const temp = Math.round(data.temperature_2m)
   const feelsLike = Math.round(data.apparent_temperature)
 
   return {
     date: new Date(data.time),
     dateText: data.time,
+    period,
     temp,
     tempText: toTempText(temp),
     feelsLike,
@@ -114,6 +119,28 @@ function toWeather(data: RawWeather): Weather {
     description: getWeatherDescription(data.weather_code),
     icon: getWeatherIcon(data.weather_code)
   }
+}
+
+interface RawDailyWeather {
+  time: string
+  /* eslint-disable @typescript-eslint/naming-convention */
+  temperature_2m_max: number
+  apparent_temperature_max: number
+  relative_humidity_2m_mean: number
+  weather_code: number
+  /* eslint-enable @typescript-eslint/naming-convention */
+}
+
+function toDailyWeather(data: RawDailyWeather): Weather {
+  return toWeather({
+    time: `${data.time}T12:00`,
+    /* eslint-disable @typescript-eslint/naming-convention */
+    temperature_2m: data.temperature_2m_max,
+    apparent_temperature: data.apparent_temperature_max,
+    relative_humidity_2m: data.relative_humidity_2m_mean,
+    weather_code: data.weather_code
+    /* eslint-enable @typescript-eslint/naming-convention */
+  }, 'daily')
 }
 
 export async function fetchWeather(city: City, signal?: AbortSignal): Promise<Weather> {
@@ -128,7 +155,7 @@ export async function fetchWeather(city: City, signal?: AbortSignal): Promise<We
   })
   const data = await response.json()
 
-  return toWeather(data.current)
+  return toWeather(data.current, 'current')
 }
 
 export async function fetchWeatherForecast(city: City, signal?: AbortSignal): Promise<Weather[]> {
@@ -136,6 +163,7 @@ export async function fetchWeatherForecast(city: City, signal?: AbortSignal): Pr
     latitude: city.lat.toString(),
     longitude: city.lon.toString(),
     hourly: 'temperature_2m,apparent_temperature,relative_humidity_2m,weather_code',
+    daily: 'temperature_2m_max,apparent_temperature_max,relative_humidity_2m_mean,weather_code',
     timezone: 'auto',
     // eslint-disable-next-line @typescript-eslint/naming-convention
     forecast_days: '7'
@@ -145,6 +173,7 @@ export async function fetchWeatherForecast(city: City, signal?: AbortSignal): Pr
   })
   const data = await response.json()
   const hourly = data.hourly
+  const daily = data.daily
   const forecast: Weather[] = []
 
   for (let i = 0; i < hourly.time.length; i++) {
@@ -156,6 +185,20 @@ export async function fetchWeatherForecast(city: City, signal?: AbortSignal): Pr
         apparent_temperature: hourly.apparent_temperature[i],
         relative_humidity_2m: hourly.relative_humidity_2m[i],
         weather_code: hourly.weather_code[i]
+        /* eslint-enable @typescript-eslint/naming-convention */
+      }, 'hourly')
+    )
+  }
+
+  for (let i = 0; i < daily.time.length; i++) {
+    forecast.push(
+      toDailyWeather({
+        time: daily.time[i],
+        /* eslint-disable @typescript-eslint/naming-convention */
+        temperature_2m_max: daily.temperature_2m_max[i],
+        apparent_temperature_max: daily.apparent_temperature_max[i],
+        relative_humidity_2m_mean: daily.relative_humidity_2m_mean[i],
+        weather_code: daily.weather_code[i]
         /* eslint-enable @typescript-eslint/naming-convention */
       })
     )

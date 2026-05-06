@@ -61,7 +61,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Install Chrome for headless testing
-        run: pnpm -r --if-present test:install-deps
+        run: pnpm test:install-deps
       - name: Run tests
         run: pnpm test:unit
       - name: Collect coverage
@@ -69,3 +69,42 @@ jobs:
         if: success()
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+  integration:
+    runs-on: ubuntu-latest
+    name: integration
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v6
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10
+      - name: Install Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Install Chrome for headless testing
+        run: pnpm test:install-deps
+      - name: Restore integration test cache
+        uses: actions/cache/restore@v4
+        with:
+          path: examples/**/common/test/integration-test-cache.json
+          key: integration-test-cache-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            integration-test-cache-${{ runner.os }}-
+      - name: Run tests
+        run: |
+          for attempt in 1 2 3; do
+            pnpm examples:test && exit 0
+            echo "Integration tests failed on attempt ${attempt}"
+          done
+          exit 1
+      - name: Save integration test cache
+        uses: actions/cache/save@v4
+        if: success()
+        with:
+          path: examples/**/common/test/integration-test-cache.json
+          key: integration-test-cache-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}

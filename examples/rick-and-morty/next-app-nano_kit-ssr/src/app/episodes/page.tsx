@@ -1,7 +1,8 @@
 import { Dehydration } from '@nano_kit/react'
 import { NextNavigation } from '@nano_kit/next-router'
 import { routes } from '@/stores/router'
-import EpisodesPage, { Stores$ } from '@/ui/pages/Episodes'
+import EpisodesPage from '@/ui/pages/Episodes'
+import { Stores$ } from '@/ui/pages/Episodes.stores'
 
 export default function Page() {
   return (

@@ -1,0 +1,24 @@
+{
+  "name": "event-board-common",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "sync": "node ../../../scripts/examples-sync.js . ..",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.9",
+    "@nano_kit/query": "*",
+    "@nano_kit/router": "*",
+    "@nano_kit/store": "*",
+    "hono": "^4.12.1"
+  },
+  "devDependencies": {
+    "@typescript/native-preview": "catalog:",
+    "playwright": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

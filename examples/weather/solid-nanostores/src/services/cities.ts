@@ -72,7 +72,7 @@ export async function fetchCityByLocation(coords: Coords, signal?: AbortSignal) 
   const response = await fetch(`https://nominatim.openstreetmap.org/reverse?${params}`, {
     signal,
     headers: {
-      'User-Agent': 'NanoViews Weather App'
+      'User-Agent': 'Nano Kit Weather App'
     }
   })
 

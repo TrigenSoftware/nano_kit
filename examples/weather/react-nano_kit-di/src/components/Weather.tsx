@@ -2,33 +2,38 @@ import {
   useInject,
   useSignal
 } from '@nano_kit/react'
+import { CitySuggestions$ } from '../stores/location.js'
 import { CurrentWeather$ } from '../stores/weather.js'
-import styles from './Weather.module.css'
 
 export function Weather() {
   const { $weather } = useInject(CurrentWeather$)
+  const { $currentLocation } = useInject(CitySuggestions$)
   const weather = useSignal($weather)
+  const city = useSignal($currentLocation)
 
   if (!weather) {
     return null
   }
 
   return (
-    <div className={styles.root}>
-      <h3 className={styles.currentTemp}>
+    <div
+      className='weather'
+      data-city={city?.name}
+    >
+      <h3 className='weather-temp'>
         {weather.tempText}
       </h3>
       <img
-        className={styles.image}
+        className='weather-icon'
         src={weather.icon}
         alt={weather.description}
       />
-      <p className={styles.feelsLike}>
+      <p className='weather-feels-like'>
         Feels like
         {' '}
         {weather.feelsLikeText}
       </p>
-      <p className={styles.description}>
+      <p className='weather-description'>
         {weather.description}
         <br/>
         Humidity:

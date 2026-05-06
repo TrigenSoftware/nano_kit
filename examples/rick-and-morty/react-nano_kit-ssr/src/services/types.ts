@@ -12,25 +12,15 @@ export interface ResourceBase {
 }
 
 export interface CharacterFilter {
-  name?: string
-  type?: string
-  species?: string
-  status?: string
-  gender?: string
   page?: number
 }
 
 export interface LocationFilter {
-  name?: string
-  type?: string
   page?: number
-  dimension?: string
 }
 
 export interface EpisodeFilter {
-  name?: string
   page?: number
-  episode?: string
 }
 
 export interface Character extends ResourceBase {

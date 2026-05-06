@@ -1,20 +1,17 @@
-import {
-  inject,
-  computed
-} from '@nano_kit/store'
+import { inject } from '@nano_kit/store'
 import { queryKey } from '@nano_kit/query'
 import {
   type Episode,
+  getCharacterEpisodes,
   getEpisode,
   getEpisodes
-} from '@/services/api'
-import { OK_STATUS } from '@/common/constants'
+} from '../services/api'
+import { OK_STATUS } from '../common/constants'
 import {
   type Page,
   Client$
 } from './query'
 import { Params$ } from './router'
-import { Character$ } from './characters'
 
 export function Episodes$() {
   const { query } = inject(Client$)
@@ -91,39 +88,22 @@ export function Episode$() {
 export function CharacterEpisodes$() {
   const { query } = inject(Client$)
   const { $characterId } = inject(Params$)
-  const { $character } = inject(Character$)
-  const $episodesIds = computed(() => {
-    const characterId = $characterId()
-    let episodes
-
-    if (characterId) {
-      episodes = $character()?.episode
-    }
-
-    return episodes?.map((ep) => {
-      const parts = ep.split('/')
-
-      return Number(parts[parts.length - 1])
-    }).sort() || []
-  })
   const [
     $characterEpisodes,
     $characterEpisodesError,
     $characterEpisodesLoading
-  ] = query<[ids: number[]], Episode[]>(
+  ] = query<[characterId: number | null], Episode[]>(
     queryKey('characterEpisodes'),
-    [$episodesIds],
-    async (ids) => {
-      if (ids.length === 0) {
+    [$characterId],
+    async (characterId) => {
+      if (!characterId) {
         return []
       }
 
-      const response = await getEpisode(ids)
+      const response = await getCharacterEpisodes(characterId)
 
       if (response.status === OK_STATUS) {
-        return Array.isArray(response.data)
-          ? response.data
-          : [response.data]
+        return response.data
       }
 
       throw new Error(response.statusMessage)

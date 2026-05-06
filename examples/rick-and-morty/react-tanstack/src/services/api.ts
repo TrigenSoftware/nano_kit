@@ -2,6 +2,7 @@ import type {
   Character,
   Episode,
   Location,
+  ApiResponse,
   Info,
   CharacterFilter,
   LocationFilter,
@@ -10,142 +11,68 @@ import type {
 
 export * from './types'
 
-const BASE_URL = 'https://rickandmortyapi.com/api'
+const BASE_URL = 'https://trigensoftware.github.io/rick-and-morty-api/api'
 
-async function fetchApi<T>(url: string, signal?: AbortSignal): Promise<T> {
-  const response = await fetch(url, {
-    signal
-  })
+async function fetchApi<T>(url: string): Promise<ApiResponse<T>> {
+  try {
+    const response = await fetch(url)
 
-  if (!response.ok) {
-    throw new Error(response.statusText || String(response.status))
+    if (!response.ok) {
+      return {
+        status: response.status,
+        statusMessage: response.statusText || String(response.status),
+        data: {} as T
+      }
+    }
+
+    const data = await response.json()
+
+    return {
+      status: response.status,
+      statusMessage: response.statusText || String(response.status),
+      data
+    }
+  } catch (error) {
+    return {
+      status: 500,
+      statusMessage: error instanceof Error ? error.message : 'Unknown error',
+      data: {} as T
+    }
   }
-
-  return await response.json() as T
 }
 
-export function idsFromUrls(urls: string[]) {
-  return urls.map((url) => {
-    const parts = url.split('/')
-
-    return Number(parts[parts.length - 1])
-  }).filter(Number.isInteger)
+export async function getCharacters(filters?: CharacterFilter): Promise<ApiResponse<Info<Character[]>>> {
+  return await fetchApi(`${BASE_URL}/character/page/${filters?.page || 1}.json`)
 }
 
-export async function getCharacters(
-  filters?: CharacterFilter,
-  signal?: AbortSignal
-): Promise<Info<Character[]>> {
-  const params = new URLSearchParams()
-
-  if (filters?.page) {
-    params.append('page', filters.page.toString())
-  }
-
-  if (filters?.name) {
-    params.append('name', filters.name)
-  }
-
-  if (filters?.status) {
-    params.append('status', filters.status)
-  }
-
-  if (filters?.species) {
-    params.append('species', filters.species)
-  }
-
-  if (filters?.type) {
-    params.append('type', filters.type)
-  }
-
-  if (filters?.gender) {
-    params.append('gender', filters.gender)
-  }
-
-  const queryString = params.toString()
-  const url = `${BASE_URL}/character${queryString ? `?${queryString}` : ''}`
-
-  return await fetchApi<Info<Character[]>>(url, signal)
+export async function getCharacter(id: number): Promise<ApiResponse<Character>> {
+  return await fetchApi(`${BASE_URL}/character/${id}.json`)
 }
 
-export async function getCharacter<T extends number | number[]>(
-  id: T,
-  signal?: AbortSignal
-): Promise<T extends number ? Character : Character[]> {
-  const ids = Array.isArray(id) ? id.join(',') : id
-  const url = `${BASE_URL}/character/${ids}`
-
-  return await fetchApi(url, signal)
+export async function getLocationResidents(id: number): Promise<ApiResponse<Character[]>> {
+  return await fetchApi(`${BASE_URL}/location/residents/${id}.json`)
 }
 
-export async function getLocations(
-  filters?: LocationFilter,
-  signal?: AbortSignal
-): Promise<Info<Location[]>> {
-  const params = new URLSearchParams()
-
-  if (filters?.page) {
-    params.append('page', filters.page.toString())
-  }
-
-  if (filters?.name) {
-    params.append('name', filters.name)
-  }
-
-  if (filters?.type) {
-    params.append('type', filters.type)
-  }
-
-  if (filters?.dimension) {
-    params.append('dimension', filters.dimension)
-  }
-
-  const queryString = params.toString()
-  const url = `${BASE_URL}/location${queryString ? `?${queryString}` : ''}`
-
-  return await fetchApi<Info<Location[]>>(url, signal)
+export async function getEpisodeCharacters(id: number): Promise<ApiResponse<Character[]>> {
+  return await fetchApi(`${BASE_URL}/episode/characters/${id}.json`)
 }
 
-export async function getLocation<T extends number | number[]>(
-  id: T,
-  signal?: AbortSignal
-): Promise<T extends number ? Location : Location[]> {
-  const ids = Array.isArray(id) ? id.join(',') : id
-  const url = `${BASE_URL}/location/${ids}`
-
-  return await fetchApi(url, signal)
+export async function getLocations(filters?: LocationFilter): Promise<ApiResponse<Info<Location[]>>> {
+  return await fetchApi(`${BASE_URL}/location/page/${filters?.page || 1}.json`)
 }
 
-export async function getEpisodes(
-  filters?: EpisodeFilter,
-  signal?: AbortSignal
-): Promise<Info<Episode[]>> {
-  const params = new URLSearchParams()
-
-  if (filters?.page) {
-    params.append('page', filters.page.toString())
-  }
-
-  if (filters?.name) {
-    params.append('name', filters.name)
-  }
-
-  if (filters?.episode) {
-    params.append('episode', filters.episode)
-  }
-
-  const queryString = params.toString()
-  const url = `${BASE_URL}/episode${queryString ? `?${queryString}` : ''}`
-
-  return await fetchApi<Info<Episode[]>>(url, signal)
+export async function getLocation(id: number): Promise<ApiResponse<Location>> {
+  return await fetchApi(`${BASE_URL}/location/${id}.json`)
 }
 
-export async function getEpisode<T extends number | number[]>(
-  id: T,
-  signal?: AbortSignal
-): Promise<T extends number ? Episode : Episode[]> {
-  const ids = Array.isArray(id) ? id.join(',') : id
-  const url = `${BASE_URL}/episode/${ids}`
+export async function getEpisodes(filters?: EpisodeFilter): Promise<ApiResponse<Info<Episode[]>>> {
+  return await fetchApi(`${BASE_URL}/episode/page/${filters?.page || 1}.json`)
+}
 
-  return await fetchApi(url, signal)
+export async function getEpisode(id: number): Promise<ApiResponse<Episode>> {
+  return await fetchApi(`${BASE_URL}/episode/${id}.json`)
+}
+
+export async function getCharacterEpisodes(id: number): Promise<ApiResponse<Episode[]>> {
+  return await fetchApi(`${BASE_URL}/character/episodes/${id}.json`)
 }

@@ -6,7 +6,6 @@ import {
 import { NextNavigation } from '@nano_kit/next-router'
 import { routes } from '@/stores/router'
 import { Header } from '@/ui/blocks/Header'
-import styles from './layout.module.css'
 import './globals.css'
 
 declare module '@nano_kit/router' {
@@ -31,9 +30,9 @@ export default function RootLayout({ children }: {
         <HydrationProvider>
           <html lang='en'>
             <body>
-              <div className={styles.app}>
+              <div className='layout-app'>
                 <Header />
-                <main className={styles.main}>
+                <main className='layout-main'>
                   {children}
                 </main>
               </div>

@@ -28,7 +28,7 @@ export function Head$() {
 
       return event
         ? `${event.title} | Event Board`
-        : 'Event Board | Event'
+        : 'Event | Event Board'
     }),
     meta({
       name: 'description',

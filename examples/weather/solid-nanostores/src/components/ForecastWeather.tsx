@@ -4,7 +4,6 @@ import {
   splitProps
 } from 'solid-js'
 import type { Weather } from '../services/types.js'
-import styles from './ForecastWeather.module.css'
 
 interface Props {
   weather: Readonly<Weather>
@@ -15,9 +14,9 @@ export function ForecastWeather(props: Props) {
   const [local] = splitProps(props, ['weather', 'mode'])
 
   return (
-    <div class={styles.root}>
+    <div class='forecast-item'>
       <time
-        class={styles.time}
+        class='forecast-time'
         dateTime={local.weather.dateText}
       >
         <Switch>
@@ -36,16 +35,16 @@ export function ForecastWeather(props: Props) {
         </Switch>
       </time>
       <img
-        class={styles.image}
+        class='forecast-icon'
         src={local.weather.icon}
         alt={local.weather.description}
       />
       <h3
-        class={styles.temp}
+        class='forecast-temp'
       >
         {local.weather.tempText}
       </h3>
-      <p class={styles.description}>
+      <p class='forecast-description'>
         {local.weather.description}
       </p>
     </div>
