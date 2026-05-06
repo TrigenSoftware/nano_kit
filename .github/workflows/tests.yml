@@ -89,7 +89,7 @@ jobs:
       - name: Install Chrome for headless testing
         run: pnpm test:install-deps
       - name: Restore integration test cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: examples/**/common/test/integration-test-cache.json
           key: integration-test-cache-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
@@ -103,7 +103,7 @@ jobs:
           done
           exit 1
       - name: Save integration test cache
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         if: success()
         with:
           path: examples/**/common/test/integration-test-cache.json
