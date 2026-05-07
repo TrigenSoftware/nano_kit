@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { inject } from '@nano_kit/svelte'
+  import { getInject } from '@nano_kit/svelte'
   import {
     LocationSearch$,
     CitySuggestions$
   } from '../stores/location.js'
   import Autocomplete from './Autocomplete.svelte'
 
-  const { $searchInputValue: searchInputValue } = inject(LocationSearch$)
-  const { $suggestions: suggestions } = inject(CitySuggestions$)
+  const { $searchInputValue: searchInputValue } = getInject(LocationSearch$)
+  const { $suggestions: suggestions } = getInject(CitySuggestions$)
 </script>
 
 <Autocomplete

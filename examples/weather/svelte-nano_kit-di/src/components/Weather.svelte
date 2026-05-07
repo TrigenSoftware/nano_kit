@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { inject } from '@nano_kit/svelte'
+  import { getInject } from '@nano_kit/svelte'
   import { CitySuggestions$ } from '../stores/location.js'
   import { CurrentWeather$ } from '../stores/weather.js'
 
-  const { $currentLocation: currentLocation } = inject(CitySuggestions$)
-  const { $weather: weather } = inject(CurrentWeather$)
+  const { $currentLocation: currentLocation } = getInject(CitySuggestions$)
+  const { $weather: weather } = getInject(CurrentWeather$)
 </script>
 
 {#if $weather}

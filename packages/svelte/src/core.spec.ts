@@ -88,7 +88,7 @@ describe('svelte', () => {
       })
     })
 
-    describe('inject', () => {
+    describe('getInject', () => {
       it('should inject dependency', () => {
         const $count = signal(0)
         const values: unknown[] = []

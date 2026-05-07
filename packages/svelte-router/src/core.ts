@@ -8,7 +8,7 @@ import {
 } from '@nano_kit/store'
 import {
   getInjectionContext,
-  inject
+  getInject
 } from '@nano_kit/svelte'
 import {
   type LayoutMatchRef,
@@ -82,7 +82,7 @@ export function getPageSignal($page: Accessor<PageRef<PageComponent> | null>) {
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function getPage() {
-  const $page = inject(Page$)
+  const $page = getInject(Page$)
 
   return getPageSignal($page)
 }
@@ -101,7 +101,7 @@ export function syncPageHeadEffect($page: Accessor<PageRef<unknown> | null>) {
  */
 export function syncHeadEffect() {
   const context = getInjectionContext()
-  const $page = inject(Page$)
+  const $page = getInject(Page$)
 
   onMount(() => syncHead($page, context))
 }

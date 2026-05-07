@@ -4,7 +4,7 @@
     InjectionProvider
   } from '@nano_kit/store'
   import {
-    inject,
+    getInject,
     isolate,
     setInjectionContext
   } from '../src/core.js'
@@ -21,5 +21,5 @@
   setInjectionContext(props.context)
   isolate()
   // svelte-ignore state_referenced_locally
-  props.onValue(inject(props.token))
+  props.onValue(getInject(props.token))
 </script>

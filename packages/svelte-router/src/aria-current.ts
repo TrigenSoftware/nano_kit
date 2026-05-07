@@ -6,7 +6,7 @@ import {
   type Accessor,
   toSignal
 } from '@nano_kit/store'
-import { inject } from '@nano_kit/svelte'
+import { getInject } from '@nano_kit/svelte'
 import type { HTMLAnchorAttributes } from 'svelte/elements'
 import {
   type AppRoutes,
@@ -83,7 +83,7 @@ export function ariaCurrent<R extends Routes>(
   return createAriaCurrent(() => $location, isAriaCurrent)
 }
 
-const applyAriaCurrent = /* @__PURE__ */ createAriaCurrent(() => inject(Location$))
+const applyAriaCurrent = /* @__PURE__ */ createAriaCurrent(() => getInject(Location$))
 
 /**
  * Enable automatic `aria-current` handling for Link component.
@@ -93,7 +93,7 @@ const applyAriaCurrent = /* @__PURE__ */ createAriaCurrent(() => inject(Location
 export function enableLinkComponentAriaCurrent(
   isAriaCurrent?: IsAriaCurrent<AppRoutes>
 ) {
-  const settings: AriaCurrentSettings<AppRoutes> = inject(LinkSettings$)
+  const settings: AriaCurrentSettings<AppRoutes> = getInject(LinkSettings$)
 
   settings.isAriaCurrent = isAriaCurrent
   settings.addHook(applyAriaCurrent)

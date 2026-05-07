@@ -7,7 +7,7 @@ import {
   type ReadableSignal,
   type WritableSignal,
   InjectionContext,
-  inject as storeInject,
+  inject,
   isWritable,
   onSignal,
   subscribe as storeSubscribe
@@ -94,6 +94,6 @@ export function isolate() {
  * @param factory - The factory function to create or get the dependency.
  * @returns The dependency.
  */
-export function inject<T>(factory: InjectionFactory<T>): T {
-  return storeInject(factory, getParentInjectionContext())
+export function getInject<T>(factory: InjectionFactory<T>): T {
+  return inject(factory, getParentInjectionContext())
 }

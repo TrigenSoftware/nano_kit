@@ -3,7 +3,7 @@ import {
   derived
 } from 'svelte/store'
 import { isFunction } from '@nano_kit/store'
-import { inject } from '@nano_kit/svelte'
+import { getInject } from '@nano_kit/svelte'
 import type {
   FocusEventHandler,
   MouseEventHandler
@@ -82,7 +82,7 @@ export function preloadable(
   return createPreloadHook(isFunction(pages) ? pages : () => pages, preloadByDefault)
 }
 
-const preload = /* @__PURE__ */ createPreloadHook(() => inject(Pages$))
+const preload = /* @__PURE__ */ createPreloadHook(() => getInject(Pages$))
 
 /**
  * Enable link preloading capabilities for Link component.
@@ -90,7 +90,7 @@ const preload = /* @__PURE__ */ createPreloadHook(() => inject(Pages$))
  * @param preloadByDefault - Whether to preload pages by default.
  */
 export function enableLinkComponentPreload(preloadByDefault = false) {
-  const settings: PreloadSettings = inject(LinkSettings$)
+  const settings: PreloadSettings = getInject(LinkSettings$)
 
   settings.preloadByDefault = preloadByDefault
   settings.addHook(preload)

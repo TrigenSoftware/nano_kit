@@ -8,7 +8,7 @@ import {
   derived
 } from 'svelte/store'
 import { inject as storeInject } from '@nano_kit/store'
-import { inject } from '@nano_kit/svelte'
+import { getInject } from '@nano_kit/svelte'
 import {
   type Navigation,
   type Paths,
@@ -79,7 +79,7 @@ export function listenNavigationLinks<R extends Routes = Routes>(
  * Should be used inside injection context with navigation provided.
  */
 export function listenLinks() {
-  const navigation = inject(Navigation$)
+  const navigation = getInject(Navigation$)
 
   listenNavigationLinks(navigation)
 }
@@ -115,6 +115,6 @@ export function LinkSettings$(): LinkSettings {
  * Should be used inside injection context with navigation and paths provided.
  */
 export const Link = /* @__PURE__ */ createLinkComponent(
-  () => inject(LinkSettings$),
-  () => inject(Paths$)
+  () => getInject(LinkSettings$),
+  () => getInject(Paths$)
 )

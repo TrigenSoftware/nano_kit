@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { inject } from '@nano_kit/svelte'
+  import { getInject } from '@nano_kit/svelte'
   import { WeatherForecast$ } from '../stores/weather.js'
   import ForecastWeather from './ForecastWeather.svelte'
 
-  const { $forecast: forecast } = inject(WeatherForecast$)
+  const { $forecast: forecast } = getInject(WeatherForecast$)
   let mode: 'hourly' | 'daily' = $state('hourly')
   let forecastToShow = $derived($forecast.filter(
     (weather, index) => (
