@@ -53,4 +53,5 @@ overrides:
   '@nano_kit/store@*': workspace:^
   '@nano_kit/svelte@*': workspace:^
   '@nano_kit/svelte-router@*': workspace:^
+  '@nano_kit/svelte-ssr@*': workspace:^
   'nanoviews@*': workspace:^
