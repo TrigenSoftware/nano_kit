@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.6](https://github.com/TrigenSoftware/nano_kit/compare/react-router@1.0.0-alpha.5...react-router@1.0.0-alpha.6) (2026-05-08)
+
+### Features
+
+* override router functions types for better inference, remove `asModule` helper ([752f797](https://github.com/TrigenSoftware/nano_kit/commit/752f79734fe04ddb6d4e4ff34429fa00d17d4313))
+
 ## [1.0.0-alpha.5](https://github.com/TrigenSoftware/nano_kit/compare/react-router@1.0.0-alpha.4...react-router@1.0.0-alpha.5) (2026-04-13)
 
 ### Bug Fixes
