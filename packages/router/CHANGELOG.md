@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.9](https://github.com/TrigenSoftware/nano_kit/compare/router@1.0.0-alpha.8...router@1.0.0-alpha.9) (2026-05-08)
+
+### Features
+
+* override router functions types for better inference, remove `asModule` helper ([752f797](https://github.com/TrigenSoftware/nano_kit/commit/752f79734fe04ddb6d4e4ff34429fa00d17d4313))
+
+### Bug Fixes
+
+* fix child page head tags override ([bb2af5e](https://github.com/TrigenSoftware/nano_kit/commit/bb2af5e3359562c99dff665d2730461c7d8c2d7e))
+
 ## [1.0.0-alpha.8](https://github.com/TrigenSoftware/nano_kit/compare/router@1.0.0-alpha.7...router@1.0.0-alpha.8) (2026-04-27)
 
 ### Bug Fixes

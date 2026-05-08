@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.3](https://github.com/TrigenSoftware/nano_kit/compare/agera@1.0.0-beta.2...agera@1.0.0-beta.3) (2026-05-08)
+
+### Bug Fixes
+
+* fix subscribers notification when computed updates another signal ([5cdf1be](https://github.com/TrigenSoftware/nano_kit/commit/5cdf1be2178306a62e9670de3c204f9518d457bf))
+
 ## [1.0.0-beta.2](https://github.com/TrigenSoftware/nano_kit/compare/agera@1.0.0-beta.1...agera@1.0.0-beta.2) (2026-04-30)
 
 ### Features
