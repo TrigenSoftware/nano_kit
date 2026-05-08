@@ -1,3 +1,13 @@
+<script module lang="ts">
+  import { title } from '@nano_kit/svelte-router'
+
+  export function Head$() {
+    return [
+      title('Episodes | Rick and Morty Wiki')
+    ]
+  }
+</script>
+
 <script lang="ts">
   import {
     $episodes as episodes,
@@ -5,15 +15,17 @@
     $episodesLoading as episodesLoading
   } from '../../stores/episodes.js'
   import { $episodesPage as episodesPage } from '../../stores/router.js'
-  import EpisodeGrid from '../components/EpisodeGrid.svelte'
-  import ErrorState from '../components/ErrorState.svelte'
+  import EpisodeGrid from '../blocks/EpisodeGrid.svelte'
   import Pagination from '../components/Pagination.svelte'
   import Spinner from '../components/Spinner.svelte'
 </script>
 
-<section class="container">
+<section class="episodes-container">
   {#if $episodesError}
-    <ErrorState title="Error loading episodes" error={$episodesError} />
+    <div class="episodes-error">
+      <h2>Error loading episodes</h2>
+      <p>{$episodesError}</p>
+    </div>
   {:else if $episodesLoading || !$episodes}
     <Spinner>Loading episodes...</Spinner>
   {:else}
@@ -25,16 +37,3 @@
     />
   {/if}
 </section>
-
-<style>
-  .container {
-    margin: 0 auto;
-    padding: 1rem;
-  }
-
-  @media (max-width: 768px) {
-    .container {
-      padding: .75rem;
-    }
-  }
-</style>

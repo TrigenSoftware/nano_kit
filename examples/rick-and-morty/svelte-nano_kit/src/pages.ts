@@ -1,15 +1,16 @@
 import {
+  asModule,
   loadable,
   layout,
   page
 } from '@nano_kit/svelte-router'
 import PageLoader from './ui/components/PageLoader.svelte'
-import MainLayout from './ui/pages/MainLayout.svelte'
-import HomePage from './ui/pages/Home.svelte'
+import * as MainLayout from './ui/pages/MainLayout.svelte'
+import * as HomePage from './ui/pages/Home.svelte'
 
 export const pages = [
-  layout(MainLayout, [
-    page('home', HomePage),
+  layout(asModule(MainLayout), [
+    page('home', asModule(HomePage)),
     page(
       'characters',
       loadable(

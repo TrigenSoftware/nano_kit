@@ -1,3 +1,13 @@
+<script module lang="ts">
+  import { title } from '@nano_kit/svelte-router'
+
+  export function Head$() {
+    return [
+      title('Characters | Rick and Morty Wiki')
+    ]
+  }
+</script>
+
 <script lang="ts">
   import {
     $characters as characters,
@@ -5,15 +15,17 @@
     $charactersLoading as charactersLoading
   } from '../../stores/characters.js'
   import { $charactersPage as charactersPage } from '../../stores/router.js'
-  import CharacterGrid from '../components/CharacterGrid.svelte'
-  import ErrorState from '../components/ErrorState.svelte'
+  import CharacterGrid from '../blocks/CharacterGrid.svelte'
   import Pagination from '../components/Pagination.svelte'
   import Spinner from '../components/Spinner.svelte'
 </script>
 
-<section class="container">
+<section class="characters-container">
   {#if $charactersError}
-    <ErrorState title="Error loading characters" error={$charactersError} />
+    <div class="characters-error">
+      <h2>Error loading characters</h2>
+      <p>{$charactersError}</p>
+    </div>
   {:else if $charactersLoading || !$characters}
     <Spinner>Loading characters...</Spinner>
   {:else}
@@ -25,16 +37,3 @@
     />
   {/if}
 </section>
-
-<style>
-  .container {
-    margin: 0 auto;
-    padding: 1rem;
-  }
-
-  @media (max-width: 768px) {
-    .container {
-      padding: .75rem;
-    }
-  }
-</style>

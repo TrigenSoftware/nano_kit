@@ -39,11 +39,16 @@ function isNanoKit(name: string) {
   return name.includes('nano_kit')
 }
 
+function isNanoKitSsr(name: string) {
+  return name === 'react-nano_kit-ssr' || name === 'svelte-nano_kit-ssr'
+}
+
 function isNanoKitRouter(name: string) {
   return (
     name === 'react-nano_kit'
     || name === 'react-nano_kit-ssr'
     || name === 'svelte-nano_kit'
+    || name === 'svelte-nano_kit-ssr'
   )
 }
 
@@ -182,7 +187,7 @@ describe('Rick And Morty App', async () => {
           timeout: UI_TIMEOUT
         })
 
-        if (name === 'react-nano_kit-ssr') {
+        if (isNanoKitSsr(name)) {
           expect(await page.title()).toBe('Characters | Rick and Morty Wiki')
         }
 
@@ -333,7 +338,7 @@ describe('Rick And Morty App', async () => {
           timeout: UI_TIMEOUT
         })
 
-        if (name === 'react-nano_kit-ssr') {
+        if (isNanoKitSsr(name)) {
           expect(await page.title()).toBe('Rick Sanchez | Rick and Morty Wiki')
         }
 
@@ -395,7 +400,7 @@ describe('Rick And Morty App', async () => {
           timeout: UI_TIMEOUT
         })
 
-        if (name === 'react-nano_kit-ssr') {
+        if (isNanoKitSsr(name)) {
           expect(await page.title()).toBe('Episodes | Rick and Morty Wiki')
         }
 
@@ -540,7 +545,7 @@ describe('Rick And Morty App', async () => {
           timeout: UI_TIMEOUT
         })
 
-        if (name === 'react-nano_kit-ssr') {
+        if (isNanoKitSsr(name)) {
           expect(await page.title()).toBe('Pilot | Rick and Morty Wiki')
         }
 
@@ -602,7 +607,7 @@ describe('Rick And Morty App', async () => {
           timeout: UI_TIMEOUT
         })
 
-        if (name === 'react-nano_kit-ssr') {
+        if (isNanoKitSsr(name)) {
           expect(await page.title()).toBe('Locations | Rick and Morty Wiki')
         }
 
@@ -747,7 +752,7 @@ describe('Rick And Morty App', async () => {
           timeout: UI_TIMEOUT
         })
 
-        if (name === 'react-nano_kit-ssr') {
+        if (isNanoKitSsr(name)) {
           expect(await page.title()).toBe('Earth (C-137) | Rick and Morty Wiki')
         }
 
@@ -799,7 +804,7 @@ describe('Rick And Morty App', async () => {
             })
           }
 
-          if (name === 'react-nano_kit-ssr') {
+          if (isNanoKitSsr(name)) {
             await expect.poll(() => page.title(), {
               timeout: UI_TIMEOUT
             }).toBe(TOP_NAV_TITLES[linkName])
