@@ -272,6 +272,70 @@ describe('agera', () => {
       expect(triggers).toBe(2)
     })
 
+    it('should notify all subscribers when computed updates another signal', () => {
+      const $external = signal('')
+      const $source = signal('a')
+      const $proxy = computed(() => {
+        const location = $source()
+
+        $external(location)
+
+        return location
+      })
+      let xCalled = 0
+      let yCalled = 0
+
+      effect(() => {
+        xCalled++
+        $proxy()
+        $external()
+      })
+
+      effect(() => {
+        yCalled++
+        $proxy()
+      })
+
+      $source('b')
+
+      expect(xCalled).toBe(2)
+      expect(yCalled).toBe(2)
+    })
+
+    it('should notify all subscribers when effect updates another signal', () => {
+      const $external = signal('')
+      const $source = signal('a')
+      const $proxy = signal('')
+
+      effect(() => {
+        const location = $source()
+
+        batch(() => {
+          $external(location)
+          $proxy(location)
+        })
+      })
+
+      let xCalled = 0
+      let yCalled = 0
+
+      effect(() => {
+        xCalled++
+        $proxy()
+        $external()
+      })
+
+      effect(() => {
+        yCalled++
+        $proxy()
+      })
+
+      $source('b')
+
+      expect(xCalled).toBe(2)
+      expect(yCalled).toBe(2)
+    })
+
     it('should handle effect recursion for the first execution', () => {
       const src1 = signal(0)
       const src2 = signal(0)
@@ -457,9 +521,9 @@ describe('agera', () => {
 
       expect(logs).toEqual([
         'a destroy',
+        'a effect 1',
         'b destroy',
-        'b effect 1',
-        'a effect 1'
+        'b effect 1'
       ])
       logs.length = 0
 

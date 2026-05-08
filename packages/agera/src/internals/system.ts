@@ -41,6 +41,7 @@ import {
 
 let cycle = 0
 let batchDepth = 0
+let flushDepth = 0
 let notifyIndex = 0
 let queuedLength = 0
 let activeSub: ReactiveNode | undefined
@@ -688,6 +689,8 @@ function run(e: EffectNode): void {
 }
 
 function flush(): void {
+  ++flushDepth
+
   try {
     while (notifyIndex < queuedLength) {
       const effect = queued[notifyIndex]!
@@ -705,6 +708,7 @@ function flush(): void {
 
     notifyIndex = 0
     queuedLength = 0
+    --flushDepth
   }
 }
 
@@ -770,7 +774,7 @@ function signalOper<T>(this: SignalNode<T>, ...value: [NewValue<T>]): T | void {
       if (subs !== undefined) {
         propagate(subs)
 
-        if (!batchDepth) {
+        if (!batchDepth && !flushDepth) {
           flush()
         }
       }
