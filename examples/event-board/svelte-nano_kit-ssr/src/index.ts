@@ -1,8 +1,7 @@
 import {
   layout,
   loadable,
-  page,
-  asModule
+  page
 } from '@nano_kit/svelte-router'
 import { routes } from './stores/router'
 import * as Layout from './ui/pages/Layout.svelte'
@@ -17,8 +16,7 @@ declare module '@nano_kit/router' {
 export { routes }
 
 export const pages = [
-  // @ts-expect-error - Will fix later
-  layout(asModule(Layout), [
+  layout(Layout, [
     page('home', loadable(() => import('./ui/pages/Home.svelte'))),
     page('newEvent', loadable(() => import('./ui/pages/NewEvent.svelte'))),
     page('event', loadable(() => import('./ui/pages/Event.svelte')))

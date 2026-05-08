@@ -29,7 +29,7 @@ The `index` file is the shared app definition used by both the browser bundle an
 
 ```ts
 // src/index.ts
-import { asModule, page, layout, loadable } from '@nano_kit/react-router'
+import { page, layout, loadable } from '@nano_kit/react-router'
 import * as Layout from './Layout.jsx'
 
 export const routes = {
@@ -39,7 +39,7 @@ export const routes = {
 } as const
 
 export const pages = [
-  layout(asModule(Layout), [
+  layout(Layout, [
     page('home', loadable(() => import('./pages/Home.jsx'))),
     page('about', loadable(() => import('./pages/About.jsx'))),
     page('user', loadable(() => import('./pages/User.jsx')))

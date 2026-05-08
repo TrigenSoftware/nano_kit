@@ -18,6 +18,7 @@ export default [
       }
     },
     rules: {
+      '@typescript-eslint/unified-signatures': 'off',
       'no-multi-assign': 'off',
       'consistent-return': 'off'
     }

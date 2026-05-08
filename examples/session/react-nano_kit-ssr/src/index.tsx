@@ -1,5 +1,4 @@
 import {
-  asModule,
   layout,
   page
 } from '@nano_kit/react-router'
@@ -19,7 +18,7 @@ export { routes }
 
 export const pages = [
   layout(Layout, [
-    page('home', asModule(Home)),
-    page('logout', asModule(Logout))
+    page('home', Home),
+    page('logout', Logout)
   ])
 ]

@@ -20,6 +20,7 @@ export default [
       }
     },
     rules: {
+      '@typescript-eslint/unified-signatures': 'off',
       '@typescript-eslint/no-unsafe-return': 'off',
       '@typescript-eslint/no-unsafe-argument': 'off',
       '@typescript-eslint/no-empty-object-type': 'off',

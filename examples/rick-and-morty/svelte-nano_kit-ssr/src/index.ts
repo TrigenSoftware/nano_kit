@@ -1,5 +1,4 @@
 import {
-  asModule,
   layout,
   loadable,
   page
@@ -20,7 +19,7 @@ export { routes }
 
 export const pages = [
   layout(MainLayout, [
-    page('home', asModule(HomePage)),
+    page('home', HomePage),
     page('characters', loadable(() => import('./ui/pages/Characters.svelte'), PageLoader)),
     page('character', loadable(() => import('./ui/pages/Character.svelte'), PageLoader)),
     page('locations', loadable(() => import('./ui/pages/Locations.svelte'), PageLoader)),

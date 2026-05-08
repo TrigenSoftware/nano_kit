@@ -1,5 +1,4 @@
 import {
-  asModule,
   loadable,
   layout,
   page
@@ -9,8 +8,8 @@ import * as MainLayout from './ui/pages/MainLayout.svelte'
 import * as HomePage from './ui/pages/Home.svelte'
 
 export const pages = [
-  layout(asModule(MainLayout), [
-    page('home', asModule(HomePage)),
+  layout(MainLayout, [
+    page('home', HomePage),
     page(
       'characters',
       loadable(

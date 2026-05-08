@@ -1,7 +1,6 @@
 import {
   layout,
   page,
-  asModule,
   loadable
 } from '@nano_kit/react-router'
 import { routes } from './stores/router'
@@ -20,7 +19,7 @@ export { routes }
 
 export const pages = [
   layout(MainLayout, [
-    page('home', asModule(HomePage)),
+    page('home', HomePage),
     page(
       'characters',
       loadable(

@@ -29,19 +29,6 @@ export const $page = router($location, [
 ])
 ```
 
-### `asModule`
-
-`asModule` is a helper for explicit page module type inference. Use it when importing a module with `import * as` — TypeScript cannot infer the `default` export type from a namespace import without it.
-
-```ts
-import { page, asModule } from '@nano_kit/router'
-import * as HomePage from './pages/Home.js'
-
-const $page = router($location, [
-  page('home', asModule(HomePage))
-])
-```
-
 ### `loadPage`
 
 Forces the loading of a specific page's code by its route name. This is useful for preloading the next likely page (e.g., on link hover).
