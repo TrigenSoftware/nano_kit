@@ -18,7 +18,7 @@ import {
   type Routes,
   Page$,
   router as vanillaRouter,
-  syncHead
+  syncHead as vanillaSyncHead
 } from '@nano_kit/router'
 import type { PageComponent } from './types.js'
 import Composed from './Composed.svelte'
@@ -91,17 +91,17 @@ export function getPage() {
  * Syncs the document head with the current page's head configuration.
  * @param $page - Signal containing the current page match reference.
  */
-export function syncPageHeadEffect($page: Accessor<PageRef<unknown> | null>) {
-  onMount(() => syncHead($page))
+export function syncPageHead($page: Accessor<PageRef<unknown> | null>) {
+  onMount(() => vanillaSyncHead($page))
 }
 
 /**
  * Syncs the document head with the current page's head configuration within injection context.
  * Should be used inside injection context with page provided.
  */
-export function syncHeadEffect() {
+export function syncHead() {
   const context = getInjectionContext()
   const $page = getInject(Page$)
 
-  onMount(() => syncHead($page, context))
+  onMount(() => vanillaSyncHead($page, context))
 }

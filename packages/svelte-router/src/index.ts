@@ -1,6 +1,9 @@
 export * from '@nano_kit/router'
 export * from './types.js'
-export { router } from './core.js'
+export {
+  router,
+  syncHead
+} from './core.js'
 export * from './core.js'
 export { listenLinks } from './link.js'
 export * from './link.js'

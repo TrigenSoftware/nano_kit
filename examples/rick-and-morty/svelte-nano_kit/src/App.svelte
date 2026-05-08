@@ -2,7 +2,7 @@
   import {
     getPageSignal,
     router,
-    syncPageHeadEffect
+    syncPageHead
   } from '@nano_kit/svelte-router'
   import { $location as location } from './stores/router.js'
   import { pages } from './pages.js'
@@ -11,7 +11,7 @@
   const pageComponent = getPageSignal(page)
   const Page = $derived($pageComponent)
 
-  syncPageHeadEffect(page)
+  syncPageHead(page)
 </script>
 
 {#if Page}

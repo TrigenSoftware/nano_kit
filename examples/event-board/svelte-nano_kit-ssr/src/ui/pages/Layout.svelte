@@ -24,10 +24,10 @@
     enableLinkComponentPreload,
     Link,
     Outlet,
-    syncHeadEffect
+    syncHead
   } from '@nano_kit/svelte-router'
 
-  syncHeadEffect()
+  syncHead()
   enableLinkComponentPreload(true)
   enableLinkComponentAriaCurrent()
 </script>
