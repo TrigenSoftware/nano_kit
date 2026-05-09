@@ -4,7 +4,6 @@
     "allowJs": true,
     "rootDir": "./src",
     "outDir": "dist",
-    "inlineSources": true,
     "jsx": "react-jsx"
   },
   "include": [
