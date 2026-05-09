@@ -10,10 +10,10 @@ import { Aside } from '@astrojs/starlight/components'
 Nano Kit is a lightweight, modular, and performant state management ecosystem for building modern web applications. Each library is designed to be small and tree-shakeable, while still offering rich DX and useful features.
 
 ```ts
-import { signal, onMount, computed, effect } from '@nano_kit/store'
+import { signal, mountable, onMount, computed, effect } from '@nano_kit/store'
 
-/* Create independent atomic stores */
-const $count = signal(1)
+/* Create independent mountable atomic store */
+const $count = mountable(signal(1))
 
 /* Mountable: Run logic only when store has listeners */
 onMount($count, () => {
