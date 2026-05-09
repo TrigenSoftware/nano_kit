@@ -30,6 +30,7 @@ build
 .next
 .output
 .tanstack
+.svelte-kit
 next-env.d.ts
 
 # Env files
