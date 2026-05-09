@@ -5,9 +5,13 @@ sidebar:
   order: 6
 ---
 
+import { Aside } from '@astrojs/starlight/components'
+
 This example shows a small React SSR app that keeps a username in a `session` cookie.
 
 It demonstrates request-bound cookie state, `cookieStored`, SSR rendering from incoming cookies, server-side cookie deletion on `/logout`, redirect handling, and hydration without mismatches.
+
+<Aside>StackBlitz runs this example in a sandbox with a fake cookie implementation, so session behavior can be slightly inaccurate there.</Aside>
 
 <iframe
   src='https://stackblitz.com/github/TrigenSoftware/nano_kit/tree/main/examples/session/react-nano_kit-ssr?embed=1&file=src%2Findex.tsx&view=both'

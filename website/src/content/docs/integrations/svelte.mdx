@@ -1,0 +1,98 @@
+---
+title: Svelte
+description: "Integrate @nano_kit/store with Svelte using @nano_kit/svelte."
+sidebar:
+  order: 8
+---
+
+import { Tabs, TabItem, Code, Aside } from '@astrojs/starlight/components'
+
+The `@nano_kit/svelte` package integrates `@nano_kit/store` signals and Dependency Injection with Svelte components.
+
+## Installation
+
+Install the package using your favorite package manager:
+
+<Tabs syncKey='pkg'>
+  <TabItem label='pnpm' icon='pnpm'>
+    <Code frame='none' lang='bash' code='pnpm add @nano_kit/store @nano_kit/svelte svelte' />
+  </TabItem>
+  <TabItem label='Yarn' icon='seti:yarn'>
+    <Code frame='none' lang='bash' code='yarn add @nano_kit/store @nano_kit/svelte svelte' />
+  </TabItem>
+  <TabItem label='npm' icon='seti:npm'>
+    <Code frame='none' lang='bash' code='npm install @nano_kit/store @nano_kit/svelte svelte' />
+  </TabItem>
+</Tabs>
+
+## Signals
+
+Import `@nano_kit/svelte` once in your app. It adds Svelte-compatible `subscribe` support to Nano Kit signals, so Svelte can use the `$signal` auto-subscription syntax.
+
+```svelte
+<script lang="ts">
+  import '@nano_kit/svelte'
+  import { signal } from '@nano_kit/store'
+
+  const count = signal(0)
+</script>
+
+<button onclick={() => count(count => count + 1)}>
+  Count: {$count}
+</button>
+```
+
+Writable signals also get a Svelte-compatible `set` method.
+
+## Dependency Injection
+
+### `setInjectionContext`
+
+To use the Dependency Injection system within Svelte, initialize an injection context in a component with `setInjectionContext`. Child components can then read dependencies from that context.
+
+You can provide an existing instance or an array of providers/values.
+
+```svelte
+<script lang="ts">
+  import { provide } from '@nano_kit/store'
+  import { setInjectionContext } from '@nano_kit/svelte'
+  import { Theme$ } from './tokens'
+  import App from './App.svelte'
+
+  setInjectionContext([
+    provide(Theme$, 'dark')
+  ])
+</script>
+
+<App />
+```
+
+### `getInject`
+
+`getInject` retrieves a dependency from the current injection context. It throws an error if the context is missing, ensuring your dependencies are always resolved.
+
+```svelte
+<script lang="ts">
+  import { getInject } from '@nano_kit/svelte'
+  import { Theme$ } from './tokens'
+
+  const theme = getInject(Theme$)
+</script>
+
+<button class={`btn-${theme}`}>Click me</button>
+```
+
+### `isolate`
+
+`isolate` creates a fresh injection boundary. Use it when a subtree must not inherit dependencies from the parent context.
+
+```svelte
+<script lang="ts">
+  import { isolate } from '@nano_kit/svelte'
+  import Preview from './Preview.svelte'
+
+  isolate()
+</script>
+
+<Preview />
+```
