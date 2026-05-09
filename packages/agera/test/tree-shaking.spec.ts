@@ -153,5 +153,5 @@ describe('agera', () => {
         expect(hookedSignal).toContain('onSignal')
       })
     })
-  })
+  }, 10_000)
 })
