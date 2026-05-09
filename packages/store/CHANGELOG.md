@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.5](https://github.com/TrigenSoftware/nano_kit/compare/store@1.0.0-beta.4...store@1.0.0-beta.5) (2026-05-09)
+
+### Bug Fixes
+
+* fix generated sourcemaps ([cd3457f](https://github.com/TrigenSoftware/nano_kit/commit/cd3457f3c5550266f8b233d35f672febf8dbaa7b))
+
 ## [1.0.0-beta.4](https://github.com/TrigenSoftware/nano_kit/compare/store@1.0.0-beta.3...store@1.0.0-beta.4) (2026-04-28)
 
 ### Features

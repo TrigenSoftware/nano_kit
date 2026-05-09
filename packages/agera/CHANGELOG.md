@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.4](https://github.com/TrigenSoftware/nano_kit/compare/agera@1.0.0-beta.3...agera@1.0.0-beta.4) (2026-05-09)
+
+### Bug Fixes
+
+* fix generated sourcemaps ([cd3457f](https://github.com/TrigenSoftware/nano_kit/commit/cd3457f3c5550266f8b233d35f672febf8dbaa7b))
+
 ## [1.0.0-beta.3](https://github.com/TrigenSoftware/nano_kit/compare/agera@1.0.0-beta.2...agera@1.0.0-beta.3) (2026-05-08)
 
 ### Bug Fixes

@@ -1,7 +1,7 @@
 {
   "name": "@nano_kit/preact",
   "type": "module",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "description": "Integrates @nano_kit/store signals and Dependency Injection with Preact components.",
   "author": "dangreen",
   "license": "MIT",
