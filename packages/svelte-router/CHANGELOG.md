@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.1](https://github.com/TrigenSoftware/nano_kit/compare/svelte-router@1.0.0-alpha.0...svelte-router@1.0.0-alpha.1) (2026-05-09)
+
+### Bug Fixes
+
+* use `svelte-package` to build package ([#124](https://github.com/TrigenSoftware/nano_kit/issues/124)) ([27e1041](https://github.com/TrigenSoftware/nano_kit/commit/27e1041428764e08bdeea33966cf8bf3a62daf9d))
+
 ## 1.0.0-alpha.0 (2026-05-08)
 
 ### Features
