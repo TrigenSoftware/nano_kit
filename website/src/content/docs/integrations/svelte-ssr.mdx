@@ -1,0 +1,184 @@
+---
+title: Svelte SSR
+description: "Add server-side rendering to a Svelte + Nano Kit app using @nano_kit/svelte-ssr."
+sidebar:
+  order: 10
+---
+
+import { Steps, Tabs, TabItem, Code, Aside } from '@astrojs/starlight/components'
+
+`@nano_kit/svelte-ssr` is the Svelte adapter for server-side rendering in Nano Kit.
+
+## Installation
+
+<Tabs syncKey='pkg'>
+  <TabItem label='pnpm' icon='pnpm'>
+    <Code frame='none' lang='bash' code='pnpm add @nano_kit/store @nano_kit/router @nano_kit/svelte @nano_kit/svelte-router @nano_kit/svelte-ssr svelte' />
+  </TabItem>
+  <TabItem label='Yarn' icon='seti:yarn'>
+    <Code frame='none' lang='bash' code='yarn add @nano_kit/store @nano_kit/router @nano_kit/svelte @nano_kit/svelte-router @nano_kit/svelte-ssr svelte' />
+  </TabItem>
+  <TabItem label='npm' icon='seti:npm'>
+    <Code frame='none' lang='bash' code='npm install @nano_kit/store @nano_kit/router @nano_kit/svelte @nano_kit/svelte-router @nano_kit/svelte-ssr svelte' />
+  </TabItem>
+</Tabs>
+
+## Quick Start
+
+<Steps>
+
+1. **Define your app**
+
+   Create an index file that exports `routes` and `pages`. This file is the single source of truth consumed by both the server renderer and the Vite plugin.
+
+   ```ts
+   // src/index.ts
+   import { page, layout, loadable } from '@nano_kit/svelte-router'
+   import * as Layout from './Layout.svelte'
+
+   export const routes = {
+     home: '/',
+     about: '/about'
+   } as const
+
+   export const pages = [
+     layout(Layout, [
+       page('home', loadable(() => import('./pages/Home.svelte'))),
+       page('about', loadable(() => import('./pages/About.svelte')))
+     ])
+   ]
+
+   declare module '@nano_kit/router' {
+     interface AppContext {
+       routes: typeof routes
+     }
+   }
+   ```
+
+2. **Set up the Vite plugin**
+
+   Add `@nano_kit/svelte-ssr/vite-plugin` to your Vite config. No extra configuration is needed for a standard setup — the plugin uses built-in client and renderer templates automatically.
+
+   ```js
+   // vite.config.js
+   import { defineConfig } from 'vite'
+   import { svelte } from '@sveltejs/vite-plugin-svelte'
+   import ssr from '@nano_kit/svelte-ssr/vite-plugin'
+
+   export default defineConfig({
+     plugins: [
+       svelte(),
+       ssr({ index: 'src/index.ts' })
+     ]
+   })
+   ```
+
+   - **`vite dev`** — starts the development server with SSR rendering handled in-process.
+   - **`vite build`** — produces `dist/client/` (browser assets) and `dist/renderer/` (SSR renderer bundle).
+
+   Add `cookieStore: true` when SSR stores need access to request cookies. See [SSR Cookies](/ssr/cookies) for the full setup.
+
+3. **Write your production HTTP server**
+
+   For production, write your own HTTP server that imports the built renderer and calls `renderer.render(url)` for every incoming request:
+
+   ```js
+   // server.js
+   import { renderer } from './dist/renderer/index.js'
+
+   // Express example
+   app.get('*', async (req, res) => {
+     const result = await renderer.render(req.url, req.headers.cookie)
+
+     if (result.setCookieHeaders) {
+       res.setHeader('Set-Cookie', result.setCookieHeaders)
+     }
+
+     if (result.redirect) {
+       return res.redirect(result.statusCode, result.redirect)
+     }
+
+     if (result.html !== null) {
+       return res.status(result.statusCode).send(result.html)
+     }
+
+     res.status(result.statusCode).send('Not Found')
+   })
+   ```
+
+</Steps>
+
+## Custom Renderer
+
+To customize the HTML output, extend `SvelteRenderer` and override `renderToString`:
+
+```ts
+// src/renderer.ts
+import { SvelteRenderer, type RenderData } from '@nano_kit/svelte-ssr/renderer'
+import { routes, pages } from './index.js'
+
+class AppRenderer extends SvelteRenderer {
+  renderToString(data: RenderData) {
+    // call the default implementation or build your own HTML document
+    return super.renderToString(data)
+  }
+}
+
+export const renderer = new AppRenderer({
+  base: import.meta.env.BASE_URL,
+  manifestPath: import.meta.env.MANIFEST,
+  cookieStore: import.meta.env.SSR_COOKIE_STORE,
+  routes,
+  pages
+})
+```
+
+Then point the plugin to your custom renderer file:
+
+```js
+// vite.config.js
+ssr({
+  index: 'src/index.ts',
+  renderer: 'src/renderer.ts'
+})
+```
+
+## Custom Client
+
+To customize client-side hydration, provide your own client entry:
+
+```ts
+// src/client.ts
+import { hydrate } from 'svelte'
+import { setInjectionContext } from '@nano_kit/svelte'
+import { App } from '@nano_kit/svelte-router'
+import { ROOT_ID, ready } from '@nano_kit/svelte-ssr/client'
+import { routes, pages } from './index.js'
+
+ready({ routes, pages }).then((context) => {
+  hydrate((internals, props) => {
+    setInjectionContext(context)
+
+    return App(internals, props)
+  }, {
+    target: document.getElementById(ROOT_ID)!
+  })
+})
+```
+
+Then point the plugin to your client file:
+
+```js
+// vite.config.js
+ssr({
+  index: 'src/index.ts',
+  client: 'src/client.ts'
+})
+```
+
+## See Also
+
+- [SSR — Getting Started](/ssr) — how the base SSR package works
+- [SSR Cookies](/ssr/cookies) — request-bound cookies, `cookieStore: true`, and `Set-Cookie` forwarding
+- [Router SSR](/router/ssr) — how to add [`Stores$`](/router/ssr#stores-data-dehydration) and [`Head$`](/router/ssr#head-management) to page modules
+- [Svelte Router](/integrations/svelte-router) — [`App`](/integrations/svelte-router#app), [`browserNavigation`](/integrations/svelte-router#setup), [`router`](/integrations/svelte-router#router), and other Svelte router APIs

@@ -1,0 +1,407 @@
+---
+title: Svelte Router
+description: "Integrate @nano_kit/router with Svelte using @nano_kit/svelte-router."
+sidebar:
+  order: 9
+---
+
+import { Tabs, TabItem, Code } from '@astrojs/starlight/components'
+
+The `@nano_kit/svelte-router` package provides Svelte integration for `@nano_kit/router`. It allows you to use the router's powerful features like code splitting, Dependency Injection, and state management directly within your Svelte application.
+
+## Installation
+
+Install the package using your favorite package manager:
+
+<Tabs syncKey='pkg'>
+  <TabItem label='pnpm' icon='pnpm'>
+    <Code frame='none' lang='bash' code='pnpm add @nano_kit/store @nano_kit/router @nano_kit/svelte @nano_kit/svelte-router' />
+  </TabItem>
+  <TabItem label='Yarn' icon='seti:yarn'>
+    <Code frame='none' lang='bash' code='yarn add @nano_kit/store @nano_kit/router @nano_kit/svelte @nano_kit/svelte-router' />
+  </TabItem>
+  <TabItem label='npm' icon='seti:npm'>
+    <Code frame='none' lang='bash' code='npm install @nano_kit/store @nano_kit/router @nano_kit/svelte @nano_kit/svelte-router' />
+  </TabItem>
+</Tabs>
+
+## Setup
+
+Basically, `@nano_kit/svelte-router` re-exports everything from `@nano_kit/router`, so you can use all base router functions. However, it enhances some of them and provides new utilities specifically for Svelte.
+
+A typical setup looks like this:
+
+```svelte
+<script module lang="ts">
+  import '@nano_kit/svelte'
+  import { browserNavigation, getPageSignal, layout, loadable, page, router } from '@nano_kit/svelte-router'
+  import MainLayout from './MainLayout.svelte'
+  import Loader from './Loader.svelte'
+
+  /* Define routes config */
+  const routes = {
+    home: '/',
+    user: '/users/:id'
+  } as const
+
+  /* Create navigation */
+  const [location, navigation] = browserNavigation(routes)
+
+  /* Create page signal */
+  const page = router(location, [
+    layout(MainLayout, [
+      page('home', loadable(() => import('./pages/Home.svelte'), Loader)),
+      page('user', loadable(() => import('./pages/User.svelte'), Loader))
+    ])
+  ])
+
+  const pageComponent = getPageSignal(page)
+</script>
+
+<script lang="ts">
+  const Page = $derived($pageComponent)
+</script>
+
+{#if Page}
+  <Page />
+{/if}
+```
+
+If you want to use DI-based setup, pass the router tokens through `setInjectionContext`:
+
+```svelte
+<script module lang="ts">
+  import '@nano_kit/svelte'
+  import { App, browserNavigation, router, Location$, Navigation$, Page$, Pages$ } from '@nano_kit/svelte-router'
+  import { pages } from './pages'
+  import { routes } from './routes'
+
+  /* Define global routes types for DI */
+  declare module '@nano_kit/router' {
+    interface AppContext {
+      routes: typeof routes
+    }
+  }
+
+  /* Create navigation and page accessor */
+  const [location, navigation] = browserNavigation(routes)
+  const page = router(location, pages)
+</script>
+
+<script lang="ts">
+  import { provide } from '@nano_kit/store'
+  import { setInjectionContext } from '@nano_kit/svelte'
+
+  setInjectionContext([
+    provide(Location$, location),
+    provide(Navigation$, navigation),
+    provide(Page$, page) // required for App component
+  ])
+</script>
+
+<App />
+```
+
+## Svelte Specifics
+
+### `router`
+
+The `router` function in this package is an enhanced version of the core router. It supports Svelte components as views and correctly handles nested layouts using the `Outlet` component.
+
+```ts
+import { router, page } from '@nano_kit/svelte-router'
+
+const page = router(location, [
+  page('home', HomePage),
+  page('user', UserPage)
+])
+```
+
+### `getPageSignal` & `getPage`
+
+These helpers return the currently matched page component.
+
+Without DI, use `getPageSignal` with the page accessor returned by `router()`:
+
+```svelte
+<script lang="ts">
+  import { getPageSignal } from '@nano_kit/svelte-router'
+
+  const pageComponent = getPageSignal(page)
+  const Page = $derived($pageComponent)
+</script>
+
+{#if Page}
+  <Page />
+{/if}
+```
+
+With DI, use `getPage` and let it read `Page$` from the current injection context:
+
+```svelte
+<script lang="ts">
+  import { getPage } from '@nano_kit/svelte-router'
+
+  const pageComponent = getPage()
+  const Page = $derived($pageComponent)
+</script>
+
+{#if Page}
+  <Page />
+{/if}
+```
+
+### `App`
+
+`App` is a ready-made Svelte component that reads `Page$` from the current injection context and renders the matched page.
+
+```svelte
+<script module lang="ts">
+  import { page, router, Page$ } from '@nano_kit/svelte-router'
+
+  const page = router(location, [
+    page('home', HomePage),
+    page('user', UserPage)
+  ])
+</script>
+
+<script lang="ts">
+  import { provide } from '@nano_kit/store'
+  import { setInjectionContext } from '@nano_kit/svelte'
+  import { App } from '@nano_kit/svelte-router'
+
+  setInjectionContext([
+    provide(Page$, page)
+  ])
+</script>
+
+<App />
+```
+
+### `Outlet`
+
+Used within Layout components to define where the nested child route should be rendered.
+
+```svelte
+<script lang="ts">
+  import { Outlet } from '@nano_kit/svelte-router'
+</script>
+
+<div class="layout">
+  <Sidebar />
+  <main>
+    <!-- Nested page will be rendered here -->
+    <Outlet />
+  </main>
+</div>
+```
+
+### `listenNavigationLinks` & `listenLinks`
+
+These functions intercept clicks on native `<a>` elements and route them through the router navigation layer. Use them when you want to use the router without a custom link component.
+
+Without DI, pass the navigation instance explicitly:
+
+```svelte
+<script lang="ts">
+  import { listenNavigationLinks } from '@nano_kit/svelte-router'
+  import { navigation } from './router'
+
+  listenNavigationLinks(navigation)
+</script>
+```
+
+With DI, use `listenLinks` and let it read `Navigation$` from the current injection context:
+
+```svelte
+<script lang="ts">
+  import { listenLinks } from '@nano_kit/svelte-router'
+
+  listenLinks()
+</script>
+```
+
+### `linkComponent` & `Link`
+
+`linkComponent` creates a type-safe `Link` component bound to a specific navigation instance and paths object. `Link` is the DI-based variant that reads router dependencies from the current injection context.
+
+```ts
+import { buildPaths, linkComponent, preloadable } from '@nano_kit/svelte-router'
+
+/* Create Link component */
+export const Link = linkComponent(
+  navigation,
+  buildPaths(routes),
+  /* Optional: enable preloading on interaction */
+  [preloadable(pages)]
+)
+```
+
+```svelte
+<script lang="ts">
+  import { Link } from './link'
+</script>
+
+<Link to="user" params={{ id: '123' }} preload>
+  View User
+</Link>
+```
+
+For DI usage, use the built-in `Link` component inside `setInjectionContext`:
+
+```svelte
+<script lang="ts">
+  import { Link } from '@nano_kit/svelte-router'
+</script>
+
+<Link to="user" params={{ id: '123' }}>
+  View User
+</Link>
+```
+
+The DI variant uses the provided `Navigation$` and `Paths$` tokens under the hood.
+
+### `preloadable` & `enableLinkComponentPreload`
+
+These link extensions enable page preloading on hover and focus.
+
+Without DI, use `preloadable` when creating your custom `Link` component. It accepts either the pages array or a function returning it:
+
+```ts
+import { buildPaths, linkComponent, preloadable } from '@nano_kit/svelte-router'
+import { pages } from './pages'
+
+export const Link = linkComponent(
+  navigation,
+  buildPaths(routes),
+  [
+    /* true = default value of Link's preload prop */
+    preloadable(() => pages, true)
+  ]
+)
+```
+
+With DI, use `enableLinkComponentPreload` to enable the same behavior for the built-in `Link` component:
+
+```svelte
+<script lang="ts">
+  import { enableLinkComponentPreload } from '@nano_kit/svelte-router'
+
+  /* true = default value of built-in Link's preload prop */
+  enableLinkComponentPreload(true)
+</script>
+```
+
+### `ariaCurrent` & `enableLinkComponentAriaCurrent`
+
+These link extensions enable automatic `aria-current` handling for active links.
+
+Without DI, use `ariaCurrent` when creating your custom `Link` component:
+
+The optional second argument is a predicate that receives the link URL and current location and decides whether the link should be treated as current. By default, it checks `url.pathname === location.pathname`.
+
+```ts
+import { ariaCurrent, buildPaths, linkComponent } from '@nano_kit/svelte-router'
+
+export const Link = linkComponent(
+  navigation,
+  buildPaths(routes),
+  [ariaCurrent(location)]
+)
+```
+
+With DI, use `enableLinkComponentAriaCurrent` to enable the same behavior for the built-in `Link` component:
+
+It accepts the same optional predicate, but reads the current location from DI instead of taking the location accessor explicitly.
+
+```svelte
+<script lang="ts">
+  import { enableLinkComponentAriaCurrent } from '@nano_kit/svelte-router'
+
+  enableLinkComponentAriaCurrent()
+</script>
+```
+
+### `syncPageHead` & `syncHead`
+
+These functions synchronize the current page's `Head$` descriptors.
+
+Without DI, use `syncPageHead` with an explicit page accessor:
+
+```svelte
+<script lang="ts">
+  import { syncPageHead } from '@nano_kit/svelte-router'
+  import { page } from './router'
+
+  syncPageHead(page)
+</script>
+```
+
+With DI, use `syncHead` and let it read `Page$` from the current injection context:
+
+```svelte
+<script lang="ts">
+  import { syncHead } from '@nano_kit/svelte-router'
+
+  syncHead()
+</script>
+```
+
+### `getLocation`
+
+`getLocation` returns the current route location from the injection context.
+
+```svelte
+<script lang="ts">
+  import { getLocation } from '@nano_kit/svelte-router'
+
+  const location = getLocation()
+</script>
+
+<span>{$location.pathname}</span>
+```
+
+### `getNavigation`
+
+`getNavigation` returns the navigation API from the injection context.
+
+```svelte
+<script lang="ts">
+  import { getNavigation } from '@nano_kit/svelte-router'
+
+  const navigation = getNavigation()
+</script>
+
+<button onclick={() => navigation.back()}>Back</button>
+```
+
+### `getPaths`
+
+`getPaths` returns the typed path builders derived from your route definitions.
+
+```svelte
+<script lang="ts">
+  import { getPaths } from '@nano_kit/svelte-router'
+
+  const paths = getPaths()
+</script>
+
+<a href={paths.user({ id: '123' })}>View user</a>
+```
+
+### `getCanGoBack`
+
+`getCanGoBack` returns whether back navigation is currently possible.
+
+```svelte
+<script lang="ts">
+  import { getCanGoBack, getNavigation } from '@nano_kit/svelte-router'
+
+  const canGoBack = getCanGoBack()
+  const navigation = getNavigation()
+</script>
+
+<button disabled={!$canGoBack} onclick={() => navigation.back()}>
+  Back
+</button>
+```

@@ -21,6 +21,9 @@ A lightweight, modular, and performant state management ecosystem for building m
 | [`@nano_kit/preact`](packages/preact#readme) | Preact integration for @nano_kit/store. | [![NPM version][preact-npm]][preact-npm-url] |
 | [`@nano_kit/preact-router`](packages/preact-router#readme) | Preact integration for @nano_kit/router. | [![NPM version][preact-router-npm]][preact-router-npm-url] |
 | [`@nano_kit/preact-ssr`](packages/preact-ssr#readme) | Preact adapter for server-side rendering capabilities. | [![NPM version][preact-ssr-npm]][preact-ssr-npm-url] |
+| [`@nano_kit/svelte`](packages/svelte#readme) | Svelte integration for @nano_kit/store. | [![NPM version][svelte-npm]][svelte-npm-url] |
+| [`@nano_kit/svelte-router`](packages/svelte-router#readme) | Svelte integration for @nano_kit/router. | [![NPM version][svelte-router-npm]][svelte-router-npm-url] |
+| [`@nano_kit/svelte-ssr`](packages/svelte-ssr#readme) | Svelte adapter for server-side rendering capabilities. | [![NPM version][svelte-ssr-npm]][svelte-ssr-npm-url] |
 | [`@nano_kit/next-router`](packages/next-router#readme) | Next.js integration for @nano_kit/router. | [![NPM version][next-router-npm]][next-router-npm-url] |
 
 <!-- nanoviews -->
@@ -97,6 +100,21 @@ A lightweight, modular, and performant state management ecosystem for building m
 
 [preact-ssr-npm]: https://img.shields.io/npm/v/%40nano_kit%2Fpreact-ssr.svg
 [preact-ssr-npm-url]: https://npmjs.com/package/@nano_kit/preact-ssr
+
+<!-- svelte -->
+
+[svelte-npm]: https://img.shields.io/npm/v/%40nano_kit%2Fsvelte.svg
+[svelte-npm-url]: https://npmjs.com/package/@nano_kit/svelte
+
+<!-- svelte-router -->
+
+[svelte-router-npm]: https://img.shields.io/npm/v/%40nano_kit%2Fsvelte-router.svg
+[svelte-router-npm-url]: https://npmjs.com/package/@nano_kit/svelte-router
+
+<!-- svelte-ssr -->
+
+[svelte-ssr-npm]: https://img.shields.io/npm/v/%40nano_kit%2Fsvelte-ssr.svg
+[svelte-ssr-npm-url]: https://npmjs.com/package/@nano_kit/svelte-ssr
 
 <!-- next-router -->
 
