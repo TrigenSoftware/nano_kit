@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.2](https://github.com/TrigenSoftware/nano_kit/compare/svelte-ssr@1.0.0-alpha.1...svelte-ssr@1.0.0-alpha.2) (2026-05-09)
+
+### Features
+
+* enable async render ([35ba1e7](https://github.com/TrigenSoftware/nano_kit/commit/35ba1e7a80659fdf6a0be53d66dce23dbe32d256))
+
 ## [1.0.0-alpha.1](https://github.com/TrigenSoftware/nano_kit/compare/svelte-ssr@1.0.0-alpha.0...svelte-ssr@1.0.0-alpha.1) (2026-05-09)
 
 ### Bug Fixes
