@@ -3,6 +3,7 @@
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "dist",
+    "inlineSources": true,
     "jsx": "preserve"
   },
   "include": [

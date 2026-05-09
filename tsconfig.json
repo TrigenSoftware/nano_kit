@@ -16,6 +16,7 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
+    "inlineSources": true,
     /* Interop Constraints */
     "allowSyntheticDefaultImports": true,
     "isolatedModules": true,
