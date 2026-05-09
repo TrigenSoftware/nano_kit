@@ -1,7 +1,7 @@
 {
   "name": "@nano_kit/cookie-store",
   "type": "module",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.3",
   "description": "A virutal CookieStore-compatible implementation for SSR and testing environments.",
   "author": "dangreen",
   "license": "MIT",

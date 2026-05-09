@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.2](https://github.com/TrigenSoftware/nano_kit/compare/kida@1.0.0-beta.1...kida@1.0.0-beta.2) (2026-05-09)
+
+### Bug Fixes
+
+* fix generated sourcemaps ([cd3457f](https://github.com/TrigenSoftware/nano_kit/commit/cd3457f3c5550266f8b233d35f672febf8dbaa7b))
+
 ## [1.0.0-beta.1](https://github.com/TrigenSoftware/nano_kit/compare/kida@1.0.0-beta.0...kida@1.0.0-beta.1) (2026-04-27)
 
 ### Features

@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.7](https://github.com/TrigenSoftware/nano_kit/compare/nanoviews@1.0.0-alpha.6...nanoviews@1.0.0-alpha.7) (2026-05-09)
+
+### Bug Fixes
+
+* fix generated sourcemaps ([cd3457f](https://github.com/TrigenSoftware/nano_kit/commit/cd3457f3c5550266f8b233d35f672febf8dbaa7b))
+
 ## [1.0.0-alpha.6](https://github.com/TrigenSoftware/nano_kit/compare/nanoviews@1.0.0-alpha.5...nanoviews@1.0.0-alpha.6) (2026-04-12)
 
 ### Features
