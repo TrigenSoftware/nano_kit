@@ -34,7 +34,7 @@ export class SvelteRenderer extends Renderer {
     })
   }
 
-  renderToString(data: RenderData) {
+  async renderToString(data: RenderData) {
     let title: string | undefined
     let lang: string | undefined
     let dir: string | undefined
@@ -56,7 +56,7 @@ export class SvelteRenderer extends Renderer {
       head = `<title>${title}</title>${head}`
     }
 
-    const result = render(((
+    const result = await render(((
       internals: ComponentInternals,
       props: Record<string, never>
     ) => {
