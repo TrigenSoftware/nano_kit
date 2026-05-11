@@ -1,9 +1,7 @@
 import {
   type Accessor,
-  InjectionContext,
   DependencyNotFound,
-  inject,
-  provide
+  inject
 } from '@nano_kit/store'
 import type {
   AppRoutes,
@@ -12,8 +10,7 @@ import type {
 } from './di.types.js'
 import {
   type RouteLocationRecord,
-  canGoBack,
-  virtualNavigation
+  canGoBack
 } from './navigation.js'
 import type {
   MatchRef,
@@ -23,7 +20,6 @@ import {
   type Paths,
   buildPaths
 } from './paths.js'
-import type { Routes } from './types.js'
 
 export * from './di.types.js'
 
@@ -74,23 +70,4 @@ export function CanGoBack$(): Accessor<boolean> {
   const navigation = inject(Navigation$)
 
   return canGoBack($location, navigation)
-}
-
-/**
- * Creates an injection context with the provided virtual navigation,
- * @returns Injection context with Location$ and Navigation$ provided.
- */
-/* @__NO_SIDE_EFFECTS__ */
-export function virtualNavigationContext<const R extends Routes = {}>(
-  initialPath = '/',
-  routes: R = {} as R
-): InjectionContext {
-  const [$location, navigation] = virtualNavigation(initialPath, routes)
-  const context = new InjectionContext([
-    provide(Location$, $location),
-    // Suppress conflict with AppRoutes
-    provide(Navigation$, navigation as unknown as AppNavigation)
-  ])
-
-  return context
 }
