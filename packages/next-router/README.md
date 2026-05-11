@@ -145,20 +145,24 @@ export default function App({ Component, pageProps }: AppProps) {
 
 #### Page with SSR
 
-Use `virtualNavigationContext` and `dehydrate` in `getServerSideProps` to prefetch data on the server:
+Use `virtualNavigation` and `dehydrate` in `getServerSideProps` to prefetch data on the server:
 
 ```tsx
 // pages/characters.tsx
 import type { GetServerSideProps } from 'next'
-import { dehydrate } from '@nano_kit/store'
-import { virtualNavigationContext } from '@nano_kit/router'
+import { dehydrate, provide } from '@nano_kit/store'
+import { Location$, Navigation$, virtualNavigation } from '@nano_kit/router'
 import { routes } from '@/stores/router'
 import { CharactersPage, Stores$ } from '@/ui/pages/Characters'
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
+  const [$location, navigation] = virtualNavigation(context.resolvedUrl, routes)
   const dehydrated = await dehydrate(
     Stores$,
-    virtualNavigationContext(context.resolvedUrl, routes)
+    [
+      provide(Location$, $location),
+      provide(Navigation$, navigation)
+    ]
   )
 
   return { props: { dehydrated } }

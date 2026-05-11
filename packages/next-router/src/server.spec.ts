@@ -10,7 +10,7 @@ import {
   mockAsyncStorage,
   mockEntryBaseModule
 } from '../test/navigation.mock.js'
-import { getServerNextNavigation } from './server.js'
+import { nextServerNavigation } from './server.js'
 
 vi.mock('next/navigation.js', () => mockNavigationModule)
 vi.mock('next/dist/server/app-render/work-unit-async-storage.external.js', () => mockEntryBaseModule)
@@ -30,7 +30,7 @@ describe('next-router', () => {
       })
 
       it('should return location from current request URL', () => {
-        const [$location] = getServerNextNavigation(routes)
+        const [$location] = nextServerNavigation(routes)
 
         expect($location().pathname).toBe('/')
         expect($location().route).toBe('home')
@@ -39,14 +39,14 @@ describe('next-router', () => {
       it('should match route with params from pathname', () => {
         mockAsyncStorage.url.pathname = '/user/42'
 
-        const [$location] = getServerNextNavigation(routes)
+        const [$location] = nextServerNavigation(routes)
 
         expect($location().pathname).toBe('/user/42')
         expect($location().route).toBe('user')
       })
 
       it('should call redirect with push type on navigation.push', () => {
-        const [, navigation] = getServerNextNavigation(routes)
+        const [, navigation] = nextServerNavigation(routes)
 
         navigation.push('/about')
 
@@ -54,7 +54,7 @@ describe('next-router', () => {
       })
 
       it('should call redirect with replace type on navigation.replace', () => {
-        const [, navigation] = getServerNextNavigation(routes)
+        const [, navigation] = nextServerNavigation(routes)
 
         navigation.replace('/about')
 
@@ -62,7 +62,7 @@ describe('next-router', () => {
       })
 
       it('should be a noop for navigation.back and navigation.forward', () => {
-        const [, navigation] = getServerNextNavigation(routes)
+        const [, navigation] = nextServerNavigation(routes)
 
         expect(() => navigation.back()).not.toThrow()
         expect(() => navigation.forward()).not.toThrow()

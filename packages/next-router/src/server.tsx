@@ -6,6 +6,7 @@ import {
 } from 'next/navigation'
 import { workUnitAsyncStorage } from 'next/dist/server/app-render/work-unit-async-storage.external.js'
 import { cache } from 'react'
+import { provide } from '@nano_kit/store'
 import {
   type Routes,
   type RouteLocationRecord,
@@ -17,7 +18,7 @@ import {
   PermanentReplaceHistoryAction,
   virtualNavigation
 } from '@nano_kit/router'
-import { getServerDehydrationContext } from '@nano_kit/react'
+import { setDehydrationContext } from '@nano_kit/react'
 import {
   type NextNavigationProviderProps,
   NextNavigationProvider
@@ -59,7 +60,7 @@ function getUrlFromAsyncStorage() {
  * @param routes - Route definitions for the application.
  * @returns Tuple of location signal and navigation object.
  */
-export const getServerNextNavigation = cache(<R extends Routes = Routes>(
+export const nextServerNavigation = cache(<R extends Routes = Routes>(
   routes: R = {} as R
 ): [RouteLocationRecord<R>, Navigation<R>] => {
   const url = getUrlFromAsyncStorage()
@@ -103,15 +104,13 @@ export async function NextNavigation<const R extends Routes = Routes>(
     await connection()
   }
 
-  const { context } = getServerDehydrationContext()
+  const [$location, navigation] = nextServerNavigation(routes)
 
-  if (!context.get(Location$, true)) {
-    const [$location, navigation] = getServerNextNavigation(routes)
-
-    context.set(Location$, $location)
+  setDehydrationContext([
+    provide(Location$, $location),
     // Suppress conflict with AppRoutes
-    context.set(Navigation$, navigation as unknown as AppNavigation)
-  }
+    provide(Navigation$, navigation as unknown as AppNavigation)
+  ])
 
   return (
     <NextNavigationProvider
