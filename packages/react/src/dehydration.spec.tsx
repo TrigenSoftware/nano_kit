@@ -15,7 +15,7 @@ import {
   useSignal
 } from './core.js'
 import {
-  serverDehydrate,
+  dehydrate,
   Dehydration,
   StaticDehydration
 } from './dehydration.js'
@@ -37,9 +37,9 @@ function Test() {
 
 describe('react', () => {
   describe('dehydration', () => {
-    describe('serverDehydrate', () => {
+    describe('dehydrate', () => {
       it('should dehydrate stores', async () => {
-        const dehydrated = await serverDehydrate(() => [
+        const dehydrated = await dehydrate(() => [
           hydratable('count', signal(42))
         ])
 

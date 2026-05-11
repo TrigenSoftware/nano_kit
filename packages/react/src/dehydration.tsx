@@ -3,8 +3,9 @@ import {
   type InjectionFactory,
   type FalsyValue,
   type AnyFn,
+  type InjectionProvider,
   InjectionContext,
-  contextDehydrate
+  dehydrate as storeDehydrate
 } from '@nano_kit/store'
 import {
   type PropsWithChildren,
@@ -14,7 +15,7 @@ import type { InjectionContextProps } from './core.jsx'
 import { HydrationProvider } from './hydration.jsx'
 
 /** Internal dehydration state shared within a single RSC request. */
-export interface ServerDehydrationContext {
+export interface ServerContext {
   flight: boolean
   context: InjectionContext
   seen: WeakSet<AnyFn>
@@ -24,7 +25,7 @@ export interface ServerDehydrationContext {
  * Get the dehydration context for the current RSC request.
  * @returns The dehydration context.
  */
-export const getServerDehydrationContext = /* @__PURE__ */ cache((): ServerDehydrationContext => {
+export const getServerContext = /* @__PURE__ */ cache((): ServerContext => {
   const seen = new WeakSet<AnyFn>()
   const context = new InjectionContext()
 
@@ -36,20 +37,28 @@ export const getServerDehydrationContext = /* @__PURE__ */ cache((): ServerDehyd
 })
 
 /**
- * Run stores in the shared within a single RSC request injection context
- * and return both the context and the dehydrated snapshot.
- * @param Stores$ - Factory function that returns an array of stores to run and dehydrate.
- * @returns A tuple of the injection context and the dehydrated key-value pairs.
+ * Gets the request-scoped dependency injection context used during dehydration.
+ * @returns Dehydration dependency injection context.
  */
-export async function serverContextDehydrate(Stores$: InjectionFactory<AnyAccessor[]>) {
-  const { context, seen } = getServerDehydrationContext()
+export function getDehydrationContext() {
+  return getServerContext().context
+}
 
-  return await contextDehydrate(
-    () => Stores$().filter(
-      store => !seen.has(store) && (seen.add(store), true)
-    ),
-    context
-  )
+/**
+ * Injects dependencies into the request-scoped dehydration context.
+ * Existing providers are preserved.
+ * @param context - Dependencies to inject into the dehydration context.
+ */
+export function setDehydrationContext(context: InjectionProvider[] | undefined) {
+  if (context) {
+    const dehydrationContext = getDehydrationContext()
+
+    for (const [token, value] of context) {
+      if (!dehydrationContext.get(token, true)) {
+        dehydrationContext.set(token, value)
+      }
+    }
+  }
 }
 
 /**
@@ -58,10 +67,15 @@ export async function serverContextDehydrate(Stores$: InjectionFactory<AnyAccess
  * @param Stores$ - Factory function that returns an array of stores to run and dehydrate.
  * @returns Dehydrated data as an array of key-value pairs.
  */
-export async function serverDehydrate(Stores$: InjectionFactory<AnyAccessor[]>) {
-  const [, dehydrated] = await serverContextDehydrate(Stores$)
+export async function dehydrate(Stores$: InjectionFactory<AnyAccessor[]>) {
+  const { context, seen } = getServerContext()
 
-  return dehydrated
+  return await storeDehydrate(
+    () => Stores$().filter(
+      store => !seen.has(store) && (seen.add(store), true)
+    ),
+    context
+  )
 }
 
 export interface DehydrationProps extends InjectionContextProps {
@@ -73,6 +87,10 @@ export interface DehydrationProps extends InjectionContextProps {
    * Pre-dehydrated data. If provided, skips `stores` dehydration.
    */
   dehydrated?: [string, unknown][] | FalsyValue
+  /**
+   * Additional injection providers to merge into the server context.
+   */
+  context?: InjectionProvider[]
   /**
    * Whether to create a new InjectionContext for this dehydration or reuse an existing one from the context.
    */
@@ -86,12 +104,15 @@ export interface DehydrationProps extends InjectionContextProps {
 export async function Dehydration({
   stores,
   dehydrated,
+  context,
   isolate,
   children
 }: DehydrationProps) {
+  setDehydrationContext(context)
+
   return (
     <HydrationProvider
-      dehydrated={dehydrated || stores && await serverDehydrate(stores)}
+      dehydrated={dehydrated || stores && await dehydrate(stores)}
       reuse={!isolate}
     >
       {children}
@@ -105,7 +126,7 @@ export async function Dehydration({
  * this is a regular HTML render and dehydration should be included.
  */
 export function FlightDetector({ children }: PropsWithChildren) {
-  const dctx = getServerDehydrationContext()
+  const dctx = getServerContext()
 
   dctx.flight = false
 
@@ -129,15 +150,18 @@ export async function StaticDehydration({
   flight,
   stores,
   dehydrated,
+  context,
   isolate,
   children
 }: StaticDehydrationProps) {
-  const dctx = getServerDehydrationContext()
+  const dctx = getServerContext()
   const isFlight = flight === undefined ? dctx.flight : flight
+
+  setDehydrationContext(context)
 
   return (
     <HydrationProvider
-      dehydrated={isFlight ? null : dehydrated || stores && await serverDehydrate(stores)}
+      dehydrated={isFlight ? null : dehydrated || stores && await dehydrate(stores)}
       reuse={!isolate}
     >
       {children}

@@ -26,6 +26,7 @@ export interface HydrationProviderProps extends InjectionContextProps {
   context?: InjectionProvider[]
   /**
    * Whether to reuse an existing InjectionContext or create a new one.
+   * `true` by default.
    */
   reuse?: boolean
 }
@@ -37,7 +38,7 @@ export interface HydrationProviderProps extends InjectionContextProps {
 export function HydrationProvider({
   dehydrated,
   context = [],
-  reuse,
+  reuse = true,
   children
 }: HydrationProviderProps) {
   const currentContext = useInjectionContext()
