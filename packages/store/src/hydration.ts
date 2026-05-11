@@ -2,6 +2,7 @@ import {
   type AnyAccessor,
   type AnyWritableSignal,
   type AccessorValue,
+  type InjectionProvider,
   ExternalModesBase,
   start,
   InjectionContext,
@@ -165,18 +166,21 @@ export function isHydrated($signal: AnyWritableSignal) {
  * wait for async tasks to complete, and return the serializable snapshot.
  * @param runner - A function that initialises stores and returns the accessors to dehydrate.
  * @param context - The injection context to use. Defaults to a new empty context.
- * @returns A tuple of the injection context and the dehydrated key-value pairs.
+ * @returns The dehydrated key-value pairs.
  */
-export async function contextDehydrate(
+export async function dehydrate(
   runner: () => AnyAccessor[],
-  context = new InjectionContext()
+  context?: InjectionContext | InjectionProvider[]
 ) {
+  const finalContext = context instanceof InjectionContext
+    ? context
+    : new InjectionContext(context)
   const hydratables = new Map<string, AnyAccessor>()
 
-  context.set(Hydratables$, hydratables)
+  finalContext.set(Hydratables$, hydratables)
 
-  const stores = run(context, runner)
-  const tasks = context.get(TasksPool$)
+  const stores = run(finalContext, runner)
+  const tasks = finalContext.get(TasksPool$)
   const stop = start(() => stores.forEach(store => store() as void))
 
   await waitTasks(tasks)
@@ -188,22 +192,6 @@ export async function contextDehydrate(
   })
 
   stop()
-
-  return [context, dehydrated] as const
-}
-
-/**
- * Run a store runner within an injection context, collect all hydratable signals,
- * wait for async tasks to complete, and return the serializable snapshot.
- * @param runner - A function that initialises stores and returns the accessors to dehydrate.
- * @param context - The injection context to use. Defaults to a new empty context.
- * @returns The dehydrated key-value pairs.
- */
-export async function dehydrate(
-  runner: () => AnyAccessor[],
-  context?: InjectionContext
-) {
-  const [, dehydrated] = await contextDehydrate(runner, context)
 
   return dehydrated
 }
