@@ -1,4 +1,5 @@
 import {
+  vi,
   describe,
   it,
   expect
@@ -11,7 +12,7 @@ import { resolved } from './resolved.js'
 
 describe('kida', () => {
   describe('resolved', () => {
-    it('should resolve with the promise value', async () => {
+    it('should resolve with the promise computed', async () => {
       const promise = Promise.resolve(42)
       const [$result, $error, $pending] = resolved(computed(() => promise))
 
@@ -24,6 +25,23 @@ describe('kida', () => {
       expect($result()).toBe(42)
       expect($error()).toBeUndefined()
       expect($pending()).toBe(false)
+    })
+
+    it('should resolve with the promise accessor', async () => {
+      let promise!: Promise<number>
+      const accessor = vi.fn(() => promise = Promise.resolve(42))
+      const [$result, $error, $pending] = resolved(accessor)
+
+      expect($result()).toBeUndefined()
+      expect($error()).toBeUndefined()
+      expect($pending()).toBe(true)
+
+      await promise
+
+      expect($result()).toBe(42)
+      expect($error()).toBeUndefined()
+      expect($pending()).toBe(false)
+      expect(accessor).toHaveBeenCalledTimes(1)
     })
 
     it('should capture rejection errors', async () => {

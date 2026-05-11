@@ -2,10 +2,16 @@ import {
   type Accessor,
   type ReadableSignal,
   signal,
-  computed,
-  isFunction
+  computed
 } from 'agera'
 import type { FalsyValue } from './types.js'
+import { toSignal } from './utils.js'
+
+export type Resolved<T> = readonly [
+  $result: ReadableSignal<T | undefined>,
+  $error: ReadableSignal<unknown>,
+  $pending: ReadableSignal<boolean>
+]
 
 interface ResolvedState<T> {
   data: T | undefined
@@ -28,16 +34,13 @@ const INITIAL_STATE = {
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function resolved<T>(
-  $promise: Accessor<T | Promise<T> | FalsyValue> | Promise<T> | FalsyValue
-): readonly [
-  $result: ReadableSignal<T | undefined>,
-  $error: ReadableSignal<unknown>,
-  $pending: ReadableSignal<boolean>
-] {
+  promise: Accessor<T | Promise<T> | FalsyValue> | Promise<T> | FalsyValue
+): Resolved<T> {
   let currentPromise: T | Promise<T> | FalsyValue = null
+  const $promise = toSignal(promise)
   const $state = signal<ResolvedState<T>>(INITIAL_STATE)
   const resolve = () => {
-    const promise = isFunction($promise) ? $promise() : $promise
+    const promise = $promise()
 
     if (currentPromise === promise) {
       return $state()
