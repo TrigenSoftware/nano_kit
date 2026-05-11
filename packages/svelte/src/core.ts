@@ -47,7 +47,7 @@ onSignal(($signal) => {
 })
 
 const [
-  getInjectionContext,
+  getSvelteInjectionContext,
   setSvelteInjectionContext
 ] = createContext<InjectionContext>()
 
@@ -55,11 +55,9 @@ const [
  * Get the current injection context.
  * @returns The current injection context.
  */
-export { getInjectionContext }
-
-function getParentInjectionContext() {
+export function getInjectionContext() {
   try {
-    return getInjectionContext()
+    return getSvelteInjectionContext()
   } catch {
     return undefined
   }
@@ -73,7 +71,7 @@ function getParentInjectionContext() {
 export function setInjectionContext(
   context?: InjectionContext | InjectionProvider[]
 ) {
-  const parent = getParentInjectionContext()
+  const parent = getInjectionContext()
   const value = context instanceof InjectionContext
     ? context
     : new InjectionContext(context, parent)
@@ -95,5 +93,5 @@ export function isolate() {
  * @returns The dependency.
  */
 export function getInject<T>(factory: InjectionFactory<T>): T {
-  return inject(factory, getParentInjectionContext())
+  return inject(factory, getInjectionContext())
 }
