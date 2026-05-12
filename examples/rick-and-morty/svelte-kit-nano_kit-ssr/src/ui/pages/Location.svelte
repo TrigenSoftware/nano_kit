@@ -1,19 +1,7 @@
 <script module lang="ts">
-  import {
-    computed,
-    inject
-  } from '@nano_kit/store'
-  import { title } from '@nano_kit/svelte-router'
+  import { inject } from '@nano_kit/store'
   import { Residents$ } from '../../stores/characters.js'
   import { Location$ } from '../../stores/locations.js'
-
-  export function Head$() {
-    const { $location: location } = inject(Location$)
-
-    return [
-      title(computed(() => `${location()?.name || 'Location'} | Rick and Morty Wiki`))
-    ]
-  }
 
   export function Stores$() {
     const { $location: location } = inject(Location$)
@@ -38,6 +26,10 @@
     $locationError: locationError
   } = getInject(Location$)
 </script>
+
+<svelte:head>
+  <title>{$location?.name || 'Location'} | Rick and Morty Wiki</title>
+</svelte:head>
 
 {#if $locationError || $residentsError}
   <div class="location-error">

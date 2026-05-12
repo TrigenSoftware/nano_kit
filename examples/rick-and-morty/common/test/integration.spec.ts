@@ -40,7 +40,7 @@ function isNanoKit(name: string) {
 }
 
 function isNanoKitSsr(name: string) {
-  return name === 'react-nano_kit-ssr' || name === 'svelte-nano_kit-ssr'
+  return name === 'react-nano_kit-ssr' || name === 'svelte-nano_kit-ssr' || name === 'svelte-kit-nano_kit-ssr'
 }
 
 function isNanoKitRouter(name: string) {
@@ -49,6 +49,7 @@ function isNanoKitRouter(name: string) {
     || name === 'react-nano_kit-ssr'
     || name === 'svelte-nano_kit'
     || name === 'svelte-nano_kit-ssr'
+    || name === 'svelte-kit-nano_kit-ssr'
   )
 }
 
@@ -59,6 +60,10 @@ function distDir(path: string) {
 
   if (path.includes('tanstack-start')) {
     return '.output'
+  }
+
+  if (path.includes('svelte-kit')) {
+    return '.svelte-kit/output'
   }
 
   return 'dist'
@@ -1147,5 +1152,54 @@ describe('Rick And Morty App', async () => {
         }
       })
     }
+
+    it('should update characters pagination state across page changes', async () => {
+      const documentRequests: string[] = []
+      const onRequest = (request: Request) => {
+        if (request.resourceType() === 'document') {
+          documentRequests.push(request.url())
+        }
+      }
+      const expectCurrentPage = async (pageNumber: string) => {
+        await expect.poll(
+          async () => await page.$$eval(
+            'nav[aria-label="Character pages navigation"] a[aria-current="page"]',
+            links => links.map(link => link.textContent?.trim())
+          ),
+          {
+            timeout: UI_TIMEOUT
+          }
+        ).toEqual([pageNumber])
+      }
+
+      await openPage(page, url, '/characters')
+      await page.getByRole('heading', {
+        name: 'Rick Sanchez'
+      }).first().waitFor({
+        state: 'visible',
+        timeout: UI_TIMEOUT
+      })
+
+      page.on('request', onRequest)
+
+      try {
+        await expectCurrentPage('1')
+
+        for (const pageNumber of [2, 3, 2, 1]) {
+          await page.getByRole('link', {
+            name: `Go to page ${pageNumber}`
+          }).click()
+
+          await expect.poll(() => new URL(page.url()).searchParams.get('page') || '1', {
+            timeout: UI_TIMEOUT
+          }).toBe(String(pageNumber))
+          await expectCurrentPage(String(pageNumber))
+        }
+
+        expect(documentRequests).toEqual([])
+      } finally {
+        page.off('request', onRequest)
+      }
+    })
   })
 })

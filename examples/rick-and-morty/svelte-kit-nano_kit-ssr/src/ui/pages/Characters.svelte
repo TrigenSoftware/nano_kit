@@ -1,13 +1,6 @@
 <script module lang="ts">
   import { inject } from '@nano_kit/store'
-  import { title } from '@nano_kit/svelte-router'
   import { Characters$ } from '../../stores/characters.js'
-
-  export function Head$() {
-    return [
-      title('Characters | Rick and Morty Wiki')
-    ]
-  }
 
   export function Stores$() {
     const { $characters: characters } = inject(Characters$)

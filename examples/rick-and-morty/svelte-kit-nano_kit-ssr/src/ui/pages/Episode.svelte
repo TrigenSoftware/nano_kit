@@ -1,19 +1,7 @@
 <script module lang="ts">
-  import {
-    computed,
-    inject
-  } from '@nano_kit/store'
-  import { title } from '@nano_kit/svelte-router'
+  import { inject } from '@nano_kit/store'
   import { Residents$ } from '../../stores/characters.js'
   import { Episode$ } from '../../stores/episodes.js'
-
-  export function Head$() {
-    const { $episode: episode } = inject(Episode$)
-
-    return [
-      title(computed(() => `${episode()?.name || 'Episode'} | Rick and Morty Wiki`))
-    ]
-  }
 
   export function Stores$() {
     const { $episode: episode } = inject(Episode$)
@@ -38,6 +26,10 @@
     $episodeError: episodeError
   } = getInject(Episode$)
 </script>
+
+<svelte:head>
+  <title>{$episode?.name || 'Episode'} | Rick and Morty Wiki</title>
+</svelte:head>
 
 {#if $episodeError || $charactersError}
   <div class="episode-error">

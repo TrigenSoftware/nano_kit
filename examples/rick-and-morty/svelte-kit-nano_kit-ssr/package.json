@@ -1,0 +1,36 @@
+{
+  "name": "rick-and-morty-svelte-kit-nano_kit-ssr",
+  "private": true,
+  "version": "0.0.0",
+  "packageManager": "pnpm@10.33.0",
+  "type": "module",
+  "imports": {
+    "#src/*": "./src/*"
+  },
+  "scripts": {
+    "dev": "vite dev",
+    "build": "svelte-check --tsconfig ./tsconfig.json && vite build",
+    "build:only": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "test:types": "svelte-check --tsconfig ./tsconfig.json",
+    "prepare": "svelte-kit sync || true"
+  },
+  "dependencies": {
+    "@nano_kit/query": "*",
+    "@nano_kit/router": "*",
+    "@nano_kit/store": "*",
+    "@nano_kit/svelte": "*",
+    "@nano_kit/svelte-kit": "*",
+    "@nano_kit/svelte-router": "*"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-auto": "^7.0.0",
+    "@sveltejs/kit": "^2.0.0",
+    "@sveltejs/vite-plugin-svelte": "^7.0.0",
+    "svelte": "^5.55.5",
+    "svelte-check": "^4.4.7",
+    "typescript": "^6.0.0",
+    "vite": "^8.0.8"
+  }
+}

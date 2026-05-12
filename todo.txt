@@ -2,6 +2,9 @@
 - no-magic-numbers pain
 - correct sandbox for session example
 - inspect object copies
+- fix website issues
+- cookie-store -> platform-web
+- next-router + cookies -> next pkg
 
 ## Agera/Kida/Store
 
@@ -16,6 +19,7 @@
 
 ## Router
 
+- preload Stores$ on nav?
 - onBeforeLeave / blocker https://reactrouter.com/api/hooks/useBlocker
 - scroll restoration ssr
 
@@ -35,6 +39,18 @@
 - @nano_kit/framework ?
 
 ## intl
+
++ locale matcher from sources
++ browser locale source
+- intl core constructor
+- loader
+- fragment/ segment returned by intl
+- base utilis for formatters ( transform / strings )
+- params formatter
+- plural formatter
+- datetime format
+- number format
+- relative time format
 
 ## rpc
 
