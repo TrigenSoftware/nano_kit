@@ -39,11 +39,10 @@ export function compose(
   outlet: Accessor<PageComponent | null>,
   layout: PageComponent
 ): PageComponent {
-  return ((internals, props) => Composed(internals, {
-    ...props,
+  return ((internals, props) => Composed(internals, Object.assign(props, {
     layout,
     outlet
-  })) as PageComponent
+  }))) as PageComponent
 }
 
 /**

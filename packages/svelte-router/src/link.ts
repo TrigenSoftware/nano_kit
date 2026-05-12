@@ -35,12 +35,11 @@ function createLinkComponent<R extends Routes>(
   return <K extends keyof R & string>(
     internals: ComponentInternals,
     props: LinkProps<R, K>
-  ) => LinkComponent(internals, {
-    ...props,
+  ) => LinkComponent(internals, Object.assign(props, {
     // Suppress conflict with AppRoutes
     paths: usePaths() as unknown as Paths<Routes>,
     settings: useSettings()
-  })
+  }))
 }
 
 function createLinkSettings<R extends Routes>(
