@@ -18,6 +18,7 @@ export default [
       }
     },
     rules: {
+      '@typescript-eslint/require-await': 'off',
       '@typescript-eslint/unified-signatures': 'off',
       '@typescript-eslint/no-misused-promises': 'off',
       'no-sequences': 'off',
