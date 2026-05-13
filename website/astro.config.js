@@ -2,53 +2,14 @@ import { defineConfig } from 'astro/config'
 import starlight from '@astrojs/starlight'
 import llmsTxt from 'starlight-llms-txt'
 import { viewTransitions } from 'astro-vtbot/starlight-view-transitions'
+import { rehypeNormalizeContent } from './rehype.js'
 
 const isProduction = process.env.NODE_ENV === 'production'
-
-function visitElements(node, callback) {
-  const children = node.children
-
-  if (!Array.isArray(children)) {
-    return
-  }
-
-  for (let index = 0; index < children.length; index++) {
-    const child = children[index]
-
-    if (child.type === 'element') {
-      callback(child, index, node)
-    }
-
-    visitElements(child, callback, node)
-  }
-}
-
-function rehypeWrapTables() {
-  return (tree) => {
-    visitElements(tree, (node, index, parent) => {
-      if (
-        node.tagName !== 'table'
-        || parent?.properties?.className?.includes('nk-table-wrapper')
-      ) {
-        return
-      }
-
-      parent.children[index] = {
-        type: 'element',
-        tagName: 'div',
-        properties: {
-          className: ['nk-table-wrapper']
-        },
-        children: [node]
-      }
-    })
-  }
-}
 
 export default defineConfig({
   site: 'https://nano-kit.js.org',
   markdown: {
-    rehypePlugins: [rehypeWrapTables]
+    rehypePlugins: [rehypeNormalizeContent]
   },
   integrations: [
     starlight({

@@ -104,17 +104,20 @@
   }
 }
 
-.site-title, .hero:has(.actions) h1 {
+.site-title span, .hero:has(.actions) h1 {
   position: relative;
   font-family: var(--sl-font-system-mono);
   color: transparent;
   white-space: nowrap;
+  line-height: 1;
 
   &::before {
     --size: calc(1ch / 5);
     position: absolute;
-    top: calc(0.51lh);
-    right: calc(4.5ch - var(--size) / 2);
+    top: 0;
+    right: 0;
+    transform-origin: bottom right;
+    transform: translate(calc(-4.5ch + var(--size) / 2), 0.85ch);
     display: block;
     width: var(--size);
     height: var(--size);
@@ -133,11 +136,11 @@
     white-space: nowrap;
   }
 
-  &:is(.site-title)::before {
+  &:is(.site-title span)::before {
     background: var(--sl-color-accent-high);
   }
 
-  &:is(.site-title)::after {
+  &:is(.site-title span)::after {
     color: var(--sl-color-accent-high);
   }
 }
