@@ -2,9 +2,6 @@
 - no-magic-numbers pain
 - correct sandbox for session example
 - inspect object copies
-- fix website issues
-- cookie-store -> platform-web
-- next-router + cookies -> next pkg
 
 ## Agera/Kida/Store
 

@@ -138,18 +138,18 @@ To achieve high performance, Nano Kit uses the push-pull algorithm from [alien-s
 
 The [benchmark results below](https://github.com/TrigenSoftware/nano_kit/tree/main/packages/benchmarks/effect.js) show how `@nano_kit/store` (Agera) compares to other popular state management libraries.
 
-| Library | Latency avg (ns) | Latency med (ns) | Throughput avg (ops/s) | Throughput med (ops/s) | Samples |
+| Library | Latency avg&nbsp;(ns) | Latency med&nbsp;(ns) | Throughput avg&nbsp;(ops/s) | Throughput med&nbsp;(ops/s) | Samples |
 |---------|------------------|------------------|------------------------|------------------------|---------|
-| alien-signals | 318.57<br/>± 0.34% | 300.00<br/>± 0.00 | 3262408<br/>± 0.01% | 3333333<br/>± 0 | 3138998 |
-| **@nano_kit/store** | **338.98<br/>± 0.26%** | **330.00<br/>± 0.00** | **2986876<br/>± 0.01%** | **3030303<br/>± 0** | **2950008** |
-| svelte/store | 445.39<br/>± 0.25% | 410.00<br/>± 0.00 | 2329147<br/>± 0.02% | 2439024<br/>± 0 | 2245219 |
-| rxjs | 549.11<br/>± 3.36% | 470.00<br/>± 20.00 | 2071142<br/>± 0.02% | 2127660<br/>± 86843 | 1821114 |
-| nanostores | 1127.1<br/>± 1.75% | 1000.0<br/>± 19.00 | 966136<br/>± 0.02% | 1000000<br/>± 18646 | 887286 |
-| mobx | 4285.9<br/>± 3.67% | 3470.0<br/>± 50.00 | 281427<br/>± 0.04% | 288184<br/>± 4094 | 233326 |
-| valtio | 5401.6<br/>± 8.52% | 3910.0<br/>± 160.00 | 240525<br/>± 0.07% | 255754<br/>± 10912 | 185132 |
-| jotai | 10859<br/>± 7.97% | 7620.0<br/>± 160.00 | 128036<br/>± 0.06% | 131234<br/>± 2815 | 92089 |
-| effector | 31122<br/>± 13.37% | 18700<br/>± 1110.0 | 53314<br/>± 0.16% | 53476<br/>± 3123 | 32132 |
-| @reatom/core | 63818<br/>± 17.66% | 45480<br/>± 1030.0 | 21631<br/>± 0.13% | 21988<br/>± 501 | 15670 |
+| alien-signals | 318.57<br/>±&nbsp;0.34% | 300.00<br/>±&nbsp;0.00 | 3262408<br/>±&nbsp;0.01% | 3333333<br/>±&nbsp;0 | 3138998 |
+| **@nano_kit/store** | **338.98<br/>±&nbsp;0.26%** | **330.00<br/>±&nbsp;0.00** | **2986876<br/>±&nbsp;0.01%** | **3030303<br/>±&nbsp;0** | **2950008** |
+| svelte/store | 445.39<br/>±&nbsp;0.25% | 410.00<br/>±&nbsp;0.00 | 2329147<br/>±&nbsp;0.02% | 2439024<br/>±&nbsp;0 | 2245219 |
+| rxjs | 549.11<br/>±&nbsp;3.36% | 470.00<br/>±&nbsp;20.00 | 2071142<br/>±&nbsp;0.02% | 2127660<br/>±&nbsp;86843 | 1821114 |
+| nanostores | 1127.1<br/>±&nbsp;1.75% | 1000.0<br/>±&nbsp;19.00 | 966136<br/>±&nbsp;0.02% | 1000000<br/>±&nbsp;18646 | 887286 |
+| mobx | 4285.9<br/>±&nbsp;3.67% | 3470.0<br/>±&nbsp;50.00 | 281427<br/>±&nbsp;0.04% | 288184<br/>±&nbsp;4094 | 233326 |
+| valtio | 5401.6<br/>±&nbsp;8.52% | 3910.0<br/>±&nbsp;160.00 | 240525<br/>±&nbsp;0.07% | 255754<br/>±&nbsp;10912 | 185132 |
+| jotai | 10859<br/>±&nbsp;7.97% | 7620.0<br/>±&nbsp;160.00 | 128036<br/>±&nbsp;0.06% | 131234<br/>±&nbsp;2815 | 92089 |
+| effector | 31122<br/>±&nbsp;13.37% | 18700<br/>±&nbsp;1110.0 | 53314<br/>±&nbsp;0.16% | 53476<br/>±&nbsp;3123 | 32132 |
+| @reatom/core | 63818<br/>±&nbsp;17.66% | 45480<br/>±&nbsp;1030.0 | 21631<br/>±&nbsp;0.13% | 21988<br/>±&nbsp;501 | 15670 |
 
 *Benchmark was run on AMD Ryzen 5 PRO 3400G with Node.js v22.4.1*
 
@@ -159,13 +159,13 @@ The [benchmark results below](https://github.com/TrigenSoftware/nano_kit/tree/ma
 
 Comparison of bundle sizes for various implementations of the [weather example](https://github.com/TrigenSoftware/nano_kit/tree/main/examples/weather):
 
-| Stack | Raw Size | Gzipped Size |
+| Stack | Raw&nbsp;Size | Gzipped&nbsp;Size |
 |-------|----------|--------------|
-| React + Nano Stores | 204.71 kB | 65.29 kB |
-| React + **Nano Kit** | **209.31 kB** | **66.66 kB** |
-| React + **Nano Kit + DI** | **210.44 kB** | **67.03 kB** |
-| React + TanStack Query | 230.34 kB | 71.82 kB |
-| React + Reatom | 242.81 kB | 77.30 kB |
+| React +&nbsp;Nano&nbsp;Stores | 204.71&nbsp;kB | 65.29&nbsp;kB |
+| React +&nbsp;**Nano&nbsp;Kit** | **209.31&nbsp;kB** | **66.66&nbsp;kB** |
+| React +&nbsp;**Nano&nbsp;Kit +&nbsp;DI** | **210.44&nbsp;kB** | **67.03&nbsp;kB** |
+| React +&nbsp;TanStack&nbsp;Query | 230.34&nbsp;kB | 71.82&nbsp;kB |
+| React +&nbsp;Reatom | 242.81&nbsp;kB | 77.30&nbsp;kB |
 
 *Bundled with Vite 8*
 
@@ -173,11 +173,11 @@ Comparison of bundle sizes for various implementations of the [weather example](
 
 Comparison of **frontend** bundle sizes for various SSR implementations of the [rick-and-morty example](https://github.com/TrigenSoftware/nano_kit/tree/main/examples/rick-and-morty):
 
-| Stack | Raw Size | Gzipped Size | Raw Size<br/>on `/characters` page |
+| Stack | Raw&nbsp;Size | Gzipped&nbsp;Size | Raw&nbsp;Size<br/>`/characters` page |
 |-------|----------|--------------|------------------------------|
-| React + **Nano Kit SSR** | **238.85 kB** | **78.24 kB** | **227.01 kB** |
-| React + TanStack Start | 379.50 kB | 121.66 kB | 367.37 kB |
-| Next.js Pages Router + Nano Kit | 515.09 kB | 163.65 kB | 367.51 kB |
-| Next.js App Router + Nano Kit | 916.37 kB | 284.96 kB | 438.17 kB |
+| React +&nbsp;**Nano&nbsp;Kit&nbsp;SSR** | **238.85&nbsp;kB** | **78.24&nbsp;kB** | **227.01&nbsp;kB** |
+| React +&nbsp;TanStack&nbsp;Start | 379.50&nbsp;kB | 121.66&nbsp;kB | 367.37&nbsp;kB |
+| Next.js Pages&nbsp;Router +&nbsp;Nano&nbsp;Kit | 515.09&nbsp;kB | 163.65&nbsp;kB | 367.51&nbsp;kB |
+| Next.js App&nbsp;Router +&nbsp;Nano&nbsp;Kit | 916.37&nbsp;kB | 284.96&nbsp;kB | 438.17&nbsp;kB |
 
 *Bundled with Vite 8 / Next.js 16*

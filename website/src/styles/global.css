@@ -106,16 +106,35 @@
 
 .site-title, .hero:has(.actions) h1 {
   position: relative;
-  font-family: Menlo, monospace;
+  font-family: var(--sl-font-system-mono);
   color: transparent;
+  white-space: nowrap;
+
+  &::before {
+    --size: calc(1ch / 5);
+    position: absolute;
+    top: calc(0.51lh);
+    right: calc(4.5ch - var(--size) / 2);
+    display: block;
+    width: var(--size);
+    height: var(--size);
+    content: '';
+    border-radius: 50%;
+    background: var(--sl-color-text);
+  }
 
   &::after {
     pointer-events: none;
     position: absolute;
     right: 0;
-    content: "nanʘ_kit";
-    content: "nanʘ_kit" / "";
+    content: "nano_kit";
+    content: "nano_kit" / "";
     color: var(--sl-color-text);
+    white-space: nowrap;
+  }
+
+  &:is(.site-title)::before {
+    background: var(--sl-color-accent-high);
   }
 
   &:is(.site-title)::after {
@@ -132,7 +151,13 @@
   }
 }
 
-.sl-markdown-content table {
-	display: table;
-	width: 100%;
+.nk-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+
+  & > table {
+    display: table;
+    width: 100%;
+  }
 }
