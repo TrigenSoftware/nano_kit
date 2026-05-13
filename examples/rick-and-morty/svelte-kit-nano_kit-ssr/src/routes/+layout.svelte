@@ -11,7 +11,7 @@
   import { routes } from '#src/stores/router'
   import '../app.css'
 
-  let { children } = $props()
+  let { data, children } = $props()
   const [location, navigation] = getKitNavigation(routes)
 
   setHydrationContext({
@@ -19,7 +19,7 @@
       provide(Location$, location),
       provide(Navigation$, navigation)
     ]
-  })
+  }, () => data.serverContext)
   enableLinkComponentAriaCurrent()
 </script>
 

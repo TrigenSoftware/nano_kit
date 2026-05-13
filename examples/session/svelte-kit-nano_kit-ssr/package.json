@@ -1,5 +1,5 @@
 {
-  "name": "rick-and-morty-svelte-kit-nano_kit-ssr",
+  "name": "session-svelte-kit-nano_kit-ssr",
   "private": true,
   "version": "0.0.0",
   "packageManager": "pnpm@10.33.0",
@@ -18,12 +18,9 @@
   },
   "dependencies": {
     "@nano_kit/platform-web": "*",
-    "@nano_kit/query": "*",
     "@nano_kit/router": "*",
     "@nano_kit/store": "*",
-    "@nano_kit/svelte": "*",
-    "@nano_kit/svelte-kit": "*",
-    "@nano_kit/svelte-router": "*"
+    "@nano_kit/svelte-kit": "*"
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "^7.0.0",

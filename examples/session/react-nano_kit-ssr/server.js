@@ -19,7 +19,9 @@ app.use(`${renderer.base.replace(/(.)\/$/, '$1')}*`, serveStatic({
 }))
 
 app.get('*', async (c) => {
-  const result = await renderer.render(c.req.url, c.req.header('Cookie'))
+  const result = await renderer.render(c.req.url, {
+    cookie: c.req.header('Cookie')
+  })
 
   if (result.setCookieHeaders) {
     for (const cookie of result.setCookieHeaders) {

@@ -19,6 +19,7 @@
 
 ## Router
 
+- common LocationNavigation$ token
 - preload Stores$ on nav?
 - onBeforeLeave / blocker https://reactrouter.com/api/hooks/useBlocker
 - scroll restoration ssr

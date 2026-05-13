@@ -39,6 +39,7 @@ interface NetworkCacheEntry {
 const URL_PATTERN = /https?:\/\/[^\s]+/
 // eslint-disable-next-line no-control-regex
 const ANSI_PATTERN = /\x1B\[[0-?]*[ -/]*[@-~]/g
+const CLOSED_TARGET_PATTERN = /target page, context or browser has been closed/i
 const networkMemoryCache = new Map<string, NetworkCacheEntry>()
 const children = new Set<ChildProcess>()
 
@@ -191,39 +192,56 @@ export async function useNetworkMemoryCache(
   page: Page,
   resources: (string | RegExp)[]
 ) {
-  const disposable = await page.route('**/*', async (route: Route) => {
-    const request = route.request()
-    const url = request.url()
-
+  const ignoreIfClosed = (error: unknown) => {
     if (
-      !resources.some(
-        resource => (
-          typeof resource === 'string'
-            ? url.startsWith(resource)
-            : resource.test(url)
-        )
+      page.isClosed()
+      || (
+        error instanceof Error
+        && CLOSED_TARGET_PATTERN.test(error.message)
       )
     ) {
-      await route.fallback()
       return
     }
 
-    const cached = networkMemoryCache.get(url)
+    throw error
+  }
+  const disposable = await page.route('**/*', async (route: Route) => {
+    try {
+      const request = route.request()
+      const url = request.url()
 
-    if (cached) {
-      await route.fulfill(cached)
-      return
+      if (
+        !resources.some(
+          resource => (
+            typeof resource === 'string'
+              ? url.startsWith(resource)
+              : resource.test(url)
+          )
+        )
+      ) {
+        await route.fallback()
+        return
+      }
+
+      const cached = networkMemoryCache.get(url)
+
+      if (cached) {
+        await route.fulfill(cached)
+        return
+      }
+
+      const response = await route.fetch()
+      const entry = {
+        status: response.status(),
+        headers: response.headers(),
+        body: await response.text()
+      }
+
+      networkMemoryCache.set(url, entry)
+      await route.fulfill(entry)
+    } catch (error) {
+      ignoreIfClosed(error)
     }
-
-    const response = await route.fetch()
-    const entry = {
-      status: response.status(),
-      headers: response.headers(),
-      body: await response.text()
-    }
-
-    networkMemoryCache.set(url, entry)
-    await route.fulfill(entry)
   })
 
   return async () => {

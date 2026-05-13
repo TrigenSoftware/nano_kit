@@ -10,11 +10,12 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:only": "vite build",
+    "preview": "node server.js",
     "start": "node server.js"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.9",
-    "@nano_kit/cookie-store": "*",
     "@nano_kit/platform-web": "*",
     "@nano_kit/react": "*",
     "@nano_kit/react-router": "*",

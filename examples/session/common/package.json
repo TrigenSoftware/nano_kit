@@ -1,0 +1,22 @@
+{
+  "name": "session-common",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "sync": "node ../../../scripts/examples-sync.js . ..",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@nano_kit/platform-web": "*",
+    "@nano_kit/router": "*",
+    "@nano_kit/store": "*"
+  },
+  "devDependencies": {
+    "@typescript/native-preview": "catalog:",
+    "playwright": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}
