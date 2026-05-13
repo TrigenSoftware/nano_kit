@@ -46,7 +46,6 @@ export function getDehydrationContext() {
 
 /**
  * Injects dependencies into the request-scoped dehydration context.
- * Existing providers are preserved.
  * @param context - Dependencies to inject into the dehydration context.
  */
 export function setDehydrationContext(context: InjectionProvider[] | undefined) {
@@ -54,9 +53,7 @@ export function setDehydrationContext(context: InjectionProvider[] | undefined) 
     const dehydrationContext = getDehydrationContext()
 
     for (const [token, value] of context) {
-      if (!dehydrationContext.get(token, true)) {
-        dehydrationContext.set(token, value)
-      }
+      dehydrationContext.set(token, value)
     }
   }
 }
