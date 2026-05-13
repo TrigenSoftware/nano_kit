@@ -161,7 +161,10 @@ export default function SsrPlugin(options, adapter) {
                 isEntry: true
               }
 
-              const result = await renderer.render(url, req.headers.cookie)
+              const result = await renderer.render(url, {
+                cookie: req.headers.cookie,
+                acceptLanguage: req.headers['accept-language']
+              })
               const setCookieHeaders = result.setCookieHeaders
                 ? {
                   'Set-Cookie': result.setCookieHeaders

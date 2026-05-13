@@ -8,6 +8,11 @@ import type {
 } from '@nano_kit/router'
 import type { ManifestOptions } from './manifest.types.js'
 
+export interface KnownHeaders {
+  cookie?: string
+  acceptLanguage?: string
+}
+
 export interface RendererOptions extends ManifestOptions {
   routes: Routes
   pages: UnknownMatchRef[]
@@ -21,6 +26,10 @@ export interface RendererOptions extends ManifestOptions {
    * Whether to inject a CookieStore-compatible virtual implementation during SSR.
    */
   cookieStore?: boolean
+  /**
+   * Weather to detect and inject the browser locale from the `Accept-Language` header.
+   */
+  browserLocale?: boolean
 }
 
 export interface RenderViewData {

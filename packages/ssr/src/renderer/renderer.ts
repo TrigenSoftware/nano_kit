@@ -19,8 +19,8 @@ import {
   precompose,
   sharedRouter
 } from '@nano_kit/router'
-import type { VirtualCookieStore } from '@nano_kit/cookie-store'
 import type {
+  KnownHeaders,
   RendererOptions,
   RenderData,
   RenderResult
@@ -34,7 +34,11 @@ import {
 export * from './renderer.types.js'
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-let cookeStorePromise: Promise<typeof import('@nano_kit/cookie-store')>
+let platformWebPromise: Promise<typeof import('@nano_kit/platform-web')>
+
+async function platformWeb() {
+  return await (platformWebPromise ??= import('@nano_kit/platform-web'))
+}
 
 /**
  * A base class for renderers. It provides methods to load the manifest, preload the pages, and render the view. The actual rendering logic should be implemented in the subclasses.
@@ -65,19 +69,20 @@ export abstract class Renderer extends Manifest {
   /**
    * Prepares the data needed for rendering the view.
    * @param url - The URL for which the view should be rendered.
-   * @param cookies - The raw `Cookie` header value from the incoming request.
+   * @param headers - The headers from the incoming request.
    * @returns Render data.
    */
   async data(
     url: string,
-    cookies?: string
+    headers?: KnownHeaders
   ): Promise<RenderData> {
     await this.#preloading
 
     const {
       routes,
       pages,
-      cookieStore
+      cookieStore,
+      browserLocale
     } = this.options
     const [$location, navigation] = virtualNavigation(url, routes)
     const $page = this.#router($location)
@@ -87,17 +92,26 @@ export abstract class Renderer extends Manifest {
       provide(Page$, $page),
       provide(Pages$, pages)
     ]
-    let virtualCookieStore: VirtualCookieStore | undefined
+    let virtualCookieStore
 
     if (cookieStore) {
       const {
-        VirtualCookieStore,
-        CookieStore$
-      } = await (cookeStorePromise ??= import('@nano_kit/cookie-store'))
+        CookieStore$,
+        VirtualCookieStore
+      } = await platformWeb()
 
-      virtualCookieStore = new VirtualCookieStore(cookies, url)
+      virtualCookieStore = new VirtualCookieStore(headers?.cookie, url)
 
       dependecies.push(provide(CookieStore$, virtualCookieStore))
+    }
+
+    if (browserLocale) {
+      const {
+        Locales$,
+        parseLocales
+      } = await platformWeb()
+
+      dependecies.push(provide(Locales$, parseLocales(headers?.acceptLanguage)))
     }
 
     const context = new InjectionContext(dependecies)
@@ -150,14 +164,14 @@ export abstract class Renderer extends Manifest {
   /**
    * Renders the view for the given URL and returns the result.
    * @param url - The URL for which the view should be rendered.
-   * @param cookies - The raw `Cookie` header value from the incoming request.
+   * @param headers - The headers from the incoming request.
    * @returns An object containing the rendered HTML and other render artifacts.
    */
   async render(
     url: string,
-    cookies?: string
+    headers?: KnownHeaders
   ): Promise<RenderResult> {
-    const data = await this.data(url, cookies)
+    const data = await this.data(url, headers)
     let html: string | null = null
 
     if (!data.redirect && data.page) {
