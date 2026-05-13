@@ -103,6 +103,13 @@ export default defineConfig({
             content: 'https://nano-kit.js.org/og-image-v2.jpg'
           }
         },
+        {
+          tag: 'meta',
+          attrs: {
+            name: 'format-detection',
+            content: 'telephone=no'
+          }
+        },
         isProduction && {
           tag: 'script',
           attrs: {
