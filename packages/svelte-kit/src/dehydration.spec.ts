@@ -41,7 +41,7 @@ describe('svelte-kit', () => {
     })
 
     describe('setDehydrationContext', () => {
-      it('should merge providers into request context without overriding existing values', () => {
+      it('should merge providers into request context and override existing values', () => {
         setDehydrationContext([
           provide(Value$, 'first')
         ])
@@ -52,7 +52,7 @@ describe('svelte-kit', () => {
 
         const context = getDehydrationContext()
 
-        expect(context.get(Value$)).toBe('first')
+        expect(context.get(Value$)).toBe('second')
         expect(context.get(OtherValue$)).toBe('added')
       })
     })

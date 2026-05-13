@@ -55,6 +55,17 @@ class ServerCookieStore implements CookieStore {
   }
 
   /**
+   * Returns the first cookie value matching the provided name synchronously.
+   * @param name - Cookie name.
+   * @returns The first matching cookie value, or `null` if none was found.
+   */
+  peek(name: string): string | null
+
+  peek(name: string): string | null {
+    return this.#cookies.get(name) ?? null
+  }
+
+  /**
    * Returns all cookies matching the provided name.
    * @param name - Cookie name.
    * @returns Matching cookies in their current in-store order.

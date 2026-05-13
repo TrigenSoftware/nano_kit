@@ -1,18 +1,24 @@
+/* eslint-disable import/order */
 import {
   type AnyAccessor,
   type AnyFn,
   type InjectionFactory,
   type InjectionProvider,
+  type ValueOrAccessor,
   InjectionContext,
-  dehydrate as storeDehydrate
+  dehydrate as storeDehydrate,
+  $get
 } from '@nano_kit/store'
+import { getInjectionContext, setInjectionContext } from '@nano_kit/svelte'
 // eslint-disable-next-line import/extensions
 import { getRequestEvent } from '$app/server'
+import type { HydrationContextParams } from './hydration.js'
 
 export interface ServerContext {
   flight: boolean
   context: InjectionContext
   seen: WeakSet<AnyFn>
+  id: number
 }
 
 interface RequestEvent {
@@ -21,6 +27,9 @@ interface RequestEvent {
     nanokitDehydrationContext?: ServerContext
   }
 }
+
+const sharedContexts = new Map<number, InjectionContext>()
+let contextId = 0
 
 /* @__NO_SIDE_EFFECTS__ */
 export function getServerContext(): ServerContext {
@@ -37,7 +46,8 @@ export function getServerContext(): ServerContext {
   return locals.nanokitDehydrationContext = {
     flight,
     context,
-    seen
+    seen,
+    id: -1
   }
 }
 
@@ -63,15 +73,28 @@ export function getDehydrationContext() {
  * Merges providers into the request-scoped dehydration context.
  * Existing providers are preserved.
  * @param context - Providers to merge into the dehydration context.
+ * @returns The unique ID of the shared context.
  */
 export function setDehydrationContext(context: InjectionProvider[]) {
-  const dehydrationContext = getDehydrationContext()
+  const ctx = getServerContext()
+  const {
+    context: dehydrationContext,
+    flight
+  } = ctx
 
   for (const [token, value] of context) {
-    if (!dehydrationContext.get(token, true)) {
-      dehydrationContext.set(token, value)
-    }
+    dehydrationContext.set(token, value)
   }
+
+  if (!flight) {
+    const id = ctx.id = ++contextId
+
+    sharedContexts.set(id, dehydrationContext)
+
+    return id
+  }
+
+  return 0
 }
 
 /**
@@ -90,4 +113,42 @@ export async function dehydrate(Stores$: InjectionFactory<AnyAccessor[]>) {
     ),
     context
   )
+}
+
+/**
+ * Provide hydrated data to child components using a active hydrator.
+ * @param params - Hydration context parameters.
+ * @param serverContextRef - Optional reference to a shared server context for root hydration context.
+ */
+export function setHydrationContext(
+  {
+    context = [],
+    reuse = true
+  }: HydrationContextParams = {},
+  serverContextRef?: ValueOrAccessor<number>
+) {
+  const currentContext = getInjectionContext()
+  const serverContextRefValue = $get(serverContextRef)!
+
+  if (!currentContext && !serverContextRefValue) {
+    throw new Error('Server context reference is required for root hydration context')
+  }
+
+  if (currentContext) {
+    if (!reuse) {
+      setInjectionContext(context)
+    }
+
+    return
+  }
+
+  const serverContext = sharedContexts.get(serverContextRefValue)!
+
+  sharedContexts.delete(serverContextRefValue)
+
+  for (const [token, value] of context) {
+    serverContext.set(token, value)
+  }
+
+  setInjectionContext(serverContext)
 }
