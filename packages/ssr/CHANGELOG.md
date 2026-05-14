@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.3](https://github.com/TrigenSoftware/nano_kit/compare/ssr@1.0.0-alpha.2...ssr@1.0.0-alpha.3) (2026-05-14)
+
+### Features
+
+* replace cookie-store with platform-web and add browserLocale renderer option ([9a088e7](https://github.com/TrigenSoftware/nano_kit/commit/9a088e7e32cb60f3798fc8158b2de50794becb0b))
+
 ## [1.0.0-alpha.2](https://github.com/TrigenSoftware/nano_kit/compare/ssr@1.0.0-alpha.1...ssr@1.0.0-alpha.2) (2026-05-09)
 
 ### Bug Fixes

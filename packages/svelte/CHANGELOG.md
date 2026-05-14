@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.2](https://github.com/TrigenSoftware/nano_kit/compare/svelte@1.0.0-alpha.1...svelte@1.0.0-alpha.2) (2026-05-14)
+
+### Bug Fixes
+
+* safely read parent injection context ([81b888d](https://github.com/TrigenSoftware/nano_kit/commit/81b888d4a206d652b59bd524809bcd08eb6f17f1))
+
 ## [1.0.0-alpha.1](https://github.com/TrigenSoftware/nano_kit/compare/svelte@1.0.0-alpha.0...svelte@1.0.0-alpha.1) (2026-05-09)
 
 ### Bug Fixes

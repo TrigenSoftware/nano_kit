@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.3](https://github.com/TrigenSoftware/nano_kit/compare/svelte-router@1.0.0-alpha.2...svelte-router@1.0.0-alpha.3) (2026-05-14)
+
+### Bug Fixes
+
+* keep dynamic component props reactive ([d11e22c](https://github.com/TrigenSoftware/nano_kit/commit/d11e22c6a1330566043c1d0e2b6cc8d1120bfe96))
+
 ## [1.0.0-alpha.2](https://github.com/TrigenSoftware/nano_kit/compare/svelte-router@1.0.0-alpha.1...svelte-router@1.0.0-alpha.2) (2026-05-09)
 
 ### Bug Fixes

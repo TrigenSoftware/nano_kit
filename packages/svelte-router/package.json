@@ -1,7 +1,7 @@
 {
   "name": "@nano_kit/svelte-router",
   "type": "module",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.3",
   "description": "Svelte integration for @nano_kit/router with code splitting, Dependency Injection, and state management.",
   "author": "dangreen",
   "license": "MIT",

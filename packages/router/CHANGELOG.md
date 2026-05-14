@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.11](https://github.com/TrigenSoftware/nano_kit/compare/router@1.0.0-alpha.10...router@1.0.0-alpha.11) (2026-05-14)
+
+### Features
+
+* remove virtual navigation provider helper ([b022906](https://github.com/TrigenSoftware/nano_kit/commit/b022906c6a2eea263101fb6c0942334445fc4c17))
+
 ## [1.0.0-alpha.10](https://github.com/TrigenSoftware/nano_kit/compare/router@1.0.0-alpha.9...router@1.0.0-alpha.10) (2026-05-09)
 
 ### Bug Fixes
