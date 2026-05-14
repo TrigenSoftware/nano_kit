@@ -13,7 +13,6 @@ A lightweight, modular, and performant state management ecosystem for building m
 | [`@nano_kit/platform-web`](packages/platform-web#readme) | Web platform adapters and reactive helpers. | [![NPM version][platform-web-npm]][platform-web-npm-url] |
 | [`@nano_kit/router`](packages/router#readme) | Routing library, built on @nano_kit/store. | [![NPM version][router-npm]][router-npm-url] |
 | [`@nano_kit/query`](packages/query#readme) | Data fetching and caching library, built on @nano_kit/store. | [![NPM version][query-npm]][query-npm-url] |
-| [`@nano_kit/cookie-store`](packages/cookie-store#readme) | CookieStore-compatible implementation for SSR and testing environments. | [![NPM version][cookie-store-npm]][cookie-store-npm-url] |
 | [`@nano_kit/ssr`](packages/ssr#readme) | Base package for server-side rendering capabilities. | [![NPM version][ssr-npm]][ssr-npm-url] |
 | [`@nano_kit/react`](packages/react#readme) | React integration for @nano_kit/store. | [![NPM version][react-npm]][react-npm-url] |
 | [`@nano_kit/react-router`](packages/react-router#readme) | React integration for @nano_kit/router. | [![NPM version][react-router-npm]][react-router-npm-url] |
@@ -24,6 +23,7 @@ A lightweight, modular, and performant state management ecosystem for building m
 | [`@nano_kit/svelte`](packages/svelte#readme) | Svelte integration for @nano_kit/store. | [![NPM version][svelte-npm]][svelte-npm-url] |
 | [`@nano_kit/svelte-router`](packages/svelte-router#readme) | Svelte integration for @nano_kit/router. | [![NPM version][svelte-router-npm]][svelte-router-npm-url] |
 | [`@nano_kit/svelte-ssr`](packages/svelte-ssr#readme) | Svelte adapter for server-side rendering capabilities. | [![NPM version][svelte-ssr-npm]][svelte-ssr-npm-url] |
+| [`@nano_kit/svelte-kit`](packages/svelte-kit#readme) | SvelteKit integration for stores, router, and SSR. | [![NPM version][svelte-kit-npm]][svelte-kit-npm-url] |
 | [`@nano_kit/next-router`](packages/next-router#readme) | Next.js integration for @nano_kit/router. | [![NPM version][next-router-npm]][next-router-npm-url] |
 
 <!-- nanoviews -->
@@ -60,11 +60,6 @@ A lightweight, modular, and performant state management ecosystem for building m
 
 [query-npm]: https://img.shields.io/npm/v/%40nano_kit%2Fquery.svg
 [query-npm-url]: https://npmjs.com/package/@nano_kit/query
-
-<!-- cookie-store -->
-
-[cookie-store-npm]: https://img.shields.io/npm/v/%40nano_kit%2Fcookie-store.svg
-[cookie-store-npm-url]: https://npmjs.com/package/@nano_kit/cookie-store
 
 <!-- ssr -->
 
@@ -115,6 +110,11 @@ A lightweight, modular, and performant state management ecosystem for building m
 
 [svelte-ssr-npm]: https://img.shields.io/npm/v/%40nano_kit%2Fsvelte-ssr.svg
 [svelte-ssr-npm-url]: https://npmjs.com/package/@nano_kit/svelte-ssr
+
+<!-- svelte-kit -->
+
+[svelte-kit-npm]: https://img.shields.io/npm/v/%40nano_kit%2Fsvelte-kit.svg
+[svelte-kit-npm-url]: https://npmjs.com/package/@nano_kit/svelte-kit
 
 <!-- next-router -->
 

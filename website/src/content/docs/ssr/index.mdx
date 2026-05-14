@@ -187,7 +187,13 @@ export default defineConfig({
 })
 ```
 
-Use `cookieStore: true` when the renderer should provide a request-bound `CookieStore$` during SSR. This feature uses the optional peer package `@nano_kit/cookie-store`, so install it in the app before enabling the option. See [SSR Cookies](/ssr/cookies) for the full setup, including store code and `Set-Cookie` forwarding.
+### SSR Options
+
+The SSR plugin can provide request-bound browser-like dependencies for stores that run during server rendering.
+
+#### `cookieStore`
+
+Use `cookieStore: true` when the renderer should provide a request-bound `CookieStore$` during SSR. This feature uses the optional peer package `@nano_kit/platform-web`, so install it in the app before enabling the option. See [SSR Cookies](/ssr/cookies) for the full setup, including store code and `Set-Cookie` forwarding.
 
 ```js
 ssr({
@@ -195,6 +201,19 @@ ssr({
   cookieStore: true
 })
 ```
+
+#### `browserLocale`
+
+Use `browserLocale: true` when the renderer should provide request-bound `Locales$` during SSR. This feature uses the optional peer package `@nano_kit/platform-web`, so install it in the app before enabling the option. The renderer parses the incoming `Accept-Language` header with [`parseLocales`](/platform/web/#locale), so universal stores can inject `Locales$` and resolve the same locale shape on the server and in the browser. See [SSR Locale](/ssr/locale) for the full setup.
+
+```js
+ssr({
+  index: 'src/index.js',
+  browserLocale: true
+})
+```
+
+### Build and Serve
 
 - **`vite dev`** — starts the development server with SSR rendering handled in-process via Vite's dev middleware.
 - **`vite build`** — produces two output directories: `dist/client/` (browser assets) and `dist/renderer/` (SSR renderer bundle).
@@ -228,5 +247,5 @@ app.get('*', async (req, res) => {
 
 - [`@nano_kit/react-ssr`](/integrations/react-ssr) — The React adapter built with this package.
 - [`@nano_kit/preact-ssr`](/integrations/preact-ssr) — The Preact adapter built with this package.
-- [SSR Cookies](/ssr/cookies) — Request-bound cookie stores and `cookieStore: true`.
+- [SSR Cookies](/ssr/cookies) — Request-bound cookie stores.
 - [Router SSR](/router/ssr) — [`Stores$`](/router/ssr#stores-data-dehydration), [`Head$`](/router/ssr#head-management), and other page-level SSR hooks.

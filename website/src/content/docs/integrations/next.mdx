@@ -2,7 +2,7 @@
 title: Next.js
 description: "Use Nano Kit with Next.js via @nano_kit/react and @nano_kit/next-router."
 sidebar:
-  order: 11
+  order: 12
 ---
 
 import { Tabs, TabItem, Code } from '@astrojs/starlight/components'
@@ -168,7 +168,7 @@ If you do not use `@nano_kit/router`, render `StaticDehydration` directly withou
 In the Pages Router, the usual setup is:
 
 - [`HydrationProvider`](/integrations/react#hydrationprovider) in `_app.tsx`
-- [`dehydrate()`](/store/ssr#server-side-dehydration) or [`contextDehydrate()`](/store/ssr#server-side-dehydration) in `getServerSideProps`
+- [`dehydrate()`](/store/ssr#server-side-dehydration) in `getServerSideProps`
 - [`NextNavigationProvider`](/integrations/next-router#nextnavigationprovider) when the app uses `@nano_kit/router`
 
 ### `_app.tsx`
@@ -203,19 +203,23 @@ export default function App({ Component, pageProps }: AppProps) {
 
 When you need server-prefetched store data, dehydrate stores in `getServerSideProps` and pass the snapshot through `pageProps.dehydrated`.
 
-If the page uses `@nano_kit/router`, create the dehydration context with [`virtualNavigationContext`](/integrations/next-router#pages-router).
+If the page uses `@nano_kit/router`, create a virtual navigation for the current URL and pass its providers as the second `dehydrate` argument.
 
 ```tsx
 import type { GetServerSideProps } from 'next'
-import { dehydrate } from '@nano_kit/store'
-import { virtualNavigationContext } from '@nano_kit/next-router'
+import { dehydrate, provide } from '@nano_kit/store'
+import { Location$, Navigation$, virtualNavigation } from '@nano_kit/next-router'
 import { routes } from '@/stores/router'
 import CharactersPage, { Stores$ } from '@/ui/pages/Characters'
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
+  const [$location, navigation] = virtualNavigation(context.resolvedUrl, routes)
   const dehydrated = await dehydrate(
     Stores$,
-    virtualNavigationContext(context.resolvedUrl, routes)
+    [
+      provide(Location$, $location),
+      provide(Navigation$, navigation)
+    ]
   )
 
   return {
@@ -234,17 +238,26 @@ If you want the Pages Router to behave like static dehydration in the App Router
 
 ```tsx
 import type { GetServerSideProps } from 'next'
-import { dehydrate } from '@nano_kit/store'
+import { dehydrate, provide } from '@nano_kit/store'
 import { isFlight } from '@nano_kit/react'
-import { virtualNavigationContext } from '@nano_kit/next-router'
+import { Location$, Navigation$, virtualNavigation } from '@nano_kit/next-router'
 import { routes } from '@/stores/router'
 import CharactersPage, { Stores$ } from '@/ui/pages/Characters'
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const dehydrated = !isFlight(context.req.headers) && await dehydrate(
-    Stores$,
-    virtualNavigationContext(context.resolvedUrl, routes)
-  )
+  let dehydrated
+
+  if (!isFlight(context.req.headers)) {
+    const [$location, navigation] = virtualNavigation(context.resolvedUrl, routes)
+
+    dehydrated = await dehydrate(
+      Stores$,
+      [
+        provide(Location$, $location),
+        provide(Navigation$, navigation)
+      ]
+    )
+  }
 
   return {
     props: {
@@ -258,7 +271,7 @@ export default function Page() {
 }
 ```
 
-Without `@nano_kit/router`, call `dehydrate(Stores$)` without `virtualNavigationContext`.
+Without `@nano_kit/router`, call `dehydrate(Stores$)` without navigation providers.
 
 ## Which Package Does What?
 

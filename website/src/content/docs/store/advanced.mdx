@@ -429,7 +429,7 @@ function getPosition(options?: PositionOptions) {
 
 const $highAccuracy = signal(false)
 const [$position, $error, $pending] = resolved(
-  computed(() => getPosition({ enableHighAccuracy: $highAccuracy() }))
+  () => getPosition({ enableHighAccuracy: $highAccuracy() })
 )
 ```
 

@@ -76,8 +76,6 @@ import { Steps, Tabs, TabItem, Code, Aside } from '@astrojs/starlight/components
    - **`vite dev`** — starts the development server with SSR rendering handled in-process.
    - **`vite build`** — produces `dist/client/` (browser assets) and `dist/renderer/` (SSR renderer bundle).
 
-   Add `cookieStore: true` when SSR stores need access to request cookies. See [SSR Cookies](/ssr/cookies) for the full setup.
-
 3. **Write your production HTTP server**
 
    For production, write your own HTTP server that imports the built renderer and calls `renderer.render(url)` for every incoming request:
@@ -88,7 +86,10 @@ import { Steps, Tabs, TabItem, Code, Aside } from '@astrojs/starlight/components
 
    // Express example
    app.get('*', async (req, res) => {
-     const result = await renderer.render(req.url, req.headers.cookie)
+     const result = await renderer.render(req.url, {
+       cookie: req.headers.cookie,
+       acceptLanguage: req.headers['accept-language']
+     })
 
      if (result.setCookieHeaders) {
        res.setHeader('Set-Cookie', result.setCookieHeaders)
@@ -107,6 +108,32 @@ import { Steps, Tabs, TabItem, Code, Aside } from '@astrojs/starlight/components
    ```
 
 </Steps>
+
+## SSR Options
+
+The SSR plugin can provide request-bound browser-like dependencies for stores that run during server rendering.
+
+### `cookieStore`
+
+Use `cookieStore: true` when the renderer should provide a request-bound `CookieStore$` during SSR. This feature uses the optional peer package `@nano_kit/platform-web`, so install it in the app before enabling the option. See [SSR Cookies](/ssr/cookies) for the full setup, including store code and `Set-Cookie` forwarding.
+
+```js
+ssr({
+  index: 'src/index.ts',
+  cookieStore: true
+})
+```
+
+### `browserLocale`
+
+Use `browserLocale: true` when the renderer should provide request-bound `Locales$` during SSR. This feature uses the optional peer package `@nano_kit/platform-web`, so install it in the app before enabling the option. The renderer parses the incoming `Accept-Language` header with [`parseLocales`](/platform/web/#locale), so universal stores can inject `Locales$` and resolve the same locale shape on the server and in the browser. See [SSR Locale](/ssr/locale) for the full setup.
+
+```js
+ssr({
+  index: 'src/index.ts',
+  browserLocale: true
+})
+```
 
 ## Custom Renderer
 
@@ -178,6 +205,7 @@ ssr({
 ## See Also
 
 - [SSR — Getting Started](/ssr) — how the base SSR package works
-- [SSR Cookies](/ssr/cookies) — request-bound cookies, `cookieStore: true`, and `Set-Cookie` forwarding
+- [SSR Cookies](/ssr/cookies) — request-bound cookies and `Set-Cookie` forwarding
+- [SSR Locale](/ssr/locale) — request-bound locales and `Accept-Language` parsing
 - [Router SSR](/router/ssr) — how to add [`Stores$`](/router/ssr#stores-data-dehydration) and [`Head$`](/router/ssr#head-management) to page modules
 - [React Router](/integrations/react-router) — [`App`](/integrations/react-router#app), [`browserNavigation`](/integrations/react-router#setup), [`router`](/integrations/react-router#router), and other React router APIs
