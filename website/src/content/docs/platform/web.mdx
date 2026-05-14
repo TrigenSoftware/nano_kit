@@ -213,6 +213,59 @@ Use `cookieStored` when you only need reads and writes. Use `syncedCookieStored`
 
 Assigning `null` or `undefined` deletes the underlying cookie through the provided [`CookieStore`](https://developer.mozilla.org/en-US/docs/Web/API/Cookie_Store_API)-compatible object. When `cookieStored` was created from options, deletion reuses the matching `path`, `domain`, and `partitioned` attributes so the browser removes the same cookie scope. If a default value was provided, the signal falls back to it after deletion.
 
+For universal code, use the `CookieStore$` injection token. By default it returns the browser `cookieStore`, so browser-only code does not need any setup.
+
+```ts
+import { inject } from '@nano_kit/store'
+import {
+  CookieStore$,
+  cookieStored
+} from '@nano_kit/platform-web'
+
+export function Session$() {
+  const cookieStore = inject(CookieStore$)
+  const $session = cookieStored<string | null>(cookieStore, {
+    name: 'session',
+    path: '/',
+    sameSite: 'lax'
+  }, null)
+
+  return {
+    $session
+  }
+}
+```
+
+During SSR and tests, provide `CookieStore$` with `VirtualCookieStore`. It implements the CookieStore API from an incoming `Cookie` header and collects pending `Set-Cookie` headers from mutations.
+
+```ts
+import { InjectionContext, provide } from '@nano_kit/store'
+import {
+  CookieStore$,
+  VirtualCookieStore
+} from '@nano_kit/platform-web'
+
+const cookieStore = new VirtualCookieStore(
+  'theme=dark; session=abc123',
+  '/dashboard'
+)
+
+const context = new InjectionContext([
+  provide(CookieStore$, cookieStore)
+])
+
+await cookieStore.set({
+  name: 'theme',
+  value: 'light',
+  path: '/',
+  sameSite: 'lax'
+})
+
+cookieStore.peek('theme') // 'light'
+cookieStore.drainSetCookieHeaders()
+// ['theme=light; Path=/; SameSite=Lax']
+```
+
 ## Broadcast Channel
 
 `broadcasted` creates a signal synchronized through `BroadcastChannel`. It is useful for transient cross-tab messages such as logout, refresh, or UI coordination events.
@@ -233,3 +286,45 @@ $authEvent('logout')
 ```
 
 `broadcasted` supports the same default value, [codec](/store/advanced/#codecs), and [setter rate limiter](/store/advanced/#rate-limiting) overloads as the storage helpers.
+
+## Locale
+
+`browserLocale` picks the best locale from a browser-like language container. In the browser, pass `navigator` directly.
+
+```ts
+import { browserLocale } from '@nano_kit/platform-web'
+
+const locale = browserLocale(navigator, ['en', 'ru'], 'en')
+```
+
+For universal code, use the `Locales$` injection token. By default it returns `navigator`, so browser-only code does not need any setup.
+
+```ts
+import { inject } from '@nano_kit/store'
+import {
+  Locales$,
+  browserLocale
+} from '@nano_kit/platform-web'
+
+export function Locale$() {
+  const locales = inject(Locales$)
+
+  return browserLocale(locales, ['en', 'ru'], 'en')
+}
+```
+
+On the server, provide `Locales$` with `parseLocales(...)` from the request `Accept-Language` header.
+
+```ts
+import { provide } from '@nano_kit/store'
+import {
+  Locales$,
+  parseLocales
+} from '@nano_kit/platform-web'
+
+const context = [
+  provide(Locales$, parseLocales(request.headers.get('accept-language')))
+]
+```
+
+`parseLocales` sorts languages by `q` quality and keeps declaration order when qualities are equal. Empty headers fall back to `{ language: 'en', languages: ['en'] }`.

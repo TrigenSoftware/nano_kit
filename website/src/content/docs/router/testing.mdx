@@ -42,23 +42,3 @@ it('should render the admin page', async () => {
   expect(screen.getByText('Admin Panel')).toBeInTheDocument()
 })
 ```
-
-Alternatively, use `virtualNavigationContext` as a shorthand — it creates the context and provides both tokens for you:
-
-```tsx
-import { virtualNavigationContext } from '@nano_kit/router'
-import { routes } from './routes'
-import { App } from './App'
-
-it('should render the home page', async () => {
-  const context = virtualNavigationContext('/', routes)
-
-  render(
-    <InjectionContextProvider context={context}>
-      <App />
-    </InjectionContextProvider>
-  )
-
-  expect(screen.getByText('Home')).toBeInTheDocument()
-})
-```

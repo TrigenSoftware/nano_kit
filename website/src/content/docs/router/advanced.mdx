@@ -376,15 +376,3 @@ declare module '@nano_kit/router' {
 - **`component`** — your framework's component type (e.g. `() => ReactNode`). Enables typed `$page().default` in `Page$`.
 
 If `AppContext` is not extended, all tokens fall back to generic types.
-
-### `virtualNavigationContext`
-
-`virtualNavigationContext` creates an `InjectionContext` pre-configured with a virtual (in-memory) navigation. It is a shorthand for creating a context with `virtualNavigation` + `provide`. Useful for SSR and testing.
-
-```ts
-import { virtualNavigationContext } from '@nano_kit/router'
-import { routes } from './routes'
-
-const context = virtualNavigationContext('/users/123', routes)
-/* context already has Location$ and Navigation$ provided */
-```

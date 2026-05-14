@@ -1,0 +1,262 @@
+---
+title: SvelteKit
+description: "Use Nano Kit stores, routing helpers, and SSR hydration in SvelteKit."
+sidebar:
+  order: 11
+---
+
+import { Steps, Tabs, TabItem, Code } from '@astrojs/starlight/components'
+
+The `@nano_kit/svelte-kit` package integrates Nano Kit with SvelteKit. It re-exports everything from `@nano_kit/svelte` and `@nano_kit/svelte-router`, and adds SvelteKit-specific helpers for store dehydration, client hydration, navigation, router-aware links, and server cookies.
+
+## Installation
+
+Install the package using your favorite package manager:
+
+<Tabs syncKey='pkg'>
+  <TabItem label='pnpm' icon='pnpm'>
+    <Code frame='none' lang='bash' code='pnpm add @nano_kit/store @nano_kit/router @nano_kit/svelte-kit' />
+  </TabItem>
+  <TabItem label='Yarn' icon='seti:yarn'>
+    <Code frame='none' lang='bash' code='yarn add @nano_kit/store @nano_kit/router @nano_kit/svelte-kit' />
+  </TabItem>
+  <TabItem label='npm' icon='seti:npm'>
+    <Code frame='none' lang='bash' code='npm install @nano_kit/store @nano_kit/router @nano_kit/svelte-kit' />
+  </TabItem>
+</Tabs>
+
+## Quick Start
+
+The main SvelteKit integration point is store dehydration in `+page.server.ts` and hydration in the matching `+page.svelte`.
+
+<Steps>
+
+1. **Set up the root layout**
+
+   Create a request-scoped dehydration context in the root server layout and pass its reference to the root layout component.
+
+   ```ts
+   // src/routes/+layout.server.ts
+   import {
+     setDehydrationContext
+   } from '@nano_kit/svelte-kit'
+   import type { LayoutServerLoad } from './$types'
+
+   export const load: LayoutServerLoad = () => {
+     const contextRef = setDehydrationContext()
+
+     return {
+       contextRef
+     }
+   }
+   ```
+
+   ```svelte
+   <!-- src/routes/+layout.svelte -->
+   <script lang="ts">
+     import { setHydrationContext } from '@nano_kit/svelte-kit'
+
+     let { data, children } = $props()
+
+     setHydrationContext({
+       fromRef: () => data.contextRef
+     })
+   </script>
+
+   {@render children()}
+   ```
+
+2. **Dehydrate page stores**
+
+   Choose whether SvelteKit should dehydrate stores during client-side navigations.
+
+   <Tabs syncKey='svelte-kit-dehydration'>
+     <TabItem label='No flight dehydration'>
+
+       ```ts
+       // src/routes/characters/+page.server.ts
+       import {
+         dehydrate,
+         isFlight
+       } from '@nano_kit/svelte-kit'
+       import { Stores$ } from '$lib/pages/Characters.svelte'
+       import type { PageServerLoad } from './$types'
+
+       export const load: PageServerLoad = async () => ({
+         dehydrated: !isFlight() && await dehydrate(Stores$)
+       })
+       ```
+
+       `isFlight()` skips server dehydration during browser navigation. Stores still work, but navigation-time data is fetched in the browser instead of being prepared by the SvelteKit server load.
+
+     </TabItem>
+     <TabItem label='Flight dehydration'>
+
+       ```ts
+       // src/routes/characters/+page.server.ts
+       import { dehydrate } from '@nano_kit/svelte-kit'
+       import { Stores$ } from '$lib/pages/Characters.svelte'
+       import type { PageServerLoad } from './$types'
+
+       export const load: PageServerLoad = async ({ parent }) => {
+         await parent()
+
+         return {
+           dehydrated: await dehydrate(Stores$)
+         }
+       }
+       ```
+
+       Use this mode when you want server data preparation during browser navigation too. `await parent()` is needed when those stores rely on providers installed by a parent layout, such as router navigation or cookies.
+
+     </TabItem>
+   </Tabs>
+
+3. **Hydrate page stores**
+
+   Pass the dehydrated page data to `setHydrationContext` in the page component.
+
+   ```svelte
+   <!-- src/routes/characters/+page.svelte -->
+   <script lang="ts">
+     import { setHydrationContext } from '@nano_kit/svelte-kit'
+     import CharactersPage from '$lib/pages/Characters.svelte'
+
+     let { data } = $props()
+
+     setHydrationContext({
+       dehydrated: () => data.dehydrated
+     })
+   </script>
+
+   <CharactersPage />
+   ```
+
+</Steps>
+
+## Navigation
+
+Set up navigation only when stores or components use Nano Kit router dependencies such as `Location$`, `Navigation$`, `Link`, or typed route navigation.
+
+### Server Navigation
+
+In the root server layout, provide request navigation.
+
+```ts
+// src/routes/+layout.server.ts
+import { provide } from '@nano_kit/store'
+import {
+  Location$,
+  Navigation$,
+  serverNavigation,
+  setDehydrationContext
+} from '@nano_kit/svelte-kit'
+import { routes } from '$lib/stores/router'
+import type { LayoutServerLoad } from './$types'
+
+export const load: LayoutServerLoad = () => {
+  const [location, navigation] = serverNavigation(routes)
+  const contextRef = setDehydrationContext([
+    provide(Location$, location),
+    provide(Navigation$, navigation)
+  ])
+
+  return {
+    contextRef
+  }
+}
+```
+
+### Client Navigation
+
+In the root layout component, provide browser navigation.
+
+```svelte
+<!-- src/routes/+layout.svelte -->
+<script lang="ts">
+  import { provide } from '@nano_kit/store'
+  import {
+    Link,
+    Location$,
+    Navigation$,
+    getKitNavigation,
+    setHydrationContext
+  } from '@nano_kit/svelte-kit'
+  import { routes } from '$lib/stores/router'
+
+  let { data, children } = $props()
+  const [location, navigation] = getKitNavigation(routes)
+
+  setHydrationContext({
+    fromRef: () => data.contextRef,
+    context: [
+      provide(Location$, location),
+      provide(Navigation$, navigation)
+    ]
+  })
+</script>
+
+<nav>
+  <Link to="home">Home</Link>
+  <Link to="characters">Characters</Link>
+</nav>
+
+{@render children()}
+```
+
+## Cookies
+
+`@nano_kit/svelte-kit` exports `CookieStore`, a server adapter around SvelteKit's `cookies` object. Provide it through [`CookieStore$`](/platform/web/#cookies) when stores use cookie-backed signals.
+
+```ts
+// src/routes/+layout.server.ts
+import { provide } from '@nano_kit/store'
+import {
+  CookieStore,
+  setDehydrationContext
+} from '@nano_kit/svelte-kit'
+import { CookieStore$ } from '@nano_kit/platform-web'
+import type { LayoutServerLoad } from './$types'
+
+export const load: LayoutServerLoad = ({ cookies }) => {
+  const contextRef = setDehydrationContext([
+    provide(CookieStore$, new CookieStore(cookies))
+  ])
+
+  return {
+    contextRef
+  }
+}
+```
+
+Then inject `CookieStore$` in stores that use cookie-backed signals.
+
+```ts
+// src/lib/stores/session.ts
+import { inject } from '@nano_kit/store'
+import {
+  CookieStore$,
+  cookieStored
+} from '@nano_kit/platform-web'
+
+export function Session$() {
+  const cookieStore = inject(CookieStore$)
+  const $session = cookieStored<string | null>(cookieStore, {
+    name: 'session',
+    path: '/',
+    sameSite: 'lax'
+  }, null)
+
+  return {
+    $session
+  }
+}
+```
+
+See [SSR Cookies](/ssr/cookies) for the general cookie model.
+
+## See Also
+
+- [Svelte](/integrations/svelte) - Svelte bindings for Nano Kit stores and dependency injection
+- [Svelte Router](/integrations/svelte-router) - typed links and router-aware Svelte components
+- [SSR Cookies](/ssr/cookies) - request-bound cookies and `Set-Cookie` forwarding

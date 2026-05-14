@@ -2,7 +2,7 @@
 title: Next.js Router
 description: "Integrate @nano_kit/router with Next.js using @nano_kit/next-router."
 sidebar:
-  order: 12
+  order: 13
 ---
 
 import { Tabs, TabItem, Code } from '@astrojs/starlight/components'
@@ -132,19 +132,23 @@ export default function App({ Component, pageProps }: AppProps) {
 }
 ```
 
-For SSR data loading in `getServerSideProps`, use `virtualNavigationContext` together with `dehydrate`.
+For SSR data loading in `getServerSideProps`, create a virtual navigation for the current URL and pass its providers to `dehydrate`.
 
 ```tsx
 import type { GetServerSideProps } from 'next'
-import { dehydrate } from '@nano_kit/store'
-import { virtualNavigationContext } from '@nano_kit/next-router'
+import { dehydrate, provide } from '@nano_kit/store'
+import { Location$, Navigation$, virtualNavigation } from '@nano_kit/next-router'
 import { routes } from '@/stores/router'
 import CharactersPage, { Stores$ } from '@/ui/pages/Characters'
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
+  const [$location, navigation] = virtualNavigation(context.resolvedUrl, routes)
   const dehydrated = await dehydrate(
     Stores$,
-    virtualNavigationContext(context.resolvedUrl, routes)
+    [
+      provide(Location$, $location),
+      provide(Navigation$, navigation)
+    ]
   )
 
   return {
@@ -228,21 +232,25 @@ These helpers are for the Pages Router.
 
 ```tsx
 import type { GetServerSideProps } from 'next'
-import { contextDehydrate } from '@nano_kit/store'
+import { InjectionContext, dehydrate, provide } from '@nano_kit/store'
 import {
+  Location$,
+  Navigation$,
   notFound,
   redirect,
-  virtualNavigationContext
+  virtualNavigation
 } from '@nano_kit/next-router'
 import { routes } from '@/stores/router'
 import { User$ } from '@/stores/user'
 import UserPage, { Stores$ } from '@/ui/pages/User'
 
 export const getServerSideProps: GetServerSideProps = async (nextContext) => {
-  const [context, dehydrated] = await contextDehydrate(
-    Stores$,
-    virtualNavigationContext(nextContext.resolvedUrl, routes)
-  )
+  const [$location, navigation] = virtualNavigation(nextContext.resolvedUrl, routes)
+  const context = new InjectionContext([
+    provide(Location$, $location),
+    provide(Navigation$, navigation)
+  ])
+  const dehydrated = await dehydrate(Stores$, context)
   const { $user } = context.get(User$)
 
   return notFound($user()) ?? redirect(context) ?? {

@@ -1,0 +1,131 @@
+---
+title: Locale
+description: "Use request locales during Nano Kit SSR with @nano_kit/platform-web."
+sidebar:
+  order: 3
+---
+
+import { Tabs, TabItem, Code, Aside } from '@astrojs/starlight/components'
+
+`@nano_kit/platform-web` provides browser-like locale helpers for SSR and tests.
+
+Use them when server-rendered code needs to resolve the user's preferred locale from the incoming `Accept-Language` header, or provide locale state through Nano Kit dependency injection. You can use [`browserLocale`](/platform/web/#locale) directly with `navigator`, or combine `Locales$` with `parseLocales` when the same store should work in both the browser and SSR.
+
+## Installation
+
+`@nano_kit/platform-web` is an optional peer dependency of `@nano_kit/ssr`. Install it only when your SSR app uses request-bound browser helpers such as `Locales$`.
+
+<Tabs syncKey='pkg'>
+  <TabItem label='pnpm' icon='pnpm'>
+    <Code frame='none' lang='bash' code='pnpm add @nano_kit/platform-web' />
+  </TabItem>
+  <TabItem label='Yarn' icon='seti:yarn'>
+    <Code frame='none' lang='bash' code='yarn add @nano_kit/platform-web' />
+  </TabItem>
+  <TabItem label='npm' icon='seti:npm'>
+    <Code frame='none' lang='bash' code='npm install @nano_kit/platform-web' />
+  </TabItem>
+</Tabs>
+
+## Vite Plugin
+
+Enable request-bound locale containers with the SSR plugin option:
+
+```ts
+// vite.config.ts
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import ssr from '@nano_kit/react-ssr/vite-plugin'
+
+export default defineConfig({
+  plugins: [
+    react(),
+    ssr({
+      index: 'src/index.tsx',
+      browserLocale: true
+    })
+  ]
+})
+```
+
+The option makes the renderer parse the incoming `Accept-Language` header and provide the result through `Locales$`.
+
+<Aside>
+  `browserLocale: true` requires `@nano_kit/platform-web` to be installed. Keep the option disabled when the app does not resolve locale during SSR.
+</Aside>
+
+## Usage
+
+Read `Locales$` inside a store factory when you want to resolve the current locale from the context.
+
+```ts
+// src/stores/locale.ts
+import { inject } from '@nano_kit/store'
+import {
+  Locales$,
+  browserLocale
+} from '@nano_kit/platform-web'
+
+const SUPPORTED_LOCALES = ['en', 'ru'] as const
+
+export function Locale$() {
+  const locales = inject(Locales$)
+  const locale = browserLocale(locales, SUPPORTED_LOCALES, 'en')
+
+  return {
+    locale
+  }
+}
+```
+
+In the browser, `Locales$` resolves to `navigator`. During SSR, it resolves to a parsed `Accept-Language` container for the current request.
+
+## Production Server
+
+Pass the incoming `Accept-Language` header to `renderer.render(url, { acceptLanguage })`.
+
+```js
+// server.js
+import { renderer } from './dist/renderer/index.js'
+
+app.get('*', async (req, res) => {
+  const result = await renderer.render(req.url, {
+    acceptLanguage: req.headers['accept-language']
+  })
+
+  if (result.redirect) {
+    return res.redirect(result.statusCode, result.redirect)
+  }
+
+  if (result.html !== null) {
+    return res.status(result.statusCode).send(result.html)
+  }
+
+  res.status(result.statusCode).send('Not Found')
+})
+```
+
+The Vite dev server passes this header automatically when `browserLocale: true` is enabled.
+
+## Low-Level Usage
+
+You can also use `parseLocales` directly in tests or custom render pipelines:
+
+```ts
+import { InjectionContext, provide } from '@nano_kit/store'
+import {
+  Locales$,
+  browserLocale,
+  parseLocales
+} from '@nano_kit/platform-web'
+
+const locales = parseLocales('ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7')
+const context = new InjectionContext([
+  provide(Locales$, locales)
+])
+
+browserLocale(context.get(Locales$), ['en', 'ru-RU'], 'en')
+// 'ru-RU'
+```
+
+`parseLocales` sorts languages by `q` quality and keeps declaration order when qualities are equal. Empty headers fall back to `{ language: 'en', languages: ['en'] }`.

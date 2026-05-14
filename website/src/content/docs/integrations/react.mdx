@@ -176,11 +176,15 @@ export default function Page() {
 }
 ```
 
-If you need to inspect or act on the dehydrated data or injection context before rendering, use [`serverDehydrate`](#serverdehydrate--servercontextdehydrate) or [`serverContextDehydrate`](#serverdehydrate--servercontextdehydrate) directly and pass the snapshot via `dehydrated`:
+If you need to run dehydration manually before rendering, use [`dehydrate`](#dehydrate) directly and pass the snapshot via `dehydrated`:
 
 ```tsx
 import { inject } from '@nano_kit/store'
-import { serverContextDehydrate, Dehydration } from '@nano_kit/react'
+import {
+  Dehydration,
+  dehydrate,
+  getDehydrationContext
+} from '@nano_kit/react'
 import { User$ } from './stores'
 
 function Stores$() {
@@ -191,7 +195,8 @@ function Stores$() {
 }
 
 export default async function Page() {
-  const [context, dehydrated] = await serverContextDehydrate(Stores$)
+  const dehydrated = await dehydrate(Stores$)
+  const context = getDehydrationContext()
 
   /* ...You can use `context` or `dehydrated` here to implement some logic before rendering... */
 
@@ -206,6 +211,7 @@ export default async function Page() {
 Props:
 - `stores?` — function returning an array of accessors to dehydrate
 - `dehydrated?` — pre-dehydrated data (skips `stores` dehydration if provided)
+- `context?` — additional providers to inject into the server context before dehydration
 - `isolate?` — create a new `InjectionContext` on the client instead of reusing the existing one
 
 #### `StaticDehydration`
@@ -238,6 +244,7 @@ export default function Page() {
 Props:
 - `stores?` — function returning an array of accessors to dehydrate
 - `dehydrated?` — pre-dehydrated data (skips `stores` dehydration if provided)
+- `context?` — additional providers to inject into the server context before dehydration
 - `isolate?` — create a new `InjectionContext` on the client instead of reusing the existing one
 - `flight?` — override flight detection; when `false`, dehydration is always included
 
@@ -261,16 +268,20 @@ export default function RootLayout({ children }) {
 }
 ```
 
-#### `serverDehydrate` / `serverContextDehydrate`
+#### `dehydrate`
 
-Low-level RSC helpers that run stores in the **shared per-request injection context** and return the dehydrated snapshot. Use them when you need to inspect or act on the dehydrated data before rendering — for instance, to redirect if the user is not authenticated.
+Low-level RSC helper that runs stores in the **shared per-request injection context** and returns the dehydrated snapshot. Use it when you need to manually prepare a snapshot before rendering instead of letting `Dehydration` or `StaticDehydration` run stores from their `stores` prop.
 
-`serverDehydrate` returns only the snapshot; `serverContextDehydrate` also returns the `InjectionContext` so you can read values from it.
+After `dehydrate(Stores$)` resolves, the stores have already run and populated their data. Use `getDehydrationContext()` when you need request-time logic based on those populated stores, such as redirecting when a loaded user is missing.
 
 ```tsx
 import { redirect } from 'next/navigation'
 import { inject } from '@nano_kit/store'
-import { serverContextDehydrate, Dehydration } from '@nano_kit/react'
+import {
+  Dehydration,
+  dehydrate,
+  getDehydrationContext
+} from '@nano_kit/react'
 import { User$ } from './stores'
 
 function Stores$() {
@@ -280,7 +291,8 @@ function Stores$() {
 }
 
 export default async function Page() {
-  const [context, dehydrated] = await serverContextDehydrate(Stores$)
+  const dehydrated = await dehydrate(Stores$)
+  const context = getDehydrationContext()
   const { $user } = context.get(User$)
 
   if (!$user()) {
@@ -316,7 +328,7 @@ function App({ dehydrated }) {
 Props:
 - `dehydrated?` — dehydrated key-value pairs `[string, unknown][]`, or a falsy value to skip hydration
 - `context?` — additional injection providers
-- `reuse?` — reuse an existing `InjectionContext` instead of creating a new one; set to `true` if you want the hydration context to be shared with the rest of your app instead of isolated
+- `reuse?` — reuse an existing `InjectionContext` instead of creating a new one; `true` by default
 
 #### `StaticHydrationProvider`
 

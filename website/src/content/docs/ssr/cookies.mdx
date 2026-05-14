@@ -1,29 +1,29 @@
 ---
 title: Cookies
-description: "Use request cookies during Nano Kit SSR with @nano_kit/cookie-store."
+description: "Use request cookies during Nano Kit SSR with @nano_kit/platform-web."
 sidebar:
   order: 2
 ---
 
 import { Tabs, TabItem, Code, Aside } from '@astrojs/starlight/components'
 
-`@nano_kit/cookie-store` provides a request-bound, [`CookieStore`](https://developer.mozilla.org/en-US/docs/Web/API/Cookie_Store_API)-compatible implementation for SSR and tests.
+`@nano_kit/platform-web` provides a request-bound, [`CookieStore`](https://developer.mozilla.org/en-US/docs/Web/API/Cookie_Store_API)-compatible implementation for SSR and tests.
 
 Use it when server-rendered code needs to read incoming cookies, write `Set-Cookie` headers, or provide cookie state through Nano Kit dependency injection. You can use it directly through the [`CookieStore` API](https://developer.mozilla.org/en-US/docs/Web/API/Cookie_Store_API), or combine it with [`cookieStored`](/platform/web/#cookies) from `@nano_kit/platform-web` when you want cookie-backed signals.
 
 ## Installation
 
-`@nano_kit/cookie-store` is an optional peer dependency of `@nano_kit/ssr`. Install it only when your SSR app uses cookies.
+`@nano_kit/platform-web` is an optional peer dependency of `@nano_kit/ssr`. Install it only when your SSR app uses cookies.
 
 <Tabs syncKey='pkg'>
   <TabItem label='pnpm' icon='pnpm'>
-    <Code frame='none' lang='bash' code='pnpm add @nano_kit/cookie-store' />
+    <Code frame='none' lang='bash' code='pnpm add @nano_kit/platform-web' />
   </TabItem>
   <TabItem label='Yarn' icon='seti:yarn'>
-    <Code frame='none' lang='bash' code='yarn add @nano_kit/cookie-store' />
+    <Code frame='none' lang='bash' code='yarn add @nano_kit/platform-web' />
   </TabItem>
   <TabItem label='npm' icon='seti:npm'>
-    <Code frame='none' lang='bash' code='npm install @nano_kit/cookie-store' />
+    <Code frame='none' lang='bash' code='npm install @nano_kit/platform-web' />
   </TabItem>
 </Tabs>
 
@@ -51,7 +51,7 @@ export default defineConfig({
 The option makes the renderer create a `VirtualCookieStore` for each request and provide it through `CookieStore$`.
 
 <Aside>
-  `cookieStore: true` requires `@nano_kit/cookie-store` to be installed. Keep the option disabled when the app does not read or write cookies during SSR.
+  `cookieStore: true` requires `@nano_kit/platform-web` to be installed. Keep the option disabled when the app does not read or write cookies during SSR.
 </Aside>
 
 ## Direct Cookie Store Usage
@@ -61,7 +61,7 @@ Read `CookieStore$` inside a store factory when you want to work with the [`Cook
 ```ts
 // src/stores/session.ts
 import { action, inject } from '@nano_kit/store'
-import { CookieStore$ } from '@nano_kit/cookie-store'
+import { CookieStore$ } from '@nano_kit/platform-web'
 
 const SESSION_MAX_AGE = 60 * 60 * 24 * 30
 
@@ -105,8 +105,10 @@ If you want a writable signal backed by cookies, pass the injected `CookieStore$
 ```ts
 // src/stores/session.ts
 import { action, inject } from '@nano_kit/store'
-import { CookieStore$ } from '@nano_kit/cookie-store'
-import { cookieStored } from '@nano_kit/platform-web'
+import {
+  CookieStore$,
+  cookieStored
+} from '@nano_kit/platform-web'
 
 const SESSION_MAX_AGE = 60 * 60 * 24 * 30
 
@@ -139,14 +141,16 @@ export function Session$() {
 
 ## Production Server
 
-Pass the incoming `Cookie` header to `renderer.render(url, cookieHeader)`, and forward returned `Set-Cookie` headers to the HTTP response.
+Pass the incoming `Cookie` header to `renderer.render(url, { cookie })`, and forward returned `Set-Cookie` headers to the HTTP response.
 
 ```js
 // server.js
 import { renderer } from './dist/renderer/index.js'
 
 app.get('*', async (req, res) => {
-  const result = await renderer.render(req.url, req.headers.cookie)
+  const result = await renderer.render(req.url, {
+    cookie: req.headers.cookie
+  })
 
   if (result.setCookieHeaders) {
     res.setHeader('Set-Cookie', result.setCookieHeaders)
@@ -200,7 +204,7 @@ import { InjectionContext, provide } from '@nano_kit/store'
 import {
   CookieStore$,
   VirtualCookieStore
-} from '@nano_kit/cookie-store'
+} from '@nano_kit/platform-web'
 
 const cookieStore = new VirtualCookieStore(
   'theme=dark; session=abc123',
