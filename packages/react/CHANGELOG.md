@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.9](https://github.com/TrigenSoftware/nano_kit/compare/react@1.0.0-alpha.8...react@1.0.0-alpha.9) (2026-05-14)
+
+### Features
+
+* simplify dehydration server API ([d833400](https://github.com/TrigenSoftware/nano_kit/commit/d8334003ad4ec217cdac42216f867b97562b36e6))
+
+### Bug Fixes
+
+* allow dehydration context providers to override values ([af5c0ae](https://github.com/TrigenSoftware/nano_kit/commit/af5c0ae19cb0fac791ebec3ee1e4050621197234))
+
 ## [1.0.0-alpha.8](https://github.com/TrigenSoftware/nano_kit/compare/react@1.0.0-alpha.7...react@1.0.0-alpha.8) (2026-05-09)
 
 ### Bug Fixes

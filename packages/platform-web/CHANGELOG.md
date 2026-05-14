@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.4](https://github.com/TrigenSoftware/nano_kit/compare/platform-web@1.0.0-alpha.3...platform-web@1.0.0-alpha.4) (2026-05-14)
+
+### Features
+
+* add browser locale helper ([967a12c](https://github.com/TrigenSoftware/nano_kit/commit/967a12c6a15759be9eb222862a434259ca9e0643))
+* add cookie store and locale helpers ([a6fb07d](https://github.com/TrigenSoftware/nano_kit/commit/a6fb07dc3d82790dc31796a7ed13ff0f9e118a7e))
+
 ## [1.0.0-alpha.3](https://github.com/TrigenSoftware/nano_kit/compare/platform-web@1.0.0-alpha.2...platform-web@1.0.0-alpha.3) (2026-05-09)
 
 ### Bug Fixes

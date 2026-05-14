@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.3](https://github.com/TrigenSoftware/nano_kit/compare/next-router@1.0.0-alpha.2...next-router@1.0.0-alpha.3) (2026-05-14)
+
+### Features
+
+* update server navigation API ([95f30bd](https://github.com/TrigenSoftware/nano_kit/commit/95f30bdcfec2c82a54a9ac4551321b5158525e63))
+
 ## [1.0.0-alpha.2](https://github.com/TrigenSoftware/nano_kit/compare/next-router@1.0.0-alpha.1...next-router@1.0.0-alpha.2) (2026-05-09)
 
 ### Bug Fixes

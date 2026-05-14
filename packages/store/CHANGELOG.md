@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.6](https://github.com/TrigenSoftware/nano_kit/compare/store@1.0.0-beta.5...store@1.0.0-beta.6) (2026-05-14)
+
+### Bug Fixes
+
+* improve hydration context handling ([3942b0c](https://github.com/TrigenSoftware/nano_kit/commit/3942b0c9cb3ed2f11bb6d8c6d1343e2ae34d98b3))
+
 ## [1.0.0-beta.5](https://github.com/TrigenSoftware/nano_kit/compare/store@1.0.0-beta.4...store@1.0.0-beta.5) (2026-05-09)
 
 ### Bug Fixes

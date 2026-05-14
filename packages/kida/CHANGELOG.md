@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.3](https://github.com/TrigenSoftware/nano_kit/compare/kida@1.0.0-beta.2...kida@1.0.0-beta.3) (2026-05-14)
+
+### Bug Fixes
+
+* avoid recomputing resolved accessors ([3f7cad4](https://github.com/TrigenSoftware/nano_kit/commit/3f7cad42051255e3ca78019565acea0be3774b72))
+
 ## [1.0.0-beta.2](https://github.com/TrigenSoftware/nano_kit/compare/kida@1.0.0-beta.1...kida@1.0.0-beta.2) (2026-05-09)
 
 ### Bug Fixes
