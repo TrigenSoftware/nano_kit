@@ -10,12 +10,12 @@ import type { LayoutServerLoad } from './$types'
 
 export const load: LayoutServerLoad = () => {
   const [location, navigation] = serverNavigation(routes)
-  const serverContext = setDehydrationContext([
+  const contextRef = setDehydrationContext([
     provide(Location$, location),
     provide(Navigation$, navigation)
   ])
 
   return {
-    serverContext
+    contextRef
   }
 }

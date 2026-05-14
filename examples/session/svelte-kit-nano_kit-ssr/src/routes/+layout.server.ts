@@ -12,13 +12,13 @@ import type { LayoutServerLoad } from './$types'
 
 export const load: LayoutServerLoad = ({ cookies }) => {
   const [location, navigation] = serverNavigation(routes)
-  const serverContext = setDehydrationContext([
+  const contextRef = setDehydrationContext([
     provide(Location$, location),
     provide(Navigation$, navigation),
     provide(CookieStore$, new CookieStore(cookies))
   ])
 
   return {
-    serverContext
+    contextRef
   }
 }

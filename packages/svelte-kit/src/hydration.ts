@@ -14,6 +14,10 @@ import {
 
 export interface HydrationContextParams {
   /**
+   * Create hydration context from an existing dehydration context reference.
+   */
+  fromRef?: ValueOrAccessor<number>
+  /**
    * Dehydrated data as an array of key-value pairs.
    * Pass a falsy value to skip hydration.
    */
@@ -32,15 +36,13 @@ export interface HydrationContextParams {
 /**
  * Provide hydrated data to child components using a active hydrator.
  * @param params - Hydration context parameters.
- * @param serverContextRef - Optional reference to a shared server context for root hydration context.
  */
 export function setHydrationContext(
   {
     dehydrated,
     context = [],
     reuse = true
-  }: HydrationContextParams = {},
-  _serverContextRef?: ValueOrAccessor<number>
+  }: HydrationContextParams = {}
 ) {
   const currentContext = getInjectionContext()
   const existingHydrator = currentContext?.get(Hydrator$, true)

@@ -15,11 +15,12 @@
   const [location, navigation] = getKitNavigation(routes)
 
   setHydrationContext({
+    fromRef: () => data.contextRef,
     context: [
       provide(Location$, location),
       provide(Navigation$, navigation)
     ]
-  }, () => data.serverContext)
+  })
   enableLinkComponentAriaCurrent()
 </script>
 

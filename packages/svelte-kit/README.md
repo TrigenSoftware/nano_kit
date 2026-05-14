@@ -56,12 +56,14 @@ import type { LayoutServerLoad } from './$types'
 export const load: LayoutServerLoad = () => {
   const [location, navigation] = serverNavigation(routes)
 
-  setDehydrationContext([
+  const contextRef = setDehydrationContext([
     provide(Location$, location),
     provide(Navigation$, navigation)
   ])
 
-  return {}
+  return {
+    contextRef
+  }
 }
 ```
 
@@ -80,10 +82,11 @@ Set up browser navigation and hydration in the root layout:
   } from '@nano_kit/svelte-kit'
   import { routes } from '$lib/routes'
 
-  let { children } = $props()
+  let { data, children } = $props()
   const [location, navigation] = getKitNavigation(routes)
 
   setHydrationContext({
+    fromRef: () => data.contextRef,
     context: [
       provide(Location$, location),
       provide(Navigation$, navigation)

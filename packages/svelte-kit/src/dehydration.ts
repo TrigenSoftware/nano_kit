@@ -4,7 +4,6 @@ import {
   type AnyFn,
   type InjectionFactory,
   type InjectionProvider,
-  type ValueOrAccessor,
   InjectionContext,
   dehydrate as storeDehydrate,
   $get
@@ -75,15 +74,17 @@ export function getDehydrationContext() {
  * @param context - Providers to merge into the dehydration context.
  * @returns The unique ID of the shared context.
  */
-export function setDehydrationContext(context: InjectionProvider[]) {
+export function setDehydrationContext(context?: InjectionProvider[]) {
   const ctx = getServerContext()
   const {
     context: dehydrationContext,
     flight
   } = ctx
 
-  for (const [token, value] of context) {
-    dehydrationContext.set(token, value)
+  if (context) {
+    for (const [token, value] of context) {
+      dehydrationContext.set(token, value)
+    }
   }
 
   if (!flight) {
@@ -118,19 +119,18 @@ export async function dehydrate(Stores$: InjectionFactory<AnyAccessor[]>) {
 /**
  * Provide hydrated data to child components using a active hydrator.
  * @param params - Hydration context parameters.
- * @param serverContextRef - Optional reference to a shared server context for root hydration context.
  */
 export function setHydrationContext(
   {
+    fromRef,
     context = [],
     reuse = true
-  }: HydrationContextParams = {},
-  serverContextRef?: ValueOrAccessor<number>
+  }: HydrationContextParams = {}
 ) {
   const currentContext = getInjectionContext()
-  const serverContextRefValue = $get(serverContextRef)!
+  const dehydrationContextRef = $get(fromRef)!
 
-  if (!currentContext && !serverContextRefValue) {
+  if (!currentContext && !dehydrationContextRef) {
     throw new Error('Server context reference is required for root hydration context')
   }
 
@@ -142,13 +142,13 @@ export function setHydrationContext(
     return
   }
 
-  const serverContext = sharedContexts.get(serverContextRefValue)!
+  const dehydrationContext = sharedContexts.get(dehydrationContextRef)!
 
-  sharedContexts.delete(serverContextRefValue)
+  sharedContexts.delete(dehydrationContextRef)
 
   for (const [token, value] of context) {
-    serverContext.set(token, value)
+    dehydrationContext.set(token, value)
   }
 
-  setInjectionContext(serverContext)
+  setInjectionContext(dehydrationContext)
 }
