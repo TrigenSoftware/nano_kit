@@ -56,7 +56,7 @@
   },
   "dependencies": {
     "@storybook/global": "^5.0.0",
-    "type-fest": "^4.12.0"
+    "type-fest": "^5.0.0"
   },
   "devDependencies": {
     "kida": "workspace:^",
