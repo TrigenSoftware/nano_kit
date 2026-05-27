@@ -28,11 +28,6 @@ export interface BaseSsrPluginOptions {
    */
   nativeMagicString?: boolean
   /**
-   * Whether to inject a CookieStore-compatible virtual implementation during SSR.
-   * @default false
-   */
-  cookieStore?: boolean
-  /**
    * Directory inside the build output for client assets.
    * @default 'client'
    */
@@ -51,6 +46,18 @@ export interface BaseSsrPluginOptions {
      * @default true
      */
     dehydrate?: boolean
+  }
+  inject?: {
+    /**
+     * Whether to inject a CookieStore-compatible virtual implementation during SSR.
+     * @default false
+     */
+    cookieStore?: boolean
+    /**
+     * Weather to detect and inject the browser locale from the `Accept-Language` header.
+     * @default false
+     */
+    browserLocale?: boolean
   }
 }
 

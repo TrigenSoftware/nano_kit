@@ -81,8 +81,7 @@ export abstract class Renderer extends Manifest {
     const {
       routes,
       pages,
-      cookieStore,
-      browserLocale
+      inject = {}
     } = this.options
     const [$location, navigation] = virtualNavigation(url, routes)
     const $page = this.#router($location)
@@ -94,7 +93,7 @@ export abstract class Renderer extends Manifest {
     ]
     let virtualCookieStore
 
-    if (cookieStore) {
+    if (inject.cookieStore) {
       const {
         CookieStore$,
         VirtualCookieStore
@@ -105,7 +104,7 @@ export abstract class Renderer extends Manifest {
       dependecies.push(provide(CookieStore$, virtualCookieStore))
     }
 
-    if (browserLocale) {
+    if (inject.browserLocale) {
       const {
         Locales$,
         parseLocales

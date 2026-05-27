@@ -7,7 +7,7 @@ import {
 export const renderer = new ReactRenderer({
   base: import.meta.env.BASE_URL,
   manifestPath: import.meta.env.MANIFEST,
-  cookieStore: import.meta.env.SSR_COOKIE_STORE,
+  inject: import.meta.env.SSR_INJECT,
   routes,
   pages
 })

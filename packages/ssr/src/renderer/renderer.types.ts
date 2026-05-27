@@ -22,14 +22,16 @@ export interface RendererOptions extends ManifestOptions {
    */
   compose: UnknownComposer<any>
   dehydrate?: boolean
-  /**
-   * Whether to inject a CookieStore-compatible virtual implementation during SSR.
-   */
-  cookieStore?: boolean
-  /**
-   * Weather to detect and inject the browser locale from the `Accept-Language` header.
-   */
-  browserLocale?: boolean
+  inject?: {
+    /**
+     * Whether to inject a CookieStore-compatible virtual implementation during SSR.
+     */
+    cookieStore?: boolean
+    /**
+     * Weather to detect and inject the browser locale from the `Accept-Language` header.
+     */
+    browserLocale?: boolean
+  }
 }
 
 export interface RenderViewData {

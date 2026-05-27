@@ -24,7 +24,7 @@ export default function SsrPlugin(options, adapter) {
     clientDir = 'client',
     rendererDir = 'renderer',
     nativeMagicString = true,
-    cookieStore = false,
+    inject = {},
     dev = {}
   } = options
   let sourceConfig = {}
@@ -153,7 +153,7 @@ export default function SsrPlugin(options, adapter) {
               const { renderer } = await server.ssrLoadModule(rendererPath)
 
               renderer.options.dehydrate = dev.dehydrate !== false
-              renderer.options.cookieStore = cookieStore
+              renderer.options.inject = inject
               renderer.manifest[clientPath] = {
                 file: clientPath,
                 name: 'client',
@@ -227,7 +227,7 @@ export default function SsrPlugin(options, adapter) {
           : path.join(outClientDir, '.vite', 'manifest.json')
         const define = {
           'import.meta.env.MANIFEST': JSON.stringify(manifestPath),
-          'import.meta.env.SSR_COOKIE_STORE': JSON.stringify(cookieStore)
+          'import.meta.env.SSR_INJECT': JSON.stringify(inject)
         }
 
         if (isSsrBuild) {
