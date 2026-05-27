@@ -18,7 +18,8 @@
 ## Router
 
 - common LocationNavigation$ token
-- preload Stores$ on nav?
+- preload Stores$ on hover/focus?
+- Preload$ stores in loadable pages?
 - onBeforeLeave / blocker https://reactrouter.com/api/hooks/useBlocker
 - scroll restoration ssr
 
