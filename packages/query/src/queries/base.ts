@@ -1,8 +1,9 @@
 import {
-  type ReadableSignal,
+  type ValueOrAccessor,
   action,
   computed,
-  mountable
+  mountable,
+  $get
 } from '@nano_kit/store'
 import type { ClientSetting } from '../client.types.js'
 import type {
@@ -18,7 +19,7 @@ import {
 import { QueryContext } from '../RequestContext.js'
 
 export type SignalsParams<T extends unknown[]> = T extends [infer First, ...infer Rest]
-  ? [ReadableSignal<First>, ...SignalsParams<Rest>]
+  ? [ValueOrAccessor<First>, ...SignalsParams<Rest>]
   : []
 
 /* @__NO_SIDE_EFFECTS__ */
@@ -33,7 +34,7 @@ export function baseQuery<
   fn: (...args: [...P, ...E, queryCtx: QueryContext<P, R>]) => Promise<R>,
   settings?: ClientSetting<QueryClientContext<R>>[]
 ) {
-  const $params = computed(() => params.map($signal => $signal()) as P)
+  const $params = computed(() => params.map($get) as P)
   const $key = computed((prevKey?: CacheKey<P, R>) => {
     const nextKey = key(...$params())
 
