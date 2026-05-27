@@ -32,7 +32,7 @@ import { Client$ } from './query'
 import { datetimeLocalValue } from './utils'
 
 const SEARCH_DEBOUNCE = 600
-const MOCK_EVENT_START_OFFSET = 14 * 24 * 60 * 60 * 1000
+const MOCK_EVENT_START = new Date('2026-05-01T18:00:00Z').getTime()
 
 export interface EventsList extends InfinitePages<EventsPage, number> {
   q?: string
@@ -173,7 +173,7 @@ export function NewEventForm$() {
   const fillMock = action(() => {
     $title('Frontend Architecture Night')
     $description('Short talks about SSR, routing, query caching, and pragmatic app architecture.')
-    $startsAt(datetimeLocalValue(Date.now() + MOCK_EVENT_START_OFFSET))
+    $startsAt(datetimeLocalValue(MOCK_EVENT_START))
     $location('Online')
     $category('meetup')
   })

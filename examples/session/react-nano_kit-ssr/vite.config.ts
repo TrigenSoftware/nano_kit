@@ -10,7 +10,9 @@ export default defineConfig({
     react(),
     ssr({
       index: 'src/index.tsx',
-      cookieStore: true
+      inject: {
+        cookieStore: true
+      }
     })
   ]
 })

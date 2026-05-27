@@ -18,6 +18,7 @@ import { implementations } from '../../../common/test/integration-test-utils.js'
 
 export const HYDRATION_MISMATCH_PATTERN = /hydration|hydrated but|server rendered html|did not match|does not match|hydration failed/i
 export const EVENT_BOARD_API_PATTERN = /\/api\/events(?:[/?]|$)/
+export const TRANSLATION_ASSET_PATTERN = /\/assets\/(?:en|ru)-[^/]+\.js(?:[?#]|$)/
 export const HYDRATION_HANDOFF_TIMEOUT = 500
 export const SEARCH_DEBOUNCE_TIMEOUT = 700
 export const UI_TIMEOUT = 10000
@@ -43,6 +44,10 @@ async function numberText(locator: Locator) {
   return Number((await locator.textContent())?.match(/\d+/)?.[0])
 }
 
+function isIntl(name: string) {
+  return name.includes('-intl')
+}
+
 let browser: Browser
 
 beforeAll(async () => {
@@ -59,7 +64,10 @@ describe('Event Board App', async () => {
     root: join(import.meta.dirname, '..', '..')
   })
 
-  describe.each(list)('$name', ({ start }) => {
+  describe.each(list)('$name', ({
+    name,
+    start
+  }) => {
     const url = start()
     let page!: Page
 
@@ -1002,5 +1010,192 @@ describe('Event Board App', async () => {
       expect(text).toContain('Not Found')
       expect(text).not.toContain('Event Board')
     })
+
+    if (isIntl(name)) {
+      it('should render Russian messages from Accept-Language during SSR', async () => {
+        await page.close()
+
+        // eslint-disable-next-line require-atomic-updates
+        page = await browser.newPage({
+          viewport: {
+            width: 1280,
+            height: 800
+          },
+          locale: 'ru'
+        })
+
+        const hydrationErrors: string[] = []
+        const onConsole = (message: ConsoleMessage) => {
+          const text = message.text()
+
+          if (
+            (
+              message.type() === 'warning'
+              || message.type() === 'error'
+            )
+            && HYDRATION_MISMATCH_PATTERN.test(text)
+          ) {
+            hydrationErrors.push(text)
+          }
+        }
+
+        page.on('console', onConsole)
+
+        try {
+          const response = await openPage(page, url)
+          const html = await response?.text()
+
+          expect(html).toContain('Доска Событий')
+          expect(html).toContain('Найдите следующее frontend-событие')
+          expect(html).toContain('События | Доска Событий')
+
+          await expect.poll(() => page.title(), {
+            timeout: UI_TIMEOUT
+          }).toBe('События | Доска Событий')
+          await page.getByRole('heading', {
+            name: 'Найдите следующее frontend-событие'
+          }).waitFor({
+            state: 'visible',
+            timeout: UI_TIMEOUT
+          })
+          await expect.poll(() => page.locator('html').getAttribute('lang'), {
+            timeout: UI_TIMEOUT
+          }).toBe('ru')
+          await page.waitForTimeout(HYDRATION_HANDOFF_TIMEOUT)
+          expect(hydrationErrors).toEqual([])
+        } finally {
+          page.off('console', onConsole)
+        }
+      })
+
+      it('should persist locale across document reloads', async () => {
+        await page.getByRole('button', {
+          name: 'EN'
+        }).click()
+
+        await page.getByRole('heading', {
+          name: 'Find your next frontend event'
+        }).waitFor({
+          state: 'visible',
+          timeout: UI_TIMEOUT
+        })
+        await page.getByRole('link', {
+          name: 'Events'
+        }).waitFor({
+          state: 'visible',
+          timeout: UI_TIMEOUT
+        })
+        await page.getByRole('link', {
+          name: 'New event'
+        }).waitFor({
+          state: 'visible',
+          timeout: UI_TIMEOUT
+        })
+        await expect.poll(() => page.title(), {
+          timeout: UI_TIMEOUT
+        }).toBe('Upcoming events | Event Board')
+        await expect.poll(() => page.locator('html').getAttribute('lang'), {
+          timeout: UI_TIMEOUT
+        }).toBe('en')
+
+        await page.reload({
+          waitUntil: 'domcontentloaded',
+          timeout: UI_TIMEOUT
+        })
+
+        await page.getByRole('heading', {
+          name: 'Find your next frontend event'
+        }).waitFor({
+          state: 'visible',
+          timeout: UI_TIMEOUT
+        })
+        await page.getByRole('link', {
+          name: 'Events'
+        }).waitFor({
+          state: 'visible',
+          timeout: UI_TIMEOUT
+        })
+        await page.getByRole('link', {
+          name: 'New event'
+        }).waitFor({
+          state: 'visible',
+          timeout: UI_TIMEOUT
+        })
+        await expect.poll(() => page.title(), {
+          timeout: UI_TIMEOUT
+        }).toBe('Upcoming events | Event Board')
+        await expect.poll(() => page.locator('html').getAttribute('lang'), {
+          timeout: UI_TIMEOUT
+        }).toBe('en')
+      })
+
+      it('should format localized home plural and date messages', async () => {
+        await page.getByRole('button', {
+          name: 'RU'
+        }).click()
+
+        await page.getByRole('heading', {
+          name: 'Найдите следующее frontend-событие'
+        }).waitFor({
+          state: 'visible',
+          timeout: UI_TIMEOUT
+        })
+
+        const expectedDate = await page.evaluate(() => new Intl.DateTimeFormat('ru', {
+          dateStyle: 'medium',
+          timeStyle: 'short'
+        }).format(new Date('2026-05-12T18:00:00Z')))
+
+        await openPage(page, url)
+
+        const card = page.locator('article.event-card').filter({
+          hasText: 'React SSR Workshop'
+        })
+
+        await card.waitFor({
+          state: 'visible',
+          timeout: UI_TIMEOUT
+        })
+        await expect.poll(() => card.locator('.event-card__meta span').nth(1).textContent(), {
+          timeout: UI_TIMEOUT
+        }).toBe(expectedDate)
+        await expect.poll(() => card.locator('.event-card__footer span').last().textContent(), {
+          timeout: UI_TIMEOUT
+        }).toBe('25 участников')
+      })
+
+      it('should not request translation assets after hydration handoff', async () => {
+        const translationRequests: string[] = []
+        const onRequest = (request: Request) => {
+          const requestUrl = request.url()
+
+          if (TRANSLATION_ASSET_PATTERN.test(requestUrl)) {
+            translationRequests.push(requestUrl)
+          }
+        }
+
+        page.on('request', onRequest)
+
+        try {
+          await openPage(page, url)
+          await page.getByRole('heading', {
+            name: 'Найдите следующее frontend-событие'
+          }).waitFor({
+            state: 'visible',
+            timeout: UI_TIMEOUT
+          })
+          await page.waitForLoadState('networkidle', {
+            timeout: UI_TIMEOUT
+          })
+
+          const requestCount = translationRequests.length
+
+          await page.waitForTimeout(HYDRATION_HANDOFF_TIMEOUT)
+          expect(translationRequests).toHaveLength(requestCount)
+        } finally {
+          page.off('request', onRequest)
+        }
+      })
+    }
   })
 })
