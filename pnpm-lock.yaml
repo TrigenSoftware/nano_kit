@@ -2401,7 +2401,7 @@ importers:
         specifier: ^0.34.0
         version: 0.34.5
       typescript:
-        specifier: ^6.0.0
+        specifier: 'catalog:'
         version: 6.0.2
 
 packages:
