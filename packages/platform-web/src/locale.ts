@@ -12,16 +12,40 @@ export function Locales$(): LocalesContainer {
 }
 
 /**
+ * Resolves the first browser locale from a language container.
+ * @param container - Object containing browser language preferences, such as `navigator`.
+ * @returns The first browser locale.
+ */
+export function browserLocale(container: LocalesContainer): string
+
+/**
  * Resolves the best browser locale from a language container.
  * @param container - Object containing browser language preferences, such as `navigator`.
- * @param supported - Optional list of supported locale codes to match against.
- * @param fallback - Locale returned when none of the expected locales match.
- * @returns The first matching expected locale, or the first browser locale when `expected` is omitted.
+ * @param supported - List of supported locale codes to match against.
+ * @returns The first matching supported locale, or `'en'` when none match.
  */
+export function browserLocale<const T extends string>(
+  container: LocalesContainer,
+  supported: readonly T[]
+): T | 'en'
+
+/**
+ * Resolves the best browser locale from a language container.
+ * @param container - Object containing browser language preferences, such as `navigator`.
+ * @param supported - List of supported locale codes to match against.
+ * @param fallback - Locale returned when none of the supported locales match.
+ * @returns The first matching supported locale, or the fallback.
+ */
+export function browserLocale<const T extends string>(
+  container: LocalesContainer,
+  supported: readonly T[],
+  fallback: T
+): T
+
 /* @__NO_SIDE_EFFECTS__ */
 export function browserLocale(
   container: LocalesContainer,
-  supported?: string[],
+  supported?: readonly string[],
   fallback = 'en'
 ) {
   const languages = container.languages || [container.language]
