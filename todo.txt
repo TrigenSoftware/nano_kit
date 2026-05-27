@@ -2,6 +2,7 @@
 - no-magic-numbers pain
 - correct sandbox for session example
 - inspect object copies
+- check === / !== undefined ? perf
 
 ## Agera/Kida/Store
 
@@ -25,6 +26,7 @@
 
 ## ssr
 
+- UserAgent$
 - cache handler
 - prerender / ssg
 - server cache
@@ -37,18 +39,6 @@
 - @nano_kit/framework ?
 
 ## intl
-
-+ locale matcher from sources
-+ browser locale source
-- intl core constructor
-- loader
-- fragment/ segment returned by intl
-- base utilis for formatters ( transform / strings )
-- params formatter
-- plural formatter
-- datetime format
-- number format
-- relative time format
 
 ## rpc
 
