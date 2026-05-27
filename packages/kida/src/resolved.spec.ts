@@ -44,6 +44,22 @@ describe('kida', () => {
       expect(accessor).toHaveBeenCalledTimes(1)
     })
 
+    it('should resolve with the static value', () => {
+      const [$result, $error, $pending] = resolved(42)
+
+      expect($result()).toBe(42)
+      expect($error()).toBeUndefined()
+      expect($pending()).toBe(false)
+    })
+
+    it('should resolve with the static accessor', () => {
+      const [$result, $error, $pending] = resolved(() => 42)
+
+      expect($result()).toBe(42)
+      expect($error()).toBeUndefined()
+      expect($pending()).toBe(false)
+    })
+
     it('should capture rejection errors', async () => {
       const error = new Error('test error')
       const promise = Promise.reject(error)

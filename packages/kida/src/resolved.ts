@@ -13,6 +13,8 @@ export type Resolved<T> = readonly [
   $pending: ReadableSignal<boolean>
 ]
 
+export type ResolvedLike<T> = readonly [...Resolved<T>, ...unknown[]]
+
 interface ResolvedState<T> {
   data: T | undefined
   error: unknown
@@ -34,13 +36,13 @@ const INITIAL_STATE = {
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function resolved<T>(
-  promise: Accessor<T | Promise<T> | FalsyValue> | Promise<T> | FalsyValue
+  promise: Accessor<T | Promise<T> | FalsyValue> | T | Promise<T> | FalsyValue
 ): Resolved<T> {
   let currentPromise: T | Promise<T> | FalsyValue = null
   const $promise = toSignal(promise)
   const $state = signal<ResolvedState<T>>(INITIAL_STATE)
   const resolve = () => {
-    const promise = $promise()
+    const promise = $promise() as T | Promise<T> | FalsyValue
 
     if (currentPromise === promise) {
       return $state()
