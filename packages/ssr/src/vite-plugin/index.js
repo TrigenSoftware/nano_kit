@@ -163,7 +163,8 @@ export default function SsrPlugin(options, adapter) {
 
               const result = await renderer.render(url, {
                 cookie: req.headers.cookie,
-                acceptLanguage: req.headers['accept-language']
+                acceptLanguage: req.headers['accept-language'],
+                userAgent: req.headers['user-agent']
               })
               const setCookieHeaders = result.setCookieHeaders
                 ? {

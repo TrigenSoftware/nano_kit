@@ -4,7 +4,7 @@ export interface LocalesContainer {
 }
 
 /**
- * Gets the browser locale container from `navigator`.
+ * Token for retrieving browser locale preferences.
  * @returns Browser locale preferences.
  */
 export function Locales$(): LocalesContainer {

@@ -18,7 +18,7 @@
 ## Router
 
 - preload Stores$ on hover/focus?
-- Preload$ stores in loadable pages?
+- preload Stores$ in loadable pages?
 - onBeforeLeave / blocker https://reactrouter.com/api/hooks/useBlocker
 - scroll restoration ssr
 
@@ -26,7 +26,6 @@
 
 ## ssr
 
-- UserAgent$
 - cache handler
 - prerender / ssg
 - server cache

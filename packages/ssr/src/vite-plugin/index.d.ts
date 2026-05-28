@@ -58,6 +58,11 @@ export interface BaseSsrPluginOptions {
      * @default false
      */
     browserLocale?: boolean
+    /**
+     * Whether to inject the browser user agent from the `User-Agent` header.
+     * @default false
+     */
+    userAgent?: boolean
   }
 }
 

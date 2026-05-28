@@ -113,6 +113,12 @@ export abstract class Renderer extends Manifest {
       dependecies.push(provide(Locales$, parseLocales(headers?.acceptLanguage)))
     }
 
+    if (inject.userAgent) {
+      const { UserAgent$ } = await platformWeb()
+
+      dependecies.push(provide(UserAgent$, headers?.userAgent ?? ''))
+    }
+
     const context = new InjectionContext(dependecies)
     const page = $page()
     let head: HeadDescriptor[] = []

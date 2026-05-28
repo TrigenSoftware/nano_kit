@@ -11,6 +11,7 @@ import type { ManifestOptions } from './manifest.types.js'
 export interface KnownHeaders {
   cookie?: string
   acceptLanguage?: string
+  userAgent?: string
 }
 
 export interface RendererOptions extends ManifestOptions {
@@ -31,6 +32,10 @@ export interface RendererOptions extends ManifestOptions {
      * Weather to detect and inject the browser locale from the `Accept-Language` header.
      */
     browserLocale?: boolean
+    /**
+     * Whether to inject the browser user agent from the `User-Agent` header.
+     */
+    userAgent?: boolean
   }
 }
 
