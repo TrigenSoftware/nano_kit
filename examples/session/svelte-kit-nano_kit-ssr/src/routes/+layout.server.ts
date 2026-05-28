@@ -1,8 +1,7 @@
 import { provide } from '@nano_kit/store'
 import {
   CookieStore,
-  Location$,
-  Navigation$,
+  LocationNavigation$,
   serverNavigation,
   setDehydrationContext
 } from '@nano_kit/svelte-kit'
@@ -11,10 +10,8 @@ import { routes } from '#src/stores/router'
 import type { LayoutServerLoad } from './$types'
 
 export const load: LayoutServerLoad = ({ cookies }) => {
-  const [location, navigation] = serverNavigation(routes)
   const contextRef = setDehydrationContext([
-    provide(Location$, location),
-    provide(Navigation$, navigation),
+    provide(LocationNavigation$, serverNavigation(routes)),
     provide(CookieStore$, new CookieStore(cookies))
   ])
 

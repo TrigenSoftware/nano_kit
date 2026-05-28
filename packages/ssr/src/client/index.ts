@@ -10,8 +10,7 @@ import {
   type PageRef,
   type RouteLocationRecord,
   type Routes,
-  Location$,
-  Navigation$,
+  LocationNavigation$,
   Page$,
   Pages$,
   browserNavigation,
@@ -53,12 +52,12 @@ export async function ready(options: ReadyOptions) {
     pages,
     router
   } = options
-  const [$location, navigation] = browserNavigation(routes)
+  const locationNavigation = browserNavigation(routes)
+  const [$location] = locationNavigation
   const $page = router($location, pages)
   const context = new InjectionContext([
     provide(Hydrator$, hydrator()),
-    provide(Location$, $location),
-    provide(Navigation$, navigation),
+    provide(LocationNavigation$, locationNavigation),
     provide(Page$, $page),
     provide(Pages$, pages)
   ])

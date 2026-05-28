@@ -3,10 +3,8 @@ import type { ReactNode } from 'react'
 import { provide } from '@nano_kit/store'
 import { InjectionContextProvider } from '@nano_kit/react'
 import {
-  type AppNavigation,
   type Routes,
-  Location$,
-  Navigation$
+  LocationNavigation$
 } from '@nano_kit/router'
 import {
   useShouldProvideNextNavigation,
@@ -44,14 +42,11 @@ function InnerProvider<const R extends Routes = Routes>(
     children
   }: NextNavigationProviderProps<R>
 ) {
-  const [$location, navigation] = useNextNavigation(routes)
-
   return (
     <InjectionContextProvider
       context={[
-        provide(Location$, $location),
         // Suppress conflict with AppRoutes
-        provide(Navigation$, navigation as unknown as AppNavigation)
+        provide(LocationNavigation$, useNextNavigation(routes) as unknown)
       ]}
     >
       {children}

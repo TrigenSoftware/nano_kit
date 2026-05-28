@@ -10,8 +10,8 @@ import {
   type HeadDescriptor,
   type RouteLocationRecord,
   type PageRef,
+  LocationNavigation$,
   Location$,
-  Navigation$,
   Page$,
   Pages$,
   loadPages,
@@ -83,11 +83,11 @@ export abstract class Renderer extends Manifest {
       pages,
       inject = {}
     } = this.options
-    const [$location, navigation] = virtualNavigation(url, routes)
+    const locationNavigation = virtualNavigation(url, routes)
+    const [$location] = locationNavigation
     const $page = this.#router($location)
     const dependecies = [
-      provide(Location$, $location),
-      provide(Navigation$, navigation),
+      provide(LocationNavigation$, locationNavigation),
       provide(Page$, $page),
       provide(Pages$, pages)
     ]

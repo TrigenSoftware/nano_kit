@@ -24,17 +24,26 @@ import {
 export * from './di.types.js'
 
 /**
+ * Global injection token for the current route location record and navigation API.
+ */
+export function LocationNavigation$(): [RouteLocationRecord<AppRoutes>, AppNavigation] {
+  throw new DependencyNotFound('LocationNavigation$')
+}
+
+/**
  * Global injection token for the current route location record.
+ * @returns Current route location record, which includes the current path, params, and query.
  */
 export function Location$(): RouteLocationRecord<AppRoutes> {
-  throw new DependencyNotFound('Location$')
+  return inject(LocationNavigation$)[0]
 }
 
 /**
  * Global injection token for the navigation API.
+ * @returns Navigation API, which includes methods for navigating to different routes and managing the navigation history.
  */
 export function Navigation$(): AppNavigation {
-  throw new DependencyNotFound('Navigation$')
+  return inject(LocationNavigation$)[1]
 }
 
 /**

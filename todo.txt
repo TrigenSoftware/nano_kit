@@ -17,7 +17,6 @@
 
 ## Router
 
-- common LocationNavigation$ token
 - preload Stores$ on hover/focus?
 - Preload$ stores in loadable pages?
 - onBeforeLeave / blocker https://reactrouter.com/api/hooks/useBlocker
@@ -40,6 +39,8 @@
 - @nano_kit/framework ?
 
 ## intl
+
+- docs
 
 ## rpc
 

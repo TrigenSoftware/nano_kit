@@ -1,17 +1,15 @@
 import type { GetServerSideProps } from 'next'
 import { dehydrate, provide } from '@nano_kit/store'
-import { Location$, Navigation$, virtualNavigation } from '@nano_kit/router'
+import { LocationNavigation$, virtualNavigation } from '@nano_kit/router'
 import { routes } from '@/stores/router'
 import CharacterPage from '@/ui/pages/Character'
 import { Stores$ } from '@/ui/pages/Character.stores'
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const [$location, navigation] = virtualNavigation(context.resolvedUrl, routes)
   const dehydrated = await dehydrate(
     Stores$,
     [
-      provide(Location$, $location),
-      provide(Navigation$, navigation)
+      provide(LocationNavigation$, virtualNavigation(context.resolvedUrl, routes))
     ]
   )
 

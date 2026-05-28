@@ -1,8 +1,7 @@
 <script lang="ts">
   import { provide } from '@nano_kit/store'
   import {
-    Location$,
-    Navigation$,
+    LocationNavigation$,
     getKitNavigation,
     setHydrationContext
   } from '@nano_kit/svelte-kit'
@@ -10,13 +9,11 @@
   import '../app.css'
 
   let { data, children } = $props()
-  const [location, navigation] = getKitNavigation(routes)
 
   setHydrationContext({
     fromRef: () => data.contextRef,
     context: [
-      provide(Location$, location),
-      provide(Navigation$, navigation)
+      provide(LocationNavigation$, getKitNavigation(routes))
     ]
   })
 </script>

@@ -4,21 +4,18 @@
     enableLinkComponentAriaCurrent,
     getKitNavigation,
     Link,
-    Location$,
-    Navigation$,
+    LocationNavigation$,
     setHydrationContext
   } from '@nano_kit/svelte-kit'
   import { routes } from '#src/stores/router'
   import '../app.css'
 
   let { data, children } = $props()
-  const [location, navigation] = getKitNavigation(routes)
 
   setHydrationContext({
     fromRef: () => data.contextRef,
     context: [
-      provide(Location$, location),
-      provide(Navigation$, navigation)
+      provide(LocationNavigation$, getKitNavigation(routes))
     ]
   })
   enableLinkComponentAriaCurrent()

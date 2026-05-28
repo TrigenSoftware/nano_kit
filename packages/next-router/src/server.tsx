@@ -11,9 +11,7 @@ import {
   type Routes,
   type RouteLocationRecord,
   type Navigation,
-  type AppNavigation,
-  Location$,
-  Navigation$,
+  LocationNavigation$,
   PushHistoryAction,
   PermanentReplaceHistoryAction,
   virtualNavigation
@@ -104,12 +102,9 @@ export async function NextNavigation<const R extends Routes = Routes>(
     await connection()
   }
 
-  const [$location, navigation] = nextServerNavigation(routes)
-
   setDehydrationContext([
-    provide(Location$, $location),
     // Suppress conflict with AppRoutes
-    provide(Navigation$, navigation as unknown as AppNavigation)
+    provide(LocationNavigation$, nextServerNavigation(routes) as unknown)
   ])
 
   return (
