@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.7](https://github.com/TrigenSoftware/nano_kit/compare/query@1.0.0-alpha.6...query@1.0.0-alpha.7) (2026-05-28)
+
+### Features
+
+* accept value accessors in query params ([80c36f3](https://github.com/TrigenSoftware/nano_kit/commit/80c36f30483f3271368e729a286ae5bd3e1f8560))
+
 ## [1.0.0-alpha.6](https://github.com/TrigenSoftware/nano_kit/compare/query@1.0.0-alpha.5...query@1.0.0-alpha.6) (2026-05-09)
 
 ### Bug Fixes

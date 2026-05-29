@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.12](https://github.com/TrigenSoftware/nano_kit/compare/router@1.0.0-alpha.11...router@1.0.0-alpha.12) (2026-05-28)
+
+### Features
+
+* add shared location navigation token ([a837823](https://github.com/TrigenSoftware/nano_kit/commit/a837823ab37e3adf723c584af8f7eb18af1ebcef))
+
 ## [1.0.0-alpha.11](https://github.com/TrigenSoftware/nano_kit/compare/router@1.0.0-alpha.10...router@1.0.0-alpha.11) (2026-05-14)
 
 ### Features

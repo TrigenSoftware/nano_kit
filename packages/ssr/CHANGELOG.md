@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.4](https://github.com/TrigenSoftware/nano_kit/compare/ssr@1.0.0-alpha.3...ssr@1.0.0-alpha.4) (2026-05-28)
+
+### Features
+
+* add inject options ([1ff8ebf](https://github.com/TrigenSoftware/nano_kit/commit/1ff8ebf3c5535a6837d2de009b33dfd0f6dbce20))
+* add shared location navigation token ([a837823](https://github.com/TrigenSoftware/nano_kit/commit/a837823ab37e3adf723c584af8f7eb18af1ebcef))
+* add user agent injection token ([8a5331a](https://github.com/TrigenSoftware/nano_kit/commit/8a5331ac5e5e551268a0ed6d432fa432146733a7))
+
 ## [1.0.0-alpha.3](https://github.com/TrigenSoftware/nano_kit/compare/ssr@1.0.0-alpha.2...ssr@1.0.0-alpha.3) (2026-05-14)
 
 ### Features
