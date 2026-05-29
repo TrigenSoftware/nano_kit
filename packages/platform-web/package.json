@@ -1,7 +1,7 @@
 {
   "name": "@nano_kit/platform-web",
   "type": "module",
-  "version": "1.0.0-alpha.4",
+  "version": "1.0.0-alpha.5",
   "description": "Web platform adapters and reactive helpers for @nano_kit/store.",
   "author": "dangreen",
   "license": "MIT",

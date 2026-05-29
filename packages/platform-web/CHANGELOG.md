@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.5](https://github.com/TrigenSoftware/nano_kit/compare/platform-web@1.0.0-alpha.4...platform-web@1.0.0-alpha.5) (2026-05-28)
+
+### Features
+
+* add browserLocale overloads ([3875179](https://github.com/TrigenSoftware/nano_kit/commit/38751796ff56e4e4753e89f5bf6f50bf0cc9509d))
+* add user agent injection token ([8a5331a](https://github.com/TrigenSoftware/nano_kit/commit/8a5331ac5e5e551268a0ed6d432fa432146733a7))
+
 ## [1.0.0-alpha.4](https://github.com/TrigenSoftware/nano_kit/compare/platform-web@1.0.0-alpha.3...platform-web@1.0.0-alpha.4) (2026-05-14)
 
 ### Features

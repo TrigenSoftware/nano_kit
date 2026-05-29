@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.3](https://github.com/TrigenSoftware/nano_kit/compare/svelte-ssr@1.0.0-alpha.2...svelte-ssr@1.0.0-alpha.3) (2026-05-28)
+
+### Features
+
+* add inject options ([1ff8ebf](https://github.com/TrigenSoftware/nano_kit/commit/1ff8ebf3c5535a6837d2de009b33dfd0f6dbce20))
+
 ## [1.0.0-alpha.2](https://github.com/TrigenSoftware/nano_kit/compare/svelte-ssr@1.0.0-alpha.1...svelte-ssr@1.0.0-alpha.2) (2026-05-09)
 
 ### Features

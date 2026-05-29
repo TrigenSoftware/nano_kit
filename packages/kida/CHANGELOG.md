@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.4](https://github.com/TrigenSoftware/nano_kit/compare/kida@1.0.0-beta.3...kida@1.0.0-beta.4) (2026-05-28)
+
+### Features
+
+* support static values in resolved ([cd3fb8f](https://github.com/TrigenSoftware/nano_kit/commit/cd3fb8f6d4a0228fa095c06ce408f7b61a2b60a6))
+
 ## [1.0.0-beta.3](https://github.com/TrigenSoftware/nano_kit/compare/kida@1.0.0-beta.2...kida@1.0.0-beta.3) (2026-05-14)
 
 ### Bug Fixes
