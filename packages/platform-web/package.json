@@ -70,8 +70,8 @@
   "devDependencies": {
     "@nano_kit/store": "workspace:^",
     "@size-limit/preset-small-lib": "catalog:",
-    "@vitest/browser": "^4.1.4",
-    "@vitest/browser-playwright": "^4.1.4",
+    "@vitest/browser": "^4.1.7",
+    "@vitest/browser-playwright": "^4.1.7",
     "@vitest/coverage-v8": "catalog:",
     "playwright": "catalog:",
     "size-limit": "catalog:",
