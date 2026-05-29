@@ -208,17 +208,15 @@ If the page uses `@nano_kit/router`, create a virtual navigation for the current
 ```tsx
 import type { GetServerSideProps } from 'next'
 import { dehydrate, provide } from '@nano_kit/store'
-import { Location$, Navigation$, virtualNavigation } from '@nano_kit/next-router'
+import { LocationNavigation$, virtualNavigation } from '@nano_kit/next-router'
 import { routes } from '@/stores/router'
 import CharactersPage, { Stores$ } from '@/ui/pages/Characters'
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const [$location, navigation] = virtualNavigation(context.resolvedUrl, routes)
   const dehydrated = await dehydrate(
     Stores$,
     [
-      provide(Location$, $location),
-      provide(Navigation$, navigation)
+      provide(LocationNavigation$, virtualNavigation(context.resolvedUrl, routes))
     ]
   )
 
@@ -240,7 +238,7 @@ If you want the Pages Router to behave like static dehydration in the App Router
 import type { GetServerSideProps } from 'next'
 import { dehydrate, provide } from '@nano_kit/store'
 import { isFlight } from '@nano_kit/react'
-import { Location$, Navigation$, virtualNavigation } from '@nano_kit/next-router'
+import { LocationNavigation$, virtualNavigation } from '@nano_kit/next-router'
 import { routes } from '@/stores/router'
 import CharactersPage, { Stores$ } from '@/ui/pages/Characters'
 
@@ -248,13 +246,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   let dehydrated
 
   if (!isFlight(context.req.headers)) {
-    const [$location, navigation] = virtualNavigation(context.resolvedUrl, routes)
-
     dehydrated = await dehydrate(
       Stores$,
       [
-        provide(Location$, $location),
-        provide(Navigation$, navigation)
+        provide(LocationNavigation$, virtualNavigation(context.resolvedUrl, routes))
       ]
     )
   }
@@ -279,4 +274,4 @@ Without `@nano_kit/router`, call `dehydrate(Stores$)` without navigation provide
 - `@nano_kit/next-router` is only needed when the app uses `@nano_kit/router` inside Next.js.
 - `@nano_kit/router` remains the place where routes, pages, layouts, and navigation logic are declared.
 
-If you need API-level details for [`NextNavigation`](/integrations/next-router#nextnavigation), [`NextNavigationProvider`](/integrations/next-router#nextnavigationprovider), [`Link`](/integrations/next-router#link), or Pages Router helpers such as [`redirect()`](/integrations/next-router#redirect--notfound) and [`notFound()`](/integrations/next-router#redirect--notfound), see [Next.js Router integration](/integrations/next-router).
+If you need API-level details for [`NextNavigation`](/integrations/next-router#nextnavigation), [`NextNavigationProvider`](/integrations/next-router#nextnavigationprovider), [`Link`](/integrations/next-router#link), or Pages Router helpers such as [`redirect()`](/integrations/next-router#redirect-notfound) and [`notFound()`](/integrations/next-router#redirect-notfound), see [Next.js Router integration](/integrations/next-router).

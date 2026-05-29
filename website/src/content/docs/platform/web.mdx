@@ -328,3 +328,29 @@ const context = [
 ```
 
 `parseLocales` sorts languages by `q` quality and keeps declaration order when qualities are equal. Empty headers fall back to `{ language: 'en', languages: ['en'] }`.
+
+## User Agent
+
+Use `UserAgent$` when universal code needs the browser user agent string. In the browser it returns `navigator.userAgent`.
+
+```ts
+import { inject } from '@nano_kit/store'
+import { UserAgent$ } from '@nano_kit/platform-web'
+
+export function Device$() {
+  const userAgent = inject(UserAgent$)
+
+  return userAgent.includes('Mobile') ? 'mobile' : 'desktop'
+}
+```
+
+On the server, provide `UserAgent$` with the incoming `User-Agent` header.
+
+```ts
+import { provide } from '@nano_kit/store'
+import { UserAgent$ } from '@nano_kit/platform-web'
+
+const context = [
+  provide(UserAgent$, request.headers.get('user-agent') ?? '')
+]
+```

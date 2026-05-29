@@ -107,7 +107,7 @@ An adapter consists of three parts: a **renderer**, a **client entry**, and a **
    export const renderer = new FrameworkRenderer({
      base: import.meta.env.BASE_URL,
      manifestPath: import.meta.env.MANIFEST,
-     cookieStore: import.meta.env.SSR_COOKIE_STORE,
+     inject: import.meta.env.SSR_INJECT,
      routes,
      pages
    })
@@ -193,23 +193,40 @@ The SSR plugin can provide request-bound browser-like dependencies for stores th
 
 #### `cookieStore`
 
-Use `cookieStore: true` when the renderer should provide a request-bound `CookieStore$` during SSR. This feature uses the optional peer package `@nano_kit/platform-web`, so install it in the app before enabling the option. See [SSR Cookies](/ssr/cookies) for the full setup, including store code and `Set-Cookie` forwarding.
+Use `inject.cookieStore: true` when the renderer should provide a request-bound `CookieStore$` during SSR. This feature uses the optional peer package `@nano_kit/platform-web`, so install it in the app before enabling the option. See [SSR Cookies](/ssr/cookies) for the full setup, including store code and `Set-Cookie` forwarding.
 
 ```js
 ssr({
   index: 'src/index.js',
-  cookieStore: true
+  inject: {
+    cookieStore: true
+  }
 })
 ```
 
 #### `browserLocale`
 
-Use `browserLocale: true` when the renderer should provide request-bound `Locales$` during SSR. This feature uses the optional peer package `@nano_kit/platform-web`, so install it in the app before enabling the option. The renderer parses the incoming `Accept-Language` header with [`parseLocales`](/platform/web/#locale), so universal stores can inject `Locales$` and resolve the same locale shape on the server and in the browser. See [SSR Locale](/ssr/locale) for the full setup.
+Use `inject.browserLocale: true` when the renderer should provide request-bound `Locales$` during SSR. This feature uses the optional peer package `@nano_kit/platform-web`, so install it in the app before enabling the option. The renderer parses the incoming `Accept-Language` header with [`parseLocales`](/platform/web/#locale), so universal stores can inject `Locales$` and resolve the same locale shape on the server and in the browser. See [SSR Locale](/ssr/locale) for the full setup.
 
 ```js
 ssr({
   index: 'src/index.js',
-  browserLocale: true
+  inject: {
+    browserLocale: true
+  }
+})
+```
+
+#### `userAgent`
+
+Use `inject.userAgent: true` when the renderer should provide request-bound `UserAgent$` during SSR. This feature uses the optional peer package `@nano_kit/platform-web`, so install it in the app before enabling the option. The renderer reads the incoming `User-Agent` header, so universal stores can inject `UserAgent$` and read a user agent string on the server and in the browser.
+
+```js
+ssr({
+  index: 'src/index.js',
+  inject: {
+    userAgent: true
+  }
 })
 ```
 
@@ -225,7 +242,11 @@ For production, you need to write your own HTTP server that imports the renderer
 import { renderer } from './dist/renderer/index.js'
 
 app.get('*', async (req, res) => {
-  const result = await renderer.render(req.url, req.headers.cookie)
+  const result = await renderer.render(req.url, {
+    cookie: req.headers.cookie,
+    acceptLanguage: req.headers['accept-language'],
+    userAgent: req.headers['user-agent']
+  })
 
   if (result.setCookieHeaders) {
     res.setHeader('Set-Cookie', result.setCookieHeaders)

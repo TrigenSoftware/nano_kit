@@ -1,0 +1,440 @@
+---
+title: API
+description: "Reference for @nano_kit/intl formats, helpers, and composition patterns."
+sidebar:
+  order: 3
+---
+
+This page describes the public building blocks exported by `@nano_kit/intl`: context helpers, message formats, translation utilities, and common composition patterns.
+
+## Context
+
+### `intl($locale, loader)`
+
+Creates an internationalization context with a bound `messages` method.
+
+```ts
+import { intl } from '@nano_kit/intl'
+
+const { messages, $loading, $error } = intl(
+  $locale,
+  loader
+)
+```
+
+The loader can return full translation data or load namespaces on demand.
+
+### `messages(namespace, scheme?)`
+
+Creates reactive messages for a namespace.
+
+```ts
+const [$t, $pending, $error] = messages('home', {
+  title: text(),
+  attendees: plural('count')
+})
+```
+
+## Basic Formats
+
+### `raw(fallback?)`
+
+Returns the input value as-is. Use it for objects, arrays, dictionaries, or values that do not need formatting.
+
+```ts
+const [$t] = messages('home', {
+  categories: raw<Record<string, string>>()
+})
+
+$t().categories?.conference
+```
+
+### `text(fallback?)`
+
+Formats string messages and optional string fallbacks.
+
+```ts
+const [$t] = messages('layout', {
+  title: text('Untitled')
+})
+
+$t().title
+// string | 'Untitled'
+```
+
+### `uppercase(format)`, `lowercase(format)`, `capitalize(format)`
+
+Transforms text formatter output with the active locale.
+
+```ts
+const [$t] = messages('home', {
+  title: capitalize(text())
+})
+
+$t().title
+// 'Hello'
+```
+
+## Parameterized Messages
+
+### `params(params, preformat?)`
+
+Replaces `{name}` placeholders with formatted values.
+
+```ts
+const [$t] = messages('home', {
+  greeting: params({
+    name: text()
+  })
+})
+
+$t().greeting({
+  name: 'Ada'
+})
+```
+
+`params` can preformat another formatter before replacing placeholders. That makes it possible to share parameters across nested formats.
+
+```ts
+const translations = {
+  home: {
+    mailbox: {
+      one: '{name} has {count} message',
+      other: '{name} has {count} messages'
+    }
+  }
+}
+
+const [$t] = messages('home', {
+  mailbox: params({
+    name: text()
+  }, plural('count', forms({
+    one: text(),
+    other: text()
+  })))
+})
+
+$t().mailbox({
+  name: 'Ada',
+  count: 2
+})
+// 'Ada has 2 messages'
+```
+
+## Callable Formatter Messages
+
+### `format(type)`
+
+Use `format()` when the message should format an application value instead of formatting a value from translation data. It binds another format to the current locale and returns a callable message.
+
+```ts
+const [$t] = messages('home', {
+  formatPrice: format(number({
+    style: 'currency',
+    currency: 'USD'
+  })),
+  eventDate: format(capitalize(datetime({
+    dateStyle: 'medium',
+    timeZone: 'UTC'
+  })))
+})
+
+$t().formatPrice(12)
+// '$12.00'
+
+$t().eventDate(new Date('2024-01-02T00:00:00.000Z'))
+// 'Jan 2, 2024'
+```
+
+This is useful for dates, numbers, and other UI values that come from app state.
+
+## Intl Formats
+
+Intl formats can be used inside `params(...)` for translated templates, or wrapped with `format(...)` when the value comes from runtime state, API data, or a database.
+
+### `number(fallback?, options?)`
+
+Formats numbers with `Intl.NumberFormat`.
+
+```ts
+const [$t] = messages('stats', {
+  formatCount: format(number({
+    maximumFractionDigits: 1
+  }))
+})
+
+$t().formatCount(1234.56)
+// '1,234.6'
+```
+
+### `datetime(fallback?, options?)`
+
+Formats `Date` or timestamp values with `Intl.DateTimeFormat`.
+
+```ts
+const [$t] = messages('event', {
+  formatDate: format(datetime({
+    dateStyle: 'medium',
+    timeZone: 'UTC'
+  }))
+})
+
+$t().formatDate(new Date('2024-01-02T00:00:00.000Z'))
+// 'Jan 2, 2024'
+```
+
+### `relativetime(fallback?, options?)`
+
+Formats relative time values with `Intl.RelativeTimeFormat`.
+
+```ts
+const [$t] = messages('event', {
+  formatStartsIn: format(relativetime({
+    unit: 'day',
+    numeric: 'auto'
+  }))
+})
+
+$t().formatStartsIn(1)
+// 'tomorrow'
+```
+
+### `duration(fallback?, options?)`
+
+Formats duration objects with `Intl.DurationFormat`.
+
+```ts
+const [$t] = messages('media', {
+  formatRuntime: format(duration({
+    style: 'short'
+  }))
+})
+
+$t().formatRuntime({
+  hours: 1,
+  minutes: 30
+})
+// '1 hr, 30 min'
+```
+
+### `list(fallback?, options?)`
+
+Formats string iterables with `Intl.ListFormat`.
+
+```ts
+const [$t] = messages('filters', {
+  formatTags: format(list({
+    type: 'conjunction'
+  }))
+})
+
+$t().formatTags(['react', 'ssr', 'signals'])
+// 'react, ssr, and signals'
+```
+
+### `range(format, fallback?, options?)`
+
+Formats ranges through an Intl formatter that supports `formatRange`.
+
+```ts
+const [$t] = messages('price', {
+  formatAmount: format(range(number, {
+    style: 'currency',
+    currency: 'USD'
+  }))
+})
+
+$t().formatAmount([1, 5])
+// '$1.00 – $5.00'
+```
+
+## Match And Plural
+
+### `plural(param, forms?)`
+
+Matches an LDML plural form with `Intl.PluralRules`. If `forms(...)` is omitted, `plural` reads forms directly from the translation input.
+
+```ts
+const [$t] = messages('home', {
+  attendees: plural('count')
+})
+
+$t().attendees({
+  count: 3
+})
+// '3 going'
+
+/* Also works with the value itself. */
+$t().attendees(3)
+// '3 going'
+```
+
+Use `forms(...)` when nested forms need their own formatters.
+
+```ts
+const [$t] = messages('home', {
+  attendees: plural('count', forms({
+    one: text('{count} attendee'),
+    other: text('{count} attendees')
+  }))
+})
+
+$t().attendees({
+  count: 1
+})
+// '1 attendee'
+```
+
+Exact numeric forms are checked before plural rules.
+
+```ts
+const [$t] = messages('home', {
+  guests: plural('count', forms({
+    0: text('No guests'),
+    one: text('{count} guest'),
+    other: text('{count} guests')
+  }))
+})
+
+$t().guests({
+  count: 0
+})
+// 'No guests'
+```
+
+### `match(param, cases?)`
+
+Matches a case by parameter value. If `cases(...)` is omitted, `match` reads cases directly from the translation input.
+
+```ts
+const [$t] = messages('invite', {
+  message: match('gender')
+})
+
+$t().message({
+  gender: 'female'
+})
+// 'She invited female.'
+
+/* Also works with the value itself. */
+$t().message('female')
+// 'She invited female.'
+```
+
+Use `cases(...)` when cases need their own formatters.
+
+```ts
+const [$t] = messages('account', {
+  status: match('status', cases({
+    active: text('Active {status}'),
+    disabled: text('Disabled {status}')
+  }))
+})
+
+$t().status({
+  status: 'active'
+})
+// 'Active active'
+```
+
+`match` can compose with `plural` when one case depends on another formatter.
+
+```ts
+const [$t] = messages('tasks', {
+  message: plural('count', forms({
+    one: match('gender'),
+    other: match('gender')
+  }))
+})
+
+$t().message({
+  gender: 'female',
+  count: 3
+})
+// 'She has 3 tasks'
+```
+
+`match` can also wrap `plural` when the translation shape starts with cases and nests forms inside them.
+
+```ts
+const [$t] = messages('tasks', {
+  message: match('gender', cases({
+    male: plural('count', forms({
+      one: text('He has one task'),
+      other: text('He has {count} tasks')
+    })),
+    female: plural('count', forms({
+      one: text('She has one task'),
+      other: text('She has {count} tasks')
+    }))
+  }))
+})
+
+$t().message({
+  gender: 'female',
+  count: 3
+})
+// 'She has 3 tasks'
+```
+
+## Rich Text
+
+### `rich(tags)` / `rich(fallback, tags)`
+
+Maps lightweight tags inside translated strings to rich chunks.
+
+```ts
+const [$t] = messages('docs', {
+  message: rich('Read <link>the docs</link>', {
+    link: chunks => <a href='/docs'>{chunks}</a>
+  })
+})
+
+$t().message
+// ['Read ', <a href='/docs'>the docs</a>]
+```
+
+### `markup(tags)` / `markup(fallback, tags)`
+
+Maps lightweight tags to strings.
+
+```ts
+const [$t] = messages('docs', {
+  message: markup('Read <strong>the docs</strong>', {
+    strong: chunks => `<strong>${chunks}</strong>`
+  })
+})
+
+$t().message
+// 'Read <strong>the docs</strong>'
+```
+
+## Utilities
+
+### `deflat(input, depth?)`
+
+Turns dotted object keys into nested objects.
+
+```ts
+const translations = deflat({
+  'layout.title': 'Event Board',
+  'home.title': 'Find your next frontend event',
+  'home.attendees.one': '{count} going',
+  'home.attendees.other': '{count} going'
+})
+```
+
+### `direction($locale)` and `getDirection(locale)`
+
+Use `direction($locale)` when the UI needs to react to left-to-right and right-to-left locales.
+
+```ts
+import { direction } from '@nano_kit/intl'
+
+const $dir = direction($locale)
+
+$dir()
+// 'ltr' or 'rtl'
+```
+
+`getDirection(locale)` is available for non-reactive code.

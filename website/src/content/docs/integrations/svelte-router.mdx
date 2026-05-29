@@ -72,7 +72,7 @@ If you want to use DI-based setup, pass the router tokens through `setInjectionC
 ```svelte
 <script module lang="ts">
   import '@nano_kit/svelte'
-  import { App, browserNavigation, router, Location$, Navigation$, Page$, Pages$ } from '@nano_kit/svelte-router'
+  import { App, browserNavigation, router, LocationNavigation$, Page$, Pages$ } from '@nano_kit/svelte-router'
   import { pages } from './pages'
   import { routes } from './routes'
 
@@ -84,7 +84,8 @@ If you want to use DI-based setup, pass the router tokens through `setInjectionC
   }
 
   /* Create navigation and page accessor */
-  const [location, navigation] = browserNavigation(routes)
+  const locationNavigation = browserNavigation(routes)
+  const [location] = locationNavigation
   const page = router(location, pages)
 </script>
 
@@ -93,8 +94,7 @@ If you want to use DI-based setup, pass the router tokens through `setInjectionC
   import { setInjectionContext } from '@nano_kit/svelte'
 
   setInjectionContext([
-    provide(Location$, location),
-    provide(Navigation$, navigation),
+    provide(LocationNavigation$, locationNavigation),
     provide(Page$, page) // required for App component
   ])
 </script>

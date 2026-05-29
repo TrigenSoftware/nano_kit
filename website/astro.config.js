@@ -124,6 +124,12 @@ export default defineConfig({
           }
         },
         {
+          label: 'Internationalization',
+          autogenerate: {
+            directory: 'intl'
+          }
+        },
+        {
           label: 'SSR',
           autogenerate: {
             directory: 'ssr'

@@ -1,0 +1,243 @@
+---
+title: Core Concepts
+description: "Learn how @nano_kit/intl models translation data, namespaces, message schemes, and composable formats."
+sidebar:
+  order: 2
+---
+
+`@nano_kit/intl` has three main pieces:
+
+- **Translation data** - locale-specific objects grouped by namespace.
+- **Loaders** - full-data or namespace loaders that return translation data.
+- **Formats** - small functions that convert translation values into messages.
+
+## Translation Data
+
+Translations are plain locale-specific objects grouped by namespace. A namespace is usually a page, layout, feature, or shared block.
+
+```ts
+const en = {
+  layout: {
+    title: 'Event Board',
+    events: 'Events'
+  },
+  home: {
+    title: 'Find your next frontend event',
+    attendees: {
+      one: '{count} going',
+      other: '{count} going'
+    }
+  }
+}
+```
+
+If a translation pipeline exports flat dotted keys, use `deflat` to turn them into nested namespace objects.
+
+```ts
+import { deflat } from '@nano_kit/intl'
+
+const en = deflat({
+  'layout.title': 'Event Board',
+  'home.title': 'Find your next frontend event',
+  'home.attendees.one': '{count} going',
+  'home.attendees.other': '{count} going'
+})
+```
+
+When only nested namespace objects contain dotted keys, pass the depth where deflating should start.
+
+```ts
+const en = deflat({
+  home: {
+    'title': 'Find your next frontend event',
+    'attendees.one': '{count} going',
+    'attendees.other': '{count} going'
+  }
+}, 1)
+```
+
+## Namespaces
+
+A namespace is one translation object inside the full translation data.
+
+Use `messages(namespace, scheme)` to bind a namespace to the active locale:
+
+```ts
+const [$t] = messages('home', {
+  attendees: plural('count')
+})
+```
+
+## Full Data Loader
+
+A full-data loader returns the entire locale object. This is the easiest shape when translations are small, bundled, or loaded as one JSON file per locale.
+
+```ts
+import { resolved } from '@nano_kit/store'
+import { intl } from '@nano_kit/intl'
+
+export type SupportedLocale = 'en' | 'ru'
+
+export async function load(locale: SupportedLocale) {
+  return locale === 'en'
+    ? (await import('./en.json')).default
+    : (await import('./ru.json')).default
+}
+
+export type Translations = Awaited<ReturnType<typeof load>>
+
+const { messages, $loading, $error } = intl(
+  $locale,
+  resolved(() => load($locale()))
+)
+```
+
+With a full-data loader, `$loading` and `$error` describe the current locale data load.
+
+## Namespace Loader
+
+A namespace loader loads only the namespace requested by `messages()`. This is useful for code splitting translations by route or feature.
+
+```ts
+import { resolved } from '@nano_kit/store'
+import { intl } from '@nano_kit/intl'
+
+const { messages } = intl(
+  $locale,
+  namespace => resolved(() => load($locale(), namespace))
+)
+```
+
+With a namespace loader, the global `$loading` is settled because there is no single global translation request. Each `messages()` call returns its own `$pending` and `$error`.
+
+```ts
+const [$t, $pending, $error] = messages('home', {
+  title: text()
+})
+```
+
+## Typed Translation Data
+
+When the loader has a concrete return type, message types are inferred from translation data.
+
+```ts
+export type Translations = Awaited<ReturnType<typeof load>>
+
+const { messages } = intl(
+  $locale,
+  resolved(() => load($locale()))
+)
+
+const [$t] = messages('layout')
+
+$t().title
+// string | undefined
+```
+
+If only some messages need formatting, provide a partial scheme. Raw fields stay available from the inferred namespace type.
+
+```ts
+const [$t] = messages('home', {
+  attendees: plural('count'),
+  eventDate: format(datetime({
+    dateStyle: 'medium',
+    timeStyle: 'short'
+  }))
+})
+
+$t().title
+$t().attendees({ count: 25 })
+$t().eventDate(new Date())
+```
+
+## Anonymous Translation Data
+
+If translations are anonymous, for example `AnyTranslationData` from dynamically selected namespace JSON, TypeScript cannot infer concrete message fields. In this case the scheme becomes the source of message types.
+
+```ts
+import {
+  raw,
+  text,
+  plural
+} from '@nano_kit/intl'
+
+const { messages } = intl(
+  $locale,
+  namespace => resolved(() => load($locale(), namespace))
+)
+
+const [$t] = messages('home', {
+  title: text(),
+  categories: raw<Record<string, string>>(),
+  attendees: plural('count')
+})
+
+$t().title
+// string | undefined
+
+$t().categories?.conference
+// string | undefined
+```
+
+## Message Access
+
+`messages(namespace, scheme)` returns a tuple:
+
+```ts
+const [$t, $pending, $error] = messages('common', {
+  greeting: params({
+    name: text()
+  })
+})
+```
+
+Use `$t()` to read the whole namespace. Messages are also available as signal properties like `$t.$title`. For parameterized messages, `$t.key(params)` creates a computed signal. If params contain signals, the computed message subscribes to them.
+
+```ts
+$t().title
+$t.$title()
+
+$t().greeting({ name: 'Ada' })
+
+const $greeting = $t.greeting({
+  name: $name
+})
+
+$greeting()
+```
+
+## Message Schemes
+
+A scheme maps message keys to formats.
+
+```ts
+const [$t] = messages('event', {
+  pageTitle: params({
+    title: text()
+  }),
+  attendees: format(number()),
+  eventDate: format(capitalize(datetime({
+    dateStyle: 'full',
+    timeStyle: 'short'
+  })))
+})
+```
+
+Formats are checked against the translation value type when translation data is typed. For example, `datetime()` expects a `Date | number`, so using it directly for a string translation field is a type error.
+
+## Formats
+
+`@nano_kit/intl` exports small formats:
+
+- **`raw`** - returns the input value as-is.
+- **`text`** - string values and string fallbacks.
+- **`uppercase`**, **`lowercase`**, **`capitalize`** - locale-aware text transforms.
+- **`params`** - replaces `{name}` placeholders with formatted parameters.
+- **`number`**, **`datetime`**, **`relativetime`**, **`duration`**, **`list`** - wrappers around Intl formatters.
+- **`range`** - range formatting for date and number formatters.
+- **`format`** - turns a format into a callable message.
+- **`plural`** - selects an LDML plural form with `Intl.PluralRules`.
+- **`match`** - selects a case by parameter value.
+- **`rich`** and **`markup`** - map lightweight tags inside translated strings.
+
+See [API](/intl/api) for format signatures, callable formatter messages, and composition patterns.
