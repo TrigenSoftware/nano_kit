@@ -1,0 +1,101 @@
+---
+title: Getting Started
+description: "@nano_kit/intl is a small, reactive, and type-safe internationalization library for Nano Kit apps."
+sidebar:
+  order: 1
+---
+
+import { Tabs, TabItem, Code } from '@astrojs/starlight/components'
+
+`@nano_kit/intl` is a lightweight internationalization library for [@nano_kit/store](/store). It keeps translations reactive, lets message types flow from translation data, and composes small formatters instead of introducing a separate message syntax runtime.
+
+- **Reactive**. Locale changes update messages through [@nano_kit/store](/store) signals.
+- **Type-safe**. Message schemas are checked against translation namespace data.
+- **Composable**. Build messages from formats like `text`, `params`, `plural`, `match`, `number`, and `datetime`.
+- **Tree-shakeable**. Import only the formats your app uses.
+- **SSR-ready**. Use [@nano_kit/query](/query) for cached translation loading and dehydration.
+
+## Installation
+
+Install the package with [@nano_kit/store](/store):
+
+<Tabs syncKey='pkg'>
+  <TabItem label='pnpm' icon='pnpm'>
+    <Code frame='none' lang='bash' code='pnpm add @nano_kit/store @nano_kit/intl' />
+  </TabItem>
+  <TabItem label='Yarn' icon='seti:yarn'>
+    <Code frame='none' lang='bash' code='yarn add @nano_kit/store @nano_kit/intl' />
+  </TabItem>
+  <TabItem label='npm' icon='seti:npm'>
+    <Code frame='none' lang='bash' code='npm install @nano_kit/store @nano_kit/intl' />
+  </TabItem>
+</Tabs>
+
+## Quick Start
+
+For SPA-style apps or small demos, [`resolved`](/store/advanced/#async-state) is the simplest loader. It can return static data, a signal-derived value, or a promise.
+
+```ts
+import {
+  resolved,
+  signal
+} from '@nano_kit/store'
+import {
+  intl,
+  params,
+  plural,
+  text
+} from '@nano_kit/intl'
+
+const $locale = signal<'en' | 'de'>('en')
+
+const translations = {
+  en: {
+    common: {
+      title: 'Event Board',
+      greeting: 'Hello, {name}!',
+      unread: {
+        one: '{count} unread message',
+        other: '{count} unread messages'
+      }
+    }
+  },
+  de: {
+    common: {
+      title: 'Event Board',
+      greeting: 'Hallo, {name}!',
+      unread: {
+        one: '{count} ungelesene Nachricht',
+        other: '{count} ungelesene Nachrichten'
+      }
+    }
+  }
+}
+
+const { messages } = intl(
+  $locale,
+  resolved(() => translations[$locale()])
+)
+
+const [$t] = messages('common', {
+  greeting: params({
+    name: text()
+  }),
+  unread: plural('count')
+})
+
+$t().title
+// "Event Board"
+
+$t().greeting({
+  name: 'Ada'
+})
+// "Hello, Ada!"
+
+$t().unread({
+  count: 5
+})
+// "5 unread messages"
+
+$locale('de')
+```

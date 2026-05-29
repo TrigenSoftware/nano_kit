@@ -151,17 +151,15 @@ Use `virtualNavigation` and `dehydrate` in `getServerSideProps` to prefetch data
 // pages/characters.tsx
 import type { GetServerSideProps } from 'next'
 import { dehydrate, provide } from '@nano_kit/store'
-import { Location$, Navigation$, virtualNavigation } from '@nano_kit/router'
+import { LocationNavigation$, virtualNavigation } from '@nano_kit/router'
 import { routes } from '@/stores/router'
 import { CharactersPage, Stores$ } from '@/ui/pages/Characters'
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const [$location, navigation] = virtualNavigation(context.resolvedUrl, routes)
   const dehydrated = await dehydrate(
     Stores$,
     [
-      provide(Location$, $location),
-      provide(Navigation$, navigation)
+      provide(LocationNavigation$, virtualNavigation(context.resolvedUrl, routes))
     ]
   )
 

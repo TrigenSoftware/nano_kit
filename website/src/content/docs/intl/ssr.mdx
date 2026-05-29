@@ -1,0 +1,90 @@
+---
+title: SSR
+description: "Learn how to load @nano_kit/intl translations with @nano_kit/query during server rendering."
+sidebar:
+  order: 4
+---
+
+SSR apps should load translations through [@nano_kit/query](/query) so locale data can be preloaded before HTML is rendered and dehydrated into the SSR payload. Without that preload, the server can render fallback or wrong-locale messages and the client has to fix them after hydration.
+
+This page only covers the `@nano_kit/intl` side. Query client setup, SSR, and dehydration are covered in the [`@nano_kit/query` documentation](/query/ssr).
+
+## SSR Setup Example
+
+Here is an example of how to set up an `Intl$` DI store that loads translations with `@nano_kit/query` and combines them with SSR-aware locale detection and cookie storage. It usually combines:
+
+- `Locales$` from [SSR Locale](/ssr/locale) for request-bound language detection.
+- `CookieStore$` from [SSR Cookies](/ssr/cookies) for persisted locale selection.
+- `query(...)` for cached translation loading.
+- `intl($locale, loader)` for message access.
+
+```ts
+import { inject } from '@nano_kit/store'
+import { queryKey } from '@nano_kit/query'
+import { intl } from '@nano_kit/intl'
+import {
+  Locales$,
+  CookieStore$,
+  browserLocale,
+  cookieStored
+} from '@nano_kit/platform-web'
+import { Client$ } from './query'
+import {
+  type SupportedLocale,
+  type Translations,
+  load,
+  supportedLocales
+} from '../translations'
+
+const TranslationsKey = queryKey<[locale: SupportedLocale], Translations>('translations')
+
+export function Intl$() {
+  const locales = inject(Locales$)
+  const cookieStore = inject(CookieStore$)
+  const { query } = inject(Client$)
+  const $locale = cookieStored(cookieStore, {
+    name: 'locale',
+    path: '/',
+    sameSite: 'lax'
+  }, browserLocale(locales, supportedLocales, 'en'))
+  const {
+    messages,
+    $loading
+  } = intl(
+    $locale,
+    query(TranslationsKey, [$locale], load)
+  )
+
+  return {
+    supportedLocales,
+    messages,
+    $locale,
+    $loading
+  }
+}
+```
+
+...and then use `Intl$` on some app page:
+
+```ts
+/* ... */
+function Messages$() {
+  const { messages } = inject(Intl$)
+
+  return messages('event', {
+    /* ... */
+  })
+}
+
+export function Stores$() {
+  const [$t] = inject(Messages$)
+  const { $event } = inject(EventDetails$)
+
+  return [$t, $event]
+}
+/* ... */
+```
+
+In this setup, translations are loaded through [`query(...)`](/query/core-concepts/#query). The active locale is read from the [`locale` cookie](/platform/web/#cookies); when the cookie is missing, [`browserLocale(...)`](/platform/web/#locale) resolves it from the request `Accept-Language` header. [`intl(...)`](/intl/api/#intllocale-loader) then exposes [`messages`](/intl/api/#messagesnamespace-scheme), and each page or layout declares the messages it needs in a local `Messages$` store.
+
+For SSR preload, return `$t` from [`Stores$`](/router/ssr/#stores-data-dehydration) the same way you return regular data signals that should be awaited and dehydrated. This lets the renderer load translations before producing HTML, so the response already contains messages for the resolved locale.

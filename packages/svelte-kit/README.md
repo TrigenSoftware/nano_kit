@@ -45,8 +45,7 @@ If your stores use navigation, set up server navigation once in the root server 
 // src/routes/+layout.server.ts
 import { provide } from '@nano_kit/store'
 import {
-  Location$,
-  Navigation$,
+  LocationNavigation$,
   serverNavigation,
   setDehydrationContext
 } from '@nano_kit/svelte-kit'
@@ -54,11 +53,8 @@ import { routes } from '$lib/routes'
 import type { LayoutServerLoad } from './$types'
 
 export const load: LayoutServerLoad = () => {
-  const [location, navigation] = serverNavigation(routes)
-
   const contextRef = setDehydrationContext([
-    provide(Location$, location),
-    provide(Navigation$, navigation)
+    provide(LocationNavigation$, serverNavigation(routes))
   ])
 
   return {
@@ -74,8 +70,7 @@ Set up browser navigation and hydration in the root layout:
 <script lang="ts">
   import { provide } from '@nano_kit/store'
   import {
-    Location$,
-    Navigation$,
+    LocationNavigation$,
     Link,
     getKitNavigation,
     setHydrationContext
@@ -83,13 +78,11 @@ Set up browser navigation and hydration in the root layout:
   import { routes } from '$lib/routes'
 
   let { data, children } = $props()
-  const [location, navigation] = getKitNavigation(routes)
 
   setHydrationContext({
     fromRef: () => data.contextRef,
     context: [
-      provide(Location$, location),
-      provide(Navigation$, navigation)
+      provide(LocationNavigation$, getKitNavigation(routes))
     ]
   })
 </script>

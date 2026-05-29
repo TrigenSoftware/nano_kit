@@ -347,8 +347,9 @@ The router provides global injection tokens for navigation state. Use them in st
 
 ### Tokens
 
-- **`Location$`** - provides the current location signal. Token itself doesn't have a default value — it should be provided to the context by the app.
-- **`Navigation$`** - provides the navigation API. Like `Location$`, it should be provided by the app.
+- **`LocationNavigation$`** - provides the current location signal and navigation API as one tuple. Provide this token when you want to set up both `Location$` and `Navigation$` at once.
+- **`Location$`** - provides the current location signal. Derived from `LocationNavigation$`.
+- **`Navigation$`** - provides the navigation API. Derived from `LocationNavigation$`.
 - **`Page$`** - provides the current page reference from the router. Should be provided by the app.
 - **`Pages$`** - provides the array of page definitions passed to the router. Should be provided by the app.
 - **`Paths$`** - provides typed path builder functions derived from the navigation. Depends on `Navigation$`.

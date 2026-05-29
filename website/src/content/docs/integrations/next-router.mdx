@@ -9,7 +9,7 @@ import { Tabs, TabItem, Code } from '@astrojs/starlight/components'
 
 The `@nano_kit/next-router` package provides Next.js integration for `@nano_kit/router`. It re-exports everything from `@nano_kit/react-router` and adds Next.js-specific navigation providers, a router-aware `Link`, and helpers for the Pages Router.
 
-For shared router APIs such as [`useLocation`](/integrations/react-router#uselocation), [`useNavigation`](/integrations/react-router#usenavigation), [`usePaths`](/integrations/react-router#usepaths), [`useListenLinks`](/integrations/react-router#usenavigationlistenlinks--uselistenlinks), see the [React Router integration](/integrations/react-router).
+For shared router APIs such as [`useLocation`](/integrations/react-router#uselocation), [`useNavigation`](/integrations/react-router#usenavigation), [`usePaths`](/integrations/react-router#usepaths), [`useListenLinks`](/integrations/react-router#usenavigationlistenlinks-uselistenlinks), see the [React Router integration](/integrations/react-router).
 
 ## Installation
 
@@ -45,7 +45,7 @@ The Next.js setup differs slightly between the App Router and the Pages Router.
 
 ### App Router
 
-Use `NextNavigation` in the root layout to create navigation for the current RSC request and provide `Location$` / `Navigation$` to client components.
+Use `NextNavigation` in the root layout to create navigation for the current RSC request and provide `LocationNavigation$` to client components. `Location$` and `Navigation$` are derived from this shared token.
 
 ```tsx
 import type { Metadata } from 'next'
@@ -137,17 +137,15 @@ For SSR data loading in `getServerSideProps`, create a virtual navigation for th
 ```tsx
 import type { GetServerSideProps } from 'next'
 import { dehydrate, provide } from '@nano_kit/store'
-import { Location$, Navigation$, virtualNavigation } from '@nano_kit/next-router'
+import { LocationNavigation$, virtualNavigation } from '@nano_kit/next-router'
 import { routes } from '@/stores/router'
 import CharactersPage, { Stores$ } from '@/ui/pages/Characters'
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const [$location, navigation] = virtualNavigation(context.resolvedUrl, routes)
   const dehydrated = await dehydrate(
     Stores$,
     [
-      provide(Location$, $location),
-      provide(Navigation$, navigation)
+      provide(LocationNavigation$, virtualNavigation(context.resolvedUrl, routes))
     ]
   )
 
@@ -167,7 +165,7 @@ export default function Page() {
 
 ### `NextNavigation`
 
-`NextNavigation` is an async RSC component for the App Router. It creates navigation for the current request, provides `Location$` and `Navigation$`, and renders `NextNavigationProvider` on the client.
+`NextNavigation` is an async RSC component for the App Router. It creates navigation for the current request, provides `LocationNavigation$`, and renders `NextNavigationProvider` on the client.
 
 Server-side `navigation.push()` and `navigation.replace()` are mapped to Next.js redirects. The `prerenderable` prop skips [Next.js `connection()`](https://nextjs.org/docs/app/api-reference/functions/connection) and allows the route to stay statically prerenderable, but in that mode `searchParams` are not available during server render.
 
@@ -190,7 +188,7 @@ export default function Layout({ children }: {
 
 ### `NextNavigationProvider`
 
-`NextNavigationProvider` is the client-side provider used by the Pages Router and by `NextNavigation` after hydration. It creates an `InjectionContext` with `Location$` and `Navigation$` only when a fresh client navigation context is needed.
+`NextNavigationProvider` is the client-side provider used by the Pages Router and by `NextNavigation` after hydration. It creates an `InjectionContext` with `LocationNavigation$` only when a fresh client navigation context is needed.
 
 ```tsx
 import { NextNavigationProvider } from '@nano_kit/next-router'
@@ -234,8 +232,7 @@ These helpers are for the Pages Router.
 import type { GetServerSideProps } from 'next'
 import { InjectionContext, dehydrate, provide } from '@nano_kit/store'
 import {
-  Location$,
-  Navigation$,
+  LocationNavigation$,
   notFound,
   redirect,
   virtualNavigation
@@ -245,10 +242,8 @@ import { User$ } from '@/stores/user'
 import UserPage, { Stores$ } from '@/ui/pages/User'
 
 export const getServerSideProps: GetServerSideProps = async (nextContext) => {
-  const [$location, navigation] = virtualNavigation(nextContext.resolvedUrl, routes)
   const context = new InjectionContext([
-    provide(Location$, $location),
-    provide(Navigation$, navigation)
+    provide(LocationNavigation$, virtualNavigation(nextContext.resolvedUrl, routes))
   ])
   const dehydrated = await dehydrate(Stores$, context)
   const { $user } = context.get(User$)

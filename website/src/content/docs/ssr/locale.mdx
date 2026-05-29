@@ -42,7 +42,9 @@ export default defineConfig({
     react(),
     ssr({
       index: 'src/index.tsx',
-      browserLocale: true
+      inject: {
+        browserLocale: true
+      }
     })
   ]
 })
@@ -51,7 +53,7 @@ export default defineConfig({
 The option makes the renderer parse the incoming `Accept-Language` header and provide the result through `Locales$`.
 
 <Aside>
-  `browserLocale: true` requires `@nano_kit/platform-web` to be installed. Keep the option disabled when the app does not resolve locale during SSR.
+  `inject.browserLocale: true` requires `@nano_kit/platform-web` to be installed. Keep the option disabled when the app does not resolve locale during SSR.
 </Aside>
 
 ## Usage
@@ -105,7 +107,7 @@ app.get('*', async (req, res) => {
 })
 ```
 
-The Vite dev server passes this header automatically when `browserLocale: true` is enabled.
+The Vite dev server passes this header automatically when `inject.browserLocale: true` is enabled.
 
 ## Low-Level Usage
 

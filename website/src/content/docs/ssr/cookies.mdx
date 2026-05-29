@@ -42,7 +42,9 @@ export default defineConfig({
     react(),
     ssr({
       index: 'src/index.tsx',
-      cookieStore: true
+      inject: {
+        cookieStore: true
+      }
     })
   ]
 })
@@ -51,7 +53,7 @@ export default defineConfig({
 The option makes the renderer create a `VirtualCookieStore` for each request and provide it through `CookieStore$`.
 
 <Aside>
-  `cookieStore: true` requires `@nano_kit/platform-web` to be installed. Keep the option disabled when the app does not read or write cookies during SSR.
+  `inject.cookieStore: true` requires `@nano_kit/platform-web` to be installed. Keep the option disabled when the app does not read or write cookies during SSR.
 </Aside>
 
 ## Direct Cookie Store Usage

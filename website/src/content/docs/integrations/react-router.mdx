@@ -72,7 +72,7 @@ If you want to use DI-based setup, pass the router tokens through `InjectionCont
 import { createRoot } from 'react-dom/client'
 import { provide } from '@nano_kit/store'
 import { InjectionContextProvider } from '@nano_kit/react'
-import { App, browserNavigation, router, Location$, Navigation$, Page$, Pages$ } from '@nano_kit/react-router'
+import { App, browserNavigation, router, LocationNavigation$, Page$, Pages$ } from '@nano_kit/react-router'
 import { pages } from './pages'
 import { routes } from './routes'
 
@@ -84,15 +84,15 @@ declare module '@nano_kit/router' {
 }
 
 /* Create navigation and page accessor */
-const [$location, navigation] = browserNavigation(routes)
+const locationNavigation = browserNavigation(routes)
+const [$location] = locationNavigation
 const $page = router($location, pages)
 
 /* Render App with DI */
 createRoot(document.getElementById('root')!).render(
   <InjectionContextProvider
     context={[
-      provide(Location$, $location),
-      provide(Navigation$, navigation),
+      provide(LocationNavigation$, locationNavigation),
       provide(Page$, $page) // required for App component
     ]}
   >

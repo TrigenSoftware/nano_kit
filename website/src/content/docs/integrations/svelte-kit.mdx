@@ -136,7 +136,7 @@ The main SvelteKit integration point is store dehydration in `+page.server.ts` a
 
 ## Navigation
 
-Set up navigation only when stores or components use Nano Kit router dependencies such as `Location$`, `Navigation$`, `Link`, or typed route navigation.
+Set up navigation only when stores or components use Nano Kit router dependencies such as `Location$`, `Navigation$`, `Link`, or typed route navigation. Provide `LocationNavigation$` to set up both `Location$` and `Navigation$` at once.
 
 ### Server Navigation
 
@@ -146,8 +146,7 @@ In the root server layout, provide request navigation.
 // src/routes/+layout.server.ts
 import { provide } from '@nano_kit/store'
 import {
-  Location$,
-  Navigation$,
+  LocationNavigation$,
   serverNavigation,
   setDehydrationContext
 } from '@nano_kit/svelte-kit'
@@ -155,10 +154,8 @@ import { routes } from '$lib/stores/router'
 import type { LayoutServerLoad } from './$types'
 
 export const load: LayoutServerLoad = () => {
-  const [location, navigation] = serverNavigation(routes)
   const contextRef = setDehydrationContext([
-    provide(Location$, location),
-    provide(Navigation$, navigation)
+    provide(LocationNavigation$, serverNavigation(routes))
   ])
 
   return {
@@ -177,21 +174,18 @@ In the root layout component, provide browser navigation.
   import { provide } from '@nano_kit/store'
   import {
     Link,
-    Location$,
-    Navigation$,
+    LocationNavigation$,
     getKitNavigation,
     setHydrationContext
   } from '@nano_kit/svelte-kit'
   import { routes } from '$lib/stores/router'
 
   let { data, children } = $props()
-  const [location, navigation] = getKitNavigation(routes)
 
   setHydrationContext({
     fromRef: () => data.contextRef,
     context: [
-      provide(Location$, location),
-      provide(Navigation$, navigation)
+      provide(LocationNavigation$, getKitNavigation(routes))
     ]
   })
 </script>

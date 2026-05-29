@@ -31,6 +31,7 @@ A lightweight internationalization library for Nano Kit applications.
 - **Type-safe**. Message schemes are checked against translation data.
 - **Composable**. Build messages from small formats like `text`, `params`, `plural`, `match`, and `number`.
 - **Tree-shakeable**. Import only the formats your app uses.
+- **SSR-ready**. Use `@nano_kit/query` for cached translation loading and dehydration.
 
 ## Installation
 
