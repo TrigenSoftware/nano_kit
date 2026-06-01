@@ -5,16 +5,16 @@
     getKitNavigation,
     Link,
     LocationNavigation$,
-    setHydrationContext
+    setHydrationInjector
   } from '@nano_kit/svelte-kit'
   import { routes } from '#src/stores/router'
   import '../app.css'
 
   let { data, children } = $props()
 
-  setHydrationContext({
-    fromRef: () => data.contextRef,
-    context: [
+  setHydrationInjector({
+    fromRef: () => data.injectorRef,
+    injector: [
       provide(LocationNavigation$, getKitNavigation(routes))
     ]
   })

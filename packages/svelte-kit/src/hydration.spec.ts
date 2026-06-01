@@ -26,7 +26,7 @@ describe('svelte-kit', () => {
       expect(getHtml(container)).toBe('<div>hello</div>')
     })
 
-    it('should re-hydrate when hydration context is set again', () => {
+    it('should re-hydrate when hydration injector is set again', () => {
       const { container } = render(RehydrationFixture)
 
       expect(getHtml(container)).toBe('<div>second</div>')

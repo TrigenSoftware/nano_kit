@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { setHydrationContext } from '@nano_kit/svelte-kit'
+  import { setHydrationInjector } from '@nano_kit/svelte-kit'
   import CharactersPage from '#src/ui/pages/Characters.svelte'
 
   let { data } = $props()
 
-  setHydrationContext({
+  setHydrationInjector({
     dehydrated: () => data.dehydrated
   })
 </script>

@@ -90,7 +90,7 @@ An adapter consists of three parts: a **renderer**, a **client entry**, and a **
 
        if (title) head = `<title>${title}</title>${head}`
 
-       const body = yourFrameworkRenderToString(data.context)
+       const body = yourFrameworkRenderToString(data.injector)
 
        return `<html lang="${lang}" dir="${dir}"><head>${head}</head><body><div id="${ROOT_ID}">${body}</div><script>${this.dehydratedScript(data.dehydrated)}</script></body></html>`
      }
@@ -136,9 +136,9 @@ An adapter consists of three parts: a **renderer**, a **client entry**, and a **
    import { ROOT_ID, ready } from 'your-framework-ssr/client'
    import { routes, pages } from 'virtual:app-index'
 
-   ready({ routes, pages }).then((context) => {
+   ready({ routes, pages }).then((injector) => {
      // hydrate the app — framework-specific
-     yourFrameworkHydrate(document.getElementById(ROOT_ID), context)
+     yourFrameworkHydrate(document.getElementById(ROOT_ID), injector)
    })
    ```
 

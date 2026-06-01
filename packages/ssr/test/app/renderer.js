@@ -31,9 +31,9 @@ class DumyRenderer extends Renderer {
       head = `<title>${title}</title>${head}`
     }
 
-    const $page = data.context.get(Page$)
+    const $page = data.injector.get(Page$)
 
-    return `${head}<script>${this.dehydratedScript(data.dehydrated)}</script>${run(data.context, () => $page()?.default())}`
+    return `${head}<script>${this.dehydratedScript(data.dehydrated)}</script>${run(data.injector, () => $page()?.default())}`
   }
 }
 

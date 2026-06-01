@@ -1,5 +1,5 @@
 import { hydrateRoot } from 'react-dom/client'
-import { InjectionContextProvider } from '@nano_kit/react'
+import { InjectorProvider } from '@nano_kit/react'
 import { App } from '@nano_kit/react-router'
 import {
   ROOT_ID,
@@ -13,10 +13,10 @@ import {
 ready({
   routes,
   pages
-}).then((context) => {
+}).then((injector) => {
   hydrateRoot(document.getElementById(ROOT_ID), (
-    <InjectionContextProvider context={context}>
+    <InjectorProvider injector={injector}>
       <App />
-    </InjectionContextProvider>
+    </InjectorProvider>
   ))
 })

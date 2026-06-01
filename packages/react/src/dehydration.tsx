@@ -1,95 +1,94 @@
 import {
   type AnyAccessor,
-  type InjectionFactory,
   type FalsyValue,
   type AnyFn,
   type InjectionProvider,
-  InjectionContext,
+  Injector,
   dehydrate as storeDehydrate
 } from '@nano_kit/store'
 import {
   type PropsWithChildren,
   cache
 } from 'react'
-import type { InjectionContextProps } from './core.jsx'
+import type { InjectorProviderProps } from './core.jsx'
 import { HydrationProvider } from './hydration.jsx'
 
 /** Internal dehydration state shared within a single RSC request. */
 export interface ServerContext {
   flight: boolean
-  context: InjectionContext
+  injector: Injector
   seen: WeakSet<AnyFn>
 }
 
 /**
- * Get the dehydration context for the current RSC request.
- * @returns The dehydration context.
+ * Get the server context for the current RSC request.
+ * @returns The server context.
  */
 export const getServerContext = /* @__PURE__ */ cache((): ServerContext => {
   const seen = new WeakSet<AnyFn>()
-  const context = new InjectionContext()
+  const injector = new Injector()
 
   return {
     flight: true,
-    context,
+    injector,
     seen
   }
 })
 
 /**
- * Gets the request-scoped dependency injection context used during dehydration.
- * @returns Dehydration dependency injection context.
+ * Gets the request-scoped dependency injector used during dehydration.
+ * @returns Dehydration dependency injector.
  */
-export function getDehydrationContext() {
-  return getServerContext().context
+export function getDehydrationInjector() {
+  return getServerContext().injector
 }
 
 /**
- * Injects dependencies into the request-scoped dehydration context.
- * @param context - Dependencies to inject into the dehydration context.
+ * Injects dependencies into the request-scoped dehydration injector.
+ * @param injector - Dependencies to inject into the dehydration injector.
  */
-export function setDehydrationContext(context: InjectionProvider[] | undefined) {
-  if (context) {
-    const dehydrationContext = getDehydrationContext()
+export function setDehydrationInjector(injector: InjectionProvider[] | undefined) {
+  if (injector) {
+    const dehydrationInjector = getDehydrationInjector()
 
-    for (const [token, value] of context) {
-      dehydrationContext.set(token, value)
+    for (const [token, value] of injector) {
+      dehydrationInjector.set(token, value)
     }
   }
 }
 
 /**
- * Run stores in the shared within a single RSC request injection context
+ * Run stores in the shared within a single RSC request injector
  * and return only the dehydrated snapshot.
  * @param Stores$ - Factory function that returns an array of stores to run and dehydrate.
  * @returns Dehydrated data as an array of key-value pairs.
  */
-export async function dehydrate(Stores$: InjectionFactory<AnyAccessor[]>) {
-  const { context, seen } = getServerContext()
+export async function dehydrate(Stores$: () => AnyAccessor[]) {
+  const { injector, seen } = getServerContext()
 
   return await storeDehydrate(
     () => Stores$().filter(
       store => !seen.has(store) && (seen.add(store), true)
     ),
-    context
+    injector
   )
 }
 
-export interface DehydrationProps extends InjectionContextProps {
+export interface DehydrationProps extends InjectorProviderProps {
   /**
    * Factory function that returns an array of stores to run and dehydrate.
    */
-  stores?: InjectionFactory<AnyAccessor[]>
+  stores?(): AnyAccessor[]
   /**
    * Pre-dehydrated data. If provided, skips `stores` dehydration.
    */
   dehydrated?: [string, unknown][] | FalsyValue
   /**
-   * Additional injection providers to merge into the server context.
+   * Additional injection providers to merge into the server injector.
    */
-  context?: InjectionProvider[]
+  injector?: InjectionProvider[]
   /**
-   * Whether to create a new InjectionContext for this dehydration or reuse an existing one from the context.
+   * Whether to create a new Injector for this dehydration or reuse an existing one from the injector.
    */
   isolate?: boolean
 }
@@ -101,11 +100,11 @@ export interface DehydrationProps extends InjectionContextProps {
 export async function Dehydration({
   stores,
   dehydrated,
-  context,
+  injector,
   isolate,
   children
 }: DehydrationProps) {
-  setDehydrationContext(context)
+  setDehydrationInjector(injector)
 
   return (
     <HydrationProvider
@@ -147,14 +146,14 @@ export async function StaticDehydration({
   flight,
   stores,
   dehydrated,
-  context,
+  injector,
   isolate,
   children
 }: StaticDehydrationProps) {
   const dctx = getServerContext()
   const isFlight = flight === undefined ? dctx.flight : flight
 
-  setDehydrationContext(context)
+  setDehydrationInjector(injector)
 
   return (
     <HydrationProvider

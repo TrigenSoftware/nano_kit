@@ -9,7 +9,7 @@ import {
   act,
   fireEvent
 } from '@testing-library/react'
-import { InjectionContextProvider } from '@nano_kit/react'
+import { InjectorProvider } from '@nano_kit/react'
 import { provide } from '@nano_kit/store'
 import {
   type Routes,
@@ -154,14 +154,14 @@ describe('react-router', () => {
       }
 
       const { container, unmount } = render(
-        <InjectionContextProvider
-          context={[
+        <InjectorProvider
+          injector={[
             provide(Navigation$, navigation),
             provide(Pages$, pages)
           ]}
         >
           <TestApp/>
-        </InjectionContextProvider>
+        </InjectorProvider>
       )
       const link = container.querySelector('a')!
 

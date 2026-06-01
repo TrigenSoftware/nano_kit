@@ -1,12 +1,12 @@
 import {
   type NewValue,
   type Destroy,
-  type InjectionFactory,
+  type InjectionToken,
   type InjectionProvider,
   type ObserverCallback,
   type ReadableSignal,
   type WritableSignal,
-  InjectionContext,
+  Injector,
   inject,
   isWritable,
   onSignal,
@@ -47,17 +47,17 @@ onSignal(($signal) => {
 })
 
 const [
-  getSvelteInjectionContext,
-  setSvelteInjectionContext
-] = createContext<InjectionContext>()
+  getSvelteInjector,
+  setSvelteInjector
+] = createContext<Injector>()
 
 /**
- * Get the current injection context.
- * @returns The current injection context.
+ * Get the current injector.
+ * @returns The current injector.
  */
-export function getInjectionContext() {
+export function getInjector() {
   try {
-    return getSvelteInjectionContext()
+    return getSvelteInjector()
   } catch {
     return undefined
   }
@@ -65,33 +65,33 @@ export function getInjectionContext() {
 
 /**
  * Provide dependencies.
- * @param context - The dependencies to provide or InjectionContext instance.
- * @returns The injection context.
+ * @param injector - The dependencies to provide or Injector instance.
+ * @returns The injector.
  */
-export function setInjectionContext(
-  context?: InjectionContext | InjectionProvider[]
+export function setInjector(
+  injector?: Injector | InjectionProvider[]
 ) {
-  const parent = getInjectionContext()
-  const value = context instanceof InjectionContext
-    ? context
-    : new InjectionContext(context, parent)
+  const parent = getInjector()
+  const value = injector instanceof Injector
+    ? injector
+    : new Injector(injector, parent)
 
-  return setSvelteInjectionContext(value)
+  return setSvelteInjector(value)
 }
 
 /**
- * Isolate to new isolated injection context.
- * @returns The injection context.
+ * Isolate to new isolated injector.
+ * @returns The injector.
  */
 export function isolate() {
-  return setSvelteInjectionContext(new InjectionContext())
+  return setSvelteInjector(new Injector())
 }
 
 /**
  * Inject a dependency.
- * @param factory - The factory function to create or get the dependency.
+ * @param token - The invocable token to create or get the dependency.
  * @returns The dependency.
  */
-export function getInject<T>(factory: InjectionFactory<T>): T {
-  return inject(factory, getInjectionContext())
+export function getInject<T>(token: InjectionToken<T>): T {
+  return inject(token, getInjector())
 }

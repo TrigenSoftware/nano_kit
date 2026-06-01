@@ -14,7 +14,7 @@ import {
 } from '@nano_kit/store'
 import {
   useSignal,
-  InjectionContextProvider,
+  InjectorProvider,
   useInject
 } from './core.js'
 
@@ -46,16 +46,16 @@ describe('react', () => {
       })
     })
 
-    describe('InjectionContext', () => {
+    describe('Injector', () => {
       it('should provide dependency', () => {
         const $count = signal(0)
 
-        function Factory$(): ReadableSignal<number> | null {
+        function Token$(): ReadableSignal<number> | null {
           return null
         }
 
         function Test() {
-          const $count = useInject(Factory$)!
+          const $count = useInject(Token$)!
           const count = useSignal($count)
 
           return (
@@ -66,11 +66,11 @@ describe('react', () => {
         }
 
         const { container } = render(
-          <InjectionContextProvider
-            context={[provide(Factory$, $count)]}
+          <InjectorProvider
+            injector={[provide(Token$, $count)]}
           >
             <Test/>
-          </InjectionContextProvider>
+          </InjectorProvider>
         )
 
         expect(container.innerHTML).toBe('<div>0</div>')
@@ -85,12 +85,12 @@ describe('react', () => {
       it('should inject dependency', () => {
         const $count = signal(0)
 
-        function Factory$() {
+        function Token$() {
           return $count
         }
 
         function Test() {
-          const $count = useInject(Factory$)
+          const $count = useInject(Token$)
           const count = useSignal($count)
 
           return (
@@ -101,9 +101,9 @@ describe('react', () => {
         }
 
         const { container } = render(
-          <InjectionContextProvider>
+          <InjectorProvider>
             <Test/>
-          </InjectionContextProvider>
+          </InjectorProvider>
         )
 
         expect(container.innerHTML).toBe('<div>0</div>')

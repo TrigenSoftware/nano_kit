@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { setInjectionContext } from '@nano_kit/svelte'
+  import { setInjector } from '@nano_kit/svelte'
   import CityInput from './components/CityInput.svelte'
   import Weather from './components/Weather.svelte'
   import Forecast from './components/Forecast.svelte'
 
-  setInjectionContext()
+  setInjector()
 </script>
 
 <main class="app">

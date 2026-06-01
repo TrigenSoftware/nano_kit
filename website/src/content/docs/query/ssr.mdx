@@ -13,9 +13,9 @@ Queries started during server render should be awaited before HTML is returned, 
 
 Use `hydratable()` when query cache should be dehydrated on the server and rehydrated on the client.
 
-Without arguments, it reads hydration dependencies from the current injection context. Outside DI, pass them explicitly.
+Without arguments, it reads hydration dependencies from the current injector. Outside DI, pass them explicitly.
 
-In a manual setup, it is typically paired with `tasks()`, which works the same way: without arguments it reads `TasksRunner$` from the current injection context, and outside DI you can pass the runner explicitly.
+In a manual setup, it is typically paired with `tasks()`, which works the same way: without arguments it reads `TasksRunner$` from the current injector, and outside DI you can pass the runner explicitly.
 
 If the client uses [`codec(...)`](/query/advanced/#codec), `hydratable()` encodes cached data before dehydration and decodes it during hydration.
 
@@ -34,7 +34,7 @@ Use this when you want to customize task handling or hydration setup independent
 
 `ssr()` is a convenience setting that combines `tasks()` and `hydratable()`.
 
-Inside an SSR injection context, it reads the task runner and hydration dependencies automatically. If you need explicit control instead, use `tasks(...)` and `hydratable(...)` directly.
+Inside an SSR injector, it reads the task runner and hydration dependencies automatically. If you need explicit control instead, use `tasks(...)` and `hydratable(...)` directly.
 
 Because `ssr()` uses `hydratable()` internally, it also respects the current [`codec(...)`](/query/advanced/#codec) setting.
 

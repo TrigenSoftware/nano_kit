@@ -3,13 +3,13 @@ import {
   type Destroy,
   effect,
   deferScope,
-  getContext,
+  getInjector,
   run,
   untracked
 } from 'kida'
 import type { EffectScopeSwapperCallback } from './types/index.js'
 
-export function deferScopeBindContext(context = getContext()) {
+export function deferScopeBindContext(context = getInjector()) {
   return (fn => deferScope(() => run(context, fn))) as typeof deferScope
 }
 

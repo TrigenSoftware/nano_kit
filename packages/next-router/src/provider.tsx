@@ -1,7 +1,7 @@
 'use client'
 import type { ReactNode } from 'react'
 import { provide } from '@nano_kit/store'
-import { InjectionContextProvider } from '@nano_kit/react'
+import { InjectorProvider } from '@nano_kit/react'
 import {
   type Routes,
   LocationNavigation$
@@ -43,13 +43,13 @@ function InnerProvider<const R extends Routes = Routes>(
   }: NextNavigationProviderProps<R>
 ) {
   return (
-    <InjectionContextProvider
-      context={[
+    <InjectorProvider
+      injector={[
         // Suppress conflict with AppRoutes
         provide(LocationNavigation$, useNextNavigation(routes) as unknown)
       ]}
     >
       {children}
-    </InjectionContextProvider>
+    </InjectorProvider>
   )
 }

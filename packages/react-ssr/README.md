@@ -140,17 +140,17 @@ To customize client-side hydration, provide your own client entry:
 ```jsx
 // src/client.jsx
 import { hydrateRoot } from 'react-dom/client'
-import { InjectionContextProvider } from '@nano_kit/react'
+import { InjectorProvider } from '@nano_kit/react'
 import { App } from '@nano_kit/react-router'
 import { ROOT_ID, ready } from '@nano_kit/react-ssr/client'
 import { routes, pages } from './index.js'
 
-ready({ routes, pages }).then((context) => {
+ready({ routes, pages }).then((injector) => {
   hydrateRoot(
     document.getElementById(ROOT_ID),
-    <InjectionContextProvider context={context}>
+    <InjectorProvider injector={injector}>
       <App />
-    </InjectionContextProvider>
+    </InjectorProvider>
   )
 })
 ```

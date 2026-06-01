@@ -33,20 +33,20 @@ The main SvelteKit integration point is store dehydration in `+page.server.ts` a
 
 1. **Set up the root layout**
 
-   Create a request-scoped dehydration context in the root server layout and pass its reference to the root layout component.
+   Create a request-scoped dehydration injector in the root server layout and pass its reference to the root layout component.
 
    ```ts
    // src/routes/+layout.server.ts
    import {
-     setDehydrationContext
+     setDehydrationInjector
    } from '@nano_kit/svelte-kit'
    import type { LayoutServerLoad } from './$types'
 
    export const load: LayoutServerLoad = () => {
-     const contextRef = setDehydrationContext()
+     const injectorRef = setDehydrationInjector()
 
      return {
-       contextRef
+       injectorRef
      }
    }
    ```
@@ -54,12 +54,12 @@ The main SvelteKit integration point is store dehydration in `+page.server.ts` a
    ```svelte
    <!-- src/routes/+layout.svelte -->
    <script lang="ts">
-     import { setHydrationContext } from '@nano_kit/svelte-kit'
+     import { setHydrationInjector } from '@nano_kit/svelte-kit'
 
      let { data, children } = $props()
 
-     setHydrationContext({
-       fromRef: () => data.contextRef
+     setHydrationInjector({
+       fromRef: () => data.injectorRef
      })
    </script>
 
@@ -114,17 +114,17 @@ The main SvelteKit integration point is store dehydration in `+page.server.ts` a
 
 3. **Hydrate page stores**
 
-   Pass the dehydrated page data to `setHydrationContext` in the page component.
+   Pass the dehydrated page data to `setHydrationInjector` in the page component.
 
    ```svelte
    <!-- src/routes/characters/+page.svelte -->
    <script lang="ts">
-     import { setHydrationContext } from '@nano_kit/svelte-kit'
+     import { setHydrationInjector } from '@nano_kit/svelte-kit'
      import CharactersPage from '$lib/pages/Characters.svelte'
 
      let { data } = $props()
 
-     setHydrationContext({
+     setHydrationInjector({
        dehydrated: () => data.dehydrated
      })
    </script>
@@ -148,18 +148,18 @@ import { provide } from '@nano_kit/store'
 import {
   LocationNavigation$,
   serverNavigation,
-  setDehydrationContext
+  setDehydrationInjector
 } from '@nano_kit/svelte-kit'
 import { routes } from '$lib/stores/router'
 import type { LayoutServerLoad } from './$types'
 
 export const load: LayoutServerLoad = () => {
-  const contextRef = setDehydrationContext([
+  const injectorRef = setDehydrationInjector([
     provide(LocationNavigation$, serverNavigation(routes))
   ])
 
   return {
-    contextRef
+    injectorRef
   }
 }
 ```
@@ -176,15 +176,15 @@ In the root layout component, provide browser navigation.
     Link,
     LocationNavigation$,
     getKitNavigation,
-    setHydrationContext
+    setHydrationInjector
   } from '@nano_kit/svelte-kit'
   import { routes } from '$lib/stores/router'
 
   let { data, children } = $props()
 
-  setHydrationContext({
-    fromRef: () => data.contextRef,
-    context: [
+  setHydrationInjector({
+    fromRef: () => data.injectorRef,
+    injector: [
       provide(LocationNavigation$, getKitNavigation(routes))
     ]
   })
@@ -207,18 +207,18 @@ In the root layout component, provide browser navigation.
 import { provide } from '@nano_kit/store'
 import {
   CookieStore,
-  setDehydrationContext
+  setDehydrationInjector
 } from '@nano_kit/svelte-kit'
 import { CookieStore$ } from '@nano_kit/platform-web'
 import type { LayoutServerLoad } from './$types'
 
 export const load: LayoutServerLoad = ({ cookies }) => {
-  const contextRef = setDehydrationContext([
+  const injectorRef = setDehydrationInjector([
     provide(CookieStore$, new CookieStore(cookies))
   ])
 
   return {
-    contextRef
+    injectorRef
   }
 }
 ```

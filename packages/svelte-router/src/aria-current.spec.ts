@@ -127,7 +127,7 @@ describe('svelte-router', () => {
       const [$location, navigation] = virtualNavigation<Routes>('/about', routes)
       const { container, unmount } = render(AriaCurrentContextFixture, {
         props: {
-          context: [
+          injector: [
             provide(Location$, $location),
             provide(Navigation$, navigation)
           ]
@@ -144,7 +144,7 @@ describe('svelte-router', () => {
       const [$location, navigation] = virtualNavigation<Routes>('/', routes)
       const { container, unmount } = render(AriaCurrentContextFixture, {
         props: {
-          context: [
+          injector: [
             provide(Location$, $location),
             provide(Navigation$, navigation)
           ]

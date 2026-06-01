@@ -1,6 +1,6 @@
 import {
   type Accessor,
-  InjectionContext,
+  Injector,
   provide,
   dehydrate,
   run
@@ -119,16 +119,16 @@ export abstract class Renderer extends Manifest {
       dependecies.push(provide(UserAgent$, headers?.userAgent ?? ''))
     }
 
-    const context = new InjectionContext(dependecies)
+    const injector = new Injector(dependecies)
     const page = $page()
     let head: HeadDescriptor[] = []
     let dehydrated: [string, unknown][] = []
 
     if (page) {
       if (this.options.dehydrate !== false) {
-        dehydrated = await dehydrate(page.Stores$!, context)
+        dehydrated = await dehydrate(page.Stores$!, injector)
         head = [
-          ...run(context, page.Head$!),
+          ...run(injector, page.Head$!),
           ...this.getAssetsTags(page.__chunks)
         ]
       } else {
@@ -151,7 +151,7 @@ export abstract class Renderer extends Manifest {
       page,
       statusCode,
       redirect,
-      context,
+      injector,
       head,
       dehydrated,
       setCookieHeaders
@@ -182,7 +182,7 @@ export abstract class Renderer extends Manifest {
     if (!data.redirect && data.page) {
       html = `<!doctype html>${await this.renderToString(data)}`
 
-      const maybeRedirect = responseRedirect(data.context.get(Location$)())
+      const maybeRedirect = responseRedirect(data.injector.get(Location$)())
 
       if (maybeRedirect) {
         const [statusCode, redirect] = maybeRedirect

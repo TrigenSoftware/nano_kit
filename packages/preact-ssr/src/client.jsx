@@ -1,5 +1,5 @@
 import { hydrate } from 'preact'
-import { InjectionContextProvider } from '@nano_kit/preact'
+import { InjectorProvider } from '@nano_kit/preact'
 import { App } from '@nano_kit/preact-router'
 import {
   ROOT_ID,
@@ -13,10 +13,10 @@ import {
 ready({
   routes,
   pages
-}).then((context) => {
+}).then((injector) => {
   hydrate((
-    <InjectionContextProvider context={context}>
+    <InjectorProvider injector={injector}>
       <App />
-    </InjectionContextProvider>
+    </InjectorProvider>
   ), document.getElementById(ROOT_ID))
 })

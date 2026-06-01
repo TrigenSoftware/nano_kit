@@ -66,12 +66,12 @@ function App() {
 render(<App />, document.getElementById('root')!)
 ```
 
-If you want to use DI-based setup, pass the router tokens through `InjectionContextProvider`:
+If you want to use DI-based setup, pass the router tokens through `InjectorProvider`:
 
 ```tsx
 import { render } from 'preact'
 import { provide } from '@nano_kit/store'
-import { InjectionContextProvider } from '@nano_kit/preact'
+import { InjectorProvider } from '@nano_kit/preact'
 import { App, browserNavigation, router, LocationNavigation$, Page$, Pages$ } from '@nano_kit/preact-router'
 import { pages } from './pages'
 import { routes } from './routes'
@@ -90,14 +90,14 @@ const $page = router($location, pages)
 
 /* Render App with DI */
 render((
-  <InjectionContextProvider
-    context={[
+  <InjectorProvider
+    injector={[
       provide(LocationNavigation$, locationNavigation),
       provide(Page$, $page) // required for App component
     ]}
   >
     <App />
-  </InjectionContextProvider>
+  </InjectorProvider>
 ), document.getElementById('root')!)
 ```
 
@@ -132,7 +132,7 @@ function App() {
 }
 ```
 
-With DI, use `usePage` and let it read `Page$` from the current injection context:
+With DI, use `usePage` and let it read `Page$` from the current injector:
 
 ```tsx
 import { usePage } from '@nano_kit/preact-router'
@@ -146,25 +146,25 @@ function App() {
 
 ### `App`
 
-`App` is a ready-made Preact component that reads `Page$` from the current injection context and renders the matched page.
+`App` is a ready-made Preact component that reads `Page$` from the current injector and renders the matched page.
 
 ```tsx
 import { provide } from '@nano_kit/store'
 import { router, page, Page$, App } from '@nano_kit/preact-router'
-import { InjectionContextProvider } from '@nano_kit/preact'
+import { InjectorProvider } from '@nano_kit/preact'
 
 const $page = router($location, [
   page('home', HomePage),
   page('user', UserPage)
 ])
 
-<InjectionContextProvider
-  context={[
+<InjectorProvider
+  injector={[
     provide(Page$, $page)
   ]}
 >
   <App />
-</InjectionContextProvider>
+</InjectorProvider>
 ```
 
 ### `Outlet`
@@ -205,7 +205,7 @@ function App() {
 }
 ```
 
-With DI, use `useListenLinks` and let it read `Navigation$` from the current injection context:
+With DI, use `useListenLinks` and let it read `Navigation$` from the current injector:
 
 ```tsx
 import { useListenLinks } from '@nano_kit/preact-router'
@@ -221,7 +221,7 @@ function App() {
 
 ### `linkComponent` & `Link`
 
-`linkComponent` creates a type-safe `Link` component bound to a specific navigation instance and paths object. `Link` is the DI-based variant that reads router dependencies from the current injection context.
+`linkComponent` creates a type-safe `Link` component bound to a specific navigation instance and paths object. `Link` is the DI-based variant that reads router dependencies from the current injector.
 
 ```tsx
 import { linkComponent, buildPaths, preloadable } from '@nano_kit/preact-router'
@@ -240,7 +240,7 @@ const Link = linkComponent(
 </Link>
 ```
 
-For DI usage, use the built-in `Link` component inside `InjectionContextProvider`:
+For DI usage, use the built-in `Link` component inside `InjectorProvider`:
 
 ```tsx
 import { Link } from '@nano_kit/preact-router'
@@ -339,7 +339,7 @@ function App() {
 }
 ```
 
-With DI, use `useSyncHead` and let it read `Page$` from the current injection context:
+With DI, use `useSyncHead` and let it read `Page$` from the current injector:
 
 ```tsx
 import { useSyncHead } from '@nano_kit/preact-router'
@@ -355,7 +355,7 @@ function App() {
 
 ### `useLocation`
 
-`useLocation` subscribes to the current route location from the injection context.
+`useLocation` subscribes to the current route location from the injector.
 
 ```tsx
 import { useLocation } from '@nano_kit/preact-router'
@@ -369,7 +369,7 @@ function RouteInfo() {
 
 ### `useNavigation`
 
-`useNavigation` returns the navigation API from the injection context.
+`useNavigation` returns the navigation API from the injector.
 
 ```tsx
 import { useNavigation } from '@nano_kit/preact-router'

@@ -1,6 +1,6 @@
 import {
   type Accessor,
-  InjectionContext,
+  Injector,
   provide,
   Hydrator$,
   StaticHydrator
@@ -43,8 +43,8 @@ export function hydrator() {
 }
 
 /**
- * Prepares the client-side context for the application by loading the necessary data and returning an InjectionContext.
- * @returns An InjectionContext containing the dehydrated state, location, navigation and router.
+ * Prepares the client-side injector for the application by loading the necessary data and returning an Injector.
+ * @returns An Injector containing the dehydrated state, location, navigation and router.
  */
 export async function ready(options: ReadyOptions) {
   const {
@@ -55,7 +55,7 @@ export async function ready(options: ReadyOptions) {
   const locationNavigation = browserNavigation(routes)
   const [$location] = locationNavigation
   const $page = router($location, pages)
-  const context = new InjectionContext([
+  const injector = new Injector([
     provide(Hydrator$, hydrator()),
     provide(LocationNavigation$, locationNavigation),
     provide(Page$, $page),
@@ -64,5 +64,5 @@ export async function ready(options: ReadyOptions) {
 
   await loadPage(pages, $location().route)
 
-  return context
+  return injector
 }

@@ -239,7 +239,7 @@ export function Session$() {
 During SSR and tests, provide `CookieStore$` with `VirtualCookieStore`. It implements the CookieStore API from an incoming `Cookie` header and collects pending `Set-Cookie` headers from mutations.
 
 ```ts
-import { InjectionContext, provide } from '@nano_kit/store'
+import { Injector, provide } from '@nano_kit/store'
 import {
   CookieStore$,
   VirtualCookieStore
@@ -250,7 +250,7 @@ const cookieStore = new VirtualCookieStore(
   '/dashboard'
 )
 
-const context = new InjectionContext([
+const injector = new Injector([
   provide(CookieStore$, cookieStore)
 ])
 
@@ -322,7 +322,7 @@ import {
   parseLocales
 } from '@nano_kit/platform-web'
 
-const context = [
+const injector = [
   provide(Locales$, parseLocales(request.headers.get('accept-language')))
 ]
 ```
@@ -350,7 +350,7 @@ On the server, provide `UserAgent$` with the incoming `User-Agent` header.
 import { provide } from '@nano_kit/store'
 import { UserAgent$ } from '@nano_kit/platform-web'
 
-const context = [
+const injector = [
   provide(UserAgent$, request.headers.get('user-agent') ?? '')
 ]
 ```

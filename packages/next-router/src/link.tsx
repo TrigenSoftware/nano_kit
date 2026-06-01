@@ -53,7 +53,7 @@ export type LinkProps<R extends Routes, K extends keyof R & string> = NextLinkBa
 
 /**
  * Next.js Link component with router-aware `to` and `params` props.
- * Should be used inside injection context with navigation and paths provided.
+ * Should be used inside an injector context with navigation and paths provided.
  */
 export function Link<K extends keyof AppRoutes>(props: LinkProps<AppRoutes, K>) {
   const {

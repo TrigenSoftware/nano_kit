@@ -8,7 +8,7 @@ import {
   type TasksPool,
   Hydrator$,
   Hydratables$,
-  InjectionContext,
+  Injector,
   effect,
   signal,
   tasksRunner,
@@ -82,11 +82,11 @@ describe('query', () => {
         off()
       })
 
-      it('should use Hydratables$ from context', async () => {
-        const context = new InjectionContext([
+      it('should use Hydratables$ from injector', async () => {
+        const injector = new Injector([
           provide(Hydratables$, new Map())
         ])
-        const { query } = run(context, () => client(
+        const { query } = run(injector, () => client(
           tasks(tasksRunner(tasksPool)),
           hydratable()
         ))
@@ -103,7 +103,7 @@ describe('query', () => {
           content: 'Hello World!'
         })
 
-        expect(context.get(Hydratables$)!.get('@nano_kit/query')!()).toMatchObject([
+        expect(injector.get(Hydratables$)!.get('@nano_kit/query')!()).toMatchObject([
           [
             'post',
             '[1]',
@@ -232,7 +232,7 @@ describe('query', () => {
         off()
       })
 
-      it('should use Hydrator$ from context', () => {
+      it('should use Hydrator$ from injector', () => {
         const dehydrated: any = [
           [
             '@nano_kit/query',
@@ -256,10 +256,10 @@ describe('query', () => {
             ]
           ]
         ]
-        const context = new InjectionContext([
+        const injector = new Injector([
           provide(Hydrator$, new StaticHydrator(dehydrated))
         ])
-        const { query } = run(context, () => client(
+        const { query } = run(injector, () => client(
           tasks(tasksRunner(tasksPool)),
           hydratable()
         ))

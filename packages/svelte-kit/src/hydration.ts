@@ -8,13 +8,13 @@ import {
   $get
 } from '@nano_kit/store'
 import {
-  getInjectionContext,
-  setInjectionContext
+  getInjector,
+  setInjector
 } from '@nano_kit/svelte'
 
-export interface HydrationContextParams {
+export interface HydrationInjectorParams {
   /**
-   * Create hydration context from an existing dehydration context reference.
+   * Create hydration injector from an existing dehydration injector reference.
    */
   fromRef?: ValueOrAccessor<number>
   /**
@@ -23,11 +23,11 @@ export interface HydrationContextParams {
    */
   dehydrated?: ValueOrAccessor<[string, unknown][] | FalsyValue>
   /**
-   * Additional injection providers to merge into the child context.
+   * Additional injection providers to merge into the child injector.
    */
-  context?: InjectionProvider[]
+  injector?: InjectionProvider[]
   /**
-   * Whether to reuse an existing InjectionContext or create a new one.
+   * Whether to reuse an existing Injector or create a new one.
    * `true` by default.
    */
   reuse?: boolean
@@ -35,17 +35,17 @@ export interface HydrationContextParams {
 
 /**
  * Provide hydrated data to child components using a active hydrator.
- * @param params - Hydration context parameters.
+ * @param params - Hydration injector parameters.
  */
-export function setHydrationContext(
+export function setHydrationInjector(
   {
     dehydrated,
-    context = [],
+    injector = [],
     reuse = true
-  }: HydrationContextParams = {}
+  }: HydrationInjectorParams = {}
 ) {
-  const currentContext = getInjectionContext()
-  const existingHydrator = currentContext?.get(Hydrator$, true)
+  const currentInjector = getInjector()
+  const existingHydrator = currentInjector?.get(Hydrator$, true)
   const hydrator = existingHydrator || new ActiveHydrator()
   const dehydratedValue = $get(dehydrated)
 
@@ -54,8 +54,8 @@ export function setHydrationContext(
   }
 
   if (!existingHydrator || !reuse) {
-    setInjectionContext([
-      ...context,
+    setInjector([
+      ...injector,
       provide(Hydrator$, hydrator)
     ])
   }

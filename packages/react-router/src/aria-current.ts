@@ -78,7 +78,7 @@ const useAriaCurrent = /* @__PURE__ */ createAriaCurrent(useLocation)
 
 /**
  * Enable automatic `aria-current` handling for Link component.
- * Should be used inside injection context with route location and link settings provided.
+ * Should be used inside injector context with route location and link settings provided.
  * @param isAriaCurrent - Custom predicate to determine whether the link is current.
  */
 export function useLinkComponentAriaCurrent(

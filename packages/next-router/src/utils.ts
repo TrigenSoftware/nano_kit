@@ -1,20 +1,20 @@
 import {
-  type InjectionContext,
+  type Injector,
   inject
 } from '@nano_kit/store'
 import { Location$ } from '@nano_kit/router'
 
 /**
  * Helper function to create a redirect object for Next.js Pages Router.
- * @param context - Injection context to access the current location.
+ * @param injector - Injector to access the current location.
  * @param permanent - Whether the redirect is permanent (HTTP 301) or temporary (HTTP 302).
  * @returns Redirect object or null if no redirect is needed.
  */
 export function redirect(
-  context: InjectionContext,
+  injector: Injector,
   permanent = false
 ) {
-  const $location = inject(Location$, context)
+  const $location = inject(Location$, injector)
   const location = $location()
 
   if (location.action) {

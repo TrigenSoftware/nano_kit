@@ -89,10 +89,10 @@ const $page = router($location, pages)
 syncHead($page)
 ```
 
-You can pass an optional `InjectionContext` as the second argument to resolve `Head$` factories with DI:
+You can pass an optional `Injector` as the second argument to resolve `Head$` factories with DI:
 
 ```ts
-syncHead($page, context)
+syncHead($page, injector)
 ```
 
 ### Tag Descriptors

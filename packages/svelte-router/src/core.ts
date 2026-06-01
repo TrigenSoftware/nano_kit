@@ -7,7 +7,7 @@ import {
   computed
 } from '@nano_kit/store'
 import {
-  getInjectionContext,
+  getInjector,
   getInject
 } from '@nano_kit/svelte'
 import {
@@ -75,8 +75,8 @@ export function getPageSignal($page: Accessor<PageRef<PageComponent> | null>) {
 }
 
 /**
- * Gets the current page component signal from injection context.
- * Should be called during component initialization inside an injection context with page provided.
+ * Gets the current page component signal from injector.
+ * Should be called during component initialization inside an injector context with page provided.
  * @returns Signal containing the current page component, or undefined if no page is matched.
  */
 /* @__NO_SIDE_EFFECTS__ */
@@ -95,12 +95,12 @@ export function syncPageHead($page: Accessor<PageRef<unknown> | null>) {
 }
 
 /**
- * Syncs the document head with the current page's head configuration within injection context.
- * Should be used inside injection context with page provided.
+ * Syncs the document head with the current page's head configuration within injector.
+ * Should be used inside injector context with page provided.
  */
 export function syncHead() {
-  const context = getInjectionContext()
+  const injector = getInjector()
   const $page = getInject(Page$)
 
-  onMount(() => vanillaSyncHead($page, context))
+  onMount(() => vanillaSyncHead($page, injector))
 }

@@ -138,14 +138,14 @@ To customize client-side hydration, provide your own client entry:
 ```js
 // src/client.js
 import { hydrate } from 'svelte'
-import { setInjectionContext } from '@nano_kit/svelte'
+import { setInjector } from '@nano_kit/svelte'
 import { App } from '@nano_kit/svelte-router'
 import { ROOT_ID, ready } from '@nano_kit/svelte-ssr/client'
 import { routes, pages } from './index.js'
 
-ready({ routes, pages }).then((context) => {
+ready({ routes, pages }).then((injector) => {
   hydrate((internals, props) => {
-    setInjectionContext(context)
+    setInjector(injector)
 
     return App(internals, props)
   }, {

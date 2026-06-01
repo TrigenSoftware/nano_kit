@@ -8,23 +8,24 @@ import {
 } from '@nano_kit/store'
 import { useMemo } from 'preact/hooks'
 import {
-  type InjectionContextProps,
-  InjectionContextProvider,
-  useInjectionContext
+  type InjectorProviderProps,
+  InjectorProvider,
+  useInjector
 } from './core.jsx'
 
-export interface HydrationProviderProps extends InjectionContextProps {
+export interface HydrationProviderProps extends InjectorProviderProps {
   /**
    * Dehydrated data as an array of key-value pairs.
    * Pass a falsy value to skip hydration.
    */
   dehydrated?: [string, unknown][] | FalsyValue
   /**
-   * Additional injection providers to merge into the child context.
+   * Additional injection providers to merge into the child injector.
    */
-  context?: InjectionProvider[]
+  injector?: InjectionProvider[]
   /**
-   * Whether to reuse an existing InjectionContext or create a new one.
+   * Whether to reuse an existing Injector or create a new one.
+   * `true` by default.
    */
   reuse?: boolean
 }
@@ -35,13 +36,13 @@ export interface HydrationProviderProps extends InjectionContextProps {
  */
 export function HydrationProvider({
   dehydrated,
-  context = [],
-  reuse,
+  injector = [],
+  reuse = true,
   children
 }: HydrationProviderProps) {
-  const currentContext = useInjectionContext()
+  const currentInjector = useInjector()
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const existingHydrator = useMemo(() => currentContext?.get(Hydrator$, true), [])
+  const existingHydrator = useMemo(() => currentInjector?.get(Hydrator$, true), [])
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const hydrator = useMemo(() => existingHydrator || new ActiveHydrator(), [])
 
@@ -54,14 +55,14 @@ export function HydrationProvider({
   }
 
   return (
-    <InjectionContextProvider
-      context={[
-        ...context,
+    <InjectorProvider
+      injector={[
+        ...injector,
         provide(Hydrator$, hydrator)
       ]}
     >
       {children}
-    </InjectionContextProvider>
+    </InjectorProvider>
   )
 }
 
@@ -76,21 +77,21 @@ export interface StaticHydrationProviderProps extends Omit<HydrationProviderProp
  */
 export function StaticHydrationProvider({
   dehydrated,
-  context = [],
+  injector = [],
   children
 }: StaticHydrationProviderProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const hydrator = useMemo(() => dehydrated && new StaticHydrator(dehydrated), [])
 
   return (
-    <InjectionContextProvider
-      context={
+    <InjectorProvider
+      injector={
         hydrator
-          ? [...context, provide(Hydrator$, hydrator)]
-          : context
+          ? [...injector, provide(Hydrator$, hydrator)]
+          : injector
       }
     >
       {children}
-    </InjectionContextProvider>
+    </InjectorProvider>
   )
 }

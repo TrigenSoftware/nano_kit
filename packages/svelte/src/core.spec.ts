@@ -47,19 +47,19 @@ describe('svelte', () => {
       })
     })
 
-    describe('InjectionContext', () => {
+    describe('Injector', () => {
       it('should provide dependency', () => {
         const $count = signal(0)
         const values: unknown[] = []
 
-        function Factory$(): ReadableSignal<number> | null {
+        function Token$(): ReadableSignal<number> | null {
           return null
         }
 
         render(ProviderFixture, {
           props: {
-            context: [provide(Factory$, $count)],
-            token: Factory$,
+            injector: [provide(Token$, $count)],
+            token: Token$,
             onValue: (value: unknown) => values.push(value)
           }
         })
@@ -67,18 +67,18 @@ describe('svelte', () => {
         expect(values).toEqual([$count])
       })
 
-      it('should isolate dependencies from parent component context', () => {
+      it('should isolate dependencies from parent component injector', () => {
         const $count = signal(0)
         const values: unknown[] = []
 
-        function Factory$() {
+        function Token$() {
           return signal(1)
         }
 
         render(IsolateFixture, {
           props: {
-            context: [provide(Factory$, $count)],
-            token: Factory$,
+            injector: [provide(Token$, $count)],
+            token: Token$,
             onValue: (value: unknown) => values.push(value)
           }
         })
@@ -93,14 +93,14 @@ describe('svelte', () => {
         const $count = signal(0)
         const values: unknown[] = []
 
-        function Factory$() {
+        function Token$() {
           return $count
         }
 
         render(ProviderFixture, {
           props: {
-            context: [],
-            token: Factory$,
+            injector: [],
+            token: Token$,
             onValue: (value: unknown) => values.push(value)
           }
         })

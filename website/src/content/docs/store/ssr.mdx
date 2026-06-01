@@ -140,14 +140,14 @@ const dehydrated = await dehydrate(() => {
 ```
 
 The `dehydrate` function:
-1. Creates an injection context with a task pool, or uses the context passed as the second argument
-2. Runs your store factories within that context
+1. Creates an injector with a task pool, or uses the injector passed as the second argument
+2. Runs your store factories within that injector
 3. Starts effects to trigger `onMount` callbacks (which start async tasks)
 4. Waits for all tasks in `TasksPool$` to complete
 5. Collects all signals marked with `hydratable`
 6. Returns the dehydrated key-value pairs
 
-If your stores need preconfigured dependencies, pass them as the second argument. It can be an `InjectionContext` instance or an array of providers for a new context.
+If your stores need preconfigured dependencies, pass them as the second argument. It can be an `Injector` instance or an array of providers for a new injector.
 
 ```ts
 import { dehydrate, provide } from '@nano_kit/store'
@@ -163,17 +163,17 @@ On the client, pass the dehydrated data to a `StaticHydrator` and provide it via
 
 ```tsx
 import { Hydrator$, StaticHydrator, provide } from '@nano_kit/store'
-import { InjectionContextProvider, useInject, useSignal } from '@nano_kit/react'
+import { InjectorProvider, useInject, useSignal } from '@nano_kit/react'
 
 /* Dehydrated data passed from the server (e.g. via a script tag or window variable) */
 const hydrator = new StaticHydrator(window.__DEHYDRATED__)
 
-/* Component that provides the injection context with hydration data */
+/* Component that provides the injector with hydration data */
 function App() {
   return (
-    <InjectionContextProvider context={[provide(Hydrator$, hydrator)]}>
+    <InjectorProvider injector={[provide(Hydrator$, hydrator)]}>
       <UserProfile />
-    </InjectionContextProvider>
+    </InjectorProvider>
   )
 }
 

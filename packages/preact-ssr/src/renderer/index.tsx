@@ -1,6 +1,6 @@
 import { render } from 'preact-render-to-string'
 import { get } from '@nano_kit/store'
-import { InjectionContextProvider } from '@nano_kit/preact'
+import { InjectorProvider } from '@nano_kit/preact'
 import {
   compose,
   App
@@ -64,9 +64,9 @@ export class PreactRenderer extends Renderer {
         />
         <body>
           <div id={ROOT_ID}>
-            <InjectionContextProvider context={data.context}>
+            <InjectorProvider injector={data.injector}>
               <App />
-            </InjectionContextProvider>
+            </InjectorProvider>
           </div>
           <script
             dangerouslySetInnerHTML={{

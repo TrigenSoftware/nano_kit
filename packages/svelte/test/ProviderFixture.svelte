@@ -1,23 +1,23 @@
 <script lang="ts">
   import type {
-    InjectionFactory,
+    InjectionToken,
     InjectionProvider
   } from '@nano_kit/store'
   import {
     getInject,
-    setInjectionContext
+    setInjector
   } from '../src/core.js'
 
   interface Props<T> {
-    context: InjectionProvider[]
-    token: InjectionFactory<T>
+    injector: InjectionProvider[]
+    token: InjectionToken<T>
     onValue(value: T): void
   }
 
   const props: Props<unknown> = $props()
 
   // svelte-ignore state_referenced_locally
-  setInjectionContext(props.context)
+  setInjector(props.injector)
   // svelte-ignore state_referenced_locally
   props.onValue(getInject(props.token))
 </script>

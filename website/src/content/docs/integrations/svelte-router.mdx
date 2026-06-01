@@ -67,7 +67,7 @@ A typical setup looks like this:
 {/if}
 ```
 
-If you want to use DI-based setup, pass the router tokens through `setInjectionContext`:
+If you want to use DI-based setup, pass the router tokens through `setInjector`:
 
 ```svelte
 <script module lang="ts">
@@ -91,9 +91,9 @@ If you want to use DI-based setup, pass the router tokens through `setInjectionC
 
 <script lang="ts">
   import { provide } from '@nano_kit/store'
-  import { setInjectionContext } from '@nano_kit/svelte'
+  import { setInjector } from '@nano_kit/svelte'
 
-  setInjectionContext([
+  setInjector([
     provide(LocationNavigation$, locationNavigation),
     provide(Page$, page) // required for App component
   ])
@@ -136,7 +136,7 @@ Without DI, use `getPageSignal` with the page accessor returned by `router()`:
 {/if}
 ```
 
-With DI, use `getPage` and let it read `Page$` from the current injection context:
+With DI, use `getPage` and let it read `Page$` from the current injector:
 
 ```svelte
 <script lang="ts">
@@ -153,7 +153,7 @@ With DI, use `getPage` and let it read `Page$` from the current injection contex
 
 ### `App`
 
-`App` is a ready-made Svelte component that reads `Page$` from the current injection context and renders the matched page.
+`App` is a ready-made Svelte component that reads `Page$` from the current injector and renders the matched page.
 
 ```svelte
 <script module lang="ts">
@@ -167,10 +167,10 @@ With DI, use `getPage` and let it read `Page$` from the current injection contex
 
 <script lang="ts">
   import { provide } from '@nano_kit/store'
-  import { setInjectionContext } from '@nano_kit/svelte'
+  import { setInjector } from '@nano_kit/svelte'
   import { App } from '@nano_kit/svelte-router'
 
-  setInjectionContext([
+  setInjector([
     provide(Page$, page)
   ])
 </script>
@@ -211,7 +211,7 @@ Without DI, pass the navigation instance explicitly:
 </script>
 ```
 
-With DI, use `listenLinks` and let it read `Navigation$` from the current injection context:
+With DI, use `listenLinks` and let it read `Navigation$` from the current injector:
 
 ```svelte
 <script lang="ts">
@@ -223,7 +223,7 @@ With DI, use `listenLinks` and let it read `Navigation$` from the current inject
 
 ### `linkComponent` & `Link`
 
-`linkComponent` creates a type-safe `Link` component bound to a specific navigation instance and paths object. `Link` is the DI-based variant that reads router dependencies from the current injection context.
+`linkComponent` creates a type-safe `Link` component bound to a specific navigation instance and paths object. `Link` is the DI-based variant that reads router dependencies from the current injector.
 
 ```ts
 import { buildPaths, linkComponent, preloadable } from '@nano_kit/svelte-router'
@@ -247,7 +247,7 @@ export const Link = linkComponent(
 </Link>
 ```
 
-For DI usage, use the built-in `Link` component inside `setInjectionContext`:
+For DI usage, use the built-in `Link` component inside `setInjector`:
 
 ```svelte
 <script lang="ts">
@@ -337,7 +337,7 @@ Without DI, use `syncPageHead` with an explicit page accessor:
 </script>
 ```
 
-With DI, use `syncHead` and let it read `Page$` from the current injection context:
+With DI, use `syncHead` and let it read `Page$` from the current injector:
 
 ```svelte
 <script lang="ts">
@@ -349,7 +349,7 @@ With DI, use `syncHead` and let it read `Page$` from the current injection conte
 
 ### `getLocation`
 
-`getLocation` returns the current route location from the injection context.
+`getLocation` returns the current route location from the injector.
 
 ```svelte
 <script lang="ts">
@@ -363,7 +363,7 @@ With DI, use `syncHead` and let it read `Page$` from the current injection conte
 
 ### `getNavigation`
 
-`getNavigation` returns the navigation API from the injection context.
+`getNavigation` returns the navigation API from the injector.
 
 ```svelte
 <script lang="ts">

@@ -202,7 +202,7 @@ The renderer returns a redirect and a deletion `Set-Cookie` header. The browser 
 You can also use `VirtualCookieStore` directly in tests or custom render pipelines:
 
 ```ts
-import { InjectionContext, provide } from '@nano_kit/store'
+import { Injector, provide } from '@nano_kit/store'
 import {
   CookieStore$,
   VirtualCookieStore
@@ -213,7 +213,7 @@ const cookieStore = new VirtualCookieStore(
   '/dashboard'
 )
 
-const context = new InjectionContext([
+const injector = new Injector([
   provide(CookieStore$, cookieStore)
 ])
 

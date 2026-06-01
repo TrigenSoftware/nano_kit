@@ -67,7 +67,7 @@ export function tasksRunner(
 }
 
 /**
- * DI factory for tasks pool.
+ * DI token for tasks pool.
  * @returns The tasks pool.
  */
 export function TasksPool$(): TasksPool {
@@ -75,7 +75,7 @@ export function TasksPool$(): TasksPool {
 }
 
 /**
- * DI factory for tasks runner.
+ * DI token for tasks runner.
  * @returns The function to run task within the pool.
  */
 export function TasksRunner$() {

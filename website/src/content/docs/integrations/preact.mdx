@@ -50,34 +50,34 @@ export function Counter() {
 
 ## Dependency Injection
 
-### `InjectionContextProvider`
+### `InjectorProvider`
 
-To use the Dependency Injection system within Preact, wrap your application (or part of it) in `InjectionContextProvider`. This component initializes an `InjectionContext` and makes it available to child components via the Preact Context API.
+To use the Dependency Injection system within Preact, wrap your application (or part of it) in `InjectorProvider`. This component initializes an `Injector` and makes it available to child components via the Preact Context API.
 
-You can provide an existing context instance or an array of providers/values.
+You can provide an existing injector instance or an array of providers/values.
 
 ```tsx
 import { provide } from '@nano_kit/store'
-import { InjectionContextProvider } from '@nano_kit/preact'
+import { InjectorProvider } from '@nano_kit/preact'
 import { Theme$ } from './tokens'
 import { App } from './App'
 
 function Root() {
   return (
-    <InjectionContextProvider
-      context={[
+    <InjectorProvider
+      injector={[
         provide(Theme$, 'dark')
       ]}
     >
       <App />
-    </InjectionContextProvider>
+    </InjectorProvider>
   )
 }
 ```
 
 ### `useInject`
 
-The `useInject` hook retrieves a dependency from the current injection context. It throws an error if the context is missing, ensuring your dependencies are always resolved.
+The `useInject` hook retrieves a dependency from the current injector. It throws an error if the injector is missing, ensuring your dependencies are always resolved.
 
 ```tsx
 import { useInject } from '@nano_kit/preact'
@@ -131,7 +131,7 @@ export function ActiveLink({ route }) {
 
 ### `Isolate`
 
-`Isolate` renders children with a fresh injection boundary. Use it when a subtree must not inherit dependencies from the parent context.
+`Isolate` renders children with a fresh injection boundary. Use it when a subtree must not inherit dependencies from the parent injector.
 
 ```tsx
 import { Isolate } from '@nano_kit/preact'
@@ -151,7 +151,7 @@ export function Preview({ children }) {
 
 #### `HydrationProvider`
 
-`HydrationProvider` sets up a reactive hydration context for client-side hydration. It uses [`ActiveHydrator`](/store/ssr/#client-side-hydration) under the hood, which supports streaming — the `dehydrated` prop can be updated on re-renders to feed new data.
+`HydrationProvider` sets up a reactive hydration injector for client-side hydration. It uses [`ActiveHydrator`](/store/ssr/#client-side-hydration) under the hood, which supports streaming — the `dehydrated` prop can be updated on re-renders to feed new data.
 
 ```tsx
 import { HydrationProvider } from '@nano_kit/preact'
@@ -167,8 +167,8 @@ function App({ dehydrated }) {
 
 Props:
 - `dehydrated?` — dehydrated key-value pairs `[string, unknown][]`, or a falsy value to skip hydration
-- `context?` — additional injection providers
-- `reuse?` — reuse an existing `InjectionContext` instead of creating a new one; set to `true` if you want the hydration context to be shared with the rest of your app instead of isolated
+- `injector?` — additional injection providers
+- `reuse?` — reuse an existing `Injector` instead of creating a new one; set to `true` if you want the hydration injector to be shared with the rest of your app instead of isolated
 
 #### `StaticHydrationProvider`
 

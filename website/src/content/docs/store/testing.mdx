@@ -105,10 +105,10 @@ The `waitTasks` function waits for all tasks in the pool to complete, including 
 
 ## Mocking Dependencies
 
-Use the DI mechanism to mock dependencies in tests. Create a custom `InjectionContext` with `provide` to inject test doubles.
+Use the DI mechanism to mock dependencies in tests. Create a custom `Injector` with `provide` to inject test doubles.
 
 ```ts
-import { InjectionContext, provide, inject } from '@nano_kit/store'
+import { Injector, provide, inject } from '@nano_kit/store'
 import { virtualNavigation } from '@nano_kit/router'
 import { Location$, Navigation$ } from './router'
 import { Episodes$ } from './episodes'
@@ -119,11 +119,11 @@ const [$location, navigation] = virtualNavigation('/episodes/1', {
 })
 
 /* Inject mocked dependencies */
-const context = new InjectionContext([
+const injector = new Injector([
   provide(Location$, $location),
   provide(Navigation$, navigation)
 ])
 
-/* Inject store with mocked context */
-const { $episodes } = inject(Episodes$, context)
+/* Inject store with mocked injector */
+const { $episodes } = inject(Episodes$, injector)
 ```

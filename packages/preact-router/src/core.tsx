@@ -8,7 +8,7 @@ import type { Accessor } from '@nano_kit/store'
 import {
   useSignal,
   useInject,
-  useInjectionContext
+  useInjector
 } from '@nano_kit/preact'
 import {
   type LayoutMatchRef,
@@ -78,8 +78,8 @@ export function usePageSignal($page: Accessor<PageRef<PageComponent> | null>) {
 }
 
 /**
- * Get page component from the current page match reference signal within injection context.
- * Should be used inside injection context with page provided.
+ * Get page component from the current page match reference signal within injector.
+ * Should be used inside injector context with page provided.
  * @returns Current page component or null if no match
  */
 /* @__NO_SIDE_EFFECTS__ */
@@ -91,7 +91,7 @@ export function usePage() {
 
 /**
  * App component that renders the current page based on the route match.
- * Should be used inside injection context with page provided.
+ * Should be used inside injector context with page provided.
  * @returns Rendered page component or null if no match
  */
 export function App() {
@@ -109,12 +109,12 @@ export function usePageSyncHead($page: Accessor<PageRef<unknown> | null>) {
 }
 
 /**
- * Syncs the document head with the current page's head configuration within injection context.
- * Should be used inside injection context with page provided.
+ * Syncs the document head with the current page's head configuration within injector.
+ * Should be used inside injector context with page provided.
  */
 export function useSyncHead() {
-  const context = useInjectionContext()
+  const injector = useInjector()
   const $page = useInject(Page$)
 
-  useEffect(() => syncHead($page, context), [$page, context])
+  useEffect(() => syncHead($page, injector), [$page, injector])
 }

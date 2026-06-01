@@ -16,7 +16,7 @@ import {
   PermanentReplaceHistoryAction,
   virtualNavigation
 } from '@nano_kit/router'
-import { setDehydrationContext } from '@nano_kit/react'
+import { setDehydrationInjector } from '@nano_kit/react'
 import {
   type NextNavigationProviderProps,
   NextNavigationProvider
@@ -102,7 +102,7 @@ export async function NextNavigation<const R extends Routes = Routes>(
     await connection()
   }
 
-  setDehydrationContext([
+  setDehydrationInjector([
     // Suppress conflict with AppRoutes
     provide(LocationNavigation$, nextServerNavigation(routes) as unknown)
   ])

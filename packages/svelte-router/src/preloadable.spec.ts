@@ -129,7 +129,7 @@ describe('svelte-router', () => {
       const navigation = virtualNavigation<Routes>('/', routes)[1]
       const { container, unmount } = render(PreloadableContextFixture, {
         props: {
-          context: [
+          injector: [
             provide(Navigation$, navigation),
             provide(Pages$, pages)
           ],

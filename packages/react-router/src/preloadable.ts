@@ -83,7 +83,7 @@ const usePreload = /* @__PURE__ */ createUsePreloadHook(() => useInject(Pages$))
 
 /**
  * Enable link preloading capabilities for Link component.
- * Should be used inside injection context with navigation and paths provided.
+ * Should be used inside injector context with navigation and paths provided.
  * @param preloadByDefault - Whether to preload pages by default.
  */
 export function useLinkComponentPreload(preloadByDefault = false) {

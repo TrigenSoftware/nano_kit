@@ -56,7 +56,7 @@ function decode(
 
 /**
  * Make client cache hydratable.
- * Without arguments, it will try to inject {@link Hydrator$} and {@link Hydratables$} from the injection context.
+ * Without arguments, it will try to resolve {@link Hydrator$} and {@link Hydratables$} from the injector.
  * @param hydrator - Optional hydrator to use for rehydrating the cache. Pass `null` to skip hydration and only register for dehydration.
  * @param hydratables - Optional map to register the cache collector for dehydration.
  * @returns The client setting function.

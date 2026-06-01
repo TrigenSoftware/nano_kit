@@ -6,7 +6,7 @@ import {
 import {
   signal,
   mountable,
-  InjectionContext,
+  Injector,
   run,
   inject,
   provide,
@@ -92,10 +92,10 @@ describe('store', () => {
           name: 'John'
         }
       })
-      const context = new InjectionContext([
+      const injector = new Injector([
         provide(Hydrator$, new StaticHydrator(dehydrated))
       ])
-      const { $user } = run(context, () => inject(User$))
+      const { $user } = run(injector, () => inject(User$))
 
       expect($user()).toEqual({
         name: 'John'
@@ -106,10 +106,10 @@ describe('store', () => {
       const dehydrated = Object.entries({
         user: '{"name":"John"}'
       })
-      const context = new InjectionContext([
+      const injector = new Injector([
         provide(Hydrator$, new StaticHydrator(dehydrated))
       ])
-      const $user = run(context, () => hydratable(
+      const $user = run(injector, () => hydratable(
         'user',
         signal<User | null>(null),
         JsonCodec
@@ -126,10 +126,10 @@ describe('store', () => {
           name: 'John'
         }
       })
-      const context = new InjectionContext([
+      const injector = new Injector([
         provide(Hydrator$, new StaticHydrator(dehydrated))
       ])
-      const { $user } = run(context, () => inject(User$))
+      const { $user } = run(injector, () => inject(User$))
 
       expect(isHydrated($user)).toBe(true)
 
@@ -149,10 +149,10 @@ describe('store', () => {
         }
       }))
 
-      const context = new InjectionContext([
+      const injector = new Injector([
         provide(Hydrator$, hydrator)
       ])
-      const { $user } = run(context, () => inject(User$))
+      const { $user } = run(injector, () => inject(User$))
 
       expect($user()).toEqual({
         name: 'John'

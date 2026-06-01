@@ -12,7 +12,7 @@ import {
   hydratable
 } from '@nano_kit/store'
 import {
-  InjectionContextProvider,
+  InjectorProvider,
   useInject,
   useSignal
 } from './core.js'
@@ -41,11 +41,11 @@ describe('preact', () => {
     describe('HydrationProvider', () => {
       it('should hydrate on mount', () => {
         const { container } = render(
-          <InjectionContextProvider>
+          <InjectorProvider>
             <HydrationProvider dehydrated={[['value', 'hello']]}>
               <Test/>
             </HydrationProvider>
-          </InjectionContextProvider>
+          </InjectorProvider>
         )
 
         expect(container.innerHTML).toBe('<div>hello</div>')
@@ -53,22 +53,22 @@ describe('preact', () => {
 
       it('should re-hydrate when dehydrated prop changes', () => {
         const { container, rerender } = render(
-          <InjectionContextProvider>
+          <InjectorProvider>
             <HydrationProvider dehydrated={[['value', 'first']]}>
               <Test/>
             </HydrationProvider>
-          </InjectionContextProvider>
+          </InjectorProvider>
         )
 
         expect(container.innerHTML).toBe('<div>first</div>')
 
         act(() => {
           rerender(
-            <InjectionContextProvider>
+            <InjectorProvider>
               <HydrationProvider dehydrated={[['value', 'second']]}>
                 <Test/>
               </HydrationProvider>
-            </InjectionContextProvider>
+            </InjectorProvider>
           )
         })
 
@@ -77,11 +77,11 @@ describe('preact', () => {
 
       it('should skip hydration when dehydrated is falsy', () => {
         const { container } = render(
-          <InjectionContextProvider>
+          <InjectorProvider>
             <HydrationProvider dehydrated={null}>
               <Test/>
             </HydrationProvider>
-          </InjectionContextProvider>
+          </InjectorProvider>
         )
 
         expect(container.innerHTML).toBe('<div>empty</div>')
@@ -91,11 +91,11 @@ describe('preact', () => {
     describe('StaticHydrationProvider', () => {
       it('should hydrate on mount', () => {
         const { container } = render(
-          <InjectionContextProvider>
+          <InjectorProvider>
             <StaticHydrationProvider dehydrated={[['value', 'hello']]}>
               <Test/>
             </StaticHydrationProvider>
-          </InjectionContextProvider>
+          </InjectorProvider>
         )
 
         expect(container.innerHTML).toBe('<div>hello</div>')
@@ -103,22 +103,22 @@ describe('preact', () => {
 
       it('should not re-hydrate on re-render', () => {
         const { container, rerender } = render(
-          <InjectionContextProvider>
+          <InjectorProvider>
             <StaticHydrationProvider dehydrated={[['value', 'first']]}>
               <Test/>
             </StaticHydrationProvider>
-          </InjectionContextProvider>
+          </InjectorProvider>
         )
 
         expect(container.innerHTML).toBe('<div>first</div>')
 
         act(() => {
           rerender(
-            <InjectionContextProvider>
+            <InjectorProvider>
               <StaticHydrationProvider dehydrated={[['value', 'second']]}>
                 <Test/>
               </StaticHydrationProvider>
-            </InjectionContextProvider>
+            </InjectorProvider>
           )
         })
 
@@ -127,11 +127,11 @@ describe('preact', () => {
 
       it('should skip hydration when dehydrated is falsy', () => {
         const { container } = render(
-          <InjectionContextProvider>
+          <InjectorProvider>
             <StaticHydrationProvider dehydrated={null}>
               <Test/>
             </StaticHydrationProvider>
-          </InjectionContextProvider>
+          </InjectorProvider>
         )
 
         expect(container.innerHTML).toBe('<div>empty</div>')

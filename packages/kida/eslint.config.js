@@ -23,6 +23,7 @@ export default [
       '@typescript-eslint/unified-signatures': 'off',
       '@typescript-eslint/no-redundant-type-constituents': 'off',
       '@typescript-eslint/no-use-before-define': 'off',
+      '@typescript-eslint/no-extraneous-class': 'off',
       'no-implicit-coercion': 'off',
       'consistent-return': 'off',
       'symbol-description': 'off',

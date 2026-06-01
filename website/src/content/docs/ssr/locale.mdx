@@ -58,7 +58,7 @@ The option makes the renderer parse the incoming `Accept-Language` header and pr
 
 ## Usage
 
-Read `Locales$` inside a store factory when you want to resolve the current locale from the context.
+Read `Locales$` inside a store factory when you want to resolve the current locale from the injector.
 
 ```ts
 // src/stores/locale.ts
@@ -114,7 +114,7 @@ The Vite dev server passes this header automatically when `inject.browserLocale:
 You can also use `parseLocales` directly in tests or custom render pipelines:
 
 ```ts
-import { InjectionContext, provide } from '@nano_kit/store'
+import { Injector, provide } from '@nano_kit/store'
 import {
   Locales$,
   browserLocale,
@@ -122,11 +122,11 @@ import {
 } from '@nano_kit/platform-web'
 
 const locales = parseLocales('ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7')
-const context = new InjectionContext([
+const injector = new Injector([
   provide(Locales$, locales)
 ])
 
-browserLocale(context.get(Locales$), ['en', 'ru-RU'], 'en')
+browserLocale(injector.get(Locales$), ['en', 'ru-RU'], 'en')
 // 'ru-RU'
 ```
 

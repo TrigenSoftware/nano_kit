@@ -567,6 +567,6 @@ const { query } = client(
 await waitTasks(tasksPool)
 ```
 
-Without arguments, `tasks()` reads `TasksRunner$` from the current injection context. Outside DI, pass the runner explicitly.
+Without arguments, `tasks()` reads `TasksRunner$` from the current injector. Outside DI, pass the runner explicitly.
 
 **When to use:** SSR setups where the server should send a fully populated page to the client.

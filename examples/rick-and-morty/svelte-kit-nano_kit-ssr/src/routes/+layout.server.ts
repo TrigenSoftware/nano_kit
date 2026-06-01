@@ -2,17 +2,17 @@ import { provide } from '@nano_kit/store'
 import {
   LocationNavigation$,
   serverNavigation,
-  setDehydrationContext
+  setDehydrationInjector
 } from '@nano_kit/svelte-kit'
 import { routes } from '#src/stores/router'
 import type { LayoutServerLoad } from './$types'
 
 export const load: LayoutServerLoad = () => {
-  const contextRef = setDehydrationContext([
+  const injectorRef = setDehydrationInjector([
     provide(LocationNavigation$, serverNavigation(routes))
   ])
 
   return {
-    contextRef
+    injectorRef
   }
 }

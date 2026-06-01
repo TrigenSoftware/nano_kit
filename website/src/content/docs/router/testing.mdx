@@ -17,8 +17,8 @@ Provide the global `Location$` and `Navigation$` tokens — exported directly fr
 
 ```tsx
 import { render, screen } from '@testing-library/react'
-import { InjectionContext, provide } from '@nano_kit/store'
-import { InjectionContextProvider } from '@nano_kit/react'
+import { Injector, provide } from '@nano_kit/store'
+import { InjectorProvider } from '@nano_kit/react'
 import { virtualNavigation, Location$, Navigation$ } from '@nano_kit/router'
 import { routes } from './routes'
 import { App } from './App'
@@ -28,15 +28,15 @@ it('should render the admin page', async () => {
   const [$location, navigation] = virtualNavigation('/admin', routes)
 
   /* Override tokens with virtual instances */
-  const context = new InjectionContext([
+  const injector = new Injector([
     provide(Location$, $location),
     provide(Navigation$, navigation)
   ])
 
   render(
-    <InjectionContextProvider context={context}>
+    <InjectorProvider injector={injector}>
       <App />
-    </InjectionContextProvider>
+    </InjectorProvider>
   )
 
   expect(screen.getByText('Admin Panel')).toBeInTheDocument()

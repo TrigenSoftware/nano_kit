@@ -1,18 +1,18 @@
 <script lang="ts">
   import type { InjectionProvider } from '@nano_kit/store'
-  import { setInjectionContext } from '@nano_kit/svelte'
+  import { setInjector } from '@nano_kit/svelte'
   import { Link } from '../src/link.js'
   import { enableLinkComponentPreload } from '../src/preloadable.js'
 
   interface Props {
-    context: InjectionProvider[]
+    injector: InjectionProvider[]
     preloadByDefault?: boolean
   }
 
   const props: Props = $props()
 
   // svelte-ignore state_referenced_locally
-  setInjectionContext(props.context)
+  setInjector(props.injector)
   // svelte-ignore state_referenced_locally
   enableLinkComponentPreload(props.preloadByDefault)
 </script>

@@ -13,9 +13,9 @@ import {
 import { resetRequestEvent } from '../test/app-server.js'
 import {
   dehydrate,
-  getDehydrationContext,
+  getDehydrationInjector,
   isFlight,
-  setDehydrationContext
+  setDehydrationInjector
 } from './dehydration.js'
 
 function Value$() {
@@ -40,20 +40,20 @@ describe('svelte-kit', () => {
       resetRequestEvent()
     })
 
-    describe('setDehydrationContext', () => {
-      it('should merge providers into request context and override existing values', () => {
-        setDehydrationContext([
+    describe('setDehydrationInjector', () => {
+      it('should merge providers into request injector and override existing values', () => {
+        setDehydrationInjector([
           provide(Value$, 'first')
         ])
-        setDehydrationContext([
+        setDehydrationInjector([
           provide(Value$, 'second'),
           provide(OtherValue$, 'added')
         ])
 
-        const context = getDehydrationContext()
+        const injector = getDehydrationInjector()
 
-        expect(context.get(Value$)).toBe('second')
-        expect(context.get(OtherValue$)).toBe('added')
+        expect(injector.get(Value$)).toBe('second')
+        expect(injector.get(OtherValue$)).toBe('added')
       })
     })
 
@@ -66,8 +66,8 @@ describe('svelte-kit', () => {
         expect(dehydrated).toEqual([['count', 42]])
       })
 
-      it('should run stores in the request context', async () => {
-        setDehydrationContext([
+      it('should run stores in the request injector', async () => {
+        setDehydrationInjector([
           provide(Count$, signal(41))
         ])
 

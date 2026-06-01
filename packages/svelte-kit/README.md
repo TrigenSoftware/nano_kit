@@ -47,18 +47,18 @@ import { provide } from '@nano_kit/store'
 import {
   LocationNavigation$,
   serverNavigation,
-  setDehydrationContext
+  setDehydrationInjector
 } from '@nano_kit/svelte-kit'
 import { routes } from '$lib/routes'
 import type { LayoutServerLoad } from './$types'
 
 export const load: LayoutServerLoad = () => {
-  const contextRef = setDehydrationContext([
+  const injectorRef = setDehydrationInjector([
     provide(LocationNavigation$, serverNavigation(routes))
   ])
 
   return {
-    contextRef
+    injectorRef
   }
 }
 ```
@@ -73,15 +73,15 @@ Set up browser navigation and hydration in the root layout:
     LocationNavigation$,
     Link,
     getKitNavigation,
-    setHydrationContext
+    setHydrationInjector
   } from '@nano_kit/svelte-kit'
   import { routes } from '$lib/routes'
 
   let { data, children } = $props()
 
-  setHydrationContext({
-    fromRef: () => data.contextRef,
-    context: [
+  setHydrationInjector({
+    fromRef: () => data.injectorRef,
+    injector: [
       provide(LocationNavigation$, getKitNavigation(routes))
     ]
   })
@@ -133,12 +133,12 @@ export const load: PageServerLoad = async ({ parent }) => {
 ```svelte
 <!-- src/routes/characters/+page.svelte -->
 <script lang="ts">
-  import { setHydrationContext } from '@nano_kit/svelte-kit'
+  import { setHydrationInjector } from '@nano_kit/svelte-kit'
   import CharactersPage from '$lib/pages/Characters.svelte'
 
   let { data } = $props()
 
-  setHydrationContext({
+  setHydrationInjector({
     dehydrated: () => data.dehydrated
   })
 </script>

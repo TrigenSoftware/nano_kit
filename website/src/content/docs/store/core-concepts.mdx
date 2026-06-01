@@ -273,13 +273,13 @@ stop2()
 
 The Dependency Injection system enables modular architecture and makes testing easier by allowing dependencies to be easily replaced with mocks. It also plays a critical role in SSR scenarios by isolating state between requests.
 
-Use factory functions with `inject` to retrieve dependencies. For example, in React, use `InjectionContextProvider` to create a context and `useInject` to access dependencies.
+Use invocable tokens with `inject` to retrieve dependencies. An invocable token can be a function or an injectable class. For example, in React, use `InjectorProvider` to create an injector and `useInject` to access dependencies.
 
 ```tsx
 import { inject, signal, mountable, onMountEffect, action, effect, TasksRunner$ } from '@nano_kit/store'
-import { InjectionContextProvider, useInject, useSignal } from '@nano_kit/react'
+import { InjectorProvider, useInject, useSignal } from '@nano_kit/react'
 
-/* Factory function that defines a user store */
+/* Invocable token that defines a user store */
 function User$() {
   const task = inject(TasksRunner$)
   const $userId = signal(null)
@@ -303,12 +303,12 @@ function User$() {
   return { $userId, $user }
 }
 
-/* Component that provides the injection context */
+/* Component that provides the injector */
 function App() {
   return (
-    <InjectionContextProvider>
+    <InjectorProvider>
       <UserProfile />
-    </InjectionContextProvider>
+    </InjectorProvider>
   )
 }
 
@@ -321,13 +321,30 @@ function UserProfile() {
 }
 ```
 
+### Class Tokens
+
+Use `Injectable` when a dependency is naturally represented as a class. Class fields can call `inject(...)`, so services can compose other dependencies in the same injector.
+
+```ts
+import { Injectable, inject } from '@nano_kit/store'
+import { CookieStore$ } from '@nano_kit/platform-web'
+
+class MyService extends Injectable {
+  cookieStore = inject(CookieStore$)
+
+  getSession() {
+    return this.cookieStore.get('session')
+  }
+}
+```
+
 ### Providing Custom Values
 
 Use `provide` to override dependencies with custom values. This is useful for testing or when you want to inject a different value / implementation.
 
 ```tsx
 import { provide } from '@nano_kit/store'
-import { InjectionContextProvider } from '@nano_kit/react'
+import { InjectorProvider } from '@nano_kit/react'
 
 function Theme$() {
   return 'light'
@@ -335,20 +352,20 @@ function Theme$() {
 
 function App() {
   return (
-    <InjectionContextProvider context={[provide(Theme$, 'dark')]}>
+    <InjectorProvider injector={[provide(Theme$, 'dark')]}>
       <TopBar />
-    </InjectionContextProvider>
+    </InjectorProvider>
   )
 }
 ```
 
 ### Required Dependencies
 
-If a factory has no meaningful default and must always be provided via `provide`, throw `DependencyNotFound` to make the error explicit:
+If an invocable token has no meaningful default and must always be provided via `provide`, throw `DependencyNotFound` to make the error explicit:
 
 ```tsx
 import { DependencyNotFound, inject, provide } from '@nano_kit/store'
-import { InjectionContextProvider, useInject } from '@nano_kit/react'
+import { InjectorProvider, useInject } from '@nano_kit/react'
 
 /* Token that must be provided — no default value exists */
 function Theme$(): 'light' | 'dark' {
@@ -364,9 +381,9 @@ function Button() {
 /* Provider */
 function App() {
   return (
-    <InjectionContextProvider context={[provide(Theme$, 'dark')]}>
+    <InjectorProvider injector={[provide(Theme$, 'dark')]}>
       <TopBar />
-    </InjectionContextProvider>
+    </InjectorProvider>
   )
 }
 ```
@@ -389,15 +406,19 @@ const $sum = () => $count() + $doubled()
 const value = $get($count)
 ```
 
-### DI Factories
+### DI Tokens
 
-Factory functions that start with an uppercase letter and end with `$` are Dependency Injection factories.
+Invocable tokens that start with an uppercase letter and end with `$` are Dependency Injection tokens. Function tokens work well for stores, and class tokens can extend `Injectable`.
 
 ```ts
-import { TasksRunner$, inject } from '@nano_kit/store'
+import { Injectable, TasksRunner$, inject } from '@nano_kit/store'
 
 function User$() {
   const task = inject(TasksRunner$)
   /* ... */
+}
+
+class UserService$ extends Injectable {
+  task = inject(TasksRunner$)
 }
 ```

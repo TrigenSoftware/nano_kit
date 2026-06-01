@@ -5,7 +5,7 @@ import {
   type InjectionProvider,
   ExternalModesBase,
   start,
-  InjectionContext,
+  Injector,
   run,
   inject,
   observe,
@@ -162,25 +162,25 @@ export function isHydrated($signal: AnyWritableSignal) {
 }
 
 /**
- * Run a store runner within an injection context, collect all hydratable signals,
+ * Run a store runner within an injector, collect all hydratable signals,
  * wait for async tasks to complete, and return the serializable snapshot.
  * @param runner - A function that initialises stores and returns the accessors to dehydrate.
- * @param context - The injection context to use. Defaults to a new empty context.
+ * @param injector - The injector to use. Defaults to a new empty injector.
  * @returns The dehydrated key-value pairs.
  */
 export async function dehydrate(
   runner: () => AnyAccessor[],
-  context?: InjectionContext | InjectionProvider[]
+  injector?: Injector | InjectionProvider[]
 ) {
-  const finalContext = context instanceof InjectionContext
-    ? context
-    : new InjectionContext(context)
+  const finalInjector = injector instanceof Injector
+    ? injector
+    : new Injector(injector)
   const hydratables = new Map<string, AnyAccessor>()
 
-  finalContext.set(Hydratables$, hydratables)
+  finalInjector.set(Hydratables$, hydratables)
 
-  const stores = run(finalContext, runner)
-  const tasks = finalContext.get(TasksPool$)
+  const stores = run(finalInjector, runner)
+  const tasks = finalInjector.get(TasksPool$)
   const stop = start(() => stores.forEach(store => store() as void))
 
   await waitTasks(tasks)

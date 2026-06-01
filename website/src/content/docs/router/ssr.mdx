@@ -37,7 +37,7 @@ export default function Home() {
 }
 ```
 
-For pages that use DI, `Stores$` is called within the request's `InjectionContext`, so you can use `inject()` inside it:
+For pages that use DI, `Stores$` is called within the request's `Injector`, so you can use `inject()` inside it:
 
 ```tsx
 import { inject, hydratable } from '@nano_kit/store'
@@ -67,7 +67,7 @@ export function Head$() {
 export default function Home() { /* ... */ }
 ```
 
-`Head$` is also called within the request's `InjectionContext`, so you can use `inject()` inside it:
+`Head$` is also called within the request's `Injector`, so you can use `inject()` inside it:
 
 ```tsx
 import { inject } from '@nano_kit/store'

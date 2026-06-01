@@ -5,7 +5,7 @@ import {
   vi
 } from 'vitest'
 import { render } from '@testing-library/preact'
-import { InjectionContextProvider } from '@nano_kit/preact'
+import { InjectorProvider } from '@nano_kit/preact'
 import { provide } from '@nano_kit/store'
 import {
   type Routes,
@@ -103,14 +103,14 @@ describe('preact-router', () => {
       }
 
       const { container, unmount } = render(
-        <InjectionContextProvider
-          context={[
+        <InjectorProvider
+          injector={[
             provide(Location$, $location),
             provide(Navigation$, navigation)
           ]}
         >
           <TestApp/>
-        </InjectionContextProvider>
+        </InjectorProvider>
       )
       const link = container.querySelector('a')!
 

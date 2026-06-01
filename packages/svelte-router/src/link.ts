@@ -75,7 +75,7 @@ export function listenNavigationLinks<R extends Routes = Routes>(
 
 /**
  * Listen raw link clicks on the document to enable navigation without Link component.
- * Should be used inside injection context with navigation provided.
+ * Should be used inside injector context with navigation provided.
  */
 export function listenLinks() {
   const navigation = getInject(Navigation$)
@@ -111,7 +111,7 @@ export function LinkSettings$(): LinkSettings {
 
 /**
  * Link component for navigation.
- * Should be used inside injection context with navigation and paths provided.
+ * Should be used inside injector context with navigation and paths provided.
  */
 export const Link = /* @__PURE__ */ createLinkComponent(
   () => getInject(LinkSettings$),

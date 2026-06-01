@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { setHydrationContext } from '../src/hydration.js'
+  import { setHydrationInjector } from '../src/hydration.js'
   import HydratedValue from './HydratedValue.svelte'
 
-  setHydrationContext({
+  setHydrationInjector({
     dehydrated: [['value', 'first']]
   })
-  setHydrationContext({
+  setHydrationInjector({
     dehydrated: [['value', 'second']]
   })
 </script>

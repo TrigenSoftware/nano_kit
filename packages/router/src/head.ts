@@ -1,6 +1,6 @@
 import {
   type Accessor,
-  type InjectionContext,
+  type Injector,
   type AnyValueOrAccessor,
   type EmptyValue,
   effect,
@@ -261,14 +261,14 @@ export function script(props: ScriptTagProps): ScriptTagDescriptor {
 
 function getHeadDescriptors(
   page: ComposedPageRef<unknown> | null | undefined,
-  context: InjectionContext | undefined
+  injector: Injector | undefined
 ): GenericHeadDescriptor[] {
   return page
     ? [
-      ...getHeadDescriptors(page.r, context),
+      ...getHeadDescriptors(page.r, injector),
       ...page.Head$
-        ? context
-          ? inject(page.Head$, context)
+        ? injector
+          ? inject(page.Head$, injector)
           : page.Head$()
         : []
     ]
@@ -278,18 +278,18 @@ function getHeadDescriptors(
 /**
  * Synchronizes the head of the document with the head descriptors provided by the current page.
  * @param $page - Accessor for the current page reference.
- * @param context - Optional injection context to resolve head factories.
+ * @param injector - Optional injector to resolve head dependencies.
  * @returns Effect cleanup function to stop synchronization.
  */
 export function syncHead(
   $page: Accessor<PageRef<unknown> | null>,
-  context?: InjectionContext
+  injector?: Injector
 ) {
   let current: PseudoElement[] | null = null
 
   return effect(() => {
     const page = $page()
-    const tags = untracked(() => getHeadDescriptors(page, context))
+    const tags = untracked(() => getHeadDescriptors(page, injector))
     const next: PseudoElement[] = []
 
     for (const tag of tags) {

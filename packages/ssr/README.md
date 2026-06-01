@@ -66,8 +66,8 @@ export class FrameworkRenderer extends Renderer {
 
     if (title) head = `<title>${title}</title>${head}`
 
-    // render to string using your framework, wrapping with data.context
-    const body = yourFrameworkRenderToString(data.context)
+    // render to string using your framework, wrapping with data.injector
+    const body = yourFrameworkRenderToString(data.injector)
 
     return `<html lang="${lang}" dir="${dir}"><head>${head}</head><body><div id="${ROOT_ID}">${body}</div><script>${this.dehydratedScript(data.dehydrated)}</script></body></html>`
   }
@@ -97,9 +97,9 @@ Also provide a **default client template** that the Vite plugin will use when th
 import { ROOT_ID, ready } from 'your-framework-ssr/client'
 import { routes, pages } from 'virtual:app-index'
 
-ready({ routes, pages }).then((context) => {
+ready({ routes, pages }).then((injector) => {
   // hydrate the app — framework-specific
-  hydrateApp(document.getElementById(ROOT_ID), context)
+  hydrateApp(document.getElementById(ROOT_ID), injector)
 })
 ```
 

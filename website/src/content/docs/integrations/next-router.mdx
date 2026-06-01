@@ -188,7 +188,7 @@ export default function Layout({ children }: {
 
 ### `NextNavigationProvider`
 
-`NextNavigationProvider` is the client-side provider used by the Pages Router and by `NextNavigation` after hydration. It creates an `InjectionContext` with `LocationNavigation$` only when a fresh client navigation context is needed.
+`NextNavigationProvider` is the client-side provider used by the Pages Router and by `NextNavigation` after hydration. It creates an `Injector` with `LocationNavigation$` only when a fresh client navigation context is needed.
 
 ```tsx
 import { NextNavigationProvider } from '@nano_kit/next-router'
@@ -230,7 +230,7 @@ These helpers are for the Pages Router.
 
 ```tsx
 import type { GetServerSideProps } from 'next'
-import { InjectionContext, dehydrate, provide } from '@nano_kit/store'
+import { Injector, dehydrate, provide } from '@nano_kit/store'
 import {
   LocationNavigation$,
   notFound,
@@ -242,13 +242,13 @@ import { User$ } from '@/stores/user'
 import UserPage, { Stores$ } from '@/ui/pages/User'
 
 export const getServerSideProps: GetServerSideProps = async (nextContext) => {
-  const context = new InjectionContext([
+  const injector = new Injector([
     provide(LocationNavigation$, virtualNavigation(nextContext.resolvedUrl, routes))
   ])
-  const dehydrated = await dehydrate(Stores$, context)
-  const { $user } = context.get(User$)
+  const dehydrated = await dehydrate(Stores$, injector)
+  const { $user } = injector.get(User$)
 
-  return notFound($user()) ?? redirect(context) ?? {
+  return notFound($user()) ?? redirect(injector) ?? {
     props: {
       dehydrated
     }

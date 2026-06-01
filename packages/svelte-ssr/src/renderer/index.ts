@@ -8,7 +8,7 @@ import {
   App,
   compose
 } from '@nano_kit/svelte-router'
-import { setInjectionContext } from '@nano_kit/svelte'
+import { setInjector } from '@nano_kit/svelte'
 import {
   type RendererOptions,
   type RenderData,
@@ -60,7 +60,7 @@ export class SvelteRenderer extends Renderer {
       internals: ComponentInternals,
       props: Record<string, never>
     ) => {
-      setInjectionContext(data.context)
+      setInjector(data.injector)
 
       return App(internals, props)
     }) as Component)

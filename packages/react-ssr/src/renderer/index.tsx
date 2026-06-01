@@ -1,6 +1,6 @@
 import { renderToString } from 'react-dom/server'
 import { get } from '@nano_kit/store'
-import { InjectionContextProvider } from '@nano_kit/react'
+import { InjectorProvider } from '@nano_kit/react'
 import {
   compose,
   App
@@ -64,9 +64,9 @@ export class ReactRenderer extends Renderer {
         />
         <body>
           <div id={ROOT_ID}>
-            <InjectionContextProvider context={data.context}>
+            <InjectorProvider injector={data.injector}>
               <App />
-            </InjectionContextProvider>
+            </InjectorProvider>
           </div>
           <script
             dangerouslySetInnerHTML={{

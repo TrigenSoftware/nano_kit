@@ -2,8 +2,8 @@
 import {
   type Accessor,
   type InjectionProvider,
-  type InjectionFactory,
-  InjectionContext,
+  type InjectionToken,
+  Injector,
   inject,
   effect
 } from '@nano_kit/store'
@@ -42,27 +42,27 @@ export function useSignal<T>($signal: Accessor<T>) {
   return useSyncExternalStore(sub, get, get)
 }
 
-export const ReactInjectionContext = /* @__PURE__ */ createContext<InjectionContext | undefined>(undefined)
+export const ReactInjectorContext = /* @__PURE__ */ createContext<Injector | undefined>(undefined)
 
 /**
- * Get the current injection context.
- * @returns The current injection context.
+ * Get the current injector.
+ * @returns The current injector.
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function useInjectionContext() {
-  return useContext(ReactInjectionContext)
+export function useInjector() {
+  return useContext(ReactInjectorContext)
 }
 
 /**
  * Inject a dependency.
- * @param factory - The factory function to create or get the dependency.
+ * @param token - The invocable token to create or get the dependency.
  * @returns The dependency.
  */
-export function useInject<T>(factory: InjectionFactory<T>): T {
-  const currentContext = useInjectionContext()
+export function useInject<T>(token: InjectionToken<T>): T {
+  const currentInjector = useInjector()
   const dependency = useMemo(
-    () => inject(factory, currentContext),
-    [currentContext, factory]
+    () => inject(token, currentInjector),
+    [currentInjector, token]
   )
 
   return dependency
@@ -79,45 +79,45 @@ export function signalHook<T>(getter: () => Accessor<T>): () => T {
 
 /**
  * Create a hook to inject a dependency.
- * @param factory - The factory function to create or get the dependency.
+ * @param token - The invocable token to create or get the dependency.
  * @returns A hook function to get the dependency.
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function injectHook<T>(factory: InjectionFactory<T>): () => T {
-  return () => useInject(factory)
+export function injectHook<T>(token: InjectionToken<T>): () => T {
+  return () => useInject(token)
 }
 
-export interface InjectionContextProps {
-  context?: InjectionContext | InjectionProvider[]
+export interface InjectorProviderProps {
+  injector?: Injector | InjectionProvider[]
   children: ReactNode
 }
 
 /**
  * Provide dependencies to children.
  * @param props
- * @param props.context - The dependencies to provide or InjectionContext instance.
+ * @param props.injector - The dependencies to provide or Injector instance.
  * @param props.children - The children to provide the dependencies to.
  * @returns The component.
  */
-export function InjectionContextProvider({
-  context,
+export function InjectorProvider({
+  injector,
   children
-}: InjectionContextProps) {
-  const currentContext = useInjectionContext()
-  const contextRef = useRef<InjectionContext>(null)
+}: InjectorProviderProps) {
+  const currentInjector = useInjector()
+  const injectorRef = useRef<Injector>(null)
 
-  if (!context && currentContext) {
+  if (!injector && currentInjector) {
     return children
   }
 
-  const value = contextRef.current ??= context instanceof InjectionContext
-    ? context
-    : new InjectionContext(context, currentContext)
+  const value = injectorRef.current ??= injector instanceof Injector
+    ? injector
+    : new Injector(injector, currentInjector)
 
   return (
-    <ReactInjectionContext.Provider value={value}>
+    <ReactInjectorContext.Provider value={value}>
       {children}
-    </ReactInjectionContext.Provider>
+    </ReactInjectorContext.Provider>
   )
 }
 
@@ -126,15 +126,15 @@ export interface IsolateProps {
 }
 
 /**
- * Isolate children to new isolated injection context.
+ * Isolate children to new isolated injector.
  * @param props
  * @param props.children - The children to isolate.
  * @returns The component.
  */
 export function Isolate({ children }: IsolateProps) {
   return (
-    <ReactInjectionContext.Provider value={undefined}>
+    <ReactInjectorContext.Provider value={undefined}>
       {children}
-    </ReactInjectionContext.Provider>
+    </ReactInjectorContext.Provider>
   )
 }

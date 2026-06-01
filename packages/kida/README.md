@@ -445,12 +445,11 @@ There are also other methods to work with object maps:
 
 The dependency injection system enables modular architecture and makes testing easier by allowing dependencies to be easily replaced with mocks. It also plays a critical role in SSR scenarios by isolating state between requests.
 
-Use factory functions with `inject` to retrieve dependencies:
+Use invocable tokens with `inject` to retrieve dependencies. An invocable token can be a function, or a class with `static injectable = true as const`. For class tokens, the simplest option is to extend `Injectable`.
 
 ```ts
-import { inject, signal, mountable, onMountEffect, action } from 'kida'
+import { inject, Injectable, signal, mountable, onMountEffect, action } from 'kida'
 
-/* Factory function that defines a user store */
 function User$() {
   const $userId = signal(null)
   const $user = mountable(signal(null))
@@ -473,9 +472,15 @@ function User$() {
 
   return { $userId, $user }
 }
+
+class ApiClient$ extends Injectable {
+  getUser(id: number) {
+    return fetch(`/user/${id}`).then(response => response.json())
+  }
+}
 ```
 
-Call `inject(Factory$)` inside another factory to compose dependencies:
+Call `inject(Token$)` inside another invocable token to compose dependencies:
 
 ```ts
 import { inject, signal } from 'kida'
@@ -486,22 +491,22 @@ function App$() {
 }
 ```
 
-### `provide` / `InjectionContext` / `run`
+### `provide` / `Injector` / `run`
 
-Use `provide` to override dependencies with custom values. Pass the providers to `InjectionContext` and run your code within it using `run`:
+Use `provide` to override dependencies with custom values. Pass the providers to `Injector` and run your code within it using `run`:
 
 ```ts
-import { InjectionContext, provide, inject, run } from 'kida'
+import { Injector, provide, inject, run } from 'kida'
 
 function Theme$() {
   return 'light'
 }
 
-const context = new InjectionContext([
+const injector = new Injector([
   provide(Theme$, 'dark')
 ])
 
-run(context, () => {
+run(injector, () => {
   const theme = inject(Theme$) // 'dark'
 })
 ```
@@ -509,13 +514,13 @@ run(context, () => {
 This pattern is especially useful in tests to mock dependencies:
 
 ```ts
-import { InjectionContext, provide, inject, run } from 'kida'
+import { Injector, provide, inject, run } from 'kida'
 
-const context = new InjectionContext([
+const injector = new Injector([
   provide(ApiClient$, mockApiClient)
 ])
 
-run(context, () => {
+run(injector, () => {
   const { $user } = inject(User$)
   // $user will use mockApiClient
 })

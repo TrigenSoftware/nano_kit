@@ -50,34 +50,34 @@ export function Counter() {
 
 ## Dependency Injection
 
-### `InjectionContextProvider`
+### `InjectorProvider`
 
-To use the Dependency Injection system within React, wrap your application (or part of it) in `InjectionContextProvider`. This component initializes an `InjectionContext` and makes it available to child components via the React Context API.
+To use the Dependency Injection system within React, wrap your application (or part of it) in `InjectorProvider`. This component initializes an `Injector` and makes it available to child components via the React Context API.
 
-You can provide an existing context instance or an array of providers/values.
+You can provide an existing injector instance or an array of providers/values.
 
 ```tsx
 import { provide } from '@nano_kit/store'
-import { InjectionContextProvider } from '@nano_kit/react'
+import { InjectorProvider } from '@nano_kit/react'
 import { Theme$ } from './tokens'
 import { App } from './App'
 
 function Root() {
   return (
-    <InjectionContextProvider
-      context={[
+    <InjectorProvider
+      injector={[
         provide(Theme$, 'dark')
       ]}
     >
       <App />
-    </InjectionContextProvider>
+    </InjectorProvider>
   )
 }
 ```
 
 ### `useInject`
 
-The `useInject` hook retrieves a dependency from the current injection context. It throws an error if the context is missing, ensuring your dependencies are always resolved.
+The `useInject` hook retrieves a dependency from the current injector. It throws an error if the injector is missing, ensuring your dependencies are always resolved.
 
 ```tsx
 import { useInject } from '@nano_kit/react'
@@ -131,7 +131,7 @@ export function ActiveLink({ route }) {
 
 ### `Isolate`
 
-`Isolate` renders children with a fresh injection boundary. Use it when a subtree must not inherit dependencies from the parent context.
+`Isolate` renders children with a fresh injection boundary. Use it when a subtree must not inherit dependencies from the parent injector.
 
 ```tsx
 import { Isolate } from '@nano_kit/react'
@@ -153,7 +153,7 @@ export function Preview({ children }) {
 
 `Dehydration` is an async RSC component that dehydrates stores on the server and streams the snapshot to the client via [`HydrationProvider`](#hydrationprovider). It works on both initial page loads and RSC flight requests (client-side navigations), pushing fresh data to the client each time.
 
-`Dehydration` boundaries can be nested and repeated in the same RSC tree. For example, a layout can dehydrate shared stores, while a page dehydrates page-specific stores. Boundaries in the same RSC request reuse the shared request context and skip stores that were already dehydrated.
+`Dehydration` boundaries can be nested and repeated in the same RSC tree. For example, a layout can dehydrate shared stores, while a page dehydrates page-specific stores. Boundaries in the same RSC request reuse the shared request injector and skip stores that were already dehydrated.
 
 ```tsx
 import { inject } from '@nano_kit/store'
@@ -183,7 +183,7 @@ import { inject } from '@nano_kit/store'
 import {
   Dehydration,
   dehydrate,
-  getDehydrationContext
+  getDehydrationInjector
 } from '@nano_kit/react'
 import { User$ } from './stores'
 
@@ -196,9 +196,9 @@ function Stores$() {
 
 export default async function Page() {
   const dehydrated = await dehydrate(Stores$)
-  const context = getDehydrationContext()
+  const injector = getDehydrationInjector()
 
-  /* ...You can use `context` or `dehydrated` here to implement some logic before rendering... */
+  /* ...You can use `injector` or `dehydrated` here to implement some logic before rendering... */
 
   return (
     <Dehydration dehydrated={dehydrated}>
@@ -211,8 +211,8 @@ export default async function Page() {
 Props:
 - `stores?` — function returning an array of accessors to dehydrate
 - `dehydrated?` — pre-dehydrated data (skips `stores` dehydration if provided)
-- `context?` — additional providers to inject into the server context before dehydration
-- `isolate?` — create a new `InjectionContext` on the client instead of reusing the existing one
+- `injector?` — additional providers to inject into the server injector before dehydration
+- `isolate?` — create a new `Injector` on the client instead of reusing the existing one
 
 #### `StaticDehydration`
 
@@ -244,8 +244,8 @@ export default function Page() {
 Props:
 - `stores?` — function returning an array of accessors to dehydrate
 - `dehydrated?` — pre-dehydrated data (skips `stores` dehydration if provided)
-- `context?` — additional providers to inject into the server context before dehydration
-- `isolate?` — create a new `InjectionContext` on the client instead of reusing the existing one
+- `injector?` — additional providers to inject into the server injector before dehydration
+- `isolate?` — create a new `Injector` on the client instead of reusing the existing one
 - `flight?` — override flight detection; when `false`, dehydration is always included
 
 #### `FlightDetector`
@@ -270,9 +270,9 @@ export default function RootLayout({ children }) {
 
 #### `dehydrate`
 
-Low-level RSC helper that runs stores in the **shared per-request injection context** and returns the dehydrated snapshot. Use it when you need to manually prepare a snapshot before rendering instead of letting `Dehydration` or `StaticDehydration` run stores from their `stores` prop.
+Low-level RSC helper that runs stores in the **shared per-request injector** and returns the dehydrated snapshot. Use it when you need to manually prepare a snapshot before rendering instead of letting `Dehydration` or `StaticDehydration` run stores from their `stores` prop.
 
-After `dehydrate(Stores$)` resolves, the stores have already run and populated their data. Use `getDehydrationContext()` when you need request-time logic based on those populated stores, such as redirecting when a loaded user is missing.
+After `dehydrate(Stores$)` resolves, the stores have already run and populated their data. Use `getDehydrationInjector()` when you need request-time logic based on those populated stores, such as redirecting when a loaded user is missing.
 
 ```tsx
 import { redirect } from 'next/navigation'
@@ -280,7 +280,7 @@ import { inject } from '@nano_kit/store'
 import {
   Dehydration,
   dehydrate,
-  getDehydrationContext
+  getDehydrationInjector
 } from '@nano_kit/react'
 import { User$ } from './stores'
 
@@ -292,8 +292,8 @@ function Stores$() {
 
 export default async function Page() {
   const dehydrated = await dehydrate(Stores$)
-  const context = getDehydrationContext()
-  const { $user } = context.get(User$)
+  const injector = getDehydrationInjector()
+  const { $user } = injector.get(User$)
 
   if (!$user()) {
     redirect('/login')
@@ -311,7 +311,7 @@ export default async function Page() {
 
 #### `HydrationProvider`
 
-`HydrationProvider` sets up a reactive hydration context for client-side hydration. It uses [`ActiveHydrator`](/store/ssr/#client-side-hydration) under the hood, which supports streaming — the `dehydrated` prop can be updated on re-renders to feed new data.
+`HydrationProvider` sets up a reactive hydration injector for client-side hydration. It uses [`ActiveHydrator`](/store/ssr/#client-side-hydration) under the hood, which supports streaming — the `dehydrated` prop can be updated on re-renders to feed new data.
 
 ```tsx
 import { HydrationProvider } from '@nano_kit/react'
@@ -327,8 +327,8 @@ function App({ dehydrated }) {
 
 Props:
 - `dehydrated?` — dehydrated key-value pairs `[string, unknown][]`, or a falsy value to skip hydration
-- `context?` — additional injection providers
-- `reuse?` — reuse an existing `InjectionContext` instead of creating a new one; `true` by default
+- `injector?` — additional injection providers
+- `reuse?` — reuse an existing `Injector` instead of creating a new one; `true` by default
 
 #### `StaticHydrationProvider`
 

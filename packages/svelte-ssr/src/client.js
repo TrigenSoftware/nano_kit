@@ -1,5 +1,5 @@
 import { hydrate } from 'svelte'
-import { setInjectionContext } from '@nano_kit/svelte'
+import { setInjector } from '@nano_kit/svelte'
 import { App } from '@nano_kit/svelte-router'
 import {
   ROOT_ID,
@@ -13,9 +13,9 @@ import {
 ready({
   routes,
   pages
-}).then((context) => {
+}).then((injector) => {
   hydrate((internals, props) => {
-    setInjectionContext(context)
+    setInjector(injector)
 
     return App(internals, props)
   }, {

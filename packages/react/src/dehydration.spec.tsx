@@ -10,7 +10,7 @@ import {
   inject
 } from '@nano_kit/store'
 import {
-  InjectionContextProvider,
+  InjectorProvider,
   useInject,
   useSignal
 } from './core.js'
@@ -52,9 +52,9 @@ describe('react', () => {
         const jsx = await Dehydration({
           dehydrated: [['value', 'hello']],
           children: (
-            <InjectionContextProvider>
+            <InjectorProvider>
               <Test/>
-            </InjectionContextProvider>
+            </InjectorProvider>
           )
         })
         const { container } = render(jsx)
@@ -72,9 +72,9 @@ describe('react', () => {
             return [$value]
           },
           children: (
-            <InjectionContextProvider>
+            <InjectorProvider>
               <Test/>
-            </InjectionContextProvider>
+            </InjectorProvider>
           )
         })
         const { container } = render(jsx)
@@ -89,9 +89,9 @@ describe('react', () => {
           flight: false,
           dehydrated: [['value', 'hello']],
           children: (
-            <InjectionContextProvider>
+            <InjectorProvider>
               <Test/>
-            </InjectionContextProvider>
+            </InjectorProvider>
           )
         })
         const { container } = render(jsx)
@@ -110,9 +110,9 @@ describe('react', () => {
           },
           flight: false,
           children: (
-            <InjectionContextProvider>
+            <InjectorProvider>
               <Test/>
-            </InjectionContextProvider>
+            </InjectorProvider>
           )
         })
         const { container } = render(jsx)
@@ -126,9 +126,9 @@ describe('react', () => {
           flight: true,
           dehydrated: [['value', 'hello']],
           children: (
-            <InjectionContextProvider>
+            <InjectorProvider>
               <Test/>
-            </InjectionContextProvider>
+            </InjectorProvider>
           )
         })
         const { container } = render(jsx)

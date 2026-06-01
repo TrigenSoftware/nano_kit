@@ -1,4 +1,4 @@
-import type { InjectionContext } from '@nano_kit/store'
+import type { Injector } from '@nano_kit/store'
 import type {
   HeadDescriptor,
   PageRef,
@@ -45,7 +45,7 @@ export interface RenderViewData {
 }
 
 export interface RenderData {
-  context: InjectionContext
+  injector: Injector
   head: HeadDescriptor[]
   dehydrated: [string, unknown][]
   statusCode: number

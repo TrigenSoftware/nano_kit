@@ -9,7 +9,7 @@ import {
   useLayoutEffect,
   useMemo
 } from 'react'
-import { useInjectionContext } from '@nano_kit/react'
+import { useInjector } from '@nano_kit/react'
 import {
   signal,
   record,
@@ -34,7 +34,7 @@ import {
 const SEARCH_PARAMS_FALLBACK = '?__searchParamsFallback__=true'
 
 export function useShouldProvideNextNavigation() {
-  const context = useInjectionContext()
+  const injector = useInjector()
   let isSearchParamsAvailable = true
 
   try {
@@ -43,7 +43,7 @@ export function useShouldProvideNextNavigation() {
     isSearchParamsAvailable = false
   }
 
-  const location = context?.get(Location$, true)
+  const location = injector?.get(Location$, true)
 
   return !location || location.$search() === SEARCH_PARAMS_FALLBACK && isSearchParamsAvailable
 }
