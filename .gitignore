@@ -40,3 +40,5 @@ next-env.d.ts
 # Staff
 .vite*
 .codex
+.agents
+skills-lock.json

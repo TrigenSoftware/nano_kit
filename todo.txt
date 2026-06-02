@@ -3,6 +3,7 @@
 - correct sandbox for session example
 - inspect object copies
 - check === / !== undefined ? perf
+- root pkg catalog
 
 ## Agera/Kida/Store
 
@@ -38,8 +39,6 @@
 - @nano_kit/framework ?
 
 ## intl
-
-- docs
 
 ## rpc
 
