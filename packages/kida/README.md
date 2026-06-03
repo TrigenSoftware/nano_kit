@@ -445,7 +445,7 @@ There are also other methods to work with object maps:
 
 The dependency injection system enables modular architecture and makes testing easier by allowing dependencies to be easily replaced with mocks. It also plays a critical role in SSR scenarios by isolating state between requests.
 
-Use injectable function or class with `inject` to retrieve dependencies:
+Use an injectable function or class with `inject` to retrieve dependencies:
 
 ```ts
 import { inject, Injectable$, signal, mountable, onMountEffect, action } from 'kida'
