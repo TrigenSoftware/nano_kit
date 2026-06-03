@@ -1,5 +1,4 @@
 import type {
-  InjectionFactory,
   Accessor,
   AnyAccessor,
   WritableSignal
@@ -8,11 +7,11 @@ import type { HeadDescriptor } from './head.types.js'
 
 export type Stores = AnyAccessor[]
 
-export type StoresFactory = InjectionFactory<Stores>
+export type StoresFactory = () => Stores
 
 export type Head = HeadDescriptor[]
 
-export type HeadFactory = InjectionFactory<Head>
+export type HeadFactory = () => Head
 
 export interface CacheConditionDescriptor {
   /**
@@ -29,19 +28,19 @@ export interface CacheConditionDescriptor {
 
 export type CacheCondition = CacheConditionDescriptor | boolean
 
-export type CacheFactory = InjectionFactory<CacheCondition>
+export type CacheFactory = () => CacheCondition
 
 export interface PageModule<V> {
   /**
-   * Injection factory to get stores to dehydrate for the view while SSR.
+   * Factory function to get stores to dehydrate for the view while SSR.
    */
   Stores$?: StoresFactory
   /**
-   * Injection factory to get head elements for the view.
+   * Factory function to get head elements for the view.
    */
   Head$?: HeadFactory
   /**
-   * Injection factory to get cache conditions for the view. If it returns a falsy value, the view will not be cached.
+   * Factory function to get cache conditions for the view. If it returns a falsy value, the view will not be cached.
    */
   Cache$?: CacheFactory
   /**

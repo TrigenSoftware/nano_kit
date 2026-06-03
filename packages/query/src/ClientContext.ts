@@ -210,7 +210,7 @@ export function dedupe(loading: boolean, time = loading): ClientSetting {
 
 /**
  * Set task runner for handling tasks.
- * Without arguments, it will try to inject tasks runner from context.
+ * Without arguments, it will try to resolve a tasks runner from the current injection context.
  * @param runner - The tasks runner function.
  * @returns The client setting function.
  */

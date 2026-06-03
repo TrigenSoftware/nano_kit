@@ -1,6 +1,5 @@
 import {
   type AnyAccessor,
-  type InjectionFactory,
   type FalsyValue,
   type AnyFn,
   type InjectionProvider,
@@ -22,8 +21,8 @@ export interface ServerContext {
 }
 
 /**
- * Get the dehydration context for the current RSC request.
- * @returns The dehydration context.
+ * Get the server context for the current RSC request.
+ * @returns The server context.
  */
 export const getServerContext = /* @__PURE__ */ cache((): ServerContext => {
   const seen = new WeakSet<AnyFn>()
@@ -64,7 +63,7 @@ export function setDehydrationContext(context: InjectionProvider[] | undefined) 
  * @param Stores$ - Factory function that returns an array of stores to run and dehydrate.
  * @returns Dehydrated data as an array of key-value pairs.
  */
-export async function dehydrate(Stores$: InjectionFactory<AnyAccessor[]>) {
+export async function dehydrate(Stores$: () => AnyAccessor[]) {
   const { context, seen } = getServerContext()
 
   return await storeDehydrate(
@@ -79,7 +78,7 @@ export interface DehydrationProps extends InjectionContextProps {
   /**
    * Factory function that returns an array of stores to run and dehydrate.
    */
-  stores?: InjectionFactory<AnyAccessor[]>
+  stores?(): AnyAccessor[]
   /**
    * Pre-dehydrated data. If provided, skips `stores` dehydration.
    */

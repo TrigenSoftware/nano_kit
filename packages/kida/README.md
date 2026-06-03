@@ -445,12 +445,11 @@ There are also other methods to work with object maps:
 
 The dependency injection system enables modular architecture and makes testing easier by allowing dependencies to be easily replaced with mocks. It also plays a critical role in SSR scenarios by isolating state between requests.
 
-Use factory functions with `inject` to retrieve dependencies:
+Use an injectable function or class with `inject` to retrieve dependencies:
 
 ```ts
-import { inject, signal, mountable, onMountEffect, action } from 'kida'
+import { inject, Injectable$, signal, mountable, onMountEffect, action } from 'kida'
 
-/* Factory function that defines a user store */
 function User$() {
   const $userId = signal(null)
   const $user = mountable(signal(null))
@@ -473,9 +472,15 @@ function User$() {
 
   return { $userId, $user }
 }
+
+class ApiClient$ extends Injectable$ {
+  getUser(id: number) {
+    return fetch(`/user/${id}`).then(response => response.json())
+  }
+}
 ```
 
-Call `inject(Factory$)` inside another factory to compose dependencies:
+Call `inject(Factory$)` inside another injectable to compose dependencies:
 
 ```ts
 import { inject, signal } from 'kida'
