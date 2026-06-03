@@ -1,7 +1,7 @@
 import {
   type NewValue,
   type Destroy,
-  type InjectionFactory,
+  type Injectable,
   type InjectionProvider,
   type ObserverCallback,
   type ReadableSignal,
@@ -89,9 +89,9 @@ export function isolate() {
 
 /**
  * Inject a dependency.
- * @param factory - The factory function to create or get the dependency.
+ * @param injectable - The injectable function or class to create or get the dependency.
  * @returns The dependency.
  */
-export function getInject<T>(factory: InjectionFactory<T>): T {
-  return inject(factory, getInjectionContext())
+export function getInject<T>(injectable: Injectable<T>): T {
+  return inject(injectable, getInjectionContext())
 }

@@ -1,7 +1,7 @@
 import {
   type Accessor,
   type InjectionProvider,
-  type InjectionFactory,
+  type Injectable,
   InjectionContext,
   inject,
   effect
@@ -56,14 +56,14 @@ export function useInjectionContext() {
 
 /**
  * Inject a dependency.
- * @param factory - The factory function to create or get the dependency.
+ * @param injectable - The injectable function or class to create or get the dependency.
  * @returns The dependency.
  */
-export function useInject<T>(factory: InjectionFactory<T>): T {
+export function useInject<T>(injectable: Injectable<T>): T {
   const currentContext = useInjectionContext()
   const dependency = useMemo(
-    () => inject(factory, currentContext),
-    [currentContext, factory]
+    () => inject(injectable, currentContext),
+    [currentContext, injectable]
   )
 
   return dependency
@@ -80,12 +80,12 @@ export function signalHook<T>(getter: () => Accessor<T>): () => T {
 
 /**
  * Create a hook to inject a dependency.
- * @param factory - The factory function to create or get the dependency.
+ * @param injectable - The injectable function or class to create or get the dependency.
  * @returns A hook function to get the dependency.
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function injectHook<T>(factory: InjectionFactory<T>): () => T {
-  return () => useInject(factory)
+export function injectHook<T>(injectable: Injectable<T>): () => T {
+  return () => useInject(injectable)
 }
 
 export interface InjectionContextProps {

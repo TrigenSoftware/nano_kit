@@ -4,14 +4,20 @@ import {
   untracked
 } from 'agera'
 
-export type InjectionFactory<T = unknown> = () => T
+export type Injectable<T = unknown> = {
+  (): T
+  injectable?: undefined
+} | {
+  new (): T
+  injectable: true
+}
 
-export type InjectionProvider = readonly [InjectionFactory, unknown]
+export type InjectionProvider = readonly [Injectable, unknown]
 
 /**
- * InjectionContext is a Map that holds the dependencies for the current context.
+ * InjectionContext is a Map that holds dependencies for the current context.
  */
-export class InjectionContext extends Map<InjectionFactory, unknown> {
+export class InjectionContext extends Map<Injectable, unknown> {
   readonly #parent
 
   constructor(
@@ -30,19 +36,20 @@ export class InjectionContext extends Map<InjectionFactory, unknown> {
     }
   }
 
-  override get<T>(factory: InjectionFactory<T>): T
+  override get<T>(injectable: Injectable<T>): T
 
-  override get<T>(factory: InjectionFactory<T>, find: true): T | undefined
+  override get<T>(injectable: Injectable<T>, find: true): T | undefined
 
-  override get<T>(factory: InjectionFactory<T>, find?: boolean): T | undefined {
-    if (this.has(factory)) {
-      return super.get(factory) as T
+  override get<T>(injectable: Injectable<T>, find?: boolean): T | undefined {
+    if (this.has(injectable)) {
+      return super.get(injectable) as T
     }
 
-    let value = this.#parent?.get(factory, true)
+    let value = this.#parent?.get(injectable, true)
 
     if (!find) {
-      this.set(factory, value ??= run(this, factory))
+      // eslint-disable-next-line new-cap
+      this.set(injectable, value ??= run(this, injectable.injectable ? () => new injectable() : injectable))
     }
 
     return value
@@ -85,31 +92,38 @@ export function run<T extends AnyFn>(
 
 /**
  * Provide a dependency.
- * @param token - The factory function to create or get the dependency.
+ * @param injectable - The injectable function or class to associate with the value.
  * @param value - The value of the dependency.
  * @returns The provider.
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function provide<T>(token: InjectionFactory<T>, value: T): InjectionProvider {
-  return [token, value]
+export function provide<T>(injectable: Injectable<T>, value: T): InjectionProvider {
+  return [injectable, value]
 }
 
 /**
  * Inject a dependency.
- * @param factory - The factory function to create or get the dependency.
+ * @param injectable - The injectable function or class to create or get the dependency.
  * @param context - Optional override for the injection context.
  * @returns The dependency.
  */
-export function inject<T>(factory: InjectionFactory<T>, context = currentContext): T {
+export function inject<T>(injectable: Injectable<T>, context = currentContext): T {
   if (!context) {
     throw new Error('Cannot inject dependency outside of injection context')
   }
 
-  return context.get(factory)
+  return context.get(injectable)
 }
 
 export class DependencyNotFound extends Error {
   constructor(caller: string) {
     super(`${caller} dependency not found in context.`)
   }
+}
+
+/**
+ * Base class for class-based injectables.
+ */
+export class Injectable$ {
+  static injectable = true as const
 }

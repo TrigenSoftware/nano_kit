@@ -67,7 +67,7 @@ export function tasksRunner(
 }
 
 /**
- * DI factory for tasks pool.
+ * Injectable factory for tasks pool.
  * @returns The tasks pool.
  */
 export function TasksPool$(): TasksPool {
@@ -75,7 +75,7 @@ export function TasksPool$(): TasksPool {
 }
 
 /**
- * DI factory for tasks runner.
+ * Injectable factory for tasks runner.
  * @returns The function to run task within the pool.
  */
 export function TasksRunner$() {

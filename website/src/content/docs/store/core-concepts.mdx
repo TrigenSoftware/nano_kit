@@ -273,13 +273,13 @@ stop2()
 
 The Dependency Injection system enables modular architecture and makes testing easier by allowing dependencies to be easily replaced with mocks. It also plays a critical role in SSR scenarios by isolating state between requests.
 
-Use factory functions with `inject` to retrieve dependencies. For example, in React, use `InjectionContextProvider` to create a context and `useInject` to access dependencies.
+Use an injectable function or class with `inject` to retrieve dependencies. For example, in React, use `InjectionContextProvider` to create a context and `useInject` to access dependencies.
 
 ```tsx
 import { inject, signal, mountable, onMountEffect, action, effect, TasksRunner$ } from '@nano_kit/store'
 import { InjectionContextProvider, useInject, useSignal } from '@nano_kit/react'
 
-/* Factory function that defines a user store */
+/* Injectable function that defines a user store */
 function User$() {
   const task = inject(TasksRunner$)
   const $userId = signal(null)
@@ -321,6 +321,23 @@ function UserProfile() {
 }
 ```
 
+### Class Tokens
+
+Use `Injectable$` when a dependency is naturally represented as a class. Class fields can call `inject(...)`, so services can compose other dependencies in the same context.
+
+```ts
+import { Injectable$, inject } from '@nano_kit/store'
+import { CookieStore$ } from '@nano_kit/platform-web'
+
+class MyService$ extends Injectable$ {
+  cookieStore = inject(CookieStore$)
+
+  getSession() {
+    return this.cookieStore.get('session')
+  }
+}
+```
+
 ### Providing Custom Values
 
 Use `provide` to override dependencies with custom values. This is useful for testing or when you want to inject a different value / implementation.
@@ -344,7 +361,7 @@ function App() {
 
 ### Required Dependencies
 
-If a factory has no meaningful default and must always be provided via `provide`, throw `DependencyNotFound` to make the error explicit:
+If an injectable token has no meaningful default and must always be provided via `provide`, throw `DependencyNotFound` to make the error explicit:
 
 ```tsx
 import { DependencyNotFound, inject, provide } from '@nano_kit/store'
@@ -389,15 +406,19 @@ const $sum = () => $count() + $doubled()
 const value = $get($count)
 ```
 
-### DI Factories
+### DI Injectable Tokens
 
-Factory functions that start with an uppercase letter and end with `$` are Dependency Injection factories.
+Injectable tokens that start with an uppercase letter and end with `$` are Dependency Injection tokens.
 
 ```ts
-import { TasksRunner$, inject } from '@nano_kit/store'
+import { Injectable$, TasksRunner$, inject } from '@nano_kit/store'
 
 function User$() {
   const task = inject(TasksRunner$)
   /* ... */
+}
+
+class UserService$ extends Injectable$ {
+  task = inject(TasksRunner$)
 }
 ```

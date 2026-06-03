@@ -2,13 +2,15 @@
 import {
   type AnyAccessor,
   type AnyFn,
-  type InjectionFactory,
   type InjectionProvider,
   InjectionContext,
   dehydrate as storeDehydrate,
   $get
 } from '@nano_kit/store'
-import { getInjectionContext, setInjectionContext } from '@nano_kit/svelte'
+import {
+  getInjectionContext,
+  setInjectionContext
+} from '@nano_kit/svelte'
 // eslint-disable-next-line import/extensions
 import { getRequestEvent } from '$app/server'
 import type { HydrationContextParams } from './hydration.js'
@@ -105,7 +107,7 @@ export function setDehydrationContext(context?: InjectionProvider[]) {
  * @returns Dehydrated data as an array of key-value pairs.
  */
 /* @__NO_SIDE_EFFECTS__ */
-export async function dehydrate(Stores$: InjectionFactory<AnyAccessor[]>) {
+export async function dehydrate(Stores$: () => AnyAccessor[]) {
   const { context, seen } = getServerContext()
 
   return await storeDehydrate(

@@ -1,6 +1,6 @@
 <script lang="ts">
   import type {
-    InjectionFactory,
+    Injectable,
     InjectionProvider
   } from '@nano_kit/store'
   import {
@@ -10,7 +10,7 @@
 
   interface Props<T> {
     context: InjectionProvider[]
-    token: InjectionFactory<T>
+    token: Injectable<T>
     onValue(value: T): void
   }
 

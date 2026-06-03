@@ -9,6 +9,7 @@ import {
   effect
 } from 'agera'
 import {
+  Injectable$,
   InjectionContext,
   getContext,
   run,
@@ -98,6 +99,45 @@ describe('kida', () => {
         })
 
         expect(factory).toHaveBeenCalledTimes(1)
+      })
+
+      it('should inject class dependency', () => {
+        const constructorA = vi.fn()
+        const constructorB = vi.fn()
+        const context = new InjectionContext()
+
+        class ServiceA$ extends Injectable$ {
+          value = 42
+
+          constructor() {
+            super()
+            constructorA()
+          }
+        }
+
+        class ServiceB$ extends Injectable$ {
+          a = inject(ServiceA$)
+
+          constructor() {
+            super()
+            constructorB()
+          }
+        }
+
+        run(context, () => {
+          const value = inject(ServiceB$)
+
+          expect(value).toBeInstanceOf(ServiceB$)
+          expect(value.a).toBeInstanceOf(ServiceA$)
+          expect(value.a.value).toBe(42)
+          expect(inject(ServiceA$)).toBe(value.a)
+          expect(inject(ServiceB$)).toBe(value)
+        })
+
+        expect(constructorA).toHaveBeenCalledTimes(1)
+        expect(constructorB).toHaveBeenCalledTimes(1)
+        expect(context.has(ServiceA$)).toBe(true)
+        expect(context.has(ServiceB$)).toBe(true)
       })
 
       it('should inject provided dependency', () => {
