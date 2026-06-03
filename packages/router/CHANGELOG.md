@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.13](https://github.com/TrigenSoftware/nano_kit/compare/router@1.0.0-alpha.12...router@1.0.0-alpha.13) (2026-06-03)
+
+### Features
+
+* support of injectable classes was added ([#133](https://github.com/TrigenSoftware/nano_kit/issues/133)) ([c7021a5](https://github.com/TrigenSoftware/nano_kit/commit/c7021a5360b78cd0cc97e2232ef7f833ec07a9ae))
+
 ## [1.0.0-alpha.12](https://github.com/TrigenSoftware/nano_kit/compare/router@1.0.0-alpha.11...router@1.0.0-alpha.12) (2026-05-28)
 
 ### Features

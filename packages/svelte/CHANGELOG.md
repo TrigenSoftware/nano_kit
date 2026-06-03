@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.3](https://github.com/TrigenSoftware/nano_kit/compare/svelte@1.0.0-alpha.2...svelte@1.0.0-alpha.3) (2026-06-03)
+
+### Features
+
+* support of injectable classes was added ([#133](https://github.com/TrigenSoftware/nano_kit/issues/133)) ([c7021a5](https://github.com/TrigenSoftware/nano_kit/commit/c7021a5360b78cd0cc97e2232ef7f833ec07a9ae))
+
 ## [1.0.0-alpha.2](https://github.com/TrigenSoftware/nano_kit/compare/svelte@1.0.0-alpha.1...svelte@1.0.0-alpha.2) (2026-05-14)
 
 ### Bug Fixes
