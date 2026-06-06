@@ -1,5 +1,5 @@
-import { useSignal } from '@nano_kit/react'
 import type { HTMLAttributes } from 'react'
+import { useSignal } from '@nano_kit/react'
 import cx from 'clsx'
 import typography from '~/uikit/typography.module.css'
 import { $applicationCount } from '~/stores/application'

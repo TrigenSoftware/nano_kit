@@ -1,9 +1,9 @@
 import { useCallback } from 'react'
 import cx from 'clsx'
+import type { Application } from '~/services/application.types'
 import { deleteApplication } from '~/stores/application'
 import { paths } from '~/stores/router'
 import { useTextBlink } from '~/uikit/hooks'
-import type { Application } from '~/services/application.types'
 import mixins from '~/uikit/mixins.module.css'
 import {
   type LetterCardProps,
@@ -32,7 +32,7 @@ export function ApplicationCard({
       .then(copied)
   }, [letter, copied])
   const onDeleteCallback = useCallback(() => {
-    // eslint-disable-next-line no-alert
+    // oxlint-disable-next-line no-alert
     if (confirm('Are you sure you want to delete this application letter?')) {
       void deleteApplication(id)
     }

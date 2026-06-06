@@ -13,8 +13,8 @@ import {
   layout
 } from '@nano_kit/router'
 import {
-  router,
   Outlet,
+  router,
   usePageSignal
 } from './core.jsx'
 

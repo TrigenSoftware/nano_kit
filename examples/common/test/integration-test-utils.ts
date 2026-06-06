@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
+/* oxlint-disable eslint/no-magic-numbers */
 import {
   type ChildProcess,
   spawn
@@ -16,16 +16,16 @@ import {
   relative,
   resolve
 } from 'node:path'
+import type {
+  Page,
+  Route
+} from 'playwright'
 import {
   beforeEach,
   afterEach,
   afterAll,
   beforeAll
 } from 'vitest'
-import type {
-  Page,
-  Route
-} from 'playwright'
 
 type IntegrationTestCacheData = Record<string, true>
 type ProcessEnv = Record<string, string | undefined>
@@ -37,7 +37,7 @@ interface NetworkCacheEntry {
 }
 
 const URL_PATTERN = /https?:\/\/[^\s]+/
-// eslint-disable-next-line no-control-regex
+// oxlint-disable-next-line eslint/no-control-regex
 const ANSI_PATTERN = /\x1B\[[0-?]*[ -/]*[@-~]/g
 const CLOSED_TARGET_PATTERN = /target page, context or browser has been closed/i
 const networkMemoryCache = new Map<string, NetworkCacheEntry>()
@@ -399,7 +399,6 @@ export class IntegrationTestCache {
   }
 }
 
-// eslint-disable-next-line consistent-this
 export async function implementations({
   self,
   root
@@ -408,10 +407,10 @@ export async function implementations({
   root: string
 }): Promise<{
   name: string
-  start(
+  start: (
     env?: ProcessEnv,
     distDir?: (path: string) => string
-  ): Promise<string | false>
+  ) => Promise<string | false>
 }[]> {
   const utilsHash = hashDir(import.meta.dirname)
   const testsHash = hashDir(self, /integration-test-cache\.json$/)

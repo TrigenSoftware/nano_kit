@@ -74,3 +74,7 @@ export type UnionToIntersection<U> = (
 export interface FormatContext {
   $locale: Accessor<string>
 }
+
+export type Bound<T, K extends keyof T> = Omit<T, K> & {
+  [P in K]: T[P]
+}

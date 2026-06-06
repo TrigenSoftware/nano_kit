@@ -6,11 +6,11 @@ import clsx from 'clsx'
 export interface PaginationProps {
   current: number
   total: number
-  formatUrl(page: number): string
+  formatUrl: (page: number) => string
   showSiblings?: number
   previousLabel: string
   nextLabel: string
-  formatPageLabel(page: number): string
+  formatPageLabel: (page: number) => string
   label: string
 }
 

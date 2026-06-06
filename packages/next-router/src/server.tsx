@@ -1,8 +1,8 @@
 import { connection } from 'next/server'
 import {
+  RedirectType,
   permanentRedirect,
-  redirect,
-  RedirectType
+  redirect
 } from 'next/navigation'
 import { workUnitAsyncStorage } from 'next/dist/server/app-render/work-unit-async-storage.external.js'
 import { cache } from 'react'
@@ -41,7 +41,7 @@ function getUrlFromAsyncStorage() {
 
   if (tags && tags.length > 1) {
     const tag = tags.at(-1)!
-    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+    // oxlint-disable-next-line eslint/no-magic-numbers
     const prevTag = tags.at(-2)!
 
     if (tag.replace(prevTag, '') !== 'index') {

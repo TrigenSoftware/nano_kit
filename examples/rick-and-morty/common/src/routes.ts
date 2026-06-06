@@ -1,4 +1,4 @@
-import { routes } from './stores-di/router'
+import type { routes } from './stores-di/router'
 
 declare module '@nano_kit/router' {
   interface AppContext {

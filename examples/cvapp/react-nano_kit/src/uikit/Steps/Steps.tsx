@@ -1,5 +1,7 @@
-import type { HTMLAttributes } from 'react'
-import { useMemo } from 'react'
+import {
+  type HTMLAttributes,
+  useMemo
+} from 'react'
 import cx from 'clsx'
 import styles from './Steps.module.css'
 

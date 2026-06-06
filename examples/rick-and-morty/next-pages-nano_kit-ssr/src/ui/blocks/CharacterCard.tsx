@@ -3,7 +3,7 @@
 import clsx from 'clsx'
 import { useInject } from '@nano_kit/react'
 import { Paths$ } from '@nano_kit/router'
-import { type Character } from '@/services/api'
+import type { Character } from '@/services/api'
 
 export interface CharacterCardProps {
   character: Character

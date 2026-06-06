@@ -1,6 +1,6 @@
 /* DISCLAIMER! VIBECODED! */
 import { Link } from '@tanstack/react-router'
-import { type Episode } from '#src/services/api'
+import type { Episode } from '#src/services/api'
 
 export interface EpisodeCardProps {
   episode: Episode

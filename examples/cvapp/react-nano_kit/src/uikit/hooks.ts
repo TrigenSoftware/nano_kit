@@ -1,5 +1,5 @@
-import type { RefObject } from 'react'
 import {
+  type RefObject,
   useCallback,
   useEffect,
   useRef,

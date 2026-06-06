@@ -1,5 +1,5 @@
 /* DISCLAIMER! VIBECODED! */
-import { type Location } from '#src/services/api'
+import type { Location } from '#src/services/api'
 import { Link } from '#src/ui/components/Link'
 
 export interface LocationCardProps {

@@ -9,14 +9,14 @@ import {
   $$value,
   button,
   div,
-  for_,
-  if_,
   input,
   label,
   li,
   span,
   trackBy,
-  ul
+  ul,
+  for_,
+  if_
 } from 'nanoviews'
 import type { City } from '../services/types.js'
 

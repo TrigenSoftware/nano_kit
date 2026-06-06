@@ -1,4 +1,4 @@
-/* eslint-disable no-undef, no-console */
+/* oxlint-disable no-undef, no-console */
 import {
   cp,
   readdir,

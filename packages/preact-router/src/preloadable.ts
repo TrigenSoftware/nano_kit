@@ -1,6 +1,6 @@
-import {
-  type TargetedFocusEvent,
-  type TargetedMouseEvent
+import type {
+  TargetedFocusEvent,
+  TargetedMouseEvent
 } from 'preact'
 import { isFunction } from '@nano_kit/store'
 import { useInject } from '@nano_kit/preact'

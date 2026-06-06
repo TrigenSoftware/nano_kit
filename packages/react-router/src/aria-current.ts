@@ -1,6 +1,6 @@
 'use client'
-import { useMemo } from 'react'
 import type { Accessor } from '@nano_kit/store'
+import { useMemo } from 'react'
 import {
   useInject,
   useSignal
@@ -11,9 +11,9 @@ import {
   type Routes,
   parseHref
 } from '@nano_kit/router'
+import type { LinkSettings } from './link.types.js'
 import { LinkSettings$ } from './link.jsx'
 import { useLocation } from './hooks.js'
-import type { LinkSettings } from './link.types.js'
 
 export type IsAriaCurrent<R extends Routes> = (url: URL | undefined, location: RouteLocation<R>) => boolean
 
@@ -23,7 +23,6 @@ export interface UseAriaCurrentSettings<R extends Routes> extends LinkSettings {
 
 export interface UseAriaCurrentProps {
   'href'?: string
-  // eslint-disable-next-line @typescript-eslint/naming-convention
   'aria-current'?: boolean | 'false' | 'true' | 'page' | 'step' | 'location' | 'date' | 'time' | undefined
 }
 

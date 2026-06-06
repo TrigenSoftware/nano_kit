@@ -6,7 +6,10 @@ import {
   $location
 } from '~/stores/router'
 import { GOAL_APPLICATIONS } from '~/constants'
-import { Paper, type PaperProps } from '~/uikit/Paper'
+import {
+  type PaperProps,
+  Paper
+} from '~/uikit/Paper'
 import { Button } from '~/uikit/Button'
 import { Icon } from '~/uikit/Icon'
 import { Steps } from '~/uikit/Steps'

@@ -56,7 +56,8 @@
     "postpublish": "pnpm clear:package",
     "build:dist": "tsgo -p tsconfig.build.json",
     "build": "run clear:dist build:dist",
-    "lint": "eslint --flag v10_config_lookup_from_file",
+    "lint": "oxlint",
+    "format": "oxlint --fix",
     "test:types": "tsgo --noEmit",
     "test": "run lint"
   },

@@ -42,9 +42,9 @@ export function HydrationProvider({
   children
 }: HydrationProviderProps) {
   const currentContext = useInjectionContext()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // oxlint-disable-next-line react-hooks/exhaustive-deps
   const existingHydrator = useMemo(() => currentContext?.get(Hydrator$, true), [])
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // oxlint-disable-next-line react-hooks/exhaustive-deps
   const hydrator = useMemo(() => existingHydrator || new ActiveHydrator(), [])
 
   if (dehydrated) {
@@ -81,7 +81,7 @@ export function StaticHydrationProvider({
   context = [],
   children
 }: StaticHydrationProviderProps) {
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // oxlint-disable-next-line react-hooks/exhaustive-deps
   const hydrator = useMemo(() => dehydrated && new StaticHydrator(dehydrated), [])
 
   return (

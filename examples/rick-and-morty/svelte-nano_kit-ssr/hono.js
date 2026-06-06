@@ -2,7 +2,6 @@ import { serve } from '@hono/node-server'
 import { serveStatic } from '@hono/node-server/serve-static'
 import { compress } from 'hono/compress'
 import { Hono } from 'hono'
-// eslint-disable-next-line import/no-useless-path-segments
 import { renderer } from './dist/renderer/index.js'
 
 const app = new Hono()

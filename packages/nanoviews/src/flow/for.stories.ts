@@ -1,10 +1,19 @@
-import type { Meta, StoryObj } from '@nanoviews/storybook'
-import { effect, record } from 'kida'
-import { nanoStory } from '@nanoviews/storybook'
-import { ul, li } from '../elements/elements.js'
+import type {
+  Meta,
+  StoryObj
+} from '@nanoviews/storybook'
 import {
-  for_,
-  trackById
+  effect,
+  record
+} from 'kida'
+import { nanoStory } from '@nanoviews/storybook'
+import {
+  ul,
+  li
+} from '../elements/elements.js'
+import {
+  trackById,
+  for_
 } from './for.js'
 
 const meta: Meta<{

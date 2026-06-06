@@ -1,6 +1,6 @@
-import {
-  type TargetedEvent,
-  type TargetedMouseEvent
+import type {
+  TargetedEvent,
+  TargetedMouseEvent
 } from 'preact'
 import {
   useInject,
@@ -114,7 +114,7 @@ export default function Home() {
   }
   const onLoadMore = (event: TargetedMouseEvent<HTMLButtonElement>) => {
     event.currentTarget.blur()
-    fetchNext()
+    void fetchNext()
   }
   const events = data?.pages.flatMap(page => page.events) ?? []
 

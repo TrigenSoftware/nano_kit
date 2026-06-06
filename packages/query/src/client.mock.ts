@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/require-await */
+/* oxlint-disable typescript/require-await */
 export interface Post {
   id: number
   title: string

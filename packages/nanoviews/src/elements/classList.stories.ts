@@ -1,7 +1,13 @@
-import type { Meta, StoryObj } from '@nanoviews/storybook'
-import { nanoStory } from '@nanoviews/storybook'
+import {
+  type Meta,
+  type StoryObj,
+  nanoStory
+} from '@nanoviews/storybook'
 import { when } from 'kida'
-import { button, div } from './elements.js'
+import {
+  button,
+  div
+} from './elements.js'
 import { $$classList } from './classList.js'
 
 const meta: Meta = {

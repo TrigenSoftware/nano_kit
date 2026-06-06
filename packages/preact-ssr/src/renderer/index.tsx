@@ -2,15 +2,15 @@ import { render } from 'preact-render-to-string'
 import { get } from '@nano_kit/store'
 import { InjectionContextProvider } from '@nano_kit/preact'
 import {
-  compose,
-  App
+  App,
+  compose
 } from '@nano_kit/preact-router'
 import {
   type RendererOptions,
   type RenderData,
   ROOT_ID,
-  headDescriptorToHtml,
-  Renderer
+  Renderer,
+  headDescriptorToHtml
 } from '@nano_kit/ssr/renderer'
 
 export * from '@nano_kit/ssr/renderer'

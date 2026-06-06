@@ -22,7 +22,7 @@ export function LocationSearch$() {
 
   onMount($searchQuery, () => {
     if (!$searchQuery()) {
-      Location.fetchCurrentCity().then((city) => {
+      void Location.fetchCurrentCity().then((city) => {
         if (city && !$searchQuery()) {
           $searchQuery(city.label)
         }

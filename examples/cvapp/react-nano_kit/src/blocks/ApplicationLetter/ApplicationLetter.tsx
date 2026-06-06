@@ -1,7 +1,10 @@
 import { useSignal } from '@nano_kit/react'
 import { useCallback } from 'react'
 import cx from 'clsx'
-import { $currentApplication, $upsertApplicationLoading } from '~/stores/application'
+import {
+  $currentApplication,
+  $upsertApplicationLoading
+} from '~/stores/application'
 import { useTextBlink } from '~/uikit/hooks'
 import {
   type LetterCardProps,

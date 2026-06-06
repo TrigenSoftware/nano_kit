@@ -1,5 +1,7 @@
 export * from '@nano_kit/router'
-export * from './types.js'
+export type * from './types.js'
+export { default as App } from './App.svelte'
+export { default as Outlet } from './Outlet.svelte'
 export {
   router,
   syncHead

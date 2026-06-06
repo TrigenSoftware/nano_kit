@@ -1,3 +1,4 @@
+import type { HTMLAnchorAttributes } from 'svelte/elements'
 import {
   type Readable,
   derived
@@ -7,7 +8,6 @@ import {
   toSignal
 } from '@nano_kit/store'
 import { getInject } from '@nano_kit/svelte'
-import type { HTMLAnchorAttributes } from 'svelte/elements'
 import {
   type AppRoutes,
   type RouteLocation,
@@ -26,7 +26,6 @@ export interface AriaCurrentSettings<R extends Routes> extends LinkSettings {
 
 export interface AriaCurrentProps {
   'href'?: string
-  // eslint-disable-next-line @typescript-eslint/naming-convention
   'aria-current'?: HTMLAnchorAttributes['aria-current']
 }
 

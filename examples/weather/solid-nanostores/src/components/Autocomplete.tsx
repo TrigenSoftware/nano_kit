@@ -11,7 +11,7 @@ interface AutocompleteProps {
   name: string
   value: string
   suggestions: City[]
-  onChange(value: string): void
+  onChange: (value: string) => void
 }
 
 const FIRST_SUGGESTION = 0

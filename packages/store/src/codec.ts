@@ -8,7 +8,7 @@ export interface Codec<D, E> {
   decode(value: E | null): D | null
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 export type AnyCodec = Codec<any, any>
 
 /**

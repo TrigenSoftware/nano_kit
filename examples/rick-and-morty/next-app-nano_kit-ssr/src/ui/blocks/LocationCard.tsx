@@ -1,7 +1,7 @@
 /* DISCLAIMER! VIBECODED! */
 'use client'
 import { Link } from '@nano_kit/next-router'
-import { type Location } from '@/services/api'
+import type { Location } from '@/services/api'
 
 export interface LocationCardProps {
   location: Location

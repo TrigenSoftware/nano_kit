@@ -9,6 +9,7 @@
     "src"
   ],
   "exclude": [
+    "**/*.config.ts",
     "**/*.spec.ts"
   ]
 }

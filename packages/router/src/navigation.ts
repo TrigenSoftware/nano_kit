@@ -36,7 +36,7 @@ import {
   updateLocation
 } from './utils.js'
 
-export * from './navigation.types.js'
+export type * from './navigation.types.js'
 
 function createPatternRegex(pattern: string) {
   return new RegExp(`^${

@@ -3,9 +3,14 @@
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "dist",
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   },
   "include": [
     "src"
+  ],
+  "exclude": [
+    "**/*.config.ts"
   ]
 }

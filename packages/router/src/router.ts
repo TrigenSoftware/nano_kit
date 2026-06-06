@@ -24,7 +24,7 @@ import type {
 } from './router.types.js'
 import { composeMatchers } from './utils.js'
 
-export * from './router.types.js'
+export type * from './router.types.js'
 
 type Composed = (layout: LayoutRef<unknown>, page: ComposedPageRef<unknown>) => PageRef<unknown>
 
@@ -278,12 +278,10 @@ function createComposed(compose: UnknownComposer | undefined): Composed {
       layoutRef.r.r(() => pageRef.default)
     }
 
-    if (!pageRef.l) {
-      pageRef.l = {
-        ...layoutRef,
-        default: layoutRef.r.l,
-        r: pageRef
-      }
+    pageRef.l ||= {
+      ...layoutRef,
+      default: layoutRef.r.l,
+      r: pageRef
     }
 
     return pageRef.l

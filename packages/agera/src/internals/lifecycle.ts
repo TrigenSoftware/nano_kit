@@ -101,14 +101,14 @@ function propagateDeactivation(link: Link): void {
   } while (link !== undefined)
 }
 
-// eslint-disable-next-line import/no-mutable-exports
+// oxlint-disable-next-line import/no-mutable-exports
 export let isMountableUsed = false
 
 export function markMountableUsed() {
   isMountableUsed = true
 }
 
-// eslint-disable-next-line import/no-mutable-exports
+// oxlint-disable-next-line import/no-mutable-exports
 export let activeNoMount: ReactiveNode | undefined
 
 export function pushNoMount(signal: ReactiveNode | undefined) {

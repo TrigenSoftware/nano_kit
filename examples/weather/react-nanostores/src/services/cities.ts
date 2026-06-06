@@ -10,7 +10,6 @@ function cityToString(city: City) {
 interface RawCity {
   name: string
   country?: string
-  // eslint-disable-next-line @typescript-eslint/naming-convention
   country_code?: string
   latitude: number
   longitude: number

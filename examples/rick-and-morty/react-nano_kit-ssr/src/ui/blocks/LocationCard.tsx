@@ -1,6 +1,6 @@
 /* DISCLAIMER! VIBECODED! */
 import { Link } from '@nano_kit/react-router'
-import { type Location } from '#src/services/api'
+import type { Location } from '#src/services/api'
 
 export interface LocationCardProps {
   location: Location

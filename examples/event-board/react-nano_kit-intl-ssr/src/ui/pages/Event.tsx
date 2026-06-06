@@ -91,7 +91,7 @@ export default function EventPage() {
   const rsvpLoading = useSignal($rsvpLoading)
   const t = useSignal($t)
   const onRsvp = () => {
-    rsvp(event!.id)
+    void rsvp(event!.id)
   }
 
   if (error) {

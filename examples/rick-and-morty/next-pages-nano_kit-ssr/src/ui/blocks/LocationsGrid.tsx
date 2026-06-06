@@ -1,6 +1,6 @@
 /* DISCLAIMER! VIBECODED! */
 'use client'
-import { type Location } from '@/services/api'
+import type { Location } from '@/services/api'
 import { LocationCard } from '@/ui/blocks/LocationCard'
 
 export interface LocationsGridProps {

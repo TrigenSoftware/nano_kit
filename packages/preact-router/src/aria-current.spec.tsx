@@ -9,9 +9,9 @@ import { InjectionContextProvider } from '@nano_kit/preact'
 import { provide } from '@nano_kit/store'
 import {
   type Routes,
-  buildPaths,
   Location$,
   Navigation$,
+  buildPaths,
   virtualNavigation
 } from '@nano_kit/router'
 import {

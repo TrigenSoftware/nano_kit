@@ -1,4 +1,3 @@
-/* eslint-disable import/order */
 import {
   type AnyAccessor,
   type AnyFn,
@@ -11,7 +10,6 @@ import {
   getInjectionContext,
   setInjectionContext
 } from '@nano_kit/svelte'
-// eslint-disable-next-line import/extensions
 import { getRequestEvent } from '$app/server'
 import type { HydrationContextParams } from './hydration.js'
 

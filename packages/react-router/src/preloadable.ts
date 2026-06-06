@@ -1,7 +1,7 @@
 'use client'
-import {
-  type FocusEvent,
-  type MouseEvent
+import type {
+  FocusEvent,
+  MouseEvent
 } from 'react'
 import { isFunction } from '@nano_kit/store'
 import { useInject } from '@nano_kit/react'

@@ -1,4 +1,7 @@
-import { useCallback, useRef } from 'react'
+import {
+  useCallback,
+  useRef
+} from 'react'
 import { ApplicationForm } from '~/blocks/ApplicationForm'
 import { ApplicationLetter } from '~/blocks/ApplicationLetter'
 import styles from './Application.module.css'

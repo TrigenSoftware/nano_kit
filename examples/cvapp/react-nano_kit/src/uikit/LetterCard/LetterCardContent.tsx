@@ -1,5 +1,9 @@
-import type { CSSProperties, HTMLAttributes, ReactNode } from 'react'
-import { useMemo } from 'react'
+import {
+  type CSSProperties,
+  type HTMLAttributes,
+  type ReactNode,
+  useMemo
+} from 'react'
 import cx from 'clsx'
 import mixins from '../mixins.module.css'
 import styles from './LetterCard.module.css'
@@ -25,7 +29,7 @@ export function LetterCardContent({
 
     return value.split('\n').flatMap((line, index, array) => (
       index < array.length - 1
-        // eslint-disable-next-line react/no-array-index-key
+        // oxlint-disable-next-line react/no-array-index-key
         ? [line, <br key={index}/>]
         : line
     ))

@@ -48,7 +48,7 @@ export default function NewEventPage() {
   const t = useSignal($t)
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    form.submit()
+    void form.submit()
   }
   const setCategory = (event: ChangeEvent<HTMLSelectElement>) => {
     form.$category(event.currentTarget.value as typeof eventCategories[number])

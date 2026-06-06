@@ -7,11 +7,11 @@ import {
   expect
 } from 'vitest'
 import {
+  STORE_UNMOUNT_DELAY,
   computed,
   effect,
   signal,
-  mountable,
-  STORE_UNMOUNT_DELAY
+  mountable
 } from 'kida'
 import { debounce } from './utils.js'
 import {

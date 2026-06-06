@@ -1,7 +1,13 @@
-import { Renderer, headDescriptorToHtml } from '@nano_kit/ssr/renderer'
+import {
+  Renderer,
+  headDescriptorToHtml
+} from '@nano_kit/ssr/renderer'
 import { run } from '@nano_kit/store'
 import { Page$ } from '@nano_kit/router'
-import { routes, pages } from 'virtual:app-index'
+import {
+  routes,
+  pages
+} from 'virtual:app-index'
 
 function compose($outlet, layout) {
   return `${layout()} > ${$outlet()?.()}`

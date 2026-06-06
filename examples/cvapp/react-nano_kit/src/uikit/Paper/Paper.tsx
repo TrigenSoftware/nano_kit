@@ -1,4 +1,7 @@
-import type { Ref, HTMLAttributes } from 'react'
+import type {
+  Ref,
+  HTMLAttributes
+} from 'react'
 import cx from 'clsx'
 import typography from '../typography.module.css'
 import styles from './Paper.module.css'

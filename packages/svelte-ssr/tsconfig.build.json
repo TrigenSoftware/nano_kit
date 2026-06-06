@@ -9,6 +9,7 @@
     "src"
   ],
   "exclude": [
+    "**/*.config.ts",
     "**/*.spec.ts",
     "src/client.js",
     "src/renderer.js"

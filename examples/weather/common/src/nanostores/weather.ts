@@ -1,7 +1,10 @@
 import { computed } from 'nanostores'
 import type { Weather } from '../services/types.js'
 import * as WeatherService from '../services/weather.js'
-import { $currentLocation, $currentLocationKey } from './location.js'
+import {
+  $currentLocation,
+  $currentLocationKey
+} from './location.js'
 import { createFetcherStore } from './query.js'
 
 export const $currentWeatherStore = createFetcherStore<Weather | null>(

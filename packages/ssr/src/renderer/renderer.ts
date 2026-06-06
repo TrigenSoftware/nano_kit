@@ -31,9 +31,9 @@ import {
   responseStatus
 } from './utils.js'
 
-export * from './renderer.types.js'
+export type * from './renderer.types.js'
 
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+// oxlint-disable-next-line typescript/consistent-type-imports
 let platformWebPromise: Promise<typeof import('@nano_kit/platform-web')>
 
 async function platformWeb() {

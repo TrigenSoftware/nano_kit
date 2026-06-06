@@ -95,12 +95,12 @@ function getWeatherIcon(code: number): string {
 
 interface RawWeather {
   time: string
-  /* eslint-disable @typescript-eslint/naming-convention */
+  /* oxlint-disable trigen/naming-convention */
   temperature_2m: number
   apparent_temperature: number
   relative_humidity_2m: number
   weather_code: number
-  /* eslint-enable @typescript-eslint/naming-convention */
+  /* oxlint-enable trigen/naming-convention */
 }
 
 function toWeather(data: RawWeather, period: WeatherPeriod): Weather {
@@ -123,23 +123,23 @@ function toWeather(data: RawWeather, period: WeatherPeriod): Weather {
 
 interface RawDailyWeather {
   time: string
-  /* eslint-disable @typescript-eslint/naming-convention */
+  /* oxlint-disable trigen/naming-convention */
   temperature_2m_max: number
   apparent_temperature_max: number
   relative_humidity_2m_mean: number
   weather_code: number
-  /* eslint-enable @typescript-eslint/naming-convention */
+  /* oxlint-disable trigen/naming-convention */
 }
 
 function toDailyWeather(data: RawDailyWeather): Weather {
   return toWeather({
     time: `${data.time}T12:00`,
-    /* eslint-disable @typescript-eslint/naming-convention */
+    /* oxlint-disable trigen/naming-convention */
     temperature_2m: data.temperature_2m_max,
     apparent_temperature: data.apparent_temperature_max,
     relative_humidity_2m: data.relative_humidity_2m_mean,
     weather_code: data.weather_code
-    /* eslint-enable @typescript-eslint/naming-convention */
+    /* oxlint-disable trigen/naming-convention */
   }, 'daily')
 }
 
@@ -165,7 +165,6 @@ export async function fetchWeatherForecast(city: City, signal?: AbortSignal): Pr
     hourly: 'temperature_2m,apparent_temperature,relative_humidity_2m,weather_code',
     daily: 'temperature_2m_max,apparent_temperature_max,relative_humidity_2m_mean,weather_code',
     timezone: 'auto',
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     forecast_days: '7'
   })
   const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`, {
@@ -180,12 +179,12 @@ export async function fetchWeatherForecast(city: City, signal?: AbortSignal): Pr
     forecast.push(
       toWeather({
         time: hourly.time[i],
-        /* eslint-disable @typescript-eslint/naming-convention */
+        /* oxlint-disable trigen/naming-convention */
         temperature_2m: hourly.temperature_2m[i],
         apparent_temperature: hourly.apparent_temperature[i],
         relative_humidity_2m: hourly.relative_humidity_2m[i],
         weather_code: hourly.weather_code[i]
-        /* eslint-enable @typescript-eslint/naming-convention */
+        /* oxlint-enable trigen/naming-convention */
       }, 'hourly')
     )
   }
@@ -194,12 +193,12 @@ export async function fetchWeatherForecast(city: City, signal?: AbortSignal): Pr
     forecast.push(
       toDailyWeather({
         time: daily.time[i],
-        /* eslint-disable @typescript-eslint/naming-convention */
+        /* oxlint-disable trigen/naming-convention */
         temperature_2m_max: daily.temperature_2m_max[i],
         apparent_temperature_max: daily.apparent_temperature_max[i],
         relative_humidity_2m_mean: daily.relative_humidity_2m_mean[i],
         weather_code: daily.weather_code[i]
-        /* eslint-enable @typescript-eslint/naming-convention */
+        /* oxlint-enable trigen/naming-convention */
       })
     )
   }

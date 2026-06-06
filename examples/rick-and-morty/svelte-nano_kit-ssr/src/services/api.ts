@@ -9,7 +9,7 @@ import type {
   EpisodeFilter
 } from './types'
 
-export * from './types'
+export type * from './types'
 
 const BASE_URL = 'https://trigensoftware.github.io/rick-and-morty-api/api'
 

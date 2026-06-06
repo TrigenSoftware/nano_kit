@@ -11,10 +11,10 @@
     "build": "run tsc [ vite build ]",
     "preview": "vite preview",
     "lint:styles": "stylelint 'src/**/*.css'",
-    "lint:scripts": "eslint --flag v10_config_lookup_from_file",
+    "lint:scripts": "oxlint",
     "lint": "run -p lint:styles lint:scripts",
     "format:styles": "stylelint 'src/**/*.css' --fix",
-    "format:scripts": "eslint --fix --flag v10_config_lookup_from_file",
+    "format:scripts": "oxlint --fix",
     "format": "run -p format:styles format:scripts",
     "test:types": "tsc",
     "test": "run -p lint test:types"

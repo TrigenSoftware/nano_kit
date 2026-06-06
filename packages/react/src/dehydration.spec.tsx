@@ -15,9 +15,9 @@ import {
   useSignal
 } from './core.js'
 import {
-  dehydrate,
   Dehydration,
-  StaticDehydration
+  StaticDehydration,
+  dehydrate
 } from './dehydration.js'
 
 function Value$() {

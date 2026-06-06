@@ -30,15 +30,13 @@ export function permission(
     onStart(mountable($permission), () => {
       let ps: PermissionStatus | null = null
 
-      void navigator.permissions.query(descriptor)
+      navigator.permissions.query(descriptor)
         // ;-)
         .then(result => ((ps = result).onchange = () => $permission(result.state))())
         .catch($permission)
 
       return () => {
-        if (ps) {
-          ps = ps.onchange = null
-        }
+        ps &&= ps.onchange = null
       }
     })
   })

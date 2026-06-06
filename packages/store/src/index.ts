@@ -1,5 +1,5 @@
 export * from 'kida'
-export * from './types.js'
+export type * from './types.js'
 export * from './codec.js'
 export * from './external.js'
 export * from './list.js'

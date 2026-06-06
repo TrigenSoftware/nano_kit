@@ -1,4 +1,7 @@
-import { computed, record } from '@nano_kit/store'
+import {
+  computed,
+  record
+} from '@nano_kit/store'
 import { queryKey } from '@nano_kit/query'
 import type {
   City,

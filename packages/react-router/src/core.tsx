@@ -1,11 +1,11 @@
 'use client'
+import type { Accessor } from '@nano_kit/store'
 import {
   createContext,
   useContext,
   useEffect,
   memo
 } from 'react'
-import type { Accessor } from '@nano_kit/store'
 import {
   useSignal,
   useInject,

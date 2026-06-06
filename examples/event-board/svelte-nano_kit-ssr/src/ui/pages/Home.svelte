@@ -77,7 +77,7 @@
   }
 
   function onLoadMore(event: MouseEvent) {
-    ;(event.currentTarget as HTMLButtonElement).blur()
+    (event.currentTarget as HTMLButtonElement).blur()
     fetchNext()
   }
 </script>

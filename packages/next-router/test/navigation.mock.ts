@@ -1,4 +1,7 @@
-import { vi, type MockInstance } from 'vitest'
+import {
+  type MockInstance,
+  vi
+} from 'vitest'
 
 export const mockNavigation = {
   push: vi.fn() as MockInstance,

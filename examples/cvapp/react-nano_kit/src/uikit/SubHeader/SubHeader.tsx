@@ -1,4 +1,7 @@
-import type { HTMLAttributes, ReactNode } from 'react'
+import type {
+  HTMLAttributes,
+  ReactNode
+} from 'react'
 import cx from 'clsx'
 import styles from './SubHeader.module.css'
 

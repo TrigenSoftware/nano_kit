@@ -1,8 +1,8 @@
+import type { HTMLAnchorAttributes } from 'svelte/elements'
 import {
   type ComponentInternals,
   onMount
 } from 'svelte'
-import type { HTMLAnchorAttributes } from 'svelte/elements'
 import {
   type Readable,
   derived
@@ -25,7 +25,7 @@ import type {
 } from './link.types.js'
 import LinkComponent from './LinkComponent.svelte'
 
-export * from './link.types.js'
+export type * from './link.types.js'
 
 /* @__NO_SIDE_EFFECTS__ */
 function createLinkComponent<R extends Routes>(

@@ -4,9 +4,9 @@ import {
   expect
 } from 'vitest'
 import {
+  InjectionContext,
   signal,
   mountable,
-  InjectionContext,
   run,
   inject,
   provide,
@@ -16,11 +16,11 @@ import { TasksRunner$ } from './tasks.js'
 import { JsonCodec } from './codec.js'
 import {
   Hydrator$,
+  StaticHydrator,
+  ActiveHydrator,
   hydratable,
   dehydrate,
-  isHydrated,
-  StaticHydrator,
-  ActiveHydrator
+  isHydrated
 } from './hydration.js'
 
 interface User {

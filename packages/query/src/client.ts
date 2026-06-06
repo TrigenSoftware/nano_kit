@@ -22,7 +22,7 @@ import {
 } from './queries/index.js'
 
 export type { InfinitePages } from './queries/index.js'
-export * from './client.types.js'
+export type * from './client.types.js'
 
 /**
  * Create a query client with optional settings and extensions.
@@ -33,7 +33,7 @@ export * from './client.types.js'
 export function client<S extends (AnyClientSetting | AnyClientExtension)[]>(...settings: S) {
   const ctx = new ClientContext()
   const client = {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+    // oxlint-disable-next-line typescript/no-unnecessary-type-assertion
     query: query.bind(ctx) as typeof query,
     invalidate: (key => ctx.invalidate(key)) as typeof ctx.invalidate,
     revalidate: (key => ctx.revalidate(key)) as typeof ctx.revalidate,

@@ -6,9 +6,9 @@ import {
   vi
 } from 'vitest'
 import {
+  JsonCodec,
   debounce,
-  effect,
-  JsonCodec
+  effect
 } from '@nano_kit/store'
 import { waitFor } from '../test/utils.js'
 import { broadcasted } from './broadcast.js'

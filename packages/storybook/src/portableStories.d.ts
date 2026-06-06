@@ -26,7 +26,6 @@ export function composeStory<TArgs extends Args = Args, TStory extends { render?
 ): ComposedStoryFn<NanoviewsRenderer, UniversalProps<Partial<TArgs>>>
 
 type StoriesWithPartialProps<TModule> = {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   [K in keyof TModule as K extends 'default' ? never : TModule[K] extends StoryAnnotations<infer _, infer __> ? K : never]: TModule[K] extends { render?: RenderFn<infer TProps> }
     ? ComposedStoryFn<NanoviewsRenderer<TProps>, Partial<UniversalProps<TProps>>>
     : never

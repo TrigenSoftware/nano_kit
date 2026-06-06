@@ -125,10 +125,9 @@ export function throttle(fnOrDelay?: (() => void) | number) {
         fn(...args)
         lastTime = now
         lastArgs = null
-      } else
-        if (!timer) {
-          timer = setTimeout(invoke, remaining)
-        }
+      } else {
+        timer ||= setTimeout(invoke, remaining)
+      }
     }
   }
 }

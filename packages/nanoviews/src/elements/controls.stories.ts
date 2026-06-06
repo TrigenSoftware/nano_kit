@@ -1,4 +1,7 @@
-import type { Meta, StoryObj } from '@nanoviews/storybook'
+import type {
+  Meta,
+  StoryObj
+} from '@nanoviews/storybook'
 import { fn } from 'storybook/test'
 import { nanoStory } from '@nanoviews/storybook'
 import { effect } from 'kida'
@@ -9,8 +12,8 @@ import {
   option
 } from './elements.js'
 import {
-  $$value,
   Indeterminate,
+  $$value,
   $$checked,
   $$selected,
   $$files

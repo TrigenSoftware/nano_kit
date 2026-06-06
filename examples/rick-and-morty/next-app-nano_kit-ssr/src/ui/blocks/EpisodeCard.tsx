@@ -1,7 +1,7 @@
 /* DISCLAIMER! VIBECODED! */
 'use client'
 import { Link } from '@nano_kit/next-router'
-import { type Episode } from '@/services/api'
+import type { Episode } from '@/services/api'
 
 export interface EpisodeCardProps {
   episode: Episode

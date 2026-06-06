@@ -1,10 +1,10 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
+/* oxlint-disable eslint/no-magic-numbers */
 import { useStore } from '@nanostores/solid'
 import {
-  createSignal,
-  createMemo,
   For,
-  Show
+  Show,
+  createSignal,
+  createMemo
 } from 'solid-js'
 import { $weatherForecast } from '../stores/weather.js'
 import { ForecastWeather } from './ForecastWeather.jsx'

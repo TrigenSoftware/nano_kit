@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
+/* oxlint-disable eslint/no-magic-numbers */
 import {
   useState,
   useMemo,

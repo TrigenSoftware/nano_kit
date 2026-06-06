@@ -1,4 +1,4 @@
-/* eslint-disable max-classes-per-file */
+/* oxlint-disable eslint/max-classes-per-file */
 import {
   type Codec,
   type RateLimiter,
@@ -55,7 +55,7 @@ class CookieStorage implements Storage<string> {
       name: key,
       value,
       expires: maxAge
-        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        // oxlint-disable-next-line eslint/no-magic-numbers
         ? Date.now() + maxAge * 1000
         : expires
     })

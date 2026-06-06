@@ -2,6 +2,6 @@ import { redirect } from '@sveltejs/kit'
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = () => {
-  // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+  // oxlint-disable-next-line eslint/no-magic-numbers
   redirect(301, '/characters')
 }

@@ -1,4 +1,4 @@
-import { type Accessor } from '@nano_kit/store'
+import type { Accessor } from '@nano_kit/store'
 import type { Routes } from './types.js'
 import type {
   PageMatchRef,

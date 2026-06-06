@@ -44,7 +44,7 @@ export function createVoidElement<Tag extends ElementName>(
 export function createVoidElementFactory<Tag extends ElementName>(
   tag: Tag
 ) {
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+  // oxlint-disable-next-line typescript/no-unnecessary-type-assertion
   return createVoidElement.bind(null, tag as ElementName) as VoidElementFactory<Tag>
 }
 
@@ -90,11 +90,6 @@ export function createElement<Tag extends ElementName>(
 export function createElementFactory<Tag extends ElementName>(
   tag: Tag
 ) {
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+  // oxlint-disable-next-line typescript/no-unnecessary-type-assertion
   return createElement.bind(null, tag as ElementName) as ElementFactory<Tag>
-}
-
-export function defineProtoProp(name: string, value?: unknown) {
-  // @ts-expect-error Define property on prototype
-  Element.prototype[name] = value
 }

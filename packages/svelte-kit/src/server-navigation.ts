@@ -6,7 +6,6 @@ import {
   PermanentReplaceHistoryAction,
   virtualNavigation
 } from '@nano_kit/router'
-// eslint-disable-next-line import/extensions
 import { getRequestEvent } from '$app/server'
 
 const TemporaryRedirectStatus = 307

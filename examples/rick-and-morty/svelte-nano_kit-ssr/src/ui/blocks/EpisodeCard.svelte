@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { Episode } from '#src/services/api'
   import { Link } from '@nano_kit/svelte-router'
+  import type { Episode } from '#src/services/api'
 
   interface Props {
     episode: Episode

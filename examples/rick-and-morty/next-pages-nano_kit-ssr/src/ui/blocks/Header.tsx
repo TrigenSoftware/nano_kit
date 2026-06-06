@@ -1,6 +1,9 @@
 /* DISCLAIMER! VIBECODED! */
 'use client'
-import { useSignal, useInject } from '@nano_kit/react'
+import {
+  useSignal,
+  useInject
+} from '@nano_kit/react'
 import {
   Location$,
   Paths$,

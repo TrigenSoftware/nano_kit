@@ -1,4 +1,8 @@
-import { Link, Outlet, useLocation } from '@tanstack/react-router'
+import {
+  Link,
+  Outlet,
+  useLocation
+} from '@tanstack/react-router'
 import clsx from 'clsx'
 
 export function MainLayout() {

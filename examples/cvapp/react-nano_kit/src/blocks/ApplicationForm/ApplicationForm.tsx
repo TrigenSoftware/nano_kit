@@ -1,5 +1,6 @@
-import type { ChangeEvent, FormEvent } from 'react'
 import {
+  type ChangeEvent,
+  type FormEvent,
   useCallback,
   useEffect,
   useMemo,
@@ -9,8 +10,8 @@ import {
 import { abort } from '@nano_kit/query'
 import { useSignal } from '@nano_kit/react'
 import cx from 'clsx'
-import typography from '~/uikit/typography.module.css'
 import type { ApplicationDraft } from '~/services/application.types'
+import typography from '~/uikit/typography.module.css'
 import { MAX_DETAILS_LENGTH } from '~/constants'
 import { useFormValidity } from '~/uikit/hooks'
 import { Button } from '~/uikit/Button'
@@ -35,7 +36,7 @@ import { shouldPreventTransition } from './utils'
 import styles from './ApplicationForm.module.css'
 
 export interface ApplicationFormProps extends Omit<FormProps, 'onSubmit'> {
-  onSubmit?(): void
+  onSubmit?: () => void
 }
 
 const EMPTY_DRAFT = {
@@ -100,7 +101,7 @@ export function ApplicationForm({
       if (
         prevLocation.route === 'newApplication' && nextLocation?.route === 'application'
         || !shouldPrevent
-        // eslint-disable-next-line no-alert
+        // oxlint-disable-next-line eslint/no-alert
         || shouldPrevent && confirm('You have unsaved changes. Are you sure you want to leave this page?')
       ) {
         if (upsertTaskRef.current) {
@@ -114,7 +115,7 @@ export function ApplicationForm({
     window.onbeforeunload = (event) => {
       if (shouldPrevent) {
         event.preventDefault()
-        // eslint-disable-next-line @typescript-eslint/no-deprecated
+        // oxlint-disable-next-line typescript/no-deprecated
         event.returnValue = ''
       }
     }

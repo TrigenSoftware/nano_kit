@@ -1,5 +1,10 @@
-import type { ChangeEvent, TextareaHTMLAttributes } from 'react'
-import { useCallback, useEffect, useRef } from 'react'
+import {
+  type ChangeEvent,
+  type TextareaHTMLAttributes,
+  useCallback,
+  useEffect,
+  useRef
+} from 'react'
 import cx from 'clsx'
 import typography from '../typography.module.css'
 import mixins from '../mixins.module.css'

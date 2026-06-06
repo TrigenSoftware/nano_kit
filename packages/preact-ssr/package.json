@@ -64,7 +64,8 @@
     "postpublish": "pnpm clear:package",
     "build:dist": "tsgo -p tsconfig.build.json; cpy ./src/vite-plugin/index.d.ts ./dist/vite-plugin --flat; cpy './src/{client,renderer}.jsx' ./dist --flat",
     "build": "run clear:dist build:dist",
-    "lint": "eslint --flag v10_config_lookup_from_file",
+    "lint": "oxlint",
+    "format": "oxlint --fix",
     "test:unit": "vitest run --coverage",
     "test:unit:watch": "vitest watch",
     "test": "run lint test:unit"

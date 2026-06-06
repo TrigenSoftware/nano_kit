@@ -20,5 +20,5 @@
       "#src/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.svelte", "vite.config.ts", "svelte.config.js"]
+  "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.svelte", "vite.config.ts", "*.ts", "svelte.config.js"]
 }
