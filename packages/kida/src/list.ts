@@ -1,7 +1,7 @@
-import {
-  type WritableSignal,
-  type ReadableSignal,
-  type Accessor
+import type {
+  WritableSignal,
+  ReadableSignal,
+  Accessor
 } from 'agera'
 import {
   child,

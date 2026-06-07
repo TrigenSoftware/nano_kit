@@ -1,5 +1,8 @@
-import type { Meta, StoryObj } from '@nanoviews/storybook'
-import { nanoStory } from '@nanoviews/storybook'
+import {
+  type Meta,
+  type StoryObj,
+  nanoStory
+} from '@nanoviews/storybook'
 import {
   createTextNode,
   createTextNodeFromAccessor

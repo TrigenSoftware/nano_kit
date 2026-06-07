@@ -33,7 +33,7 @@ import type {
   GenericHeadDescriptor
 } from './head.types.js'
 
-export * from './head.types.js'
+export type * from './head.types.js'
 
 function startProperty<T extends string>(
   this: GenericHeadPropertyDescriptor<T>,

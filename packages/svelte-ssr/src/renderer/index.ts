@@ -13,8 +13,8 @@ import {
   type RendererOptions,
   type RenderData,
   ROOT_ID,
-  headDescriptorToHtml,
-  Renderer
+  Renderer,
+  headDescriptorToHtml
 } from '@nano_kit/ssr/renderer'
 
 export * from '@nano_kit/ssr/renderer'

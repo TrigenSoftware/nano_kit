@@ -1015,7 +1015,6 @@ describe('Event Board App', async () => {
       it('should render Russian messages from Accept-Language during SSR', async () => {
         await page.close()
 
-        // eslint-disable-next-line require-atomic-updates
         page = await browser.newPage({
           viewport: {
             width: 1280,

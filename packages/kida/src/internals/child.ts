@@ -60,7 +60,7 @@ export function child<
   const getter = computed(() => {
     const parent = $parent()
 
-    return parent && parent[$get(key)]
+    return parent?.[$get(key)]
   })
 
   if (!isWritable($parent)) {

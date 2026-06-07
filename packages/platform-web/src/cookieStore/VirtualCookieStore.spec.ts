@@ -1,4 +1,8 @@
-import { describe, expect, it } from 'vitest'
+import {
+  describe,
+  expect,
+  it
+} from 'vitest'
 import { VirtualCookieStore } from './VirtualCookieStore.js'
 
 describe('platform-web', () => {

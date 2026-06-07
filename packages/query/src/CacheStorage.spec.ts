@@ -9,10 +9,10 @@ import { effect } from '@nano_kit/store'
 import { queryKey } from './cache.js'
 import { hasShardedMapKey } from './map.js'
 import {
-  CacheStorage,
   DEFAULT_DEDUPE_TIME,
   DEFAULT_CACHE_TIME,
   UNSET_REV,
+  CacheStorage,
   revLock,
   revLocked
 } from './CacheStorage.js'

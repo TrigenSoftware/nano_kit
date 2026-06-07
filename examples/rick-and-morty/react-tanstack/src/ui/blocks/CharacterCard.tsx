@@ -1,7 +1,7 @@
 /* DISCLAIMER! VIBECODED! */
 import clsx from 'clsx'
 import { Link } from '@tanstack/react-router'
-import { type Character } from '#src/services/api'
+import type { Character } from '#src/services/api'
 
 export interface CharacterCardProps {
   character: Character

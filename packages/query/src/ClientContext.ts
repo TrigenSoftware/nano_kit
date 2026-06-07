@@ -5,9 +5,9 @@ import {
   type TasksRunner,
   type Task,
   TasksRunner$,
+  NoopCodec,
   taskPromise,
-  inject,
-  NoopCodec
+  inject
 } from '@nano_kit/store'
 import type { ClientSetting } from './client.types.js'
 import type { RequestContext } from './RequestContext.js'

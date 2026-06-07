@@ -1,6 +1,6 @@
 import type { GetServerSideProps } from 'next'
 
-// eslint-disable-next-line require-await
+// oxlint-disable-next-line eslint/require-await
 export const getServerSideProps: GetServerSideProps = async () => ({
   redirect: {
     destination: '/characters',

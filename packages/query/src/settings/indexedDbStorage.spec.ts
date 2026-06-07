@@ -8,11 +8,11 @@ import {
 import 'fake-indexeddb/auto'
 import {
   type TasksPool,
+  JsonCodec,
   effect,
   signal,
   tasksRunner,
-  waitTasks,
-  JsonCodec
+  waitTasks
 } from '@nano_kit/store'
 import { queryKey } from '../cache.js'
 import { tasks } from '../ClientContext.js'
@@ -25,10 +25,10 @@ import {
 import { persistence } from './persistence.js'
 import { codec } from './codec.js'
 import {
-  indexedDbStorage,
-  connect,
   SELECT,
-  STORE_NAME
+  STORE_NAME,
+  indexedDbStorage,
+  connect
 } from './indexedDbStorage.js'
 
 const PostKey = queryKey<[id: number], Post | null>('post')

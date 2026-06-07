@@ -1,5 +1,5 @@
 /* DISCLAIMER! VIBECODED! */
-import { type Episode } from '#src/services/api'
+import type { Episode } from '#src/services/api'
 import { EpisodeCard } from '#src/ui/blocks/EpisodeCard'
 
 export interface EpisodesGridProps {

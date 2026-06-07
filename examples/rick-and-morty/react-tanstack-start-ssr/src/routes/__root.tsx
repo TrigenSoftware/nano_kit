@@ -1,9 +1,9 @@
 import type { QueryClient } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 import {
-  createRootRouteWithContext,
   HeadContent,
-  Scripts
+  Scripts,
+  createRootRouteWithContext
 } from '@tanstack/react-router'
 import { MainLayout } from '#src/ui/pages/MainLayout'
 import appCss from '../app.css?url'

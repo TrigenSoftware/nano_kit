@@ -11,6 +11,7 @@
     "src"
   ],
   "exclude": [
+    "**/*.config.ts",
     "**/*.spec.ts",
     "**/*.spec.tsx",
     "src/client.jsx",

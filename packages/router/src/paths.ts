@@ -3,7 +3,7 @@ import type { Routes } from './types.js'
 import type { Paths } from './paths.types.js'
 import { removeTrailingSlash } from './utils.js'
 
-export * from './paths.types.js'
+export type * from './paths.types.js'
 
 function execPattern(
   this: (string | ((params: Record<string, string | number>) => string))[],

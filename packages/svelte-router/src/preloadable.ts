@@ -1,13 +1,13 @@
+import type {
+  FocusEventHandler,
+  MouseEventHandler
+} from 'svelte/elements'
 import {
   type Readable,
   derived
 } from 'svelte/store'
 import { isFunction } from '@nano_kit/store'
 import { getInject } from '@nano_kit/svelte'
-import type {
-  FocusEventHandler,
-  MouseEventHandler
-} from 'svelte/elements'
 import {
   type UnknownMatchRef,
   Pages$,

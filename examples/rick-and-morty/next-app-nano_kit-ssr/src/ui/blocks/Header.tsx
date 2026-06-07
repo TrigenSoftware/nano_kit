@@ -1,7 +1,13 @@
 /* DISCLAIMER! VIBECODED! */
 'use client'
-import { useSignal, useInject } from '@nano_kit/react'
-import { Location$, Link } from '@nano_kit/next-router'
+import {
+  useSignal,
+  useInject
+} from '@nano_kit/react'
+import {
+  Location$,
+  Link
+} from '@nano_kit/next-router'
 import clsx from 'clsx'
 
 export function Header() {

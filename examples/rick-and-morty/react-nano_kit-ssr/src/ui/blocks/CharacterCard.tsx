@@ -1,7 +1,7 @@
 /* DISCLAIMER! VIBECODED! */
 import clsx from 'clsx'
 import { Link } from '@nano_kit/react-router'
-import { type Character } from '#src/services/api'
+import type { Character } from '#src/services/api'
 
 export interface CharacterCardProps {
   character: Character

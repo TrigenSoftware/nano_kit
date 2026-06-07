@@ -1,12 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import type {
-  Codec,
-  RateLimiter,
-  Storage,
-  SyncedStorage,
-  WritableSignal
-} from '@nano_kit/store'
+/* oxlint-disable typescript/no-unsafe-assignment */
 import {
+  type Codec,
+  type RateLimiter,
+  type Storage,
+  type SyncedStorage,
+  type WritableSignal,
   noopStorage,
   stored,
   syncedStored

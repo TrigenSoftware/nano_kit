@@ -1,4 +1,4 @@
-export * from './types.js'
+export type * from './types.js'
 export * from './constants.js'
 export * from './links.js'
 export * from './scroll.js'

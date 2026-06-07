@@ -105,7 +105,7 @@ export default function EventPage() {
   const messagesPending = useSignal($messagesPending)
   const t = useSignal($t)
   const onRsvp = () => {
-    rsvp(event!.id)
+    void rsvp(event!.id)
   }
 
   if (messagesPending || loading && !event) {

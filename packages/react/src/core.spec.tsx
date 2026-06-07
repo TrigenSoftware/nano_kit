@@ -13,8 +13,8 @@ import {
   provide
 } from '@nano_kit/store'
 import {
-  useSignal,
   InjectionContextProvider,
+  useSignal,
   useInject
 } from './core.js'
 

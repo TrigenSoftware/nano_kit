@@ -1,4 +1,7 @@
-import type { JSX, ReactNode } from 'react'
+import type {
+  JSX,
+  ReactNode
+} from 'react'
 import cx from 'clsx'
 import type {
   ElementType,

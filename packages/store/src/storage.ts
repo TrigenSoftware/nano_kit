@@ -12,8 +12,8 @@ import { external } from './external.js'
 import { noLimit } from './utils.js'
 import {
   type Codec,
-  isCodec,
-  NoopCodec
+  NoopCodec,
+  isCodec
 } from './codec.js'
 
 export interface Storage<T> {
@@ -37,7 +37,7 @@ export interface SyncedStorage<T> extends Storage<T> {
 /**
  * No-op fallback for unsupported environments.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 export const noopStorage: SyncedStorage<any> = {
   get() {
     return null

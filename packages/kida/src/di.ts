@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* oxlint-disable typescript/no-unsafe-return */
 import {
   type AnyFn,
   untracked
@@ -48,7 +48,7 @@ export class InjectionContext extends Map<Injectable, unknown> {
     let value = this.#parent?.get(injectable, true)
 
     if (!find) {
-      // eslint-disable-next-line new-cap
+      // oxlint-disable-next-line eslint/new-cap
       this.set(injectable, value ??= run(this, injectable.injectable ? () => new injectable() : injectable))
     }
 

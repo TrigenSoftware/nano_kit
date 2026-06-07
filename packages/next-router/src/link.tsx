@@ -1,16 +1,16 @@
 'use client'
-import NextLink, { type LinkProps as NextLinkProps } from 'next/link'
 import type {
   AnchorHTMLAttributes,
   ReactNode,
   RefAttributes
 } from 'react'
-import { isFunction } from '@nano_kit/store'
 import type {
   AppRoutes,
   Routes,
   Paths
 } from '@nano_kit/router'
+import NextLink, { type LinkProps as NextLinkProps } from 'next/link'
+import { isFunction } from '@nano_kit/store'
 import { usePaths } from '@nano_kit/react-router'
 
 type NextLinkBaseProps = Omit<

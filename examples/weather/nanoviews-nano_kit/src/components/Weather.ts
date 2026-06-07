@@ -1,11 +1,11 @@
 import { record } from 'nanoviews/store'
 import {
-  if_,
   div,
   h3,
   img,
   p,
-  br
+  br,
+  if_
 } from 'nanoviews'
 import { $currentLocation } from '../stores/location.js'
 import { $currentWeather } from '../stores/weather.js'

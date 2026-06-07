@@ -12,6 +12,8 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
     /* Emit */
     "declaration": true,
     "declarationMap": true,

@@ -37,6 +37,7 @@
   "include": [
     "src",
     "scripts",
-    "*.js"
+    "*.js",
+    "*.ts"
   ]
 }

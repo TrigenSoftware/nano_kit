@@ -89,7 +89,7 @@ function move(
   }
 }
 
-// eslint-disable-next-line max-params
+// oxlint-disable-next-line eslint/max-params
 function reconcile(
   itemsList: LoopItemsList,
   lookupMap: LookupMap,
@@ -328,7 +328,7 @@ export function loop(
     if (shouldRender) {
       // swap
       if (destroyPrev !== undefined) {
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+        // oxlint-disable-next-line typescript/no-unnecessary-type-assertion
         destroyPrev = runEffects!()
       } else {
         // initial

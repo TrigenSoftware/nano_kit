@@ -1,6 +1,6 @@
 /* DISCLAIMER! VIBECODED! */
 import clsx from 'clsx'
-import { type Character } from '#src/services/api'
+import type { Character } from '#src/services/api'
 import { Link } from '#src/ui/components/Link'
 
 export interface CharacterCardProps {

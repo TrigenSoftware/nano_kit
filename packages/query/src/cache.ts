@@ -10,7 +10,7 @@ import type {
 } from './cache.types.js'
 import type { CacheStorage } from './CacheStorage.js'
 
-export * from './cache.types.js'
+export type * from './cache.types.js'
 
 /**
  * Create a query cache key builder.

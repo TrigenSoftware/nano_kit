@@ -457,7 +457,7 @@ describe('agera', () => {
     it('should handle clinchy effects', () => {
       const $yepnope = signal(true)
       const logs: string[] = []
-      // eslint-disable-next-line prefer-const
+      // oxlint-disable-next-line eslint/prefer-const
       let stopChild: () => void
       const stop = effect((warmup) => {
         logs.push('root start')

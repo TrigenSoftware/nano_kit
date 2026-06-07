@@ -1,6 +1,6 @@
 /* @__NO_SIDE_EFFECTS__ */
 export function addFn<
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   T extends (...args: any[]) => void
 >(prevFn: T | undefined, fn: T): T {
   if (prevFn === undefined) {

@@ -2,7 +2,7 @@
 'use client'
 import { useInject } from '@nano_kit/react'
 import { Paths$ } from '@nano_kit/router'
-import { type Location } from '@/services/api'
+import type { Location } from '@/services/api'
 
 export interface LocationCardProps {
   location: Location

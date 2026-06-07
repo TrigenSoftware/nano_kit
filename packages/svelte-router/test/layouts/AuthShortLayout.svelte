@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Outlet } from '../../src/core.js'
+  import { Outlet } from '../../src/index.js'
   import { nextAuthShortLayoutRender } from './renders.js'
 
   const render = nextAuthShortLayoutRender()

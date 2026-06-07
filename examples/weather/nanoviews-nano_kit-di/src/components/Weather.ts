@@ -1,12 +1,12 @@
 import { record } from 'nanoviews/store'
 import {
-  if_,
   div,
   h3,
   img,
   p,
   br,
-  inject
+  inject,
+  if_
 } from 'nanoviews'
 import { CitySuggestions$ } from '../stores/location.js'
 import { CurrentWeather$ } from '../stores/weather.js'

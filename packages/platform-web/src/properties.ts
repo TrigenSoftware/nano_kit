@@ -1,4 +1,4 @@
-import { type WritableSignal } from '@nano_kit/store'
+import type { WritableSignal } from '@nano_kit/store'
 import {
   on,
   raf,
@@ -88,9 +88,7 @@ export const $devicePixelRatio: WritableSignal<number> = /* @__PURE__ */ reactiv
   (sync) => {
     let mq: MediaQueryList | null = null
     const destroy = () => {
-      if (mq) {
-        mq = mq.onchange = null
-      }
+      mq &&= mq.onchange = null
     }
     const next = () => {
       destroy()

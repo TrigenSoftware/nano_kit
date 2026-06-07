@@ -8,7 +8,7 @@ import {
 
 interface WeatherContextType {
   locationSearch: string
-  setLocationSearch(value: string): void
+  setLocationSearch: (value: string) => void
 }
 
 const WeatherContext = createContext<WeatherContextType | null>(null)

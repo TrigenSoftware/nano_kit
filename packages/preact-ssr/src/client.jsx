@@ -10,7 +10,7 @@ import {
   pages
 } from 'virtual:app-index'
 
-ready({
+void ready({
   routes,
   pages
 }).then((context) => {

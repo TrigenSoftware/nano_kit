@@ -24,7 +24,7 @@ export const $locationSearch = persistentAtom<string>('locationSearch', '')
 
 onMount($locationSearch, () => {
   if (!$locationSearch.get()) {
-    fetchCurrentCity()
+    void fetchCurrentCity()
   }
 })
 

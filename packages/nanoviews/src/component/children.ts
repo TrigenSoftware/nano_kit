@@ -43,7 +43,7 @@ export function isSlot(value: unknown): value is Slot<unknown, AnyFn> {
  */
 export function $$slot<
   C,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   F extends (...args: any[]) => Slot<C, F>
 >(factory: F, content: C) {
   return {

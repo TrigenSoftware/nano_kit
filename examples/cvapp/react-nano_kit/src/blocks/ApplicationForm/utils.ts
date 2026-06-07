@@ -1,4 +1,7 @@
-import type { Application, ApplicationDraft } from '~/services/application.types'
+import type {
+  Application,
+  ApplicationDraft
+} from '~/services/application.types'
 
 const fields = ['title', 'company', 'skills', 'details'] as const
 

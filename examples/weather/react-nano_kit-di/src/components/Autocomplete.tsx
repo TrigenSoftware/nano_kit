@@ -10,7 +10,7 @@ interface AutocompleteProps {
   name: string
   value: string
   suggestions: City[]
-  onChange(value: string): void
+  onChange: (value: string) => void
 }
 
 const FIRST_SUGGESTION = 0
@@ -18,7 +18,7 @@ const FIRST_SUGGESTION = 0
 interface AutocompleteOptionProps {
   city: City
   isActive: boolean
-  onSelect(value: string): void
+  onSelect: (value: string) => void
 }
 
 function AutocompleteOption({

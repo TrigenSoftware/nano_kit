@@ -1,4 +1,4 @@
-export * from './types.js'
+export type * from './types.js'
 export * from './lifecycle.js'
 export * from './effect.js'
 export * from './child.js'

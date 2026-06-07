@@ -1,4 +1,8 @@
-import { page, layout, loadable } from '@nano_kit/router'
+import {
+  page,
+  layout,
+  loadable
+} from '@nano_kit/router'
 import * as Layout from './layout.jsx'
 
 export const routes = {

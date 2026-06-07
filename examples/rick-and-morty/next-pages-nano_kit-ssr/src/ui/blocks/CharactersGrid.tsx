@@ -1,6 +1,6 @@
 /* DISCLAIMER! VIBECODED! */
 'use client'
-import { type Character } from '@/services/api'
+import type { Character } from '@/services/api'
 import { CharacterCard } from '@/ui/blocks/CharacterCard'
 
 export interface CharactersGridProps {

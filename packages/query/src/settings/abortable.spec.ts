@@ -12,9 +12,18 @@ import {
   tasksRunner,
   waitTasks
 } from '@nano_kit/store'
-import { operationKey, queryKey } from '../cache.js'
-import { dedupe, tasks } from '../ClientContext.js'
-import { client, operations } from '../client.js'
+import {
+  operationKey,
+  queryKey
+} from '../cache.js'
+import {
+  dedupe,
+  tasks
+} from '../ClientContext.js'
+import {
+  client,
+  operations
+} from '../client.js'
 import { RequestContext } from '../RequestContext.js'
 import {
   type Post,

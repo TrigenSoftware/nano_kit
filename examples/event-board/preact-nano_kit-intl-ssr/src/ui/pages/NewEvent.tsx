@@ -1,4 +1,4 @@
-import { type TargetedEvent } from 'preact'
+import type { TargetedEvent } from 'preact'
 import { useEffect } from 'preact/hooks'
 import {
   useInject,
@@ -68,7 +68,7 @@ export default function NewEventPage() {
   const t = useSignal($t)
   const onSubmit = (event: TargetedEvent<HTMLFormElement>) => {
     event.preventDefault()
-    form.submit()
+    void form.submit()
   }
   const setCategory = (event: TargetedEvent<HTMLSelectElement>) => {
     form.$category(event.currentTarget.value as typeof eventCategories[number])

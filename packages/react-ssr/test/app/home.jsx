@@ -1,6 +1,18 @@
-import { hydratable, inject, mountable, onMount, signal } from '@nano_kit/store'
-import { useSignal, useInject } from '@nano_kit/react'
-import { meta, title } from '@nano_kit/router'
+import {
+  hydratable,
+  inject,
+  mountable,
+  onMount,
+  signal
+} from '@nano_kit/store'
+import {
+  useSignal,
+  useInject
+} from '@nano_kit/react'
+import {
+  meta,
+  title
+} from '@nano_kit/router'
 
 function Data$() {
   const $data = hydratable('data', mountable(signal(null)))

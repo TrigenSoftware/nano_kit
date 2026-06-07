@@ -20,10 +20,10 @@
 
 <script lang="ts">
   import {
-    enableLinkComponentAriaCurrent,
-    enableLinkComponentPreload,
     Link,
     Outlet,
+    enableLinkComponentAriaCurrent,
+    enableLinkComponentPreload,
     syncHead
   } from '@nano_kit/svelte-router'
 

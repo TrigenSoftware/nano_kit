@@ -13,9 +13,9 @@ import { tick } from 'svelte'
 import { provide } from '@nano_kit/store'
 import {
   type Routes,
-  buildPaths,
   Location$,
   Navigation$,
+  buildPaths,
   virtualNavigation
 } from '@nano_kit/router'
 import { ariaCurrent } from './aria-current.js'

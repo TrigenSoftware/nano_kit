@@ -1,4 +1,4 @@
-import { defineProtoProp } from './element.js'
+import { defineProtoProp } from './utils.js'
 
 type Target = EventTarget & {
   disabled?: boolean

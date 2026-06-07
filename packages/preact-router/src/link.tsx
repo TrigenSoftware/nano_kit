@@ -1,5 +1,5 @@
-import { useEffect } from 'preact/hooks'
 import type { TargetedMouseEvent } from 'preact'
+import { useEffect } from 'preact/hooks'
 import {
   inject,
   isFunction
@@ -14,10 +14,10 @@ import {
   onLinkClick,
   listenLinks
 } from '@nano_kit/router'
-import {
-  type LinkSettingsHook,
-  type LinkProps,
-  type LinkSettings
+import type {
+  LinkSettingsHook,
+  LinkProps,
+  LinkSettings
 } from './link.types.js'
 import {
   useNavigation,
@@ -25,7 +25,7 @@ import {
 } from './hooks.js'
 import { useEventCallback } from './utils.js'
 
-export * from './link.types.js'
+export type * from './link.types.js'
 
 /* @__NO_SIDE_EFFECTS__ */
 function createLinkComponent<R extends Routes>(

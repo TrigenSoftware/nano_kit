@@ -13,11 +13,11 @@ import {
 import { provide } from '@nano_kit/store'
 import {
   type Routes,
+  Navigation$,
+  Pages$,
   buildPaths,
   loadable,
   page,
-  Navigation$,
-  Pages$,
   virtualNavigation
 } from '@nano_kit/router'
 import { linkComponent } from './link.js'

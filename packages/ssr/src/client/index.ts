@@ -1,9 +1,9 @@
 import {
   type Accessor,
   InjectionContext,
-  provide,
   Hydrator$,
-  StaticHydrator
+  StaticHydrator,
+  provide
 } from '@nano_kit/store'
 import {
   type MatchRef,

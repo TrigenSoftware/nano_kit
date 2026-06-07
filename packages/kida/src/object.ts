@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-import {
-  type WritableSignal,
-  type ReadableSignal,
-  type Accessor
+/* oxlint-disable typescript/no-unsafe-return */
+import type {
+  WritableSignal,
+  ReadableSignal,
+  Accessor
 } from 'agera'
 import {
   type AnyCollection,

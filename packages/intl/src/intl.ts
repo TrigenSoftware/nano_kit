@@ -1,5 +1,6 @@
 import type { Accessor } from '@nano_kit/store'
 import type {
+  Bound,
   AnyTranslationData,
   Loader,
   TranslationData
@@ -18,7 +19,7 @@ export function intl<
 >(
   $locale: Accessor<L>,
   loader: Loader<T>
-): IntlContext<L, T> {
+): Bound<IntlContext<L, T>, 'messages'> {
   const ctx = new IntlContext($locale, loader)
 
   ctx.messages = ctx.messages.bind(ctx)

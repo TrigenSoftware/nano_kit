@@ -18,7 +18,7 @@ import type {
 } from './types.js'
 
 const proxyHandler: ProxyHandler<AnySignal & Record<string, unknown>> = {
-  /* eslint-disable */
+  /* oxlint-disable */
   get($signal, key: string, receiver) {
     if (!(key in $signal)) {
       if (key[0] === '$') {
@@ -36,7 +36,7 @@ const proxyHandler: ProxyHandler<AnySignal & Record<string, unknown>> = {
 
     return $signal[key]
   }
-  /* eslint-enable */
+  /* oxlint-enable */
 }
 
 /**

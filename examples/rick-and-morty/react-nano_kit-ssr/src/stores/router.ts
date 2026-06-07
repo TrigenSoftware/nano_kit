@@ -1,7 +1,7 @@
 import { inject } from '@nano_kit/store'
 import {
-  forRoute,
   Location$,
+  forRoute,
   param,
   searchParam,
   searchParams

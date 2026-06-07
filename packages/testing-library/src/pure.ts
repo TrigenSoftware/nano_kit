@@ -12,7 +12,7 @@ import {
 
 export * from '@testing-library/dom'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 type BlockCreator = readonly [(...args: any[]) => Child, ...unknown[]]
 
 type App = () => Child

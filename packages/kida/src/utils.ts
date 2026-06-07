@@ -19,7 +19,7 @@ export * from './internals/utils.js'
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function action<T extends AnyFn>(fn: T): T {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+  // oxlint-disable-next-line typescript/no-unsafe-return
   return ((...args: unknown[]) => untracked(() => fn(...args))) as T
 }
 

@@ -1,7 +1,4 @@
-import {
-  createContext,
-  onMount
-} from 'svelte'
+import { onMount } from 'svelte'
 import {
   type Accessor,
   computed
@@ -22,18 +19,6 @@ import {
 } from '@nano_kit/router'
 import type { PageComponent } from './types.js'
 import Composed from './Composed.svelte'
-
-export { default as App } from './App.svelte'
-export { default as Outlet } from './Outlet.svelte'
-
-/**
- * Get current outlet signal from Svelte context.
- * @returns The current outlet signal.
- */
-export const [
-  getOutlet,
-  setOutlet
-] = createContext<Accessor<PageComponent | null>>()
 
 export function compose(
   outlet: Accessor<PageComponent | null>,

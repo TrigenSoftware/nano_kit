@@ -14,7 +14,7 @@ interface RetryContext extends QueryClientContext {
 /* @__NO_SIDE_EFFECTS__ */
 export function defaultCalcRetryDelay(retryCount: number) {
   return (
-    // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+    // oxlint-disable-next-line eslint/no-magic-numbers
     ~~((Math.random() + 0.5) * (1 << (retryCount < 8 ? retryCount : 8))) * 2000
   )
 }

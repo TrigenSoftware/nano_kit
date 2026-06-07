@@ -6,7 +6,11 @@ import type {
   CacheEntry
 } from '../CacheStorage.types.js'
 import type { QueryClientContext } from '../ClientContext.js'
-import { revLock, revLocked, UNSET_REV } from '../CacheStorage.js'
+import {
+  UNSET_REV,
+  revLock,
+  revLocked
+} from '../CacheStorage.js'
 import { hasShardedMapKey } from '../map.js'
 import {
   encodeEntryData,

@@ -10,7 +10,7 @@ export interface PaginationProps {
   showSiblings?: number
   previousLabel: string
   nextLabel: string
-  formatPageLabel(page: number): string
+  formatPageLabel: (page: number) => string
   label: string
 }
 

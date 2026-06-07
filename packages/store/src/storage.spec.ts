@@ -7,10 +7,10 @@ import {
 import { effect } from 'kida'
 import type { RateLimiter } from './types.js'
 import {
-  stored,
-  syncedStored,
   type Storage,
-  type SyncedStorage
+  type SyncedStorage,
+  stored,
+  syncedStored
 } from './storage.js'
 import {
   BooleanCodec,

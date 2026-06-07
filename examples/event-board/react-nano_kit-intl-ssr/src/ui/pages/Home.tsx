@@ -1,7 +1,7 @@
-import {
-  type ChangeEvent,
-  type FormEvent,
-  type MouseEvent
+import type {
+  ChangeEvent,
+  FormEvent,
+  MouseEvent
 } from 'react'
 import {
   useInject,
@@ -99,7 +99,7 @@ export default function Home() {
   }
   const onLoadMore = (event: MouseEvent<HTMLButtonElement>) => {
     event.currentTarget.blur()
-    fetchNext()
+    void fetchNext()
   }
   const events = data?.pages.flatMap(page => page.events) ?? []
 

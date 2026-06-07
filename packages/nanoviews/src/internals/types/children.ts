@@ -26,7 +26,7 @@ export interface Slot<
 }
 
 export interface SlotDef<C> {
-  // eslint-disable-next-line @typescript-eslint/prefer-function-type
+  // oxlint-disable-next-line typescript/prefer-function-type
   (slotContent: C): Slot<C, this>
 }
 

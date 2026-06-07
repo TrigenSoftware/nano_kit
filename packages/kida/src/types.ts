@@ -1,10 +1,10 @@
-export * from './internals/types.js'
+export type * from './internals/types.js'
 
 export type KeysOf<U> = U extends unknown
   ? keyof U
   : never
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 export type ValueOfKey<U, K extends PropertyKey> = U extends any
   ? K extends keyof U
     ? U[K]

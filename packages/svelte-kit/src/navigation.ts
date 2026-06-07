@@ -12,18 +12,16 @@ import {
   type RouteLocation,
   type RouteLocationRecord,
   type Routes,
+  PushHistoryAction,
+  ReplaceHistoryAction,
   createCachedMatcher,
   createLocation,
-  updateLocation,
-  PushHistoryAction,
-  ReplaceHistoryAction
+  updateLocation
 } from '@nano_kit/router'
 import {
   afterNavigate,
   goto
-// eslint-disable-next-line import/extensions
 } from '$app/navigation'
-// eslint-disable-next-line import/extensions
 import { page } from '$app/state'
 
 /**

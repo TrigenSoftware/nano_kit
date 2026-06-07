@@ -8,20 +8,20 @@ import type {
   AppComponent,
   AppNavigation
 } from './di.types.js'
-import {
-  type RouteLocationRecord,
-  canGoBack
-} from './navigation.js'
 import type {
   MatchRef,
   PageRef
 } from './router.js'
 import {
+  type RouteLocationRecord,
+  canGoBack
+} from './navigation.js'
+import {
   type Paths,
   buildPaths
 } from './paths.js'
 
-export * from './di.types.js'
+export type * from './di.types.js'
 
 /**
  * Global injection token for the current route location record and navigation API.

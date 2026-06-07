@@ -1,10 +1,10 @@
+import type { Accessor } from '@nano_kit/store'
 import { createContext } from 'preact'
 import {
   useContext,
   useEffect
 } from 'preact/hooks'
 import { memo } from 'preact/compat'
-import type { Accessor } from '@nano_kit/store'
 import {
   useSignal,
   useInject,

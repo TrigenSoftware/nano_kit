@@ -23,7 +23,7 @@ export const [$geolocation] = query<[], City | null>(queryKey('geolocation'), []
 
 onMount($locationSearchQuery, () => {
   if (!$locationSearchQuery()) {
-    Location.fetchCurrentCity().then((city) => {
+    void Location.fetchCurrentCity().then((city) => {
       if (city && !$locationSearchQuery()) {
         $locationSearchQuery(city.label)
       }

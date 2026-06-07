@@ -1,7 +1,13 @@
 import type { GetServerSideProps } from 'next'
-import { dehydrate, provide } from '@nano_kit/store'
+import {
+  dehydrate,
+  provide
+} from '@nano_kit/store'
 import { isFlight } from '@nano_kit/react'
-import { LocationNavigation$, virtualNavigation } from '@nano_kit/next-router'
+import {
+  LocationNavigation$,
+  virtualNavigation
+} from '@nano_kit/next-router'
 import { routes } from '@/stores/router'
 import CharactersPage from '@/ui/pages/Characters'
 import { Stores$ } from '@/ui/pages/Characters.stores'

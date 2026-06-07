@@ -6,7 +6,8 @@
   "include": [
     "src",
     "test",
-    "*.js"
+    "*.js",
+    "*.ts"
   ],
   "exclude": []
 }

@@ -10,7 +10,7 @@ import type {
   ManifestRecord
 } from './manifest.types.js'
 
-export * from './manifest.types.js'
+export type * from './manifest.types.js'
 
 /**
  * A helper class representing the Vite manifest and providing methods to get the asset tags for a given set of entry points.

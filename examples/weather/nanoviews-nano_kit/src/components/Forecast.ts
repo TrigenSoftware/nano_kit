@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-magic-numbers */
+/* oxlint-disable eslint/no-magic-numbers */
 import {
   signal,
   computed,
@@ -12,9 +12,9 @@ import {
   option,
   ul,
   $$selected,
+  trackBy,
   for_,
-  if_,
-  trackBy
+  if_
 } from 'nanoviews'
 import { $weatherForecast } from '../stores/weather.js'
 import { ForecastWeather } from './ForecastWeather.js'

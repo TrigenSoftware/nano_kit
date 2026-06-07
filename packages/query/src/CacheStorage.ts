@@ -12,7 +12,7 @@ import {
   deleteShardedMapKey
 } from './map.js'
 
-export * from './CacheStorage.types.js'
+export type * from './CacheStorage.types.js'
 
 export const DEFAULT_DEDUPE_TIME = 4_000
 export const DEFAULT_CACHE_TIME = Infinity

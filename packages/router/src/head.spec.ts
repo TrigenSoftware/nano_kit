@@ -4,7 +4,10 @@ import {
   expect,
   beforeEach
 } from 'vitest'
-import { signal, computed } from '@nano_kit/store'
+import {
+  signal,
+  computed
+} from '@nano_kit/store'
 import {
   type Dir,
   syncHead,

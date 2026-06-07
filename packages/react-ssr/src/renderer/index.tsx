@@ -2,15 +2,15 @@ import { renderToString } from 'react-dom/server'
 import { get } from '@nano_kit/store'
 import { InjectionContextProvider } from '@nano_kit/react'
 import {
-  compose,
-  App
+  App,
+  compose
 } from '@nano_kit/react-router'
 import {
   type RendererOptions,
   type RenderData,
   ROOT_ID,
-  headDescriptorToHtml,
-  Renderer
+  Renderer,
+  headDescriptorToHtml
 } from '@nano_kit/ssr/renderer'
 
 export * from '@nano_kit/ssr/renderer'

@@ -2,7 +2,7 @@
 'use client'
 import clsx from 'clsx'
 import { Link } from '@nano_kit/next-router'
-import { type Character } from '@/services/api'
+import type { Character } from '@/services/api'
 
 export interface CharacterCardProps {
   character: Character

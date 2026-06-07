@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
+/* oxlint-disable typescript/no-redundant-type-constituents */
 import {
   type ValueOrAccessor,
   $get,

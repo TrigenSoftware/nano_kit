@@ -1,8 +1,8 @@
+import type { AnyFn } from '@nano_kit/store'
 import {
   useCallback,
   useRef
 } from 'preact/hooks'
-import { type AnyFn } from '@nano_kit/store'
 
 /**
  * Create a stable event callback that always calls the latest version of the provided function.

@@ -1,10 +1,10 @@
 <script lang="ts">
   import { provide } from '@nano_kit/store'
   import {
-    enableLinkComponentAriaCurrent,
-    getKitNavigation,
     Link,
     LocationNavigation$,
+    enableLinkComponentAriaCurrent,
+    getKitNavigation,
     setHydrationContext
   } from '@nano_kit/svelte-kit'
   import { routes } from '#src/stores/router'
