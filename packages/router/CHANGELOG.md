@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.14](https://github.com/TrigenSoftware/nano_kit/compare/router@1.0.0-alpha.13...router@1.0.0-alpha.14) (2026-06-09)
+
+### Bug Fixes
+
+* use oxlint ([#135](https://github.com/TrigenSoftware/nano_kit/issues/135)) ([e16f28a](https://github.com/TrigenSoftware/nano_kit/commit/e16f28a22549f911a8c133e83d46a945b05aac85))
+
 ## [1.0.0-alpha.13](https://github.com/TrigenSoftware/nano_kit/compare/router@1.0.0-alpha.12...router@1.0.0-alpha.13) (2026-06-03)
 
 ### Features

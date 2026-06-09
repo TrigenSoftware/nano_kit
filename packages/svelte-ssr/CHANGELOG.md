@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.4](https://github.com/TrigenSoftware/nano_kit/compare/svelte-ssr@1.0.0-alpha.3...svelte-ssr@1.0.0-alpha.4) (2026-06-09)
+
+### Bug Fixes
+
+* use oxlint ([#135](https://github.com/TrigenSoftware/nano_kit/issues/135)) ([e16f28a](https://github.com/TrigenSoftware/nano_kit/commit/e16f28a22549f911a8c133e83d46a945b05aac85))
+
 ## [1.0.0-alpha.3](https://github.com/TrigenSoftware/nano_kit/compare/svelte-ssr@1.0.0-alpha.2...svelte-ssr@1.0.0-alpha.3) (2026-05-28)
 
 ### Features

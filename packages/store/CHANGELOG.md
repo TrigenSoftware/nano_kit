@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.8](https://github.com/TrigenSoftware/nano_kit/compare/store@1.0.0-beta.7...store@1.0.0-beta.8) (2026-06-09)
+
+### Bug Fixes
+
+* use oxlint ([#135](https://github.com/TrigenSoftware/nano_kit/issues/135)) ([e16f28a](https://github.com/TrigenSoftware/nano_kit/commit/e16f28a22549f911a8c133e83d46a945b05aac85))
+
 ## [1.0.0-beta.7](https://github.com/TrigenSoftware/nano_kit/compare/store@1.0.0-beta.6...store@1.0.0-beta.7) (2026-06-03)
 
 ### Features

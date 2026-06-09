@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.5](https://github.com/TrigenSoftware/nano_kit/compare/agera@1.0.0-beta.4...agera@1.0.0-beta.5) (2026-06-09)
+
+### Bug Fixes
+
+* use oxlint ([#135](https://github.com/TrigenSoftware/nano_kit/issues/135)) ([e16f28a](https://github.com/TrigenSoftware/nano_kit/commit/e16f28a22549f911a8c133e83d46a945b05aac85))
+
 ## [1.0.0-beta.4](https://github.com/TrigenSoftware/nano_kit/compare/agera@1.0.0-beta.3...agera@1.0.0-beta.4) (2026-05-09)
 
 ### Bug Fixes
