@@ -40,6 +40,15 @@ describe('intl', () => {
         expect(format(ctx, Date.UTC(2024, 0, 2))).toBe('01/02/2024')
       })
 
+      it('should format date strings with Intl.DateTimeFormat options', () => {
+        const format = datetime({
+          timeZone: 'UTC',
+          dateStyle: 'medium'
+        })
+
+        expect(format(ctx, '2024-01-02T00:00:00.000Z')).toBe('Jan 2, 2024')
+      })
+
       it('should return raw values when options are disabled', () => {
         const format = datetime(false)
 
