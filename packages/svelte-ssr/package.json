@@ -1,7 +1,7 @@
 {
   "name": "@nano_kit/svelte-ssr",
   "type": "module",
-  "version": "1.0.0-alpha.3",
+  "version": "1.0.0-alpha.4",
   "description": "The Svelte adapter for server-side rendering in Nano Kit.",
   "author": "dangreen",
   "license": "MIT",

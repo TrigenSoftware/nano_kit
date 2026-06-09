@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.1](https://github.com/TrigenSoftware/nano_kit/compare/intl@1.0.0-alpha.0...intl@1.0.0-alpha.1) (2026-06-09)
+
+### Features
+
+* string support in datetime ([#138](https://github.com/TrigenSoftware/nano_kit/issues/138)) ([347ae68](https://github.com/TrigenSoftware/nano_kit/commit/347ae682b2c191f120a2aa720c32890cacfa89c6))
+
+### Bug Fixes
+
+* use oxlint ([#135](https://github.com/TrigenSoftware/nano_kit/issues/135)) ([e16f28a](https://github.com/TrigenSoftware/nano_kit/commit/e16f28a22549f911a8c133e83d46a945b05aac85))
+
 ## 1.0.0-alpha.0 (2026-05-28)
 
 ### Features
