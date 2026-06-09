@@ -1,9 +1,15 @@
 import type { Format } from './types.js'
 import {
   type IntlFormatFn,
-  defaultFormat,
   intlformat
 } from './intlformat.js'
+
+function datetimeFormat(
+  fmt: Intl.DateTimeFormat,
+  value: Date | number | string
+) {
+  return fmt.format(typeof value === 'string' ? new Date(value) : value)
+}
 
 /**
  * Creates a date/time formatter in raw mode.
@@ -12,7 +18,7 @@ import {
  */
 export function datetime(
   options: false
-): Format<Date | number | undefined>
+): Format<Date | number | string | undefined>
 
 /**
  * Creates a locale-aware date/time formatter.
@@ -21,7 +27,7 @@ export function datetime(
  */
 export function datetime(
   options?: Intl.DateTimeFormatOptions
-): Format<Date | number | undefined, string | undefined>
+): Format<Date | number | string | undefined, string | undefined>
 
 /**
  * Creates a date/time formatter in raw mode with a fallback value.
@@ -30,9 +36,9 @@ export function datetime(
  * @returns Formatter that returns the input value or fallback.
  */
 export function datetime(
-  fallback: Date | number,
+  fallback: Date | number | string,
   options: false
-): Format<Date | number | undefined, Date | number>
+): Format<Date | number | string | undefined, Date | number | string>
 
 /**
  * Creates a locale-aware date/time formatter with a fallback value.
@@ -41,9 +47,9 @@ export function datetime(
  * @returns Formatter that returns a formatted string or `undefined`.
  */
 export function datetime(
-  fallback: Date | number,
+  fallback: Date | number | string,
   options?: Intl.DateTimeFormatOptions
-): Format<Date | number | undefined, string | undefined>
+): Format<Date | number | string | undefined, string | undefined>
 
 /**
  * Creates a locale-aware date/time formatter with a custom formatting function.
@@ -52,17 +58,17 @@ export function datetime(
  * @param format - Custom formatting function.
  * @returns Formatter that returns a formatted string or `undefined`.
  */
-export function datetime(
-  optionsOrFallback?: Intl.DateTimeFormatOptions | false | Date | number,
+export function datetime<I = Date | number | string>(
+  optionsOrFallback?: Intl.DateTimeFormatOptions | false | I,
   maybeOptions?: Intl.DateTimeFormatOptions | false,
-  format?: IntlFormatFn<Intl.DateTimeFormat, Date | number, Intl.DateTimeFormatOptions>
-): Format<Date | number | undefined, string | undefined>
+  format?: IntlFormatFn<Intl.DateTimeFormat, I, Intl.DateTimeFormatOptions>
+): Format<I | undefined, string | undefined>
 
 /* @__NO_SIDE_EFFECTS__ */
 export function datetime(
-  optionsOrFallback?: Intl.DateTimeFormatOptions | false | Date | number,
+  optionsOrFallback?: Intl.DateTimeFormatOptions | false | Date | number | string,
   maybeOptions?: Intl.DateTimeFormatOptions | false,
-  format: IntlFormatFn<Intl.DateTimeFormat, Date | number, Intl.DateTimeFormatOptions> = defaultFormat
+  format: IntlFormatFn<Intl.DateTimeFormat, Date | number | string, Intl.DateTimeFormatOptions> = datetimeFormat
 ) {
   return intlformat(
     Intl.DateTimeFormat,

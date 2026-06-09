@@ -8,7 +8,7 @@ export type IntlFormatConstructor<F, O> = new (
   options?: O
 ) => F
 
-export type IntlFormatFn<F extends IntlFormat<I>, I, O> = (
+export type IntlFormatFn<F extends IntlFormat<unknown>, I, O> = (
   fmt: F,
   value: I,
   options: O | undefined
@@ -22,7 +22,7 @@ export function defaultFormat<F extends IntlFormat<I>, I>(
 }
 
 export function intlformat<
-  F extends IntlFormat<I>,
+  F extends IntlFormat<unknown>,
   I,
   O
 >(
