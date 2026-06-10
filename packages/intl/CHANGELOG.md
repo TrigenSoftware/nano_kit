@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.2](https://github.com/TrigenSoftware/nano_kit/compare/intl@1.0.0-alpha.1...intl@1.0.0-alpha.2) (2026-06-10)
+
+### Features
+
+* rework `match`, `other` helper is added ([#139](https://github.com/TrigenSoftware/nano_kit/issues/139)) ([24eec8a](https://github.com/TrigenSoftware/nano_kit/commit/24eec8a0d427deb5dbc284c771108dfde3025219))
+
 ## [1.0.0-alpha.1](https://github.com/TrigenSoftware/nano_kit/compare/intl@1.0.0-alpha.0...intl@1.0.0-alpha.1) (2026-06-09)
 
 ### Features
