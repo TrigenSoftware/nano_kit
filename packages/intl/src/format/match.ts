@@ -33,11 +33,19 @@ export type MatchFn<
 export type CasesFn<
   K extends string,
   B extends Partial<Record<string, AnyFormat>>
-> = (
+> = ((
   ctx: FormatContext,
   input: FormatsInput<B> | undefined,
   resolvedCases: Record<string, string | undefined | MatchFn<K, B>>
-) => void
+) => void) & {
+  s: true
+}
+
+type GetKey = (
+  param: any,
+  locale: string,
+  cases: Record<string, unknown>
+) => string
 
 /**
  * Creates a reusable cases resolver for `match`.
@@ -52,13 +60,62 @@ export function cases<
   cases: B
 ): CasesFn<K, B> {
   const entries = Object.entries(cases)
-
-  return (ctx, input, resolvedCases) => {
+  const fn = ((ctx, input, resolvedCases) => {
     for (const [key, format] of entries) {
       resolvedCases[key] = format!(ctx, input?.[key]) as string | undefined | MatchFn<K, B>
     }
-  }
+  }) as CasesFn<K, B>
+
+  fn.s = true
+
+  return fn
 }
+
+/**
+ * Creates a case key resolver that falls back to a known case when the parameter value is missing.
+ * @param key - Case key used when the parameter value does not exist in resolved cases.
+ * @returns Resolver that keeps existing case keys and falls back to `key` for unknown values.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function other(key: string): GetKey {
+  return (param: string, _, cases) => (param in cases ? param : key)
+}
+
+/**
+ * Creates a formatter that selects one case by parameter value.
+ * @param param - Parameter name used to select a case and replace `{param}` placeholders.
+ * @param getKey - Optional resolver used to map the parameter value to a case key.
+ * @returns Formatter that resolves cases and returns a parameterized message function.
+ */
+export function match<
+  const K extends string,
+  const B extends Partial<Record<string, AnyFormat>>
+>(
+  param: K,
+  getKey?: GetKey
+): Format<
+  FormatsInput<B>,
+  MatchFn<K, B>
+>
+
+/**
+ * Creates a formatter that selects one case by parameter value.
+ * @param param - Parameter name used to select a case and replace `{param}` placeholders.
+ * @param cases - Case formatters keyed by possible resolved values.
+ * @param getKey - Optional resolver used to map the parameter value to a case key.
+ * @returns Formatter that resolves cases and returns a parameterized message function.
+ */
+export function match<
+  const K extends string,
+  const B extends Partial<Record<string, AnyFormat>>
+>(
+  param: K,
+  cases?: CasesFn<K, B>,
+  getKey?: GetKey
+): Format<
+  FormatsInput<B>,
+  MatchFn<K, B>
+>
 
 /**
  * Creates a formatter that selects one case by parameter value.
@@ -73,17 +130,24 @@ export function match<
   const B extends Partial<Record<string, AnyFormat>>
 >(
   param: K,
-  cases?: CasesFn<K, B>,
-  getKey: (
-    param: any,
-    locale: string,
-    cases: Record<string, unknown>
-  ) => string = identity
+  casesOrGetKey?: CasesFn<K, B> | GetKey & {
+    s?: never
+  },
+  maybeGetKey?: GetKey
 ): Format<
   FormatsInput<B>,
   MatchFn<K, B>
 > {
   const valuePattern = new RegExp(`{${param}}`, 'g')
+  let cases: CasesFn<K, B> | undefined
+  let getKey: GetKey
+
+  if (casesOrGetKey?.s) {
+    cases = casesOrGetKey
+    getKey = maybeGetKey ?? identity
+  } else {
+    getKey = maybeGetKey ?? casesOrGetKey ?? identity
+  }
 
   return (ctx, input: FormatsInput<B> | undefined) => {
     const locale = ctx.$locale()
