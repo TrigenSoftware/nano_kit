@@ -337,6 +337,35 @@ $t().status({
 // 'Active active'
 ```
 
+Use `other(key)` when unknown values should fall back to a known case instead of returning `undefined`.
+
+```ts
+const [$t] = messages('account', {
+  role: match('role', other('user'))
+})
+
+$t().role({
+  role: 'guest'
+})
+// 'User area'
+```
+
+It also works together with `cases(...)`.
+
+```ts
+const [$t] = messages('account', {
+  role: match('role', cases({
+    admin: text(),
+    user: text()
+  }), other('user'))
+})
+
+$t().role({
+  role: 'guest'
+})
+// 'User area'
+```
+
 `match` can compose with `plural` when one case depends on another formatter.
 
 ```ts

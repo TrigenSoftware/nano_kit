@@ -11,6 +11,7 @@ import {
 } from './plural.js'
 import {
   cases,
+  other,
   match
 } from './match.js'
 
@@ -88,6 +89,45 @@ describe('intl', () => {
         })({
           status: 'disabled'
         })).toBeUndefined()
+      })
+
+      it('should fallback to default key for missing case', () => {
+        const format = match('role', cases({
+          admin: text(),
+          user: text()
+        }), other('user'))
+
+        expect(format(ctx, {
+          admin: 'Admin area',
+          user: 'User area'
+        })({
+          role: 'guest'
+        })).toBe('User area')
+
+        expect(format(ctx, {
+          admin: 'Admin area',
+          user: 'User area'
+        })({
+          role: 'admin'
+        })).toBe('Admin area')
+      })
+
+      it('should fallback to default key without cases resolver', () => {
+        const format = match('role', other('user'))
+
+        expect(format(ctx, {
+          admin: 'Admin area',
+          user: 'User area'
+        })({
+          role: 'guest'
+        })).toBe('User area')
+
+        expect(format(ctx, {
+          admin: 'Admin area',
+          user: 'User area'
+        })({
+          role: 'admin'
+        })).toBe('Admin area')
       })
 
       it('should resolve case key with custom resolver', () => {
