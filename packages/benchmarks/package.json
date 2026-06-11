@@ -36,7 +36,7 @@
     "playwright": "catalog:",
     "rxjs": "^7.8.2",
     "svelte": "^5.48.5",
-    "tinybench": "^4.0.1",
+    "tinybench": "^6.0.0",
     "valtio": "^2.3.0"
   }
 }
