@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.3](https://github.com/TrigenSoftware/nano_kit/compare/intl@1.0.0-alpha.2...intl@1.0.0-alpha.3) (2026-06-12)
+
+### Bug Fixes
+
+* fix proxy handler for signal props ([6ddfac6](https://github.com/TrigenSoftware/nano_kit/commit/6ddfac64a85a222a64a52edb414424011a9bf2f0))
+
 ## [1.0.0-alpha.2](https://github.com/TrigenSoftware/nano_kit/compare/intl@1.0.0-alpha.1...intl@1.0.0-alpha.2) (2026-06-10)
 
 ### Features
