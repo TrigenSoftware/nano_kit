@@ -25,7 +25,7 @@ const proxyHandler: ProxyHandler<AnySignal & Record<string, unknown>> = {
         const prop = key.slice(1)
 
         return $signal[key] = computed(() => $signal()[prop])
-      } else {
+      } else if (typeof key === 'string') {
         const $prop = receiver[`$${key}`]
 
         return $signal[key] = (params: unknown) => computed(
