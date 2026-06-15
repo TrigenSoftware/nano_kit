@@ -10,6 +10,7 @@ import {
 import { inject as storeInject } from '@nano_kit/store'
 import { getInject } from '@nano_kit/svelte'
 import {
+  type AppRoutes,
   type Navigation,
   type Paths,
   type Routes,
@@ -19,11 +20,12 @@ import {
   onLinkClick
 } from '@nano_kit/router'
 import type {
+  LinkComponent,
   LinkProps,
   LinkSettings,
   LinkSettingsHook
 } from './link.types.js'
-import LinkComponent from './LinkComponent.svelte'
+import LinkView from './LinkComponent.svelte'
 
 export type * from './link.types.js'
 
@@ -31,11 +33,11 @@ export type * from './link.types.js'
 function createLinkComponent<R extends Routes>(
   useSettings: () => LinkSettings,
   usePaths: () => Paths<R>
-) {
+): LinkComponent<R> {
   return <K extends keyof R & string>(
     internals: ComponentInternals,
     props: LinkProps<R, K>
-  ) => LinkComponent(internals, Object.assign(props, {
+  ) => LinkView(internals, Object.assign(props, {
     // Suppress conflict with AppRoutes
     paths: usePaths() as unknown as Paths<Routes>,
     settings: useSettings()
@@ -113,7 +115,7 @@ export function LinkSettings$(): LinkSettings {
  * Link component for navigation.
  * Should be used inside injection context with navigation and paths provided.
  */
-export const Link = /* @__PURE__ */ createLinkComponent(
+export const Link: LinkComponent<AppRoutes> = /* @__PURE__ */ createLinkComponent<AppRoutes>(
   () => getInject(LinkSettings$),
   () => getInject(Paths$)
 )

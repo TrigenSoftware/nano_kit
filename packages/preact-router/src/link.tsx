@@ -15,6 +15,7 @@ import {
   listenLinks
 } from '@nano_kit/router'
 import type {
+  LinkComponent,
   LinkSettingsHook,
   LinkProps,
   LinkSettings
@@ -31,7 +32,7 @@ export type * from './link.types.js'
 function createLinkComponent<R extends Routes>(
   useSettings: () => LinkSettings,
   usePaths: () => Paths<R>
-) {
+): LinkComponent<R> {
   return function Link<K extends keyof R & string>(props: LinkProps<R, K>) {
     const {
       onClick: onClickProp,
@@ -150,7 +151,7 @@ export function LinkSettings$(): LinkSettings {
  * Link component for navigation.
  * Should be used inside injection context with navigation and paths provided.
  */
-export const Link = /* @__PURE__ */ createLinkComponent<AppRoutes>(
+export const Link: LinkComponent<AppRoutes> = /* @__PURE__ */ createLinkComponent<AppRoutes>(
   () => useInject(LinkSettings$),
   () => usePaths()
 )
