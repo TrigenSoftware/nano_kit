@@ -62,7 +62,9 @@
     "test:unit": "vitest run --coverage",
     "test:unit:watch": "vitest watch",
     "test:size": "size-limit",
-    "test:types": "tsgo --noEmit",
+    "test:ts": "tsgo --noEmit",
+    "test:dist-types": "run emitDeclarations [ node ../../scripts/check-dist-app-routes.js dist/link.d.ts ]",
+    "test:types": "run -p test:ts test:dist-types",
     "test": "run -p lint test:unit test:types"
   },
   "peerDependencies": {

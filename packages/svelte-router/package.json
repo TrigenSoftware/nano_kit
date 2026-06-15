@@ -64,7 +64,8 @@
     "test:unit:watch": "vitest watch",
     "test:ts": "tsgo --noEmit",
     "test:svelte": "svelte-check --tsconfig ./tsconfig.json",
-    "test:types": "run -p test:ts test:svelte",
+    "test:dist-types": "run build:dist [ node ../../scripts/check-dist-app-routes.js dist/link.d.ts ]",
+    "test:types": "run -p test:ts test:svelte test:dist-types",
     "test": "run -p lint test:unit test:types"
   },
   "peerDependencies": {

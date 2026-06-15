@@ -1,4 +1,7 @@
-import type { Snippet } from 'svelte'
+import type {
+  ComponentInternals,
+  Snippet
+} from 'svelte'
 import type {
   HTMLAnchorAttributes,
   MouseEventHandler
@@ -59,6 +62,11 @@ export type LinkProps<R extends Routes, K extends keyof R & string> = AnchorAttr
   preload?: never
   href?: string
 })
+
+export type LinkComponent<R extends Routes> = <K extends keyof R & string>(
+  internals: ComponentInternals,
+  props: LinkProps<R, K>
+) => object
 
 export type LinkSettingsHook<S extends LinkSettings = LinkSettings> = (
   props: Readable<Partial<LinkProps<Routes, string>>>,

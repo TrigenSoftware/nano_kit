@@ -1,5 +1,6 @@
 import type {
   AnchorHTMLAttributes,
+  ComponentChildren,
   TargetedMouseEvent
 } from 'preact'
 import type {
@@ -53,6 +54,10 @@ export type LinkProps<R extends Routes, K extends keyof R & string> = AnchorHTML
   preload?: never
   href?: string
 })
+
+export type LinkComponent<R extends Routes> = <K extends keyof R & string>(
+  props: LinkProps<R, K>
+) => ComponentChildren
 
 export type LinkSettingsHook<S extends LinkSettings = LinkSettings> = (
   props: Partial<LinkProps<Routes, string>>,
