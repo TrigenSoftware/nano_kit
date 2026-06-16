@@ -4,7 +4,7 @@ import {
   mutations
 } from '@nano_kit/query'
 
-const DEDUPE_TIME = 3000_000 // 5 minutes
+const DEDUPE_TIME = 300_000 // 5 minutes
 
 export const {
   query,

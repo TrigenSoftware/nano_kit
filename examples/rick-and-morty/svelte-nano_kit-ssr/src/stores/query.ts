@@ -9,7 +9,7 @@ export interface Page<T> {
   totalPages: number
 }
 
-const DEDUPE_TIME = 3000_000 // 5 minutes
+const DEDUPE_TIME = 300_000 // 5 minutes
 
 export function Client$() {
   return client(
