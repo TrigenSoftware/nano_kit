@@ -24,7 +24,7 @@ interface PersistenceContext extends QueryClientContext {
 export interface Storage {
   get(key: CacheKey): Promise<CacheEntry | null>
   set(key: CacheKey, entry: CacheEntry, lifetime: number): Promise<void>
-  delete(key: CacheShardKey | CacheKey): Promise<void>
+  delete(key?: CacheShardKey | CacheKey): Promise<void>
 }
 
 /**

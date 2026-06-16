@@ -147,3 +147,14 @@ export function deleteShardedMapKey<S, K, T>(
 
   deleteMapKey(shardMap, key)
 }
+
+/**
+ * Clear the sharded map.
+ * @param map - The sharded map.
+ */
+export function clearShardedMap<S, K, T>(
+  map: ShardedSignalsMap<S, K, T>
+) {
+  batch(() => map.forEach(clearMap))
+  map.clear()
+}
