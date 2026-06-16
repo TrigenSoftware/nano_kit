@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.10](https://github.com/TrigenSoftware/nano_kit/compare/query@1.0.0-alpha.9...query@1.0.0-alpha.10) (2026-06-16)
+
+### Features
+
+* allow invalidate all ([#144](https://github.com/TrigenSoftware/nano_kit/issues/144)) ([00c8f59](https://github.com/TrigenSoftware/nano_kit/commit/00c8f59aa168a60ca5be24263f4bf02d1b353c74))
+
 ## [1.0.0-alpha.9](https://github.com/TrigenSoftware/nano_kit/compare/query@1.0.0-alpha.8...query@1.0.0-alpha.9) (2026-06-09)
 
 ### Bug Fixes
