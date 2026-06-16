@@ -176,6 +176,25 @@ describe('query', () => {
         expect(hasShardedMapKey(storage.cache, keyB)).toBe(false)
       })
 
+      it('should delete all entries when key is omitted', () => {
+        const TestKey = queryKey('test')
+        const OtherKey = queryKey('other')
+        const keyA = TestKey('a')
+        const keyB = OtherKey('b')
+
+        storage.$get(keyA)
+        storage.$get(keyB)
+
+        expect(hasShardedMapKey(storage.cache, keyA)).toBe(true)
+        expect(hasShardedMapKey(storage.cache, keyB)).toBe(true)
+
+        storage.invalidate()
+
+        expect(storage.cache.size).toBe(0)
+        expect(hasShardedMapKey(storage.cache, keyA)).toBe(false)
+        expect(hasShardedMapKey(storage.cache, keyB)).toBe(false)
+      })
+
       it('should notify listeners on invalidate', () => {
         const key = queryKey('test')('a')
 
@@ -220,6 +239,40 @@ describe('query', () => {
         expect(listenerB).toHaveBeenCalledWith('dataB')
 
         storage.invalidate(TestKey)
+
+        expect(listenerA).toHaveBeenCalledTimes(2)
+        expect(listenerA).toHaveBeenCalledWith(null)
+        expect(listenerB).toHaveBeenCalledTimes(2)
+        expect(listenerB).toHaveBeenCalledWith(null)
+
+        offA()
+        offB()
+      })
+
+      it('should notify listeners on invalidate without key', () => {
+        const TestKey = queryKey('test')
+        const OtherKey = queryKey('other')
+        const keyA = TestKey('a')
+        const keyB = OtherKey('b')
+
+        storage.settled(keyA, 'dataA', null)
+        storage.settled(keyB, 'dataB', null)
+
+        const listenerA = vi.fn()
+        const listenerB = vi.fn()
+        const offA = effect(() => {
+          listenerA(storage.$get(keyA).data)
+        })
+        const offB = effect(() => {
+          listenerB(storage.$get(keyB).data)
+        })
+
+        expect(listenerA).toHaveBeenCalledTimes(1)
+        expect(listenerA).toHaveBeenCalledWith('dataA')
+        expect(listenerB).toHaveBeenCalledTimes(1)
+        expect(listenerB).toHaveBeenCalledWith('dataB')
+
+        storage.invalidate()
 
         expect(listenerA).toHaveBeenCalledTimes(2)
         expect(listenerA).toHaveBeenCalledWith(null)

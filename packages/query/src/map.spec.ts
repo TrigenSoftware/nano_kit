@@ -10,7 +10,8 @@ import {
   hasShardedMapKey,
   $getShardedMapKey,
   setShardedMapKey,
-  deleteShardedMapKey
+  deleteShardedMapKey,
+  clearShardedMap
 } from './map.js'
 
 describe('query', () => {
@@ -391,6 +392,67 @@ describe('query', () => {
         expect(listener).toHaveBeenCalledWith(42)
 
         deleteShardedMapKey(cache, key)
+
+        expect(listener).toHaveBeenCalledTimes(2)
+        expect(listener).toHaveBeenCalledWith(undefined)
+
+        off()
+      })
+    })
+
+    describe('clearShardedMap', () => {
+      it('should clear all shards', () => {
+        const cache: ShardedSignalsMap<string, string, number> = new Map()
+
+        setShardedMapKey(cache, {
+          shard: 'test',
+          key: 'a'
+        }, 1)
+        setShardedMapKey(cache, {
+          shard: 'other',
+          key: 'b'
+        }, 2)
+
+        expect($getShardedMapKey(cache, {
+          shard: 'test',
+          key: 'a'
+        })).toBe(1)
+        expect($getShardedMapKey(cache, {
+          shard: 'other',
+          key: 'b'
+        })).toBe(2)
+
+        clearShardedMap(cache)
+
+        expect(cache.size).toBe(0)
+        expect($getShardedMapKey(cache, {
+          shard: 'test',
+          key: 'a'
+        })).toBeUndefined()
+        expect($getShardedMapKey(cache, {
+          shard: 'other',
+          key: 'b'
+        })).toBeUndefined()
+      })
+
+      it('should notify listeners on clear', () => {
+        const cache: ShardedSignalsMap<string, string, number> = new Map()
+        const key = {
+          shard: 'test',
+          key: 'a'
+        }
+
+        setShardedMapKey(cache, key, 42)
+
+        const listener = vi.fn()
+        const off = effect(() => {
+          listener($getShardedMapKey(cache, key))
+        })
+
+        expect(listener).toHaveBeenCalledTimes(1)
+        expect(listener).toHaveBeenCalledWith(42)
+
+        clearShardedMap(cache)
 
         expect(listener).toHaveBeenCalledTimes(2)
         expect(listener).toHaveBeenCalledWith(undefined)
