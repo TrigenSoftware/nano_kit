@@ -9,8 +9,7 @@ import {
   hasShardedMapKey,
   $getShardedMapKey,
   setShardedMapKey,
-  deleteShardedMapKey,
-  clearShardedMap
+  deleteShardedMapKey
 } from './map.js'
 
 export type * from './CacheStorage.types.js'
@@ -78,12 +77,8 @@ export class CacheStorage {
    * If shard key is used, invalidate all entries in the shard.
    * @param key - The cache key to invalidate.
    */
-  invalidate(key?: CacheShardKey | CacheKey) {
-    if (key) {
-      deleteShardedMapKey(this.cache, key)
-    } else {
-      clearShardedMap(this.cache)
-    }
+  invalidate(key: CacheShardKey | CacheKey) {
+    deleteShardedMapKey(this.cache, key)
   }
 
   /**

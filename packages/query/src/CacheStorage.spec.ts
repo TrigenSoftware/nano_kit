@@ -6,7 +6,10 @@ import {
   beforeEach
 } from 'vitest'
 import { effect } from '@nano_kit/store'
-import { queryKey } from './cache.js'
+import {
+  queryKey,
+  keys
+} from './cache.js'
 import { hasShardedMapKey } from './map.js'
 import {
   DEFAULT_DEDUPE_TIME,
@@ -176,25 +179,6 @@ describe('query', () => {
         expect(hasShardedMapKey(storage.cache, keyB)).toBe(false)
       })
 
-      it('should delete all entries when key is omitted', () => {
-        const TestKey = queryKey('test')
-        const OtherKey = queryKey('other')
-        const keyA = TestKey('a')
-        const keyB = OtherKey('b')
-
-        storage.$get(keyA)
-        storage.$get(keyB)
-
-        expect(hasShardedMapKey(storage.cache, keyA)).toBe(true)
-        expect(hasShardedMapKey(storage.cache, keyB)).toBe(true)
-
-        storage.invalidate()
-
-        expect(storage.cache.size).toBe(0)
-        expect(hasShardedMapKey(storage.cache, keyA)).toBe(false)
-        expect(hasShardedMapKey(storage.cache, keyB)).toBe(false)
-      })
-
       it('should notify listeners on invalidate', () => {
         const key = queryKey('test')('a')
 
@@ -248,40 +232,6 @@ describe('query', () => {
         offA()
         offB()
       })
-
-      it('should notify listeners on invalidate without key', () => {
-        const TestKey = queryKey('test')
-        const OtherKey = queryKey('other')
-        const keyA = TestKey('a')
-        const keyB = OtherKey('b')
-
-        storage.settled(keyA, 'dataA', null)
-        storage.settled(keyB, 'dataB', null)
-
-        const listenerA = vi.fn()
-        const listenerB = vi.fn()
-        const offA = effect(() => {
-          listenerA(storage.$get(keyA).data)
-        })
-        const offB = effect(() => {
-          listenerB(storage.$get(keyB).data)
-        })
-
-        expect(listenerA).toHaveBeenCalledTimes(1)
-        expect(listenerA).toHaveBeenCalledWith('dataA')
-        expect(listenerB).toHaveBeenCalledTimes(1)
-        expect(listenerB).toHaveBeenCalledWith('dataB')
-
-        storage.invalidate()
-
-        expect(listenerA).toHaveBeenCalledTimes(2)
-        expect(listenerA).toHaveBeenCalledWith(null)
-        expect(listenerB).toHaveBeenCalledTimes(2)
-        expect(listenerB).toHaveBeenCalledWith(null)
-
-        offA()
-        offB()
-      })
     })
 
     describe('revalidate', () => {
@@ -312,6 +262,42 @@ describe('query', () => {
         storage.revalidate(key)
 
         expect(storage.cache.has('test')).toBe(false)
+      })
+
+      it('should revalidate all registered key shards', () => {
+        const UserKey = queryKey('users')
+        const PostKey = queryKey('posts')
+        const userKey = UserKey('a')
+        const postKey = PostKey('b')
+
+        storage.set(userKey, {
+          rev: 100,
+          dedupes: 500,
+          expires: 1000,
+          data: 'user',
+          error: null,
+          loading: false
+        })
+        storage.set(postKey, {
+          rev: 200,
+          dedupes: 600,
+          expires: 1000,
+          data: 'post',
+          error: null,
+          loading: false
+        })
+
+        keys(Key => storage.revalidate(Key))
+
+        const userEntry = storage.$get(userKey)
+        const postEntry = storage.$get(postKey)
+
+        expect(userEntry.rev).toBe(UNSET_REV)
+        expect(userEntry.dedupes).toBe(0)
+        expect(userEntry.data).toBe('user')
+        expect(postEntry.rev).toBe(UNSET_REV)
+        expect(postEntry.dedupes).toBe(0)
+        expect(postEntry.data).toBe('post')
       })
 
       it('should notify listeners on revalidate', () => {

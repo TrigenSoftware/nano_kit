@@ -1,9 +1,11 @@
 import {
   type NewValue,
+  batch,
   isFunction
 } from '@nano_kit/store'
 import type {
   CacheKeyBuilder,
+  AnyCacheKeyBuilder,
   CacheDataFacade,
   CacheKey,
   ExtrasCacheKeyBuilder
@@ -11,6 +13,8 @@ import type {
 import type { CacheStorage } from './CacheStorage.js'
 
 export type * from './cache.types.js'
+
+const keysSet = new Set<AnyCacheKeyBuilder>()
 
 /**
  * Create a query cache key builder.
@@ -31,7 +35,18 @@ export function queryKey<P extends unknown[], R>(
   key.shard = name
   key.key = undefined
 
+  keysSet.add(key)
+
   return key
+}
+
+/**
+ * Iterate over all cache key builders and call the provided callback with each key.
+ * Iteration is batched to avoid unnecessary reactivity triggers.
+ * @param callback - The callback function to be called with each cache key builder.
+ */
+export function keys(callback: (key: AnyCacheKeyBuilder) => void) {
+  batch(() => keysSet.forEach(callback))
 }
 
 /**

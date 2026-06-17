@@ -12,7 +12,10 @@ import {
   tasksRunner,
   waitTasks
 } from '@nano_kit/store'
-import { queryKey } from '../cache.js'
+import {
+  queryKey,
+  keys
+} from '../cache.js'
 import {
   dedupe,
   disabled,
@@ -122,6 +125,39 @@ describe('query', () => {
         expect(fetcher).toHaveBeenCalledTimes(2)
 
         off()
+      })
+
+      it('should revalidate queries with registered key builders', async () => {
+        const { query, revalidate } = client(tasks(tasksRunner(tasksPool)))
+        const UserPostKey = queryKey<[id: number], Post | null>('user-post')
+        const EditorPostKey = queryKey<[id: number], Post | null>('editor-post')
+        const $userPostId = signal(1)
+        const $editorPostId = signal(2)
+        const userFetcher = vi.fn(getPost)
+        const editorFetcher = vi.fn(getPost)
+        const [$userPost] = query(UserPostKey, [$userPostId], userFetcher)
+        const [$editorPost] = query(EditorPostKey, [$editorPostId], editorFetcher)
+        const offUserPost = effect(() => {
+          $userPost()
+        })
+        const offEditorPost = effect(() => {
+          $editorPost()
+        })
+
+        await waitTasks(tasksPool)
+
+        expect(userFetcher).toHaveBeenCalledTimes(1)
+        expect(editorFetcher).toHaveBeenCalledTimes(1)
+
+        keys(revalidate)
+
+        await waitTasks(tasksPool)
+
+        expect(userFetcher).toHaveBeenCalledTimes(2)
+        expect(editorFetcher).toHaveBeenCalledTimes(2)
+
+        offUserPost()
+        offEditorPost()
       })
 
       it('should handle errors', async () => {

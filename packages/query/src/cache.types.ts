@@ -22,6 +22,9 @@ export type CacheKeyBuilder<P extends unknown[], R> = (
   (...params: Partial<P>) => CacheKey<P, R>
 ) & CacheShardKey<P, R>
 
+// oxlint-disable-next-line typescript/no-explicit-any
+export type AnyCacheKeyBuilder = CacheKeyBuilder<any[], any>
+
 export type ExtrasCacheKeyBuilder<
   P extends unknown[],
   E extends unknown[],
