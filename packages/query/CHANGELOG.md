@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.11](https://github.com/TrigenSoftware/nano_kit/compare/query@1.0.0-alpha.10...query@1.0.0-alpha.11) (2026-06-17)
+
+### Features
+
+* replace all keys revalidation with `keys` util to iterate over all registered keys ([#146](https://github.com/TrigenSoftware/nano_kit/issues/146)) ([6fe39c9](https://github.com/TrigenSoftware/nano_kit/commit/6fe39c9408c5c505f0aac3dc2cd8ef6674d13d5b))
+
 ## [1.0.0-alpha.10](https://github.com/TrigenSoftware/nano_kit/compare/query@1.0.0-alpha.9...query@1.0.0-alpha.10) (2026-06-16)
 
 ### Features
