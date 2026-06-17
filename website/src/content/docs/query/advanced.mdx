@@ -167,6 +167,26 @@ const [$post] = query(PostKey, [$postId], (id, ctx) => {
 
 **When to use:** Centralized error handling, logging, or user notifications. Combine with `stopErrorPropagation` to handle specific errors locally without triggering global handlers.
 
+## Registered Cache Keys
+
+Every `queryKey()` builder is registered automatically. Use `keys()` to iterate over cache key builders:
+
+```ts
+import { client, keys, queryKey } from '@nano_kit/query'
+
+const PostKey = queryKey<[id: number], Post>('post')
+const UserKey = queryKey<[id: number], User>('user')
+const { revalidate, invalidate } = client()
+
+/* Mark every registered query shard as stale */
+keys(revalidate)
+
+/* Or remove every registered query shard from cache */
+keys(invalidate)
+```
+
+This is useful after broad application changes, such as sign in, sign out, locale changes, or any mutation that can affect several query domains at once.
+
 ## Request Context
 
 Query and mutation fetcher functions receive request context as last parameter. It provides methods to manage request lifecycle:

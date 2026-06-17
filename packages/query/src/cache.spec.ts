@@ -8,6 +8,7 @@ import { effect } from '@nano_kit/store'
 import { CacheStorage } from './CacheStorage.js'
 import {
   queryKey,
+  keys,
   dataCacheFacade
 } from './cache.js'
 
@@ -66,6 +67,19 @@ describe('query', () => {
           shard: 'users',
           key: '[42]'
         })
+      })
+    })
+
+    describe('keys', () => {
+      it('should call callback with created key builders', () => {
+        const UserKey = queryKey<[id: number], { name: string }>('users-list')
+        const PostsKey = queryKey<[id: number], { title: string }>('posts-list')
+        const callback = vi.fn()
+
+        keys(callback)
+
+        expect(callback.mock.calls.map(([key]) => key)).toContain(UserKey)
+        expect(callback.mock.calls.map(([key]) => key)).toContain(PostsKey)
       })
     })
 

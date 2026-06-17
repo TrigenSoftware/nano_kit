@@ -1,7 +1,8 @@
 export * from './settings/index.js'
 export {
   queryKey,
-  operationKey
+  operationKey,
+  keys
 } from './cache.js'
 export {
   type CacheKey,

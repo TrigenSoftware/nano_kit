@@ -259,39 +259,6 @@ describe('query', () => {
         off1()
         off2()
       })
-
-      it('should delete all entries on invalidate without key', async () => {
-        const { query, invalidate } = client(
-          persistence(indexedDbStorage(), 60000),
-          tasks(tasksRunner(tasksPool))
-        )
-        const $id1 = signal(1)
-        const $id2 = signal(2)
-        const fetcher = vi.fn(getPost)
-        const [$data1] = query(PostKey, [$id1], fetcher)
-        const [$data2] = query(PostKey, [$id2], fetcher)
-        const off1 = effect(() => {
-          $data1()
-        })
-        const off2 = effect(() => {
-          $data2()
-        })
-
-        await waitTasks(tasksPool)
-
-        expect(await SELECT(db, PostKey(1))).not.toBe(null)
-        expect(await SELECT(db, PostKey(2))).not.toBe(null)
-
-        invalidate()
-
-        await waitTasks(tasksPool)
-
-        expect(await SELECT(db, PostKey(1))).toBe(null)
-        expect(await SELECT(db, PostKey(2))).toBe(null)
-
-        off1()
-        off2()
-      })
     })
   })
 })

@@ -112,7 +112,7 @@ export async function SET(
 
 export async function DELETE(
   connection: Promise<IDBDatabase | null>,
-  cacheKey?: CacheShardKey | CacheKey
+  cacheKey: CacheShardKey | CacheKey
 ): Promise<void> {
   const db = await connection
 
@@ -121,43 +121,35 @@ export async function DELETE(
   }
 
   return new Promise((resolve) => {
+    const {
+      shard,
+      key
+    } = cacheKey
     const transaction = db.transaction(STORE_NAME, 'readwrite')
     const store = transaction.objectStore(STORE_NAME)
 
-    if (!cacheKey) {
-      const request = store.clear()
+    if (key === undefined) {
+      const index = store.index('shard')
+      const range = IDBKeyRange.only(shard)
+      const request = index.openCursor(range)
+
+      request.onerror = () => resolve()
+
+      request.onsuccess = () => {
+        const cursor = request.result
+
+        if (cursor) {
+          cursor.delete()
+          cursor.continue()
+        } else {
+          resolve()
+        }
+      }
+    } else {
+      const request = store.delete([shard, key])
 
       request.onerror = () => resolve()
       request.onsuccess = () => resolve()
-    } else {
-      const {
-        shard,
-        key
-      } = cacheKey
-
-      if (key === undefined) {
-        const index = store.index('shard')
-        const range = IDBKeyRange.only(shard)
-        const request = index.openCursor(range)
-
-        request.onerror = () => resolve()
-
-        request.onsuccess = () => {
-          const cursor = request.result
-
-          if (cursor) {
-            cursor.delete()
-            cursor.continue()
-          } else {
-            resolve()
-          }
-        }
-      } else {
-        const request = store.delete([shard, key])
-
-        request.onerror = () => resolve()
-        request.onsuccess = () => resolve()
-      }
     }
   })
 }
@@ -181,7 +173,7 @@ export function indexedDbStorage(): Storage | null {
     set(cacheKey: CacheKey, entry: CacheEntry, lifetime: number) {
       return SET(db, cacheKey, entry, lifetime)
     },
-    delete(cacheKey?: CacheShardKey | CacheKey) {
+    delete(cacheKey: CacheShardKey | CacheKey) {
       return DELETE(db, cacheKey)
     }
   }
