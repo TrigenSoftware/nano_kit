@@ -4,11 +4,12 @@ import type {
   ShardedKey
 } from './map.js'
 
-export interface CacheEntry<T = unknown> {
+export interface CacheEntry<P extends readonly unknown[] = readonly unknown[], R = unknown> {
   rev: number
   dedupes: number
   expires: number
-  data: T | null
+  params: P
+  data: R | null
   error: string | null
   loading: boolean
 }
@@ -34,7 +35,7 @@ export interface CacheKey<
   P extends unknown[] = unknown[],
   R = unknown
 > extends ShardedKey<string, string> {
+  params: P
   // Only types info:
-  P: P
   R: R
 }

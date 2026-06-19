@@ -33,7 +33,8 @@ describe('query', () => {
 
         expect(UserKey()).toEqual({
           shard: 'users',
-          key: '[]'
+          key: '[]',
+          params: []
         })
       })
 
@@ -42,7 +43,8 @@ describe('query', () => {
 
         expect(UserKey(42)).toEqual({
           shard: 'users',
-          key: '[42]'
+          key: '[42]',
+          params: [42]
         })
       })
 
@@ -51,7 +53,8 @@ describe('query', () => {
 
         expect(UserKey(42, 'Dan')).toEqual({
           shard: 'users',
-          key: '[42,"Dan"]'
+          key: '[42,"Dan"]',
+          params: [42, 'Dan']
         })
       })
 
@@ -65,7 +68,13 @@ describe('query', () => {
           force: true
         })).toEqual({
           shard: 'users',
-          key: '[42]'
+          key: '[42]',
+          params: [
+            42,
+            {
+              force: true
+            }
+          ]
         })
       })
     })

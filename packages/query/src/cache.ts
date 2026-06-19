@@ -29,7 +29,8 @@ export function queryKey<P extends unknown[], R>(
 ) {
   const key = ((...params: Partial<P>) => ({
     shard: name,
-    key: JSON.stringify(filter(params))
+    key: JSON.stringify(filter(params)),
+    params
   })) as CacheKeyBuilder<P, R>
 
   key.shard = name
