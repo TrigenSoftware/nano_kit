@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.0](https://github.com/TrigenSoftware/nano_kit/compare/query@1.0.0-alpha.12...query@1.0.0-beta.0) (2026-06-19)
+
+### Features
+
+* add `map` util ([06f9155](https://github.com/TrigenSoftware/nano_kit/commit/06f91554974d417e93f71961c3a6eec580626398))
+
 ## [1.0.0-alpha.12](https://github.com/TrigenSoftware/nano_kit/compare/query@1.0.0-alpha.11...query@1.0.0-alpha.12) (2026-06-19)
 
 ### Features
