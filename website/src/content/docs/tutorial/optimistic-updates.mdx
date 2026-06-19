@@ -45,16 +45,18 @@ infinite(
   lastPage => lastPage.nextCursor,
   (q, category, cursor) => fetchEvents({ q, category, cursor }),
   [
-    entities(data => ({
+    entities((capture, data) => ({
       ...data,
       pages: data.pages.map(page => ({
         ...page,
-        events: page.events.map(EventEntity)
+        events: page.events.map(capture(EventEntity))
       }))
     }))
   ]
 )
 ```
+
+`capture(EventEntity)` stores every event in the shared entity cache and leaves references inside the list pages.
 
 The mutation also needs `$data` from the query client:
 

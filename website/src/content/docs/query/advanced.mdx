@@ -525,9 +525,9 @@ const [$posts] = query(PostsKey, [], () => (
 ), [
   /* Map entities in the page to entity references */
   /* Also every refetch will update entities in the cache */
-  entities(page => ({
+  entities((capture, page) => ({
     ...page,
-    posts: page.posts.map(PostEntity)
+    posts: page.posts.map(capture(PostEntity))
   }))
 ])
 
@@ -563,6 +563,8 @@ With this setup:
 1. `$post` (individual post) and `$posts` (list of posts) share the same data source for the post entities.
 2. Fetching specific post via `$post` updates the entity in `$posts` as well.
 3. `updatePost` optimistically updates the entity, instantly reflecting changes in both `$post` and `$posts`.
+
+The `capture` helper stores each entity in the shared entity cache and returns a reference for the query result. Passing `entities(PostEntity)` is the shorthand for a single entity result.
 
 **When to use:** Complex applications where the same data (e.g., a "User" or "Product") appears in multiple places or lists and needs to stay synchronized.
 

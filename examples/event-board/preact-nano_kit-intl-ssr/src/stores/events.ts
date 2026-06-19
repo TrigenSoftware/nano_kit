@@ -80,11 +80,11 @@ export function EventsList$() {
       })
     },
     [
-      entities(data => ({
+      entities((capture, data) => ({
         ...data,
         pages: data.pages.map(page => ({
           ...page,
-          events: page.events.map(EventEntity)
+          events: page.events.map(capture(EventEntity))
         }))
       }))
     ]
