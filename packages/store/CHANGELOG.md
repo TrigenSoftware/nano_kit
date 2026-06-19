@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.9](https://github.com/TrigenSoftware/nano_kit/compare/store@1.0.0-beta.8...store@1.0.0-beta.9) (2026-06-19)
+
+### Features
+
+* rename list utils to array utils ([#148](https://github.com/TrigenSoftware/nano_kit/issues/148)) ([37914a4](https://github.com/TrigenSoftware/nano_kit/commit/37914a49056704b9bba08759d6bdf87e1a10cd07))
+
 ## [1.0.0-beta.8](https://github.com/TrigenSoftware/nano_kit/compare/store@1.0.0-beta.7...store@1.0.0-beta.8) (2026-06-09)
 
 ### Bug Fixes
