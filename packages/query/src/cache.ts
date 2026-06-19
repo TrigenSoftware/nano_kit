@@ -1,5 +1,5 @@
 import {
-  type NewValue,
+  assignKey,
   batch,
   isFunction
 } from '@nano_kit/store'
@@ -7,10 +7,15 @@ import type {
   CacheKeyBuilder,
   AnyCacheKeyBuilder,
   CacheDataFacade,
+  CacheErrorFacade,
   CacheKey,
-  ExtrasCacheKeyBuilder
+  ExtrasCacheKeyBuilder,
+  NewData
 } from './cache.types.js'
-import type { CacheStorage } from './CacheStorage.js'
+import type {
+  CacheEntry,
+  CacheStorage
+} from './CacheStorage.js'
 
 export type * from './cache.types.js'
 
@@ -68,6 +73,35 @@ export function operationKey<
   return queryKey<P, R>(name, filter) as ExtrasCacheKeyBuilder<P, E, R>
 }
 
+function cacheGetterSetter<F extends 'data' | 'error', P extends unknown[], R>(
+  this: CacheStorage,
+  field: F,
+  key: CacheKey<P, R>,
+  ...value: [NewData<P, CacheEntry<P, R>[F]>]
+) {
+  if (value.length) {
+    const newValue = value[0]
+    let prevEntry: CacheEntry
+
+    this.set(key, (entry = this.initial()) => {
+      prevEntry = entry
+
+      const next = isFunction(newValue)
+        ? newValue(entry[field] as CacheEntry<P, R>[F], entry.params as P)
+        : newValue
+
+      return assignKey(entry, field, next)
+    })
+
+    return () => this.set(
+      key,
+      (entry = prevEntry) => assignKey(entry, field, prevEntry[field])
+    )
+  }
+
+  return this.$get(key)[field] as CacheEntry<P, R>[F]
+}
+
 /**
  * Create cache getter/setter for data.
  * @param cache - The cache map.
@@ -75,26 +109,7 @@ export function operationKey<
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function dataCacheFacade(cache: CacheStorage) {
-  return dataCacheGetterSetter.bind(cache) as CacheDataFacade
-}
-
-function dataCacheGetterSetter<P extends unknown[], R>(
-  this: CacheStorage,
-  key: CacheKey<P, R>,
-  ...value: [NewValue<R | null>]
-) {
-  if (value.length) {
-    const newValue = value[0]
-
-    this.set(key, (entry = this.initial()) => ({
-      ...entry,
-      data: isFunction(newValue)
-        ? (newValue as (value: unknown) => unknown)(entry.data)
-        : newValue
-    }))
-  } else {
-    return this.$get(key).data as R | null
-  }
+  return cacheGetterSetter.bind(cache, 'data') as CacheDataFacade
 }
 
 /**
@@ -110,9 +125,9 @@ export function loadingCacheFacade(cache: CacheStorage) {
 /**
  * Create cache getter for error state.
  * @param cache - The cache map.
- * @returns The error state getter.
+ * @returns The error state getter/setter.
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function errorCacheFacade(cache: CacheStorage) {
-  return (key: CacheKey) => cache.$get(key).error
+  return cacheGetterSetter.bind(cache, 'error') as CacheErrorFacade
 }

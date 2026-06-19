@@ -9,7 +9,8 @@ import { CacheStorage } from './CacheStorage.js'
 import {
   queryKey,
   keys,
-  dataCacheFacade
+  dataCacheFacade,
+  errorCacheFacade
 } from './cache.js'
 
 describe('query', () => {
@@ -102,6 +103,34 @@ describe('query', () => {
         expect($cache(key)).toBe(42)
       })
 
+      it('should revert value change', () => {
+        const $cache = dataCacheFacade(new CacheStorage())
+        const key = queryKey<[string], number>('test')('a')
+
+        $cache(key, 42)
+
+        const revert = $cache(key, 100)
+
+        expect($cache(key)).toBe(100)
+
+        revert()
+
+        expect($cache(key)).toBe(42)
+      })
+
+      it('should pass entry params to reducer', () => {
+        const storage = new CacheStorage()
+        const $cache = dataCacheFacade(storage)
+        const key = queryKey<[id: number, name: string], string>('test')(42, 'Dan')
+        const reducer = vi.fn((value: string | null, params: [number, string]) => `${value}:${params.join(':')}`)
+
+        storage.settled(key, 'user', null)
+        $cache(key, reducer)
+
+        expect(reducer).toHaveBeenCalledWith('user', [42, 'Dan'])
+        expect($cache(key)).toBe('user:42:Dan')
+      })
+
       it('should notify listeners on value change', () => {
         const $cache = dataCacheFacade(new CacheStorage())
         const key = queryKey<[string], number>('test')('a')
@@ -119,6 +148,34 @@ describe('query', () => {
         expect(listener).toHaveBeenCalledWith(42)
 
         off()
+      })
+    })
+
+    describe('errorCacheFacade', () => {
+      it('should get and set error from cache', () => {
+        const $error = errorCacheFacade(new CacheStorage())
+        const key = queryKey<[string], number>('test')('a')
+
+        expect($error(key)).toBe(null)
+
+        $error(key, 'failed')
+
+        expect($error(key)).toBe('failed')
+      })
+
+      it('should revert error change', () => {
+        const $error = errorCacheFacade(new CacheStorage())
+        const key = queryKey<[string], number>('test')('a')
+
+        $error(key, 'first')
+
+        const revert = $error(key, 'second')
+
+        expect($error(key)).toBe('second')
+
+        revert()
+
+        expect($error(key)).toBe('first')
       })
     })
   })
