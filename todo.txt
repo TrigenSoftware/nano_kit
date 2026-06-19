@@ -14,7 +14,6 @@
 
 ## 🔥🔥🔥 Query 🔥🔥🔥
 
-- cache mutation utils for entities data / optimistic utils
 - map data / default data
 - synced cache between tabs
 
