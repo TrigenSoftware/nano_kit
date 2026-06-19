@@ -1,4 +1,3 @@
-import type { NewValue } from '@nano_kit/store'
 import type {
   CacheKey,
   CacheShardKey
@@ -33,7 +32,14 @@ export type ExtrasCacheKeyBuilder<
   (...params: Partial<P>) => ExtrasCacheKey<P, E, R>
 ) & CacheShardKey<P, R>
 
+export type NewData<P extends readonly unknown[], R> = R | ((data: R, params: P) => R)
+
 export interface CacheDataFacade {
   <P extends unknown[], R>(key: CacheKey<P, R>): R | null
-  <P extends unknown[], R>(key: CacheShardKey<P, R> | CacheKey<P, R>, value: NewValue<R | null>): void
+  <P extends unknown[], R>(key: CacheShardKey<P, R> | CacheKey<P, R>, value: NewData<P, R | null>): () => void
+}
+
+export interface CacheErrorFacade {
+  (key: CacheKey): string | null
+  <P extends unknown[]>(key: CacheShardKey<P> | CacheKey<P>, value: NewData<P, string | null>): () => void
 }

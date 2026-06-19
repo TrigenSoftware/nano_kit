@@ -50,10 +50,14 @@ export function assignKey<
   key: K,
   value: V
 ) {
-  return {
-    ...object || {},
-    [key]: value
-  } as PickNonEmptyValue<T> & Record<K, V>
+  return (
+    object?.[key] === value
+      ? object
+      : {
+        ...object,
+        [key]: value
+      }
+  ) as PickNonEmptyValue<T> & Record<K, V>
 }
 
 /**
