@@ -47,6 +47,7 @@ export class CacheStorage {
       rev: UNSET_REV,
       dedupes: 0,
       expires: 0,
+      params: [],
       data: null,
       error: null,
       loading: false
@@ -110,6 +111,7 @@ export class CacheStorage {
     this.set(key, (entry = this.initial()) => ({
       ...entry,
       rev,
+      params: key.params,
       data: entry.expires > Date.now() ? entry.data : null,
       error: null,
       loading: true
@@ -133,6 +135,7 @@ export class CacheStorage {
           ...entry,
           dedupes: now + this.dedupeTime,
           expires: now + this.cacheTime,
+          params: key.params,
           data: error === null ? data : entry.data,
           error,
           loading: false

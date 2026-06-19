@@ -65,6 +65,7 @@ describe('query', () => {
           rev: expect.any(Number),
           dedupes: 0,
           expires: 0,
+          params: [],
           data: null,
           error: null,
           loading: false
@@ -103,6 +104,7 @@ describe('query', () => {
           rev: 1,
           dedupes: 2,
           expires: 3,
+          params: key.params,
           data: 'data',
           error: null,
           loading: false
@@ -242,6 +244,7 @@ describe('query', () => {
           rev: 100,
           dedupes: 500,
           expires: 1000,
+          params: key.params,
           data: 'data',
           error: null,
           loading: false
@@ -274,6 +277,7 @@ describe('query', () => {
           rev: 100,
           dedupes: 500,
           expires: 1000,
+          params: userKey.params,
           data: 'user',
           error: null,
           loading: false
@@ -282,6 +286,7 @@ describe('query', () => {
           rev: 200,
           dedupes: 600,
           expires: 1000,
+          params: postKey.params,
           data: 'post',
           error: null,
           loading: false
@@ -328,6 +333,7 @@ describe('query', () => {
           rev: 1,
           dedupes: 0,
           expires: 0,
+          params: [],
           data: null,
           error: null,
           loading: true
@@ -341,6 +347,7 @@ describe('query', () => {
           rev: 1,
           dedupes: Date.now() + 10000,
           expires: 0,
+          params: [],
           data: null,
           error: null,
           loading: false
@@ -354,6 +361,7 @@ describe('query', () => {
           rev: revLock(5),
           dedupes: 0,
           expires: 0,
+          params: [],
           data: null,
           error: null,
           loading: false
@@ -367,6 +375,7 @@ describe('query', () => {
           rev: 1,
           dedupes: Date.now() - 1000,
           expires: 0,
+          params: [],
           data: null,
           error: null,
           loading: false
@@ -380,6 +389,7 @@ describe('query', () => {
           rev: 1,
           dedupes: 0,
           expires: 0,
+          params: [],
           data: null,
           error: null,
           loading: true
@@ -393,6 +403,7 @@ describe('query', () => {
           rev: 1,
           dedupes: Date.now() + 10000,
           expires: 0,
+          params: [],
           data: null,
           error: null,
           loading: false
@@ -410,6 +421,7 @@ describe('query', () => {
           rev: 1,
           dedupes: 0,
           expires: 0,
+          params: key.params,
           data: null,
           error: 'previous error',
           loading: false
@@ -438,6 +450,7 @@ describe('query', () => {
           rev: 1,
           dedupes: 0,
           expires: Date.now() + 10000,
+          params: key.params,
           data: 'cached data',
           error: null,
           loading: false
@@ -458,6 +471,7 @@ describe('query', () => {
           rev: 1,
           dedupes: 0,
           expires: Date.now() - 1000,
+          params: key.params,
           data: 'old data',
           error: null,
           loading: false
@@ -515,6 +529,7 @@ describe('query', () => {
           rev: 1,
           dedupes: 0,
           expires: 0,
+          params: key.params,
           data: 'previous data',
           error: null,
           loading: true

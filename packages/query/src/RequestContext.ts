@@ -36,7 +36,7 @@ export class QueryContext<P extends unknown[], R>
   implements CacheKey<P, R> {
   shard: string
   key: string
-  P!: P
+  params: P
   R!: R
 
   constructor(
@@ -47,6 +47,7 @@ export class QueryContext<P extends unknown[], R>
 
     this.shard = key.shard
     this.key = key.key
+    this.params = key.params
   }
 }
 

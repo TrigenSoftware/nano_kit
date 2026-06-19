@@ -128,7 +128,7 @@ export function entities(
 
       ctx.set(key, {
         ...ctx.initial(),
-        // params: key.params,
+        params: key.params,
         data: entity
       })
 
