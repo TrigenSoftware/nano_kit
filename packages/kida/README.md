@@ -352,7 +352,7 @@ Also deep record can be created from another signal.
 const $userRecord = deepRecord($computedUser)
 ```
 
-### List
+### Array
 
 `atIndex` method creates a signal for a specific index of an array.
 
@@ -387,13 +387,13 @@ console.log($user()) // John
 
 There are also other methods to work with arrays:
 
-- `updateList($list, fn)` - update the value of the list signal using a function.
-- `push($list, ...values)` - add values to the list signal.
-- `pop($list)` - removes the last element from a list signal and returns it.
-- `shift($list)` - removes the first element from a list signal and returns it.
-- `unshift($list, ...values)` - inserts new elements at the start of an list signal, and returns the new length of the list.
-- `setIndex($list, index, value)` - set value at index in the list signal.
-- `deleteIndex($list, index)` - delete element at index from the list signal.
+- `updateArray($array, fn)` - update the value of the array signal using a function.
+- `push($array, ...values)` - add values to the array signal.
+- `pop($array)` - removes the last element from an array signal and returns it.
+- `shift($array)` - removes the first element from an array signal and returns it.
+- `unshift($array, ...values)` - inserts new elements at the start of an array signal, and returns the new length of the array.
+- `setIndex($array, index, value)` - set value at index in the array signal.
+- `deleteIndex($array, index)` - delete element at index from the array signal.
 
 ### Object
 

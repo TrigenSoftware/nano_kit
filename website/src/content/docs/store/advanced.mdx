@@ -176,7 +176,7 @@ console.log($user.$address.$city()) /* Batumi */
 $user.$address.$city('Tbilisi')
 ```
 
-### List Operations
+### Array Operations
 
 For arrays, use `atIndex` to create a signal for a specific element. The index can be static or dynamic.
 
@@ -222,14 +222,15 @@ const $targetUser = atFoundIndex($users, (user) => user.id === 2)
 console.log($targetUser()) /* { id: 2, name: 'John' } */
 ```
 
-Additional list helpers:
+Additional array helpers:
 
-- `push($list, ...values)` - add elements to the end
-- `pop($list)` - remove and return the last element
-- `shift($list)` - remove and return the first element
-- `unshift($list, ...values)` - add elements to the start
-- `setIndex($list, index, value)` - update element at index
-- `deleteIndex($list, index)` - remove element at index
+- `updateArray($array, fn)` - update the array signal using a function
+- `push($array, ...values)` - add elements to the end
+- `pop($array)` - remove and return the last element
+- `shift($array)` - remove and return the first element
+- `unshift($array, ...values)` - add elements to the start
+- `setIndex($array, index, value)` - update element at index
+- `deleteIndex($array, index)` - remove element at index
 
 ### Object Operations
 

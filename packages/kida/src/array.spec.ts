@@ -14,45 +14,45 @@ import {
 import { record } from './record.js'
 import {
   atIndex,
-  updateList
-} from './list.js'
+  updateArray
+} from './array.js'
 
 describe('kida', () => {
-  describe('list', () => {
+  describe('array', () => {
     it('should get item by index', () => {
-      const $list = signal([
+      const $array = signal([
         1,
         2,
         3
       ])
 
-      expect($list()).toEqual([
+      expect($array()).toEqual([
         1,
         2,
         3
       ])
-      expect(atIndex($list, 0)).toSatisfy(isSignal)
-      expect(atIndex($list, 1)).toSatisfy(isSignal)
-      expect(atIndex($list, 2)).toSatisfy(isSignal)
+      expect(atIndex($array, 0)).toSatisfy(isSignal)
+      expect(atIndex($array, 1)).toSatisfy(isSignal)
+      expect(atIndex($array, 2)).toSatisfy(isSignal)
 
-      expect(atIndex($list, 0)()).toBe(1)
-      expect(atIndex($list, 1)()).toBe(2)
-      expect(atIndex($list, 2)()).toBe(3)
+      expect(atIndex($array, 0)()).toBe(1)
+      expect(atIndex($array, 1)()).toBe(2)
+      expect(atIndex($array, 2)()).toBe(3)
     })
 
     it('should update root by child', () => {
-      const $list = signal([
+      const $array = signal([
         1,
         2,
         3
       ])
 
-      expect(atIndex($list, 1)()).toBe(2)
+      expect(atIndex($array, 1)()).toBe(2)
 
-      atIndex($list, 1)(4)
+      atIndex($array, 1)(4)
 
-      expect(atIndex($list, 1)()).toBe(4)
-      expect($list()).toEqual([
+      expect(atIndex($array, 1)()).toBe(4)
+      expect($array()).toEqual([
         1,
         4,
         3
@@ -60,7 +60,7 @@ describe('kida', () => {
     })
 
     it('should update root by child and notify listeners', () => {
-      const $list = signal([
+      const $array = signal([
         1,
         2,
         3
@@ -68,16 +68,16 @@ describe('kida', () => {
       const rootListener = vi.fn()
       const childListener = vi.fn()
       const off = effect(() => {
-        rootListener($list())
+        rootListener($array())
       })
       const offChild = effect(() => {
-        childListener(atIndex($list, 1)())
+        childListener(atIndex($array, 1)())
       })
 
       expect(rootListener).toHaveBeenCalledTimes(1)
       expect(childListener).toHaveBeenCalledTimes(1)
 
-      atIndex($list, 1)(4)
+      atIndex($array, 1)(4)
 
       expect(rootListener).toHaveBeenCalledTimes(2)
       expect(rootListener).toHaveBeenCalledWith([
@@ -93,23 +93,23 @@ describe('kida', () => {
     })
 
     it('should update child by root', () => {
-      const $list = signal([
+      const $array = signal([
         1,
         2,
         3
       ])
 
-      expect(atIndex($list, 1)()).toBe(2)
+      expect(atIndex($array, 1)()).toBe(2)
 
-      updateList($list, (list) => {
-        list[1] = 4
+      updateArray($array, (array) => {
+        array[1] = 4
       })
 
-      expect(atIndex($list, 1)()).toBe(4)
+      expect(atIndex($array, 1)()).toBe(4)
     })
 
     it('should update child by root and notify listeners', () => {
-      const $list = signal([
+      const $array = signal([
         1,
         2,
         3
@@ -117,19 +117,19 @@ describe('kida', () => {
       const rootListener = vi.fn()
       const childListener = vi.fn()
       const off = effect(() => {
-        rootListener($list())
+        rootListener($array())
       })
       const offChild = effect(() => {
-        childListener(atIndex($list, 1)())
+        childListener(atIndex($array, 1)())
       })
 
       expect(rootListener).toHaveBeenCalledTimes(1)
       expect(childListener).toHaveBeenCalledTimes(1)
 
-      expect(atIndex($list, 1)()).toBe(2)
+      expect(atIndex($array, 1)()).toBe(2)
 
-      updateList($list, (list) => {
-        list[1] = 4
+      updateArray($array, (array) => {
+        array[1] = 4
       })
 
       expect(rootListener).toHaveBeenCalledTimes(2)
@@ -146,13 +146,13 @@ describe('kida', () => {
     })
 
     it('should get item by dynamic index', () => {
-      const $list = signal([
+      const $array = signal([
         1,
         2,
         3
       ])
       const $key = signal(1)
-      const $item = atIndex($list, $key)
+      const $item = atIndex($array, $key)
 
       expect($item()).toBe(2)
 
@@ -163,31 +163,31 @@ describe('kida', () => {
 
     it('should get item by index from computed store', () => {
       const $item = signal(2)
-      const $list = computed(() => [
+      const $array = computed(() => [
         1,
         $item(),
         3
       ])
 
-      expect($list()).toEqual([
+      expect($array()).toEqual([
         1,
         2,
         3
       ])
-      expect(atIndex($list, 1)()).toBe(2)
+      expect(atIndex($array, 1)()).toBe(2)
 
       $item(4)
 
-      expect($list()).toEqual([
+      expect($array()).toEqual([
         1,
         4,
         3
       ])
-      expect(atIndex($list, 1)()).toBe(4)
+      expect(atIndex($array, 1)()).toBe(4)
     })
 
     it('should be fitable for loop', () => {
-      const $list = signal([
+      const $array = signal([
         'one',
         'two',
         'three'
@@ -195,10 +195,10 @@ describe('kida', () => {
       const $oneIndex = signal(0)
       const $twoIndex = signal(1)
       const $threeIndex = signal(2)
-      const $one = atIndex($list, $oneIndex)
-      const $two = atIndex($list, $twoIndex)
-      const $three = atIndex($list, $threeIndex)
-      const onListChange = vi.fn((v) => {
+      const $one = atIndex($array, $oneIndex)
+      const $two = atIndex($array, $twoIndex)
+      const $three = atIndex($array, $threeIndex)
+      const onArrayChange = vi.fn((v) => {
         batch(() => {
           $oneIndex(v.indexOf('one'))
           $twoIndex(v.indexOf('two'))
@@ -209,10 +209,10 @@ describe('kida', () => {
       const onTwoChange = vi.fn()
       const onThreeChange = vi.fn()
       const offList = effect((warmup) => {
-        const v = $list()
+        const v = $array()
 
         if (!warmup) {
-          onListChange(v)
+          onArrayChange(v)
         }
       })
       const offOne = effect((warmup) => {
@@ -237,13 +237,13 @@ describe('kida', () => {
         }
       })
 
-      $list([
+      $array([
         'three',
         'one',
         'two'
       ])
 
-      expect(onListChange).toHaveBeenCalledTimes(1)
+      expect(onArrayChange).toHaveBeenCalledTimes(1)
       expect(onOneChange).toHaveBeenCalledTimes(0)
       expect(onTwoChange).toHaveBeenCalledTimes(0)
       expect(onThreeChange).toHaveBeenCalledTimes(0)
@@ -269,15 +269,15 @@ describe('kida', () => {
           location: 'Novosibirsk'
         }
       ]
-      const $list = signal(users)
+      const $array = signal(users)
 
-      expect($list()).toEqual(users)
-      expect(atIndex($list, 1)()).toEqual(users[1])
-      expect(record(atIndex($list, 1)).$name()).toBe('Savva')
+      expect($array()).toEqual(users)
+      expect(atIndex($array, 1)()).toEqual(users[1])
+      expect(record(atIndex($array, 1)).$name()).toBe('Savva')
 
-      record(atIndex($list, 1)).$name('Savva B')
+      record(atIndex($array, 1)).$name('Savva B')
 
-      expect($list()).toEqual([
+      expect($array()).toEqual([
         {
           name: 'Dan',
           location: 'Batumi'
@@ -291,11 +291,11 @@ describe('kida', () => {
           location: 'Novosibirsk'
         }
       ])
-      expect(atIndex($list, 1)()).toEqual({
+      expect(atIndex($array, 1)()).toEqual({
         name: 'Savva B',
         location: 'Tallinn'
       })
-      expect(record(atIndex($list, 1)).$name()).toBe('Savva B')
+      expect(record(atIndex($array, 1)).$name()).toBe('Savva B')
     })
   })
 })

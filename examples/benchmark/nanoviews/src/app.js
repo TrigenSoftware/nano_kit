@@ -3,7 +3,7 @@ import {
   signal,
   record,
   deleteIndex,
-  updateList,
+  updateArray,
   computed,
   clearList,
   assignKey
@@ -111,7 +111,7 @@ export function App(ref = {}) {
     clearList($data)
   }
   const partialUpdate = () => {
-    updateList($data, (data) => {
+    updateArray($data, (data) => {
       for (let i = 0, len = data.length; i < len; i += 10) {
         data[i] = assignKey(data[i], 'label', `${data[i].label} !!!`)
       }
@@ -128,7 +128,7 @@ export function App(ref = {}) {
   }
   const swapRows = () => {
     if ($data().length > 998) {
-      updateList($data, (data) => {
+      updateArray($data, (data) => {
         const tmp = data[1]
 
         data[1] = data[998]
