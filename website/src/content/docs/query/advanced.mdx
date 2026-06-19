@@ -187,6 +187,92 @@ keys(invalidate)
 
 This is useful after broad application changes, such as sign in, sign out, locale changes, or any mutation that can affect several query domains at once.
 
+## Cache Mutation Helpers
+
+For comfortable cache mutations, use helpers that fit naturally into [`$data`](/query/core-concepts#reading-and-writing-data) reducers. They are especially handy for optimistic updates.
+
+### Array Helpers
+
+Use `append`, `prepend`, `drop`, and `sort` for array cache values:
+
+```ts
+import {
+  append,
+  client,
+  drop,
+  prepend,
+  queryKey,
+  sort
+} from '@nano_kit/query'
+
+const PostsKey = queryKey<[], Post[]>('posts')
+const { $data } = client()
+
+/* Add to the end. If cache is empty, creates a one-item array. */
+$data(PostsKey(), posts => append(posts, newPost))
+
+/* Add to the beginning. */
+$data(PostsKey(), posts => prepend(posts, pinnedPost))
+
+/* Remove matching items. */
+$data(PostsKey(), posts => drop(posts, post => post.id === removedPostId))
+
+/* Sort without mutating the previous array. */
+$data(PostsKey(), posts => sort(posts, (a, b) => b.createdAt - a.createdAt))
+```
+
+The helpers return the original empty value for operations where that makes sense, or create a new array when adding a value.
+
+### Infinite Page Helpers
+
+Use `mapPages`, `mapPageAt`, `mapFirstPage`, `mapLastPage`, and `sortPages` for [`InfinitePages`](#infinite) data:
+
+```ts
+import {
+  type InfinitePages,
+  client,
+  mapFirstPage,
+  mapPages,
+  prepend,
+  queryKey,
+  sortPages
+} from '@nano_kit/query'
+
+interface PostsPage {
+  posts: Post[]
+  nextCursor?: number
+}
+
+const FeedKey = queryKey<[], InfinitePages<PostsPage, number>>('feed')
+const { $data } = client()
+
+/* Update every page. */
+$data(FeedKey(), data => mapPages(data, page => ({
+  ...page,
+  posts: page.posts.map(post => (
+    post.id === updatedPost.id ? updatedPost : post
+  ))
+})))
+
+/* Add an item to the first loaded page. */
+$data(FeedKey(), data => mapFirstPage(data, page => ({
+  ...page,
+  posts: prepend(page.posts, newPost)
+})))
+
+/* Sort items across all pages while preserving page sizes. */
+$data(FeedKey(), data => sortPages(
+  data,
+  (a: Post, b: Post) => b.createdAt - a.createdAt,
+  (sort, page) => ({
+    ...page,
+    posts: sort(page.posts)
+  })
+))
+```
+
+`sortPages` collects items from every page, sorts the combined list, and writes items back into the original page chunks. Pagination metadata such as `next` and `more` stays intact.
+
 ## Request Context
 
 Query and mutation fetcher functions receive request context as last parameter. It provides methods to manage request lifecycle:
@@ -535,23 +621,15 @@ const [$posts] = query(PostsKey, [], () => (
 const [updatePost] = mutation<[params: UpdatePostParams], Post>(
   (params, ctx) => {
     const postId = $postId()
-    /* Get entity key by id */
-    const postEntityKey = PostEntity(postId)
-    /* Get current entity data */
-    const post = $data(postEntityKey)
 
-    if (post) {
-      /* Optimistically update entity data, will update all references */
-      $data(postEntityKey, {
-        ...post,
-        ...params
-      })
+    /* Optimistically update entity data, will update all references */
+    const revert = $data(PostEntity(postId), post => post && ({
+      ...post,
+      ...params
+    }))
 
-      /* Revert changes on error */
-      onError(ctx, () => {
-        $data(postEntityKey, post)
-      })
-    }
+    /* Revert changes on error */
+    onError(ctx, revert)
 
     return PostsService.update(postId, params)
   }

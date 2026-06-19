@@ -282,21 +282,33 @@ Use `$data()` to read or write cached data:
 import { client, queryKey } from '@nano_kit/query'
 
 const PostKey = queryKey<[id: number], Post>('post')
-const { $data } = client()
+const { $data, $error } = client()
 
 /* Read data from cache */
 const post = $data(PostKey(1))
 /* null if not cached, or Post object */
 
 /* Write data to cache */
-$data(PostKey(1), { id: 1, title: 'New Post' })
+const revert = $data(PostKey(1), { id: 1, title: 'New Post' })
+
+/* Restore the previous cached value */
+revert()
 
 /* Update with function */
 $data(PostKey(1), post => post && ({ ...post, views: post.views + 1 }))
 
+/* Reducers receive the cache key params as the second argument */
+$data(PostKey(1), (post, [id]) => post && ({ ...post, id }))
+
 /* Update all posts in shard */
 $data(PostKey, null)  /* Clear all posts */
+
+/* Read and write cached errors */
+$error(PostKey(1))
+$error(PostKey(1), 'Failed to load post')
 ```
+
+Both `$data(key, value)` and `$error(key, value)` return a function that restores the previous cached value. This is useful for optimistic updates: write the optimistic value immediately, then call the returned function in an error callback.
 
 #### Revalidating Cache
 
