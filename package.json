@@ -50,7 +50,7 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "@typescript/native-preview": "latest",
+    "@typescript/native-preview": "catalog:",
     "clean-publish": "^5.0.0",
     "commitizen": "^4.2.4",
     "del-cli": "^7.0.0",
@@ -63,6 +63,6 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "simple-git-hooks": "^2.7.0",
-    "typescript": "^6.0.0"
+    "typescript": "catalog:"
   }
 }
