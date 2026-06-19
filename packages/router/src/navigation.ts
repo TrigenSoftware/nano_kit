@@ -7,7 +7,7 @@ import {
   record,
   signal,
   batch,
-  updateList,
+  updateArray,
   action,
   mountable,
   computed,
@@ -250,7 +250,7 @@ export function virtualNavigation<const R extends Routes = {}>(
         const nextIndex = activeIndex + 1
 
         batch(() => {
-          updateList($history, (history) => {
+          updateArray($history, (history) => {
             history.splice(nextIndex, history.length - activeIndex - 1, location)
           })
           $activeIndex(nextIndex)

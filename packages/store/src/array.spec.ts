@@ -5,14 +5,14 @@ import {
 } from 'vitest'
 import {
   signal,
-  updateList
+  updateArray
 } from 'kida'
-import { atFoundIndex } from './list.js'
+import { atFoundIndex } from './array.js'
 
 describe('store', () => {
-  describe('list', () => {
+  describe('array', () => {
     it('should get item by predicate', () => {
-      const $list = signal([
+      const $array = signal([
         {
           id: 1,
           name: 'Alice'
@@ -26,7 +26,7 @@ describe('store', () => {
           name: 'Charlie'
         }
       ])
-      const $bob = atFoundIndex($list, item => item.id === 2)
+      const $bob = atFoundIndex($array, item => item.id === 2)
 
       expect($bob()).toEqual({
         id: 2,
@@ -38,7 +38,7 @@ describe('store', () => {
         name: 'Bobby'
       })
 
-      expect($list()).toEqual([
+      expect($array()).toEqual([
         {
           id: 1,
           name: 'Alice'
@@ -59,7 +59,7 @@ describe('store', () => {
     })
 
     it('should track predicate result changes', () => {
-      const $list = signal([
+      const $array = signal([
         {
           id: 1,
           name: 'Alice',
@@ -76,7 +76,7 @@ describe('store', () => {
           active: false
         }
       ])
-      const $firstActive = atFoundIndex($list, item => item.active)
+      const $firstActive = atFoundIndex($array, item => item.active)
 
       expect($firstActive()).toEqual({
         id: 2,
@@ -84,11 +84,11 @@ describe('store', () => {
         active: true
       })
 
-      updateList($list, (list) => {
-        [list[0], list[1]] = [list[1], list[0]]
+      updateArray($array, (array) => {
+        [array[0], array[1]] = [array[1], array[0]]
       })
 
-      expect($list()).toEqual([
+      expect($array()).toEqual([
         {
           id: 2,
           name: 'Bob',
