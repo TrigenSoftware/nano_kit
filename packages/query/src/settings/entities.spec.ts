@@ -58,9 +58,9 @@ describe('query', () => {
           entities(PostEntity)
         ])
         const [$posts] = query(PostsKey, [], getPosts, [
-          entities(postsPage => ({
+          entities((capture, postsPage) => ({
             ...postsPage,
-            posts: postsPage.posts.map(PostEntity)
+            posts: postsPage.posts.map(capture(PostEntity))
           }))
         ])
         const offPost = effect(() => {
@@ -181,9 +181,9 @@ describe('query', () => {
         )
         const firstPostKey = PostEntity(1)
         const [$posts] = query(PostsKey, [], getPosts, [
-          entities(postsPage => ({
+          entities((capture, postsPage) => ({
             ...postsPage,
-            posts: postsPage.posts.map(PostEntity)
+            posts: postsPage.posts.map(capture(PostEntity))
           }))
         ])
         const [mutate] = mutation<[id: number, title: string, content: string], Post | null>(
