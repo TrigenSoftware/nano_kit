@@ -193,13 +193,14 @@ For comfortable cache mutations, use helpers that fit naturally into [`$data`](/
 
 ### Array Helpers
 
-Use `append`, `prepend`, `drop`, and `sort` for array cache values:
+Use `append`, `prepend`, `drop`, `map`, and `sort` for array cache values:
 
 ```ts
 import {
   append,
   client,
   drop,
+  map,
   prepend,
   queryKey,
   sort
@@ -216,6 +217,12 @@ $data(PostsKey(), posts => prepend(posts, pinnedPost))
 
 /* Remove matching items. */
 $data(PostsKey(), posts => drop(posts, post => post.id === removedPostId))
+
+/* Transform items. */
+$data(PostsKey(), posts => map(posts, post => ({
+  ...post,
+  stale: true
+})))
 
 /* Sort without mutating the previous array. */
 $data(PostsKey(), posts => sort(posts, (a, b) => b.createdAt - a.createdAt))

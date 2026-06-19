@@ -9,6 +9,7 @@ import {
   append,
   prepend,
   drop,
+  map,
   sort,
   mapPages,
   mapPageAt,
@@ -57,6 +58,14 @@ describe('query', () => {
       it('should drop matching values', () => {
         expect(drop([1, 2, 3], value => value === 2)).toEqual([1, 3])
         expect(drop(null, () => true)).toBe(null)
+      })
+
+      it('should map values', () => {
+        const input = [1, 2, 3]
+
+        expect(map(input, (value, index) => value + index)).toEqual([1, 3, 5])
+        expect(input).toEqual([1, 2, 3])
+        expect(map<number[] | null>(null, value => value * 2)).toBe(null)
       })
 
       it('should sort values', () => {

@@ -68,9 +68,23 @@ export function prepend<A extends unknown[] | EmptyValue>(
 /* @__NO_SIDE_EFFECTS__ */
 export function drop<A extends unknown[] | EmptyValue>(
   array: A,
-  what: (value: ArrayItem<A>) => boolean
+  what: (value: ArrayItem<A>, index: number) => boolean
 ) {
-  return (array ? (array as []).filter(value => !what(value)) : array) as A
+  return (array ? (array as []).filter((value, index) => !what(value, index)) : array) as A
+}
+
+/**
+ * Map values in an array-like cache value.
+ * @param array - Previous array or empty value.
+ * @param callback - Value mapper.
+ * @returns Mapped array, or the empty value when input is empty.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function map<A extends unknown[] | EmptyValue>(
+  array: A,
+  callback: (value: ArrayItem<A>, index: number) => ArrayItem<A>
+) {
+  return (array ? (array as []).map(callback) : array) as A
 }
 
 /**
@@ -98,7 +112,7 @@ type PagesItem<T> = T extends InfinitePages<infer P, unknown> ? P : never
 /* @__NO_SIDE_EFFECTS__ */
 export function mapPages<P extends InfinitePages<unknown, unknown> | EmptyValue>(
   pages: P,
-  callback: (page: PagesItem<P>) => PagesItem<P>
+  callback: (page: PagesItem<P>, index: number) => PagesItem<P>
 ) {
   return pages && {
     ...pages,
