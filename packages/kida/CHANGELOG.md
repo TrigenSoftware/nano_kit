@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.7](https://github.com/TrigenSoftware/nano_kit/compare/kida@1.0.0-beta.6...kida@1.0.0-beta.7) (2026-06-19)
+
+### Features
+
+* cache facade now can revert changes and passes entry params into reducers ([#153](https://github.com/TrigenSoftware/nano_kit/issues/153)) ([a1c9af1](https://github.com/TrigenSoftware/nano_kit/commit/a1c9af1226897aeddb918a0edbce563980917a59))
+* rename list utils to array utils ([#148](https://github.com/TrigenSoftware/nano_kit/issues/148)) ([37914a4](https://github.com/TrigenSoftware/nano_kit/commit/37914a49056704b9bba08759d6bdf87e1a10cd07))
+
 ## [1.0.0-beta.6](https://github.com/TrigenSoftware/nano_kit/compare/kida@1.0.0-beta.5...kida@1.0.0-beta.6) (2026-06-09)
 
 ### Bug Fixes

@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.12](https://github.com/TrigenSoftware/nano_kit/compare/query@1.0.0-alpha.11...query@1.0.0-alpha.12) (2026-06-19)
+
+### Features
+
+* cache facade now can revert changes and passes entry params into reducers ([#153](https://github.com/TrigenSoftware/nano_kit/issues/153)) ([a1c9af1](https://github.com/TrigenSoftware/nano_kit/commit/a1c9af1226897aeddb918a0edbce563980917a59))
+* cache mutation utils ([#149](https://github.com/TrigenSoftware/nano_kit/issues/149)) ([862a32a](https://github.com/TrigenSoftware/nano_kit/commit/862a32a16d32340d4b50b87ee3ce5123519e4c24))
+* entities api rework ([#151](https://github.com/TrigenSoftware/nano_kit/issues/151)) ([467a3cf](https://github.com/TrigenSoftware/nano_kit/commit/467a3cf8921f00f813281ddc9b0f6fe0a4c3b4d7))
+* save request params into entries ([#152](https://github.com/TrigenSoftware/nano_kit/issues/152)) ([9a7328d](https://github.com/TrigenSoftware/nano_kit/commit/9a7328dd0f0a7bb9d0b20322ba5168be9d313055))
+
 ## [1.0.0-alpha.11](https://github.com/TrigenSoftware/nano_kit/compare/query@1.0.0-alpha.10...query@1.0.0-alpha.11) (2026-06-17)
 
 ### Features
