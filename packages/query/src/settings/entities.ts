@@ -45,10 +45,6 @@ function isIdentifier(value: unknown): value is number | string {
   return type === 'number' || type === 'string'
 }
 
-function isEntityRef<T extends {}>(value: T): value is T & EntityRef {
-  return ENTITY_KEY in value
-}
-
 /**
  * Create an entity manager for a specific entity type.
  * @param name - The name of the entity type.
@@ -112,16 +108,12 @@ export function entities(
   mapper: EntityMapper<unknown>
 ) {
   return (ctx: ClientContext) => {
-    const capture = (
+    const ref = (
       EntityFn: Entity<{}>,
-      entity: unknown
+      entity: {}
     ) => {
       if (!entity) {
-        return (entity: unknown) => capture(EntityFn, entity)
-      }
-
-      if (isEntityRef(entity)) {
-        return ctx.$get(entity[ENTITY_KEY]).data
+        return (entity: {}) => ref(EntityFn, entity)
       }
 
       const key = EntityFn(entity)
@@ -137,12 +129,30 @@ export function entities(
         [ENTITY_KEY]: key
       }
     }
-    const safeMapper = (data: {}) => data && (
+    const deref = (
+      EntityFn: Entity<{}>,
+      entity: {}
+    ) => {
+      if (!entity) {
+        return (entity: {}) => deref(EntityFn, entity)
+      }
+
+      const key = (entity as EntityRef)[ENTITY_KEY] ?? EntityFn(entity)
+
+      return ctx.$get(key).data as {} ?? entity
+    }
+    const wrap = (
+      map: (
+        EntityFn: Entity<{}>,
+        entity: {}
+      ) => {}
+    ) => (data: {}) => data && (
       'shard' in mapper
-        ? capture(mapper, data)
-        : mapper(capture as EntityCapture, data)
+        ? map(mapper, data)
+        : mapper(map as EntityCapture, data)
     )
 
-    ctx.mapComputedData = ctx.mapData = safeMapper
+    ctx.mapData = wrap(ref)
+    ctx.mapComputedData = wrap(deref)
   }
 }

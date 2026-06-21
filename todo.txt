@@ -3,12 +3,12 @@
 - correct sandbox for session example
 - inspect object copies
 - check === / !== undefined ? perf
-- root pkg catalog
+- examples/event-board/react-nano_kit-intl-ssr/src/stores/events.ts router paths
+- complete guide
 
 ## Agera/Kida/Store
 
 - latest util? computed(latest($searchQuery, $searchParam))
-- immutability helpers? / make work with $data facet more comfort
 - lazy scope to start and stop methods? for example for resort in loop
 - later: resort effects
 

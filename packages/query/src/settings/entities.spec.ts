@@ -26,6 +26,7 @@ import {
   mutations
 } from '../client.js'
 import { queryKey } from '../cache.js'
+import { prepend } from '../utils.js'
 import {
   entity,
   entities
@@ -236,6 +237,56 @@ describe('query', () => {
 
         expect($data(firstPostKey)).toEqual(mutatedFirstPostData)
         expect($posts()!.posts[0]).toEqual(mutatedFirstPostData)
+
+        offPost()
+      })
+
+      it('should deref manual added cached data', async () => {
+        const {
+          query,
+          $data
+        } = client(
+          mutations(),
+          tasks(tasksRunner(tasksPool))
+        )
+        const [$posts] = query(PostsKey, [], getPosts, [
+          entities((capture, postsPage) => ({
+            ...postsPage,
+            posts: postsPage.posts.map(capture(PostEntity))
+          }))
+        ])
+        const offPost = effect(() => {
+          $posts()
+        })
+
+        await waitTasks(tasksPool)
+
+        expect($posts()?.posts.length).toBe(2)
+
+        const newPost = {
+          id: 4,
+          title: 'Fourth Post',
+          content: 'Fourth Content'
+        }
+
+        $data(PostsKey, postsPage => postsPage && {
+          ...postsPage,
+          posts: prepend(postsPage.posts, newPost)
+        })
+
+        expect($posts()?.posts.length).toBe(3)
+        expect($posts()?.posts[0]).toEqual(newPost)
+
+        $data(PostEntity(4), {
+          ...newPost,
+          title: 'Fourth Post Updated'
+        })
+
+        expect($posts()?.posts[0]).toMatchObject({
+          id: 4,
+          title: 'Fourth Post Updated',
+          content: 'Fourth Content'
+        })
 
         offPost()
       })
