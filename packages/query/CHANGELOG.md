@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.1](https://github.com/TrigenSoftware/nano_kit/compare/query@1.0.0-beta.0...query@1.0.0-beta.1) (2026-06-21)
+
+### Bug Fixes
+
+* fix entities registration and references ([3bc382e](https://github.com/TrigenSoftware/nano_kit/commit/3bc382e2edd35b2a10b3ff70a38a1ec07806ae42))
+
 ## [1.0.0-beta.0](https://github.com/TrigenSoftware/nano_kit/compare/query@1.0.0-alpha.12...query@1.0.0-beta.0) (2026-06-19)
 
 ### Features
