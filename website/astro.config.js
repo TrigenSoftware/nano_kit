@@ -1,4 +1,5 @@
 import { defineConfig } from 'astro/config'
+import { unified } from '@astrojs/markdown-remark'
 import starlight from '@astrojs/starlight'
 import llmsTxt from 'starlight-llms-txt'
 import { viewTransitions } from 'astro-vtbot/starlight-view-transitions'
@@ -9,7 +10,9 @@ const isProduction = process.env.NODE_ENV === 'production'
 export default defineConfig({
   site: 'https://nano-kit.js.org',
   markdown: {
-    rehypePlugins: [rehypeNormalizeContent]
+    processor: unified({
+      rehypePlugins: [rehypeNormalizeContent]
+    })
   },
   integrations: [
     starlight({
@@ -101,63 +104,103 @@ export default defineConfig({
       sidebar: [
         {
           label: 'Getting Started',
-          autogenerate: {
-            directory: 'getting-started'
-          }
+          items: [
+            {
+              autogenerate: {
+                directory: 'getting-started'
+              }
+            }
+          ]
         },
         {
           label: 'Store',
-          autogenerate: {
-            directory: 'store'
-          }
+          items: [
+            {
+              autogenerate: {
+                directory: 'store'
+              }
+            }
+          ]
         },
         {
           label: 'Query',
-          autogenerate: {
-            directory: 'query'
-          }
+          items: [
+            {
+              autogenerate: {
+                directory: 'query'
+              }
+            }
+          ]
         },
         {
           label: 'Router',
-          autogenerate: {
-            directory: 'router'
-          }
+          items: [
+            {
+              autogenerate: {
+                directory: 'router'
+              }
+            }
+          ]
         },
         {
           label: 'Internationalization',
-          autogenerate: {
-            directory: 'intl'
-          }
+          items: [
+            {
+              autogenerate: {
+                directory: 'intl'
+              }
+            }
+          ]
         },
         {
           label: 'SSR',
-          autogenerate: {
-            directory: 'ssr'
-          }
+          items: [
+            {
+              autogenerate: {
+                directory: 'ssr'
+              }
+            }
+          ]
         },
         {
           label: 'Platforms',
-          autogenerate: {
-            directory: 'platform'
-          }
+          items: [
+            {
+              autogenerate: {
+                directory: 'platform'
+              }
+            }
+          ]
         },
         {
           label: 'Integrations',
-          autogenerate: {
-            directory: 'integrations'
-          }
+          items: [
+            {
+              autogenerate: {
+                directory: 'integrations'
+              }
+            }
+          ]
         },
         {
           label: 'Tutorial',
-          autogenerate: {
-            directory: 'tutorial'
-          }
+          items: [
+            {
+              autogenerate: {
+                directory: 'tutorial'
+              }
+            }
+          ]
         },
         {
           label: 'Examples',
-          autogenerate: {
-            directory: 'examples'
-          }
+          items: [
+            {
+              autogenerate: {
+                directory: 'examples'
+              }
+            }
+          ]
         }
       ],
       customCss: ['./src/styles/global.css'],
