@@ -11,6 +11,7 @@ import {
   batch,
   untracked,
   signal,
+  trigger,
   mountable,
   onMounted,
   deferScope,
@@ -1137,6 +1138,119 @@ describe('agera', () => {
       $value(3)
 
       expect(logs).toEqual(['value destroy'])
+    })
+
+    it('should link signal and computed to the same node', () => {
+      const a = signal(0)
+      const b = computed(() => 0)
+      let triggers = 0
+
+      effect(() => {
+        triggers += 1
+        effectScope(() => {
+          effectScope(() => {
+            a()
+            b()
+          })
+        })
+      })
+
+      expect(triggers).toBe(1)
+      a(a() + 1)
+      expect(triggers).toBe(2)
+      trigger(b)
+      expect(triggers).toBe(3)
+    })
+
+    it('should propagate both signal and computed changes to outer effect', () => {
+      const s = signal(0)
+      const c = computed(() => s() * 2)
+      let triggers = 0
+
+      effect(() => {
+        triggers += 1
+        effectScope(() => {
+          s()
+          c()
+        })
+      })
+
+      expect(triggers).toBe(1)
+
+      s(1)
+      expect(triggers).toBe(2)
+
+      trigger(c)
+      expect(triggers).toBe(3)
+    })
+
+    it('should respond to consecutive signal updates', () => {
+      const s = signal(0)
+      let triggers = 0
+
+      effect(() => {
+        triggers += 1
+        effectScope(() => {
+          s()
+        })
+      })
+
+      expect(triggers).toBe(1)
+      s(1)
+      expect(triggers).toBe(2)
+      s(2)
+      expect(triggers).toBe(3)
+    })
+
+    it('should cache computed in standalone scope', () => {
+      const s = signal(0)
+      let computeCount = 0
+      const dispose = effectScope(() => {
+        const c = computed(() => {
+          computeCount++
+          return s()
+        })
+
+        expect(c()).toBe(0)
+        expect(c()).toBe(0)
+      })
+
+      expect(computeCount).toBe(1)
+
+      dispose()
+    })
+
+    it('should not desync mountable subs count on direct signal read in scope', () => {
+      const $a = mountable(signal(1))
+      const log: boolean[] = []
+
+      onMounted($a, (mounted) => {
+        log.push(mounted)
+      })
+
+      const stopOuter = effect(() => {
+        $a()
+      })
+      const stop = effectScope(() => {
+        $a()
+
+        effect(() => {
+          $a()
+        })
+      })
+
+      expect($a.node.subsCount).toBe(2)
+      expect(log).toEqual([true])
+
+      stop()
+
+      expect($a.node.subsCount).toBe(1)
+      expect(log).toEqual([true])
+
+      stopOuter()
+
+      expect($a.node.subsCount).toBe(0)
+      expect(log).toEqual([true, false])
     })
 
     it('should decrement effect count on stop', () => {

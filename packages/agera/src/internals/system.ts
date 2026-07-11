@@ -72,12 +72,19 @@ function destroyEffect(dep: ReactiveNode) {
   }
 }
 
-function update(node: SignalNode | ComputedNode): boolean {
-  if (node.depsTail !== undefined) {
+function update(node: ReactiveNode): boolean {
+  if ('compute' in node) {
     return updateComputed(node as ComputedNode)
   }
 
-  return updateSignal(node as SignalNode)
+  if ('pendingValue' in node) {
+    return updateSignal(node as SignalNode)
+  }
+
+  // Effect scope node
+  node.flags = MutableFlag
+
+  return true
 }
 
 function notify(effect: EffectNode) {
@@ -300,7 +307,7 @@ function checkDirty(link: Link, sub: ReactiveNode): boolean {
     } else if ((flags & (MutableFlag | DirtyFlag)) === (MutableFlag | DirtyFlag)) {
       const subs = dep.subs!
 
-      if (update(dep as SignalNode | ComputedNode)) {
+      if (update(dep)) {
         if (subs.nextSub !== undefined) {
           shallowPropagate(subs)
         }
@@ -335,7 +342,7 @@ function checkDirty(link: Link, sub: ReactiveNode): boolean {
       if (dirty) {
         const subs = sub.subs!
 
-        if (update(sub as SignalNode | ComputedNode)) {
+        if (update(sub)) {
           if (subs.nextSub !== undefined) {
             shallowPropagate(subs)
           }
@@ -531,7 +538,7 @@ export function effectScope(fn: () => void): Destroy {
     depsTail: undefined,
     subs: undefined,
     subsTail: undefined,
-    flags: NoneFlag,
+    flags: MutableFlag,
     modes: ScopeMode
   }
   const prevSub = pushActiveSub(e)
@@ -564,7 +571,7 @@ export function deferScope(fn: () => void): () => Destroy {
     depsTail: undefined,
     subs: undefined,
     subsTail: undefined,
-    flags: NoneFlag,
+    flags: MutableFlag,
     modes: ScopeMode | LazyMode
   }
   const prevSub = pushActiveSub(e)
@@ -786,15 +793,10 @@ function signalOper<T>(this: SignalNode<T>, ...value: [NewValue<T>]): T | void {
       }
     }
 
-    let sub = activeSub
+    const sub = activeSub
 
-    while (sub !== undefined) {
-      if (sub.flags & (MutableFlag | WatchingFlag)) {
-        link(this, sub, cycle)
-        break
-      }
-
-      sub = sub.subs?.sub
+    if (sub !== undefined) {
+      link(this, sub, cycle)
     }
 
     return this.value
