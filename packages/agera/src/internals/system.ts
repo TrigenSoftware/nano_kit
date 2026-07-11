@@ -30,6 +30,7 @@ import {
 } from './flags.js'
 import {
   incrementEffectCount,
+  isSubscriber,
   isActiveSubscriber,
   decrementEffectCount,
   notifyMounted,
@@ -209,7 +210,7 @@ function unlink(link: Link, sub = link.sub): Link | undefined {
     unwatch = true
   }
 
-  if (isMountableUsed && dep.modes & MountableMode && sub.noMount !== dep) {
+  if (isMountableUsed && dep.modes & MountableMode && isSubscriber(sub) && sub.noMount !== dep) {
     decrementEffectCount(dep, unwatch)
   }
 

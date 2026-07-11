@@ -3,13 +3,13 @@
     "name": "All publics",
     "path": "dist/index.js",
     "import": "*",
-    "limit": "2.47 kB"
+    "limit": "2.49 kB"
   },
   {
     "name": "Signal",
     "path": "dist/index.js",
     "import": "{ signal }",
-    "limit": "1.59 kB"
+    "limit": "1.6 kB"
   },
   {
     "name": "Minimal set",
@@ -21,6 +21,6 @@
     "name": "Popular set",
     "path": "dist/index.js",
     "import": "{ signal, computed, effect, mountable, onMounted }",
-    "limit": "1.89 kB"
+    "limit": "1.91 kB"
   }
 ]

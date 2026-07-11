@@ -9,6 +9,7 @@ import {
   signal,
   onMounted,
   effect,
+  trigger,
   mountable,
   isMountable,
   readonly,
@@ -67,6 +68,32 @@ describe('agera', () => {
           'mount',
           'unmount'
         ])
+      })
+
+      it('should not desync subs count when signal is read by non-subscriber node', () => {
+        const $num = mountable(signal(1))
+        const log: string[] = []
+
+        onMounted($num, (mounted) => {
+          log.push(mounted ? 'mount' : 'unmount')
+        })
+
+        const stop = effect(() => {
+          $num()
+        })
+
+        expect($num.node.subsCount).toBe(1)
+        expect(log).toEqual(['mount'])
+
+        trigger($num)
+
+        expect($num.node.subsCount).toBe(1)
+        expect(log).toEqual(['mount'])
+
+        stop()
+
+        expect($num.node.subsCount).toBe(0)
+        expect(log).toEqual(['mount', 'unmount'])
       })
 
       it('should propagate changes from onMounted callback', () => {

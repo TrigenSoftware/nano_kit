@@ -51,6 +51,12 @@ export function notifyMounted(
 }
 
 /* @__NO_SIDE_EFFECTS__ */
+export function isSubscriber(sub: ReactiveNode | ReadableNode): boolean {
+  // Is it effect or computed?
+  return 'fn' in sub || 'subsCount' in sub
+}
+
+/* @__NO_SIDE_EFFECTS__ */
 export function isActiveSubscriber(sub: ReactiveNode | ReadableNode): boolean {
   // Is it effect or active computed?
   return 'fn' in sub || 'subsCount' in sub && sub.subsCount > 0
