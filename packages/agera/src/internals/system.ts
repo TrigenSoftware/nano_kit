@@ -65,19 +65,27 @@ export function untracked<T>(fn: () => T): T {
 
 function destroyEffect(dep: ReactiveNode) {
   const effect = dep as EffectNode
+  const { destroy } = effect
 
-  if (effect.destroy !== undefined) {
-    untracked(effect.destroy)
+  if (destroy !== undefined) {
     effect.destroy = undefined
+    untracked(destroy)
   }
 }
 
-function update(node: SignalNode | ComputedNode): boolean {
-  if (node.depsTail !== undefined) {
+function update(node: ReactiveNode): boolean {
+  if ('compute' in node) {
     return updateComputed(node as ComputedNode)
   }
 
-  return updateSignal(node as SignalNode)
+  if ('pendingValue' in node) {
+    return updateSignal(node as SignalNode)
+  }
+
+  // Effect scope node
+  node.flags = MutableFlag
+
+  return true
 }
 
 function notify(effect: EffectNode) {
@@ -177,11 +185,13 @@ function link(dep: ReactiveNode, sub: ReactiveNode, version: number): void {
 }
 
 function unlink(link: Link, sub = link.sub): Link | undefined {
-  const dep = link.dep
-  const prevDep = link.prevDep
-  const nextDep = link.nextDep
-  const nextSub = link.nextSub
-  const prevSub = link.prevSub
+  const {
+    dep,
+    prevDep,
+    nextDep,
+    nextSub,
+    prevSub
+  } = link
 
   if (nextDep !== undefined) {
     nextDep.prevDep = prevDep
@@ -296,9 +306,9 @@ function checkDirty(link: Link, sub: ReactiveNode): boolean {
     if (sub.flags & DirtyFlag) {
       dirty = true
     } else if ((flags & (MutableFlag | DirtyFlag)) === (MutableFlag | DirtyFlag)) {
-      if (update(dep as SignalNode | ComputedNode)) {
-        const subs = dep.subs!
+      const subs = dep.subs!
 
+      if (update(dep)) {
         if (subs.nextSub !== undefined) {
           shallowPropagate(subs)
         }
@@ -306,11 +316,9 @@ function checkDirty(link: Link, sub: ReactiveNode): boolean {
         dirty = true
       }
     } else if ((flags & (MutableFlag | PendingFlag)) === (MutableFlag | PendingFlag)) {
-      if (link.nextSub !== undefined || link.prevSub !== undefined) {
-        stack = {
-          value: link,
-          prev: stack
-        }
+      stack = {
+        value: link,
+        prev: stack
       }
 
       link = dep.deps!
@@ -329,20 +337,15 @@ function checkDirty(link: Link, sub: ReactiveNode): boolean {
     }
 
     while (checkDepth--) {
-      const firstSub = sub.subs!
-      const hasMultipleSubs = firstSub.nextSub !== undefined
-
-      if (hasMultipleSubs) {
-        link = stack!.value
-        stack = stack!.prev
-      } else {
-        link = firstSub
-      }
+      link = stack!.value
+      stack = stack!.prev
 
       if (dirty) {
-        if (update(sub as SignalNode | ComputedNode)) {
-          if (hasMultipleSubs) {
-            shallowPropagate(firstSub)
+        const subs = sub.subs!
+
+        if (update(sub)) {
+          if (subs.nextSub !== undefined) {
+            shallowPropagate(subs)
           }
 
           sub = link.sub
@@ -364,7 +367,7 @@ function checkDirty(link: Link, sub: ReactiveNode): boolean {
       }
     }
 
-    return dirty
+    return dirty && sub.flags !== NoneFlag
   } while (true)
 }
 
@@ -536,7 +539,7 @@ export function effectScope(fn: () => void): Destroy {
     depsTail: undefined,
     subs: undefined,
     subsTail: undefined,
-    flags: NoneFlag,
+    flags: MutableFlag,
     modes: ScopeMode
   }
   const prevSub = pushActiveSub(e)
@@ -569,7 +572,7 @@ export function deferScope(fn: () => void): () => Destroy {
     depsTail: undefined,
     subs: undefined,
     subsTail: undefined,
-    flags: NoneFlag,
+    flags: MutableFlag,
     modes: ScopeMode | LazyMode
   }
   const prevSub = pushActiveSub(e)
@@ -593,15 +596,18 @@ export function trigger(fn: () => void) {
     depsTail: undefined,
     subs: undefined,
     subsTail: undefined,
-    flags: WatchingFlag,
+    flags: WatchingFlag | RecursedCheckFlag,
     modes: NoneFlag
   }
   const prevSub = pushActiveSub(sub)
+
+  ++batchDepth
 
   try {
     fn()
   } finally {
     popActiveSub(prevSub)
+    sub.flags = NoneFlag
 
     let link = sub.deps
 
@@ -613,13 +619,12 @@ export function trigger(fn: () => void) {
       const subs = dep.subs
 
       if (subs !== undefined) {
-        sub.flags = NoneFlag
         propagate(subs)
         shallowPropagate(subs)
       }
     }
 
-    if (!batchDepth) {
+    if (!--batchDepth) {
       flush()
     }
   }
@@ -654,7 +659,6 @@ function runEffect(e: EffectNode, warmup?: true): void {
   const prevNoMount = isMountableUsed ? pushNoMount(e.noMount) : undefined
 
   try {
-    destroyEffect(e)
     e.destroy = e.fn(warmup) || undefined
   } finally {
     popNoMount(prevNoMount)
@@ -679,12 +683,21 @@ function run(e: EffectNode): void {
       && checkDirty(e.deps!, e)
     )
   ) {
+    if (e.destroy !== undefined) {
+      destroyEffect(e)
+
+      // Destroy function disposed the effect, do not re-run it
+      if (e.flags === NoneFlag) {
+        return
+      }
+    }
+
     ++cycle
     e.depsTail = undefined
     e.flags = WatchingFlag | RecursedCheckFlag
 
     runEffect(e)
-  } else {
+  } else if (e.deps !== undefined) {
     e.flags = WatchingFlag
   }
 }
@@ -746,10 +759,8 @@ function computedOper<T>(this: ComputedNode<T>): T {
     }
   }
 
-  const sub = activeSub
-
-  if (sub !== undefined) {
-    link(this, sub, cycle)
+  if (activeSub !== undefined) {
+    link(this, activeSub, cycle)
   }
 
   return this.value!
@@ -791,15 +802,8 @@ function signalOper<T>(this: SignalNode<T>, ...value: [NewValue<T>]): T | void {
       }
     }
 
-    let sub = activeSub
-
-    while (sub !== undefined) {
-      if (sub.flags & (MutableFlag | WatchingFlag)) {
-        link(this, sub, cycle)
-        break
-      }
-
-      sub = sub.subs?.sub
+    if (activeSub !== undefined) {
+      link(this, activeSub, cycle)
     }
 
     return this.value

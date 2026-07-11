@@ -11,6 +11,7 @@ import {
   batch,
   untracked,
   signal,
+  trigger,
   mountable,
   onMounted,
   deferScope,
@@ -336,6 +337,53 @@ describe('agera', () => {
       expect(yCalled).toBe(2)
     })
 
+    it('should handle consecutive inner resets through computed chain', () => {
+      const s = signal(0)
+      const c = computed(() => s())
+      let runs = 0
+
+      effect(() => {
+        runs++
+
+        if (c() > 0) {
+          s(0)
+        }
+      })
+
+      expect(runs).toBe(1)
+      s(1)
+      expect(s()).toBe(0)
+      expect(runs).toBe(2)
+      s(2)
+      expect(s()).toBe(0)
+      expect(runs).toBe(3)
+      s(3)
+      expect(s()).toBe(0)
+      expect(runs).toBe(4)
+    })
+
+    it('should handle consecutive inner resets inside trigger', () => {
+      const s = signal(0)
+      const c = computed(() => s())
+      let runs = 0
+
+      effect(() => {
+        runs++
+
+        if (c() > 0) {
+          trigger(() => {
+            s(0)
+          })
+        }
+      })
+
+      expect(runs).toBe(1)
+      s(1)
+      expect(s()).toBe(0)
+      s(2)
+      expect(s()).toBe(0)
+    })
+
     it('should handle effect recursion for the first execution', () => {
       const src1 = signal(0)
       const src2 = signal(0)
@@ -452,6 +500,60 @@ describe('agera', () => {
         'effect',
         'destroy'
       ])
+    })
+
+    it('should not recurse infinitely when destroy calls own stop', () => {
+      const s = signal(0)
+      let runs = 0
+      // oxlint-disable-next-line eslint/prefer-const
+      let stop!: () => void
+
+      stop = effect(() => {
+        runs++
+        s()
+
+        return () => {
+          stop()
+        }
+      })
+
+      expect(runs).toBe(1)
+
+      s(1)
+
+      expect(runs).toBe(1)
+
+      s(2)
+
+      expect(runs).toBe(1)
+    })
+
+    it('should not re-run effect disposed by own destroy function', () => {
+      const s = signal(0)
+      let runs = 0
+      // oxlint-disable-next-line eslint/prefer-const
+      let stop!: () => void
+
+      stop = effect(() => {
+        runs++
+        s()
+
+        return () => {
+          if (s() > 0) {
+            stop()
+          }
+        }
+      })
+
+      expect(runs).toBe(1)
+
+      s(1)
+
+      expect(runs).toBe(1)
+
+      s(2)
+
+      expect(runs).toBe(1)
     })
 
     it('should handle clinchy effects', () => {
@@ -732,6 +834,217 @@ describe('agera', () => {
       stop1()
       stop2()
     })
+
+    it('should not crash when effect disposes itself during computed update', () => {
+      const s = signal(false)
+      // oxlint-disable-next-line eslint/prefer-const
+      let dispose!: () => void
+      const a = computed(() => {
+        if (s()) {
+          dispose()
+        }
+
+        return 0
+      })
+      const b = computed(() => a())
+
+      dispose = effect(() => {
+        b()
+      })
+
+      s(true)
+    })
+
+    it('should not crash when effect scope is disposed during computed update', () => {
+      const s = signal(false)
+      // oxlint-disable-next-line eslint/prefer-const
+      let disposeScope!: () => void
+      const a = computed(() => {
+        if (s()) {
+          disposeScope()
+        }
+
+        return 0
+      })
+      const b = computed(() => a())
+
+      disposeScope = effectScope(() => {
+        effect(() => {
+          b()
+        })
+      })
+
+      s(true)
+    })
+
+    it('should not re-run effect disposed during computed update', () => {
+      const s = signal(0)
+      // oxlint-disable-next-line eslint/prefer-const
+      let dispose1!: () => void
+      let e1runs = 0
+      const a = computed(() => {
+        if (s() === 1) {
+          dispose1()
+        }
+
+        return s()
+      })
+
+      dispose1 = effect(() => {
+        a()
+        e1runs++
+      })
+      // second subscriber keeps `a` alive
+      effect(() => {
+        a()
+      })
+
+      expect(e1runs).toBe(1)
+      s(1)
+      expect(e1runs).toBe(1)
+    })
+
+    it('should not re-notify disposed effect on later updates', () => {
+      const s = signal(0)
+      // oxlint-disable-next-line eslint/prefer-const
+      let dispose1!: () => void
+      let e1runs = 0
+      const a = computed(() => {
+        if (s() === 1) {
+          dispose1()
+        }
+
+        return s()
+      })
+
+      dispose1 = effect(() => {
+        a()
+        e1runs++
+      })
+      effect(() => {
+        a()
+      })
+
+      expect(e1runs).toBe(1)
+      s(1)
+      expect(e1runs).toBe(1)
+      s(2)
+      s(3)
+      s(4)
+      expect(e1runs).toBe(1)
+    })
+
+    it('should propagate to remaining subscribers after sibling effect disposal', () => {
+      const s = signal(0)
+      // oxlint-disable-next-line eslint/prefer-const
+      let dispose1!: () => void
+      let e2Value = -1
+      const a = computed(() => {
+        if (s() === 1) {
+          dispose1()
+        }
+
+        return s()
+      })
+
+      dispose1 = effect(() => {
+        a()
+      })
+      effect(() => {
+        e2Value = a()
+      })
+
+      expect(e2Value).toBe(0)
+      s(1)
+      expect(e2Value).toBe(1)
+    })
+
+    it('should propagate to all remaining subscribers after sibling effect disposal', () => {
+      const s = signal(0)
+      // oxlint-disable-next-line eslint/prefer-const
+      let dispose1!: () => void
+      let e2Value = -1
+      let e3Value = -1
+      const a = computed(() => {
+        if (s() === 1) {
+          dispose1()
+        }
+
+        return s()
+      })
+
+      dispose1 = effect(() => {
+        a()
+      })
+      effect(() => {
+        e2Value = a()
+      })
+      effect(() => {
+        e3Value = a()
+      })
+
+      expect(e2Value).toBe(0)
+      expect(e3Value).toBe(0)
+      s(1)
+      expect(e2Value).toBe(1)
+      expect(e3Value).toBe(1)
+    })
+
+    it('should finish effect body after self-dispose', () => {
+      const s = signal(0)
+      // oxlint-disable-next-line eslint/prefer-const
+      let dispose!: () => void
+      const stages: string[] = []
+
+      dispose = effect(() => {
+        stages.push('start')
+        s()
+
+        if (s() === 1) {
+          dispose()
+          stages.push('after-dispose')
+        }
+
+        stages.push('end')
+      })
+
+      expect(stages).toEqual(['start', 'end'])
+
+      s(1)
+
+      expect(stages).toEqual([
+        'start',
+        'end',
+        'start',
+        'after-dispose',
+        'end'
+      ])
+    })
+
+    it('should keep outer effect responding to its own dep after inner re-runs', () => {
+      const a = signal(0)
+      const b = signal(0)
+      let outerRuns = 0
+      let innerRuns = 0
+
+      effect(() => {
+        a()
+        outerRuns++
+        effect(() => {
+          b()
+          innerRuns++
+        })
+      })
+      expect(outerRuns).toBe(1)
+      expect(innerRuns).toBe(1)
+
+      b(1)
+      expect(outerRuns).toBe(1)
+      expect(innerRuns).toBeGreaterThanOrEqual(2)
+
+      a(1)
+      expect(outerRuns).toBe(2)
+    })
   })
 
   describe('effectScope', () => {
@@ -926,6 +1239,119 @@ describe('agera', () => {
       $value(3)
 
       expect(logs).toEqual(['value destroy'])
+    })
+
+    it('should link signal and computed to the same node', () => {
+      const a = signal(0)
+      const b = computed(() => 0)
+      let triggers = 0
+
+      effect(() => {
+        triggers += 1
+        effectScope(() => {
+          effectScope(() => {
+            a()
+            b()
+          })
+        })
+      })
+
+      expect(triggers).toBe(1)
+      a(a() + 1)
+      expect(triggers).toBe(2)
+      trigger(b)
+      expect(triggers).toBe(3)
+    })
+
+    it('should propagate both signal and computed changes to outer effect', () => {
+      const s = signal(0)
+      const c = computed(() => s() * 2)
+      let triggers = 0
+
+      effect(() => {
+        triggers += 1
+        effectScope(() => {
+          s()
+          c()
+        })
+      })
+
+      expect(triggers).toBe(1)
+
+      s(1)
+      expect(triggers).toBe(2)
+
+      trigger(c)
+      expect(triggers).toBe(3)
+    })
+
+    it('should respond to consecutive signal updates', () => {
+      const s = signal(0)
+      let triggers = 0
+
+      effect(() => {
+        triggers += 1
+        effectScope(() => {
+          s()
+        })
+      })
+
+      expect(triggers).toBe(1)
+      s(1)
+      expect(triggers).toBe(2)
+      s(2)
+      expect(triggers).toBe(3)
+    })
+
+    it('should cache computed in standalone scope', () => {
+      const s = signal(0)
+      let computeCount = 0
+      const dispose = effectScope(() => {
+        const c = computed(() => {
+          computeCount++
+          return s()
+        })
+
+        expect(c()).toBe(0)
+        expect(c()).toBe(0)
+      })
+
+      expect(computeCount).toBe(1)
+
+      dispose()
+    })
+
+    it('should not desync mountable subs count on direct signal read in scope', () => {
+      const $a = mountable(signal(1))
+      const log: boolean[] = []
+
+      onMounted($a, (mounted) => {
+        log.push(mounted)
+      })
+
+      const stopOuter = effect(() => {
+        $a()
+      })
+      const stop = effectScope(() => {
+        $a()
+
+        effect(() => {
+          $a()
+        })
+      })
+
+      expect($a.node.subsCount).toBe(2)
+      expect(log).toEqual([true])
+
+      stop()
+
+      expect($a.node.subsCount).toBe(1)
+      expect(log).toEqual([true])
+
+      stopOuter()
+
+      expect($a.node.subsCount).toBe(0)
+      expect(log).toEqual([true, false])
     })
 
     it('should decrement effect count on stop', () => {
