@@ -6,10 +6,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsgo && vite build",
+    "build": "tsc && vite build",
     "build:only": "vite build",
     "preview": "vite preview",
-    "test:types": "tsgo"
+    "test:types": "tsc"
   },
   "dependencies": {
     "@nanostores/persistent": "^1.3.4",
@@ -19,8 +19,7 @@
     "solid-js": "^1.9.3"
   },
   "devDependencies": {
-    "@typescript/native-preview": "latest",
-    "typescript": "^6.0.0",
+    "typescript": "^7.0.0",
     "vite": "^8.0.8",
     "vite-plugin-solid": "^2.11.12"
   }

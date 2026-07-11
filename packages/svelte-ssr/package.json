@@ -62,13 +62,13 @@
     "clear": "del ./package ./dist ./coverage",
     "prepublishOnly": "run build clear:package clean-publish",
     "postpublish": "pnpm clear:package",
-    "build:dist": "tsgo -p tsconfig.build.json; cpy ./src/vite-plugin/index.d.ts ./dist/vite-plugin --flat; cpy './src/{client,renderer}.js' ./dist --flat",
+    "build:dist": "tsc -p tsconfig.build.json; cpy ./src/vite-plugin/index.d.ts ./dist/vite-plugin --flat; cpy './src/{client,renderer}.js' ./dist --flat",
     "build": "run clear:dist build:dist",
     "lint": "oxlint",
     "format": "oxlint --fix",
     "test:unit": "vitest run --coverage",
     "test:unit:watch": "vitest watch",
-    "test:ts": "tsgo --noEmit",
+    "test:ts": "tsc --noEmit",
     "test:svelte": "svelte-check --tsconfig ./tsconfig.json",
     "test:types": "run -p test:ts test:svelte",
     "test": "run -p lint test:unit test:types"
@@ -94,7 +94,7 @@
     "cpy-cli": "^7.0.0",
     "svelte": "catalog:",
     "svelte-check": "catalog:",
-    "typescript": "catalog:",
+    "typescript": "^6.0.0",
     "vite": "catalog:",
     "vitest": "catalog:"
   }

@@ -15,7 +15,6 @@
     "hono": "^4.12.1"
   },
   "devDependencies": {
-    "@typescript/native-preview": "catalog:",
     "playwright": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",

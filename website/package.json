@@ -32,6 +32,6 @@
   },
   "devDependencies": {
     "sharp": "^0.34.0",
-    "typescript": "catalog:"
+    "typescript": "^6.0.0"
   }
 }

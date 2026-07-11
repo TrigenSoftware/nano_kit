@@ -6,10 +6,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsgo && vite build",
+    "build": "tsc && vite build",
     "build:only": "vite build",
     "preview": "vite preview",
-    "test:types": "tsgo"
+    "test:types": "tsc"
   },
   "dependencies": {
     "@nano_kit/platform-web": "*",
@@ -18,8 +18,7 @@
     "nanoviews": "*"
   },
   "devDependencies": {
-    "@typescript/native-preview": "latest",
-    "typescript": "^6.0.0",
+    "typescript": "^7.0.0",
     "vite": "^8.0.8"
   }
 }

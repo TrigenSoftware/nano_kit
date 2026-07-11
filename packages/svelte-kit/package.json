@@ -61,14 +61,14 @@
     "clear": "del ./package ./dist ./coverage",
     "prepublishOnly": "run build clear:package clean-publish",
     "postpublish": "pnpm clear:package",
-    "emitDeclarations": "tsgo -p ./tsconfig.build.json --emitDeclarationOnly",
+    "emitDeclarations": "tsc -p ./tsconfig.build.json --emitDeclarationOnly",
     "build:dist": "run -p emitDeclarations [ vite build ]",
     "build": "run clear:dist build:dist",
     "lint": "oxlint",
     "format": "oxlint --fix",
     "test:unit": "vitest run --coverage",
     "test:unit:watch": "vitest watch",
-    "test:types": "tsgo --noEmit",
+    "test:types": "tsc --noEmit",
     "test": "run -p lint test:unit test:types"
   },
   "peerDependencies": {

@@ -54,11 +54,11 @@
     "clear": "del ./package ./dist ./coverage",
     "prepublishOnly": "run build clear:package clean-publish",
     "postpublish": "pnpm clear:package",
-    "build:dist": "tsgo -p tsconfig.build.json",
+    "build:dist": "tsc -p tsconfig.build.json",
     "build": "run clear:dist build:dist",
     "lint": "oxlint",
     "format": "oxlint --fix",
-    "test:types": "tsgo --noEmit",
+    "test:types": "tsc --noEmit",
     "test": "run lint"
   },
   "peerDependencies": {

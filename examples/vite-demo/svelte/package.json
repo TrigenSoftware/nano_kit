@@ -8,14 +8,14 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "check": "svelte-check --tsconfig ./tsconfig.json && tsc -p tsconfig.node.json"
+    "check": "svelte-check --tsconfig ./tsconfig.json && tsc --noEmit -p tsconfig.node.json"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^7.0.0",
     "@tsconfig/svelte": "^5.0.4",
     "svelte": "^5.23.1",
-    "svelte-check": "^4.1.5",
-    "typescript": "~5.8.2",
+    "svelte-check": "^4.7.2",
+    "typescript": "^6.0.0",
     "vite": "^8.0.8"
   }
 }

@@ -6,11 +6,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "svelte-check --tsconfig ./tsconfig.json && tsgo --noEmit -p tsconfig.node.json && vite build",
+    "build": "svelte-check --tsconfig ./tsconfig.json && tsc --noEmit -p tsconfig.node.json && vite build",
     "build:only": "vite build",
     "preview": "vite preview",
-    "check": "svelte-check --tsconfig ./tsconfig.json && tsgo --noEmit -p tsconfig.node.json",
-    "test:types": "svelte-check --tsconfig ./tsconfig.json && tsgo --noEmit -p tsconfig.node.json"
+    "check": "svelte-check --tsconfig ./tsconfig.json && tsc --noEmit -p tsconfig.node.json",
+    "test:types": "svelte-check --tsconfig ./tsconfig.json && tsc --noEmit -p tsconfig.node.json"
   },
   "dependencies": {
     "@nanostores/persistent": "^1.3.4",
@@ -20,7 +20,6 @@
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^7.0.0",
     "@tsconfig/svelte": "^5.0.4",
-    "@typescript/native-preview": "latest",
     "svelte": "^5.15.0",
     "svelte-check": "^4.1.1",
     "typescript": "^6.0.0",

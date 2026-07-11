@@ -61,13 +61,13 @@
     "clear": "del ./package ./dist ./coverage",
     "prepublishOnly": "run build clear:package clean-publish",
     "postpublish": "pnpm clear:package",
-    "build:dist": "tsgo -p tsconfig.build.json; cpy ./src/vite-plugin/index.d.ts ./dist/vite-plugin --flat",
+    "build:dist": "tsc -p tsconfig.build.json; cpy ./src/vite-plugin/index.d.ts ./dist/vite-plugin --flat",
     "build": "run clear:dist build:dist",
     "lint": "oxlint",
     "format": "oxlint --fix",
     "test:unit": "vitest run --coverage",
     "test:unit:watch": "vitest watch",
-    "test:types": "tsgo --noEmit",
+    "test:types": "tsc --noEmit",
     "test": "run -p lint test:unit test:types"
   },
   "peerDependencies": {
