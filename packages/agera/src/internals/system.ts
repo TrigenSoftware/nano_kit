@@ -602,6 +602,7 @@ export function trigger(fn: () => void) {
     fn()
   } finally {
     popActiveSub(prevSub)
+    sub.flags = NoneFlag
 
     let link = sub.deps
 
@@ -613,7 +614,6 @@ export function trigger(fn: () => void) {
       const subs = dep.subs
 
       if (subs !== undefined) {
-        sub.flags = NoneFlag
         propagate(subs)
         shallowPropagate(subs)
       }
