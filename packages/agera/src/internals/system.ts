@@ -177,11 +177,13 @@ function link(dep: ReactiveNode, sub: ReactiveNode, version: number): void {
 }
 
 function unlink(link: Link, sub = link.sub): Link | undefined {
-  const dep = link.dep
-  const prevDep = link.prevDep
-  const nextDep = link.nextDep
-  const nextSub = link.nextSub
-  const prevSub = link.prevSub
+  const {
+    dep,
+    prevDep,
+    nextDep,
+    nextSub,
+    prevSub
+  } = link
 
   if (nextDep !== undefined) {
     nextDep.prevDep = prevDep
@@ -296,9 +298,9 @@ function checkDirty(link: Link, sub: ReactiveNode): boolean {
     if (sub.flags & DirtyFlag) {
       dirty = true
     } else if ((flags & (MutableFlag | DirtyFlag)) === (MutableFlag | DirtyFlag)) {
-      if (update(dep as SignalNode | ComputedNode)) {
-        const subs = dep.subs!
+      const subs = dep.subs!
 
+      if (update(dep as SignalNode | ComputedNode)) {
         if (subs.nextSub !== undefined) {
           shallowPropagate(subs)
         }
@@ -306,11 +308,9 @@ function checkDirty(link: Link, sub: ReactiveNode): boolean {
         dirty = true
       }
     } else if ((flags & (MutableFlag | PendingFlag)) === (MutableFlag | PendingFlag)) {
-      if (link.nextSub !== undefined || link.prevSub !== undefined) {
-        stack = {
-          value: link,
-          prev: stack
-        }
+      stack = {
+        value: link,
+        prev: stack
       }
 
       link = dep.deps!
@@ -329,20 +329,15 @@ function checkDirty(link: Link, sub: ReactiveNode): boolean {
     }
 
     while (checkDepth--) {
-      const firstSub = sub.subs!
-      const hasMultipleSubs = firstSub.nextSub !== undefined
-
-      if (hasMultipleSubs) {
-        link = stack!.value
-        stack = stack!.prev
-      } else {
-        link = firstSub
-      }
+      link = stack!.value
+      stack = stack!.prev
 
       if (dirty) {
+        const subs = sub.subs!
+
         if (update(sub as SignalNode | ComputedNode)) {
-          if (hasMultipleSubs) {
-            shallowPropagate(firstSub)
+          if (subs.nextSub !== undefined) {
+            shallowPropagate(subs)
           }
 
           sub = link.sub
@@ -364,7 +359,7 @@ function checkDirty(link: Link, sub: ReactiveNode): boolean {
       }
     }
 
-    return dirty
+    return dirty && sub.flags !== NoneFlag
   } while (true)
 }
 
@@ -684,7 +679,7 @@ function run(e: EffectNode): void {
     e.flags = WatchingFlag | RecursedCheckFlag
 
     runEffect(e)
-  } else {
+  } else if (e.deps !== undefined) {
     e.flags = WatchingFlag
   }
 }
