@@ -596,10 +596,12 @@ export function trigger(fn: () => void) {
     depsTail: undefined,
     subs: undefined,
     subsTail: undefined,
-    flags: WatchingFlag,
+    flags: WatchingFlag | RecursedCheckFlag,
     modes: NoneFlag
   }
   const prevSub = pushActiveSub(sub)
+
+  ++batchDepth
 
   try {
     fn()
@@ -622,7 +624,7 @@ export function trigger(fn: () => void) {
       }
     }
 
-    if (!batchDepth) {
+    if (!--batchDepth) {
       flush()
     }
   }
