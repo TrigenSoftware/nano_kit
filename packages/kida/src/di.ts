@@ -5,11 +5,11 @@ import {
 } from 'agera'
 
 export type Injectable<T = unknown> = {
-  (): T
   injectable?: undefined
+  (): T
 } | {
-  new (): T
   injectable: true
+  new (): T
 }
 
 export type InjectionProvider = readonly [Injectable, unknown]

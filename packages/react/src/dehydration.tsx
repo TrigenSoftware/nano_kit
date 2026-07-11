@@ -76,10 +76,6 @@ export async function dehydrate(Stores$: () => AnyAccessor[]) {
 
 export interface DehydrationProps extends InjectionContextProps {
   /**
-   * Factory function that returns an array of stores to run and dehydrate.
-   */
-  stores?(): AnyAccessor[]
-  /**
    * Pre-dehydrated data. If provided, skips `stores` dehydration.
    */
   dehydrated?: [string, unknown][] | FalsyValue
@@ -91,6 +87,10 @@ export interface DehydrationProps extends InjectionContextProps {
    * Whether to create a new InjectionContext for this dehydration or reuse an existing one from the context.
    */
   isolate?: boolean
+  /**
+   * Factory function that returns an array of stores to run and dehydrate.
+   */
+  stores?(): AnyAccessor[]
 }
 
 /**

@@ -49,12 +49,12 @@ export function on(getTarget: () => EventTarget, event: string) {
 
 /* @__NO_SIDE_EFFECTS__ */
 export function raf(sync: () => void) {
-  let frame = requestAnimationFrame(loop)
-
-  function loop() {
+  const loop = () => {
     sync()
+    // oxlint-disable-next-line no-use-before-define
     frame = requestAnimationFrame(loop)
   }
+  let frame = requestAnimationFrame(loop)
 
   return () => cancelAnimationFrame(frame)
 }

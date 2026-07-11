@@ -65,7 +65,7 @@ export type LinkSettingsHook<S extends LinkSettings = LinkSettings> = (
 ) => Partial<AnchorHTMLAttributes<HTMLAnchorElement>>
 
 export interface LinkSettings {
+  hook?: LinkSettingsHook
   onClick(event: MouseEvent<HTMLAnchorElement>): void
   addHook<S extends LinkSettings>(hook: LinkSettingsHook<S>): void
-  hook?: LinkSettingsHook
 }

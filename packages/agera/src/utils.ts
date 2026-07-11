@@ -29,6 +29,8 @@ export function isSignal<T extends AnyReadableSignal = AnyReadableSignal>(value:
   return isFunction(value) && 'node' in value
 }
 
-export const noop = () => { /* no op */ }
+export function noop() { /* no op */ }
 
-export const identity = <T>(value: T): T => value
+export function identity<T>(value: T): T {
+  return value
+}

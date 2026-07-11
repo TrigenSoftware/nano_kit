@@ -64,8 +64,8 @@ interface Player {
 }
 
 export const EntitiesValue: StoryObj<{
-  onEffect?(value: string): void
   items: Player[]
+  onEffect?(value: string): void
 }> = {
   args: {
     items: [

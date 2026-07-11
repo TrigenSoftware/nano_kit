@@ -38,8 +38,8 @@ export interface Morph<T = unknown> {
 }
 
 export interface WritableSignal<T> extends ReadableSignal<T> {
-  (value: NewValue<T>): void
   node: SignalNode<T>
+  (value: NewValue<T>): void
 }
 
 export type AnyAccessor = Accessor<any>

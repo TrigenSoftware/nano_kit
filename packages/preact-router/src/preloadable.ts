@@ -19,10 +19,10 @@ export interface UsePreloadSettings extends LinkSettings {
 }
 
 export interface UsePreloadProps {
-  onFocus?(event: TargetedFocusEvent<HTMLAnchorElement>): void
-  onMouseEnter?(event: TargetedMouseEvent<HTMLAnchorElement>): void
   preload?: boolean
   to?: string
+  onFocus?(event: TargetedFocusEvent<HTMLAnchorElement>): void
+  onMouseEnter?(event: TargetedMouseEvent<HTMLAnchorElement>): void
 }
 
 /* @__NO_SIDE_EFFECTS__ */
