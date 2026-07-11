@@ -20,11 +20,11 @@ import {
 } from './controls.js'
 
 const meta: Meta<{
-  onChange?(value: unknown): void
   value?: string
   values?: string[]
   checked?: boolean | typeof Indeterminate
   files?: File[]
+  onChange?(value: unknown): void
 }> = {
   title: 'Elements/Effect Attributes/Controls'
 }
@@ -32,8 +32,8 @@ const meta: Meta<{
 export default meta
 
 export const TextInput: StoryObj<{
-  onChange(value: unknown): void
   value: string
+  onChange(value: unknown): void
 }> = {
   args: {
     onChange: fn(),
@@ -58,8 +58,8 @@ export const TextInput: StoryObj<{
 }
 
 export const Textarea: StoryObj<{
-  onChange(value: unknown): void
   value: string
+  onChange(value: unknown): void
 }> = {
   args: {
     onChange: fn(),
@@ -83,8 +83,8 @@ export const Textarea: StoryObj<{
 }
 
 export const Select: StoryObj<{
-  onChange(value: unknown): void
   value: string
+  onChange(value: unknown): void
 }> = {
   argTypes: {
     value: {
@@ -128,8 +128,8 @@ export const Select: StoryObj<{
 }
 
 export const MultipleSelect: StoryObj<{
-  onChange(value: unknown): void
   values: string[]
+  onChange(value: unknown): void
 }> = {
   argTypes: {
     values: {
@@ -173,8 +173,8 @@ export const MultipleSelect: StoryObj<{
 }
 
 export const Checkbox: StoryObj<{
-  onChange(value: unknown): void
   checked: boolean | typeof Indeterminate
+  onChange(value: unknown): void
 }> = {
   argTypes: {
     checked: {
@@ -209,8 +209,8 @@ export const Checkbox: StoryObj<{
 }
 
 export const Files: StoryObj<{
-  onChange(value: unknown): void
   files: File[]
+  onChange(value: unknown): void
 }> = {
   args: {
     onChange: fn(),

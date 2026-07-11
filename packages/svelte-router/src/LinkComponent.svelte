@@ -52,7 +52,8 @@
     })),
     settings
   )
-  const onClickCallback = (event: MouseEvent & { currentTarget: HTMLAnchorElement }) => {
+
+  function onClickCallback(event: MouseEvent & { currentTarget: HTMLAnchorElement }) {
     onClickProp?.(event)
 
     if (!event.defaultPrevented) {

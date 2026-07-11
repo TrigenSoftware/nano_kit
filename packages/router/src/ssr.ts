@@ -100,7 +100,9 @@ function composeWithLayouts(
   return current
 }
 
-const noopArray = () => []
+function noopArray() {
+  return []
+}
 
 function composeArrayFns<T>(
   outer: (() => T[]) | undefined,
@@ -111,7 +113,9 @@ function composeArrayFns<T>(
     : outer || inner || noopArray
 }
 
-const noopCache = () => false
+function noopCache() {
+  return false
+}
 
 function composeCache(
   outer: CacheFactory | undefined,

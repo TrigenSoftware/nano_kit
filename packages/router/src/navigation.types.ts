@@ -35,6 +35,10 @@ export interface Navigation<R extends Routes = Routes> {
    */
   routes: R
   /**
+   * Number of entries in the history stack.
+   */
+  length: number
+  /**
    * Handle a transition between two locations.
    * You can redefine this method to perform custom actions like transition confirmation.
    * @param fn - Function to execute during the transition.
@@ -48,10 +52,6 @@ export interface Navigation<R extends Routes = Routes> {
     nextLocation: RouteLocation<R> | null,
     prevLocation: RouteLocation<R>
   ): void
-  /**
-   * Number of entries in the history stack.
-   */
-  length: number
   /**
    * Navigate back in history.
    */

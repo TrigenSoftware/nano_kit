@@ -20,7 +20,12 @@ import type {
   RawProps
 } from './types.js'
 
-export type { Args, ArgTypes, Parameters, StrictArgs } from 'storybook/internal/types'
+export type {
+  Args,
+  ArgTypes,
+  Parameters,
+  StrictArgs
+} from 'storybook/internal/types'
 
 /**
  * Metadata to configure the stories for a component.

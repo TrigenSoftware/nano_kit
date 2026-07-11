@@ -113,4 +113,4 @@ export declare function layout<R extends string>(
 ): LayoutMatchRef<R, PageComponent, PageComponent>
 
 // @ts-expect-error - Override types for better inference
-export { loadable, layout, page, notFound } from '@nano_kit/router'
+export { loadable, layout, page, notFound } from '@nano_kit/router' // oxlint-disable-line trigen/named-export-order

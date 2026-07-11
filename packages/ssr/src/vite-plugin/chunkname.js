@@ -18,4 +18,6 @@ export const IMPORT = `import { __attachChunkname } from '${VIRTUAL_ID}';\n`
  * @param {string} chunkname
  * @returns {string}
  */
-export const INVOKE = (imp, chunkname) => `__attachChunkname(${imp}, ${JSON.stringify(chunkname)})`
+export function INVOKE(imp, chunkname) {
+  return `__attachChunkname(${imp}, ${JSON.stringify(chunkname)})`
+}

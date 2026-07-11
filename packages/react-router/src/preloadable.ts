@@ -20,10 +20,10 @@ export interface UsePreloadSettings extends LinkSettings {
 }
 
 export interface UsePreloadProps {
-  onFocus?(event: FocusEvent): void
-  onMouseEnter?(event: MouseEvent): void
   preload?: boolean
   to?: string
+  onFocus?(event: FocusEvent): void
+  onMouseEnter?(event: MouseEvent): void
 }
 
 /* @__NO_SIDE_EFFECTS__ */
