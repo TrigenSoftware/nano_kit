@@ -17,7 +17,9 @@ import type {
   MessagesAccessor
 } from './types.js'
 
-const proxyHandler: ProxyHandler<AnySignal & Record<string, unknown>> = {
+type AnySignalRecord = AnySignal & Record<string, unknown>
+
+const proxyHandler: ProxyHandler<AnySignalRecord> = {
   /* oxlint-disable */
   get($signal, key: string, receiver) {
     if (!(key in $signal)) {
@@ -128,7 +130,7 @@ export class IntlContext<
     })
 
     return [
-      new Proxy($messages, proxyHandler) as MessagesAccessor<T[K], S>,
+      new Proxy($messages as AnySignalRecord, proxyHandler) as MessagesAccessor<T[K], S>,
       $pending,
       $error
     ] as const

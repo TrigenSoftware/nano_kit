@@ -13,7 +13,7 @@
     "nanoviews": "*"
   },
   "devDependencies": {
-    "typescript": "^5.2.2",
+    "typescript": "^7.0.0",
     "vite": "^8.0.8"
   }
 }

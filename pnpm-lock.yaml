@@ -42,9 +42,6 @@ catalogs:
     '@types/react-dom':
       specifier: ^19.2.3
       version: 19.2.3
-    '@typescript/native-preview':
-      specifier: latest
-      version: 7.0.0-dev.20260605.1
     '@vitejs/plugin-react':
       specifier: ^6.0.1
       version: 6.0.1
@@ -79,11 +76,11 @@ catalogs:
       specifier: ^5.55.5
       version: 5.55.5
     svelte-check:
-      specifier: ^4.4.7
-      version: 4.4.7
+      specifier: ^4.7.2
+      version: 4.7.2
     typescript:
-      specifier: ^6.0.0
-      version: 6.0.2
+      specifier: ^7.0.0
+      version: 7.0.2
     vite:
       specifier: ^8.0.8
       version: 8.0.8
@@ -111,13 +108,15 @@ overrides:
   '@nano_kit/svelte-ssr@*': workspace:^
   nanoviews@*: workspace:^
 
+packageExtensionsChecksum: sha256-ig8BQ28Nxuk8D4dAIbewX/VikNWfCCJYluqSMdUEFOM=
+
 importers:
 
   .:
     devDependencies:
       '@commitlint/cli':
         specifier: ^20.0.0
-        version: 20.5.0(@types/node@24.0.14)(conventional-commits-parser@6.4.0)(typescript@6.0.2)
+        version: 20.5.0(@types/node@24.0.14)(conventional-commits-parser@6.4.0)(typescript@7.0.2)
       '@commitlint/config-conventional':
         specifier: ^20.0.0
         version: 20.5.0
@@ -126,7 +125,7 @@ importers:
         version: 20.4.3
       '@commitlint/cz-commitlint':
         specifier: ^20.0.0
-        version: 20.5.1(@types/node@24.0.14)(commitizen@4.3.1(@types/node@24.0.14)(typescript@6.0.2))(inquirer@8.2.5)(typescript@6.0.2)
+        version: 20.5.1(@types/node@24.0.14)(commitizen@4.3.1(@types/node@24.0.14)(typescript@7.0.2))(inquirer@8.2.5)(typescript@7.0.2)
       '@nano_kit/query':
         specifier: workspace:^
         version: link:packages/query
@@ -163,15 +162,12 @@ importers:
       '@types/react-dom':
         specifier: 'catalog:'
         version: 19.2.3(@types/react@19.2.9)
-      '@typescript/native-preview':
-        specifier: 'catalog:'
-        version: 7.0.0-dev.20260619.1
       clean-publish:
         specifier: ^5.0.0
         version: 5.2.2
       commitizen:
         specifier: ^4.2.4
-        version: 4.3.1(@types/node@24.0.14)(typescript@6.0.2)
+        version: 4.3.1(@types/node@24.0.14)(typescript@7.0.2)
       del-cli:
         specifier: ^7.0.0
         version: 7.0.0
@@ -204,7 +200,7 @@ importers:
         version: 2.13.0
       typescript:
         specifier: 'catalog:'
-        version: 6.0.2
+        version: 7.0.2
 
   examples/benchmark/nanoviews:
     dependencies:
@@ -226,7 +222,7 @@ importers:
         version: 1.60.0
       typescript:
         specifier: 'catalog:'
-        version: 6.0.2
+        version: 7.0.2
       vitest:
         specifier: 'catalog:'
         version: 4.1.4(@types/node@24.0.14)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
@@ -263,7 +259,7 @@ importers:
         version: 8.0.4
       '@trigen/stylelint-config':
         specifier: ^8.0.0
-        version: 8.0.0(postcss@8.5.16)(stylelint@16.26.1(typescript@5.9.3))
+        version: 8.0.0(postcss@8.5.16)(stylelint@16.26.1(typescript@7.0.2))
       '@types/react':
         specifier: ^19.2.4
         version: 19.2.9
@@ -287,13 +283,13 @@ importers:
         version: 19.2.3(react@19.2.3)
       stylelint:
         specifier: ^16.25.0
-        version: 16.26.1(typescript@5.9.3)
+        version: 16.26.1(typescript@7.0.2)
       svg-sprite:
         specifier: ^2.0.4
         version: 2.0.4
       typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
+        specifier: ^7.0.0
+        version: 7.0.2
       vite:
         specifier: ^8.0.8
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -316,15 +312,12 @@ importers:
         specifier: ^4.12.1
         version: 4.12.1
     devDependencies:
-      '@typescript/native-preview':
-        specifier: 'catalog:'
-        version: 7.0.0-dev.20260605.1
       playwright:
         specifier: 'catalog:'
         version: 1.60.0
       typescript:
         specifier: 'catalog:'
-        version: 6.0.2
+        version: 7.0.2
       vite:
         specifier: 'catalog:'
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -375,8 +368,8 @@ importers:
         specifier: ^2.10.2
         version: 2.10.5(@babel/core@7.29.0)(preact@10.29.1)(rollup@4.60.1)(vite@8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
       typescript:
-        specifier: ^6.0.0
-        version: 6.0.2
+        specifier: ^7.0.0
+        version: 7.0.2
       vite:
         specifier: ^8.0.8
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -430,8 +423,8 @@ importers:
         specifier: ^6.0.1
         version: 6.0.1(vite@8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
       typescript:
-        specifier: ^6.0.0
-        version: 6.0.2
+        specifier: ^7.0.0
+        version: 7.0.2
       vite:
         specifier: ^8.0.8
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -469,9 +462,6 @@ importers:
       '@tsconfig/svelte':
         specifier: ^5.0.4
         version: 5.0.7
-      '@typescript/native-preview':
-        specifier: latest
-        version: 7.0.0-dev.20260507.1
       svelte:
         specifier: ^5.55.5
         version: 5.55.5(@typescript-eslint/types@8.46.4)
@@ -506,15 +496,12 @@ importers:
         specifier: workspace:^
         version: link:../../../packages/store
     devDependencies:
-      '@typescript/native-preview':
-        specifier: 'catalog:'
-        version: 7.0.0-dev.20260605.1
       playwright:
         specifier: 'catalog:'
         version: 1.60.0
       typescript:
         specifier: 'catalog:'
-        version: 6.0.2
+        version: 7.0.2
       vite:
         specifier: 'catalog:'
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -561,9 +548,6 @@ importers:
       '@types/react-dom':
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.9)
-      '@typescript/native-preview':
-        specifier: latest
-        version: 7.0.0-dev.20260505.1
       typescript:
         specifier: ^6.0.0
         version: 6.0.2
@@ -607,9 +591,6 @@ importers:
       '@types/react-dom':
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.9)
-      '@typescript/native-preview':
-        specifier: latest
-        version: 7.0.0-dev.20260505.1
       typescript:
         specifier: ^6.0.0
         version: 6.0.2
@@ -641,9 +622,6 @@ importers:
       '@types/react-dom':
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.9)
-      '@typescript/native-preview':
-        specifier: latest
-        version: 7.0.0-dev.20260505.1
       '@vitejs/plugin-react':
         specifier: ^6.0.1
         version: 6.0.1(vite@8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
@@ -654,8 +632,8 @@ importers:
         specifier: ^19.2.0
         version: 19.2.3(react@19.2.3)
       typescript:
-        specifier: ^6.0.0
-        version: 6.0.2
+        specifier: ^7.0.0
+        version: 7.0.2
       vite:
         specifier: ^8.0.8
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -702,15 +680,12 @@ importers:
       '@types/react-dom':
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.9)
-      '@typescript/native-preview':
-        specifier: latest
-        version: 7.0.0-dev.20260505.1
       '@vitejs/plugin-react':
         specifier: ^6.0.1
         version: 6.0.1(vite@8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
       typescript:
-        specifier: ^6.0.0
-        version: 6.0.2
+        specifier: ^7.0.0
+        version: 7.0.2
       vite:
         specifier: ^8.0.8
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -733,9 +708,6 @@ importers:
       '@types/react-dom':
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.9)
-      '@typescript/native-preview':
-        specifier: latest
-        version: 7.0.0-dev.20260505.1
       '@vitejs/plugin-react':
         specifier: ^6.0.1
         version: 6.0.1(vite@8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
@@ -746,8 +718,8 @@ importers:
         specifier: ^19.2.0
         version: 19.2.3(react@19.2.3)
       typescript:
-        specifier: ^6.0.0
-        version: 6.0.2
+        specifier: ^7.0.0
+        version: 7.0.2
       vite:
         specifier: ^8.0.8
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -779,9 +751,6 @@ importers:
       '@types/react-dom':
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.9)
-      '@typescript/native-preview':
-        specifier: latest
-        version: 7.0.0-dev.20260505.1
       '@vitejs/plugin-react':
         specifier: ^6.0.1
         version: 6.0.1(vite@8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
@@ -792,8 +761,8 @@ importers:
         specifier: ^19.2.0
         version: 19.2.3(react@19.2.3)
       typescript:
-        specifier: ^6.0.0
-        version: 6.0.2
+        specifier: ^7.0.0
+        version: 7.0.2
       vite:
         specifier: ^8.0.8
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -868,9 +837,6 @@ importers:
       '@tsconfig/svelte':
         specifier: ^5.0.4
         version: 5.0.7
-      '@typescript/native-preview':
-        specifier: latest
-        version: 7.0.0-dev.20260505.1
       svelte:
         specifier: ^5.55.5
         version: 5.55.5(@typescript-eslint/types@8.46.4)
@@ -917,9 +883,6 @@ importers:
       '@tsconfig/svelte':
         specifier: ^5.0.4
         version: 5.0.7
-      '@typescript/native-preview':
-        specifier: latest
-        version: 7.0.0-dev.20260507.1
       svelte:
         specifier: ^5.55.5
         version: 5.55.5(@typescript-eslint/types@8.46.4)
@@ -945,15 +908,12 @@ importers:
         specifier: workspace:^
         version: link:../../../packages/store
     devDependencies:
-      '@typescript/native-preview':
-        specifier: 'catalog:'
-        version: 7.0.0-dev.20260605.1
       playwright:
         specifier: 'catalog:'
         version: 1.60.0
       typescript:
         specifier: 'catalog:'
-        version: 6.0.2
+        version: 7.0.2
       vite:
         specifier: 'catalog:'
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -1004,8 +964,8 @@ importers:
         specifier: ^6.0.1
         version: 6.0.1(vite@8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
       typescript:
-        specifier: ^6.0.0
-        version: 6.0.2
+        specifier: ^7.0.0
+        version: 7.0.2
       vite:
         specifier: ^8.0.8
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -1054,8 +1014,8 @@ importers:
         version: link:../../../packages/nanoviews
     devDependencies:
       typescript:
-        specifier: ^5.2.2
-        version: 5.9.3
+        specifier: ^7.0.0
+        version: 7.0.2
       vite:
         specifier: ^8.0.8
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -1067,8 +1027,8 @@ importers:
         version: 1.9.11
     devDependencies:
       typescript:
-        specifier: ^5.2.2
-        version: 5.9.3
+        specifier: ^7.0.0
+        version: 7.0.2
       vite:
         specifier: ^8.0.8
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -1088,11 +1048,11 @@ importers:
         specifier: ^5.23.1
         version: 5.48.5
       svelte-check:
-        specifier: ^4.1.5
-        version: 4.3.6(picomatch@4.0.4)(svelte@5.48.5)(typescript@5.8.3)
+        specifier: ^4.7.2
+        version: 4.7.2(picomatch@4.0.4)(svelte@5.48.5)(typescript@6.0.2)
       typescript:
-        specifier: ~5.8.2
-        version: 5.8.3
+        specifier: ^6.0.0
+        version: 6.0.2
       vite:
         specifier: ^8.0.8
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -1118,15 +1078,12 @@ importers:
         specifier: ^0.11.3
         version: 0.11.4
     devDependencies:
-      '@typescript/native-preview':
-        specifier: 'catalog:'
-        version: 7.0.0-dev.20260605.1
       playwright:
         specifier: 'catalog:'
         version: 1.60.0
       typescript:
         specifier: 'catalog:'
-        version: 6.0.2
+        version: 7.0.2
       vite:
         specifier: 'catalog:'
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -1149,12 +1106,9 @@ importers:
         specifier: workspace:^
         version: link:../../../packages/nanoviews
     devDependencies:
-      '@typescript/native-preview':
-        specifier: latest
-        version: 7.0.0-dev.20260504.1
       typescript:
-        specifier: ^6.0.0
-        version: 6.0.2
+        specifier: ^7.0.0
+        version: 7.0.2
       vite:
         specifier: ^8.0.8
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -1174,12 +1128,9 @@ importers:
         specifier: workspace:^
         version: link:../../../packages/nanoviews
     devDependencies:
-      '@typescript/native-preview':
-        specifier: latest
-        version: 7.0.0-dev.20260504.1
       typescript:
-        specifier: ^6.0.0
-        version: 6.0.2
+        specifier: ^7.0.0
+        version: 7.0.2
       vite:
         specifier: ^8.0.8
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -1205,9 +1156,6 @@ importers:
       '@types/react-dom':
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.9)
-      '@typescript/native-preview':
-        specifier: latest
-        version: 7.0.0-dev.20260504.1
       '@vitejs/plugin-react':
         specifier: ^6.0.1
         version: 6.0.1(vite@8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
@@ -1218,8 +1166,8 @@ importers:
         specifier: ^19.2.0
         version: 19.2.3(react@19.2.3)
       typescript:
-        specifier: ^6.0.0
-        version: 6.0.2
+        specifier: ^7.0.0
+        version: 7.0.2
       vite:
         specifier: ^8.0.8
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -1245,9 +1193,6 @@ importers:
       '@types/react-dom':
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.9)
-      '@typescript/native-preview':
-        specifier: latest
-        version: 7.0.0-dev.20260504.1
       '@vitejs/plugin-react':
         specifier: ^6.0.1
         version: 6.0.1(vite@8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
@@ -1258,8 +1203,8 @@ importers:
         specifier: ^19.2.0
         version: 19.2.3(react@19.2.3)
       typescript:
-        specifier: ^6.0.0
-        version: 6.0.2
+        specifier: ^7.0.0
+        version: 7.0.2
       vite:
         specifier: ^8.0.8
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -1285,9 +1230,6 @@ importers:
       '@types/react-dom':
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.9)
-      '@typescript/native-preview':
-        specifier: latest
-        version: 7.0.0-dev.20260504.1
       '@vitejs/plugin-react':
         specifier: ^6.0.1
         version: 6.0.1(vite@8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
@@ -1298,8 +1240,8 @@ importers:
         specifier: ^19.2.0
         version: 19.2.3(react@19.2.3)
       typescript:
-        specifier: ^6.0.0
-        version: 6.0.2
+        specifier: ^7.0.0
+        version: 7.0.2
       vite:
         specifier: ^8.0.8
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -1319,9 +1261,6 @@ importers:
       '@types/react-dom':
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.9)
-      '@typescript/native-preview':
-        specifier: latest
-        version: 7.0.0-dev.20260504.1
       '@vitejs/plugin-react':
         specifier: ^6.0.1
         version: 6.0.1(vite@8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
@@ -1332,8 +1271,8 @@ importers:
         specifier: ^19.2.0
         version: 19.2.3(react@19.2.3)
       typescript:
-        specifier: ^6.0.0
-        version: 6.0.2
+        specifier: ^7.0.0
+        version: 7.0.2
       vite:
         specifier: ^8.0.8
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -1350,9 +1289,6 @@ importers:
       '@types/react-dom':
         specifier: ^19.2.3
         version: 19.2.3(@types/react@19.2.9)
-      '@typescript/native-preview':
-        specifier: latest
-        version: 7.0.0-dev.20260504.1
       '@vitejs/plugin-react':
         specifier: ^6.0.1
         version: 6.0.1(vite@8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
@@ -1363,8 +1299,8 @@ importers:
         specifier: ^19.2.0
         version: 19.2.3(react@19.2.3)
       typescript:
-        specifier: ^6.0.0
-        version: 6.0.2
+        specifier: ^7.0.0
+        version: 7.0.2
       vite:
         specifier: ^8.0.8
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -1387,12 +1323,9 @@ importers:
         specifier: ^1.9.3
         version: 1.9.11
     devDependencies:
-      '@typescript/native-preview':
-        specifier: latest
-        version: 7.0.0-dev.20260504.1
       typescript:
-        specifier: ^6.0.0
-        version: 6.0.2
+        specifier: ^7.0.0
+        version: 7.0.2
       vite:
         specifier: ^8.0.8
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -1421,9 +1354,6 @@ importers:
       '@tsconfig/svelte':
         specifier: ^5.0.4
         version: 5.0.7
-      '@typescript/native-preview':
-        specifier: latest
-        version: 7.0.0-dev.20260504.1
       svelte:
         specifier: ^5.55.5
         version: 5.55.5(@typescript-eslint/types@8.46.4)
@@ -1458,9 +1388,6 @@ importers:
       '@tsconfig/svelte':
         specifier: ^5.0.4
         version: 5.0.7
-      '@typescript/native-preview':
-        specifier: latest
-        version: 7.0.0-dev.20260504.1
       svelte:
         specifier: ^5.55.5
         version: 5.55.5(@typescript-eslint/types@8.46.4)
@@ -1492,9 +1419,6 @@ importers:
       '@tsconfig/svelte':
         specifier: ^5.0.4
         version: 5.0.7
-      '@typescript/native-preview':
-        specifier: latest
-        version: 7.0.0-dev.20260504.1
       svelte:
         specifier: ^5.15.0
         version: 5.48.5
@@ -1521,7 +1445,7 @@ importers:
         version: 12.0.1(jiti@2.6.1)
       typescript:
         specifier: 'catalog:'
-        version: 6.0.2
+        version: 7.0.2
       vite:
         specifier: 'catalog:'
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -1588,7 +1512,7 @@ importers:
         version: 12.0.1(jiti@2.6.1)
       typescript:
         specifier: 'catalog:'
-        version: 6.0.2
+        version: 7.0.2
       vite:
         specifier: 'catalog:'
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -1614,7 +1538,7 @@ importers:
         version: 12.0.1(jiti@2.6.1)
       typescript:
         specifier: 'catalog:'
-        version: 6.0.2
+        version: 7.0.2
       vite:
         specifier: 'catalog:'
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -1673,7 +1597,7 @@ importers:
         version: 10.3.5(@testing-library/dom@10.4.0)(prettier@3.8.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       typescript:
         specifier: 'catalog:'
-        version: 6.0.2
+        version: 7.0.2
       vite:
         specifier: 'catalog:'
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -1735,7 +1659,7 @@ importers:
         version: 12.0.1(jiti@2.6.1)
       typescript:
         specifier: 'catalog:'
-        version: 6.0.2
+        version: 7.0.2
       vite:
         specifier: 'catalog:'
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -1769,7 +1693,7 @@ importers:
         version: 12.0.1(jiti@2.6.1)
       typescript:
         specifier: 'catalog:'
-        version: 6.0.2
+        version: 7.0.2
       vite:
         specifier: 'catalog:'
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -1812,7 +1736,7 @@ importers:
         version: 12.0.1(jiti@2.6.1)
       typescript:
         specifier: 'catalog:'
-        version: 6.0.2
+        version: 7.0.2
       vite:
         specifier: 'catalog:'
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -1861,7 +1785,7 @@ importers:
         version: 12.0.1(jiti@2.6.1)
       typescript:
         specifier: 'catalog:'
-        version: 6.0.2
+        version: 7.0.2
       vite:
         specifier: 'catalog:'
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -1930,7 +1854,7 @@ importers:
         version: 12.0.1(jiti@2.6.1)
       typescript:
         specifier: 'catalog:'
-        version: 6.0.2
+        version: 7.0.2
       vite:
         specifier: 'catalog:'
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -1979,7 +1903,7 @@ importers:
         version: 12.0.1(jiti@2.6.1)
       typescript:
         specifier: 'catalog:'
-        version: 6.0.2
+        version: 7.0.2
       vite:
         specifier: 'catalog:'
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -2034,7 +1958,7 @@ importers:
         version: 12.0.1(jiti@2.6.1)
       typescript:
         specifier: 'catalog:'
-        version: 6.0.2
+        version: 7.0.2
       vite:
         specifier: 'catalog:'
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -2112,7 +2036,7 @@ importers:
         version: 12.0.1(jiti@2.6.1)
       typescript:
         specifier: 'catalog:'
-        version: 6.0.2
+        version: 7.0.2
       vite:
         specifier: 'catalog:'
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -2167,7 +2091,7 @@ importers:
         version: 12.0.1(jiti@2.6.1)
       typescript:
         specifier: 'catalog:'
-        version: 6.0.2
+        version: 7.0.2
       vite:
         specifier: 'catalog:'
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -2241,7 +2165,7 @@ importers:
         version: 5.55.5(@typescript-eslint/types@8.46.4)
       typescript:
         specifier: 'catalog:'
-        version: 6.0.2
+        version: 7.0.2
       vite:
         specifier: 'catalog:'
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -2267,7 +2191,7 @@ importers:
         version: link:../store
       '@sveltejs/kit':
         specifier: ^2.0.0
-        version: 2.59.1(@sveltejs/vite-plugin-svelte@7.0.0(svelte@5.55.5(@typescript-eslint/types@8.46.4))(vite@8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)))(svelte@5.55.5(@typescript-eslint/types@8.46.4))(typescript@6.0.2)(vite@8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+        version: 2.59.1(@sveltejs/vite-plugin-svelte@7.0.0(svelte@5.55.5(@typescript-eslint/types@8.46.4))(vite@8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)))(svelte@5.55.5(@typescript-eslint/types@8.46.4))(typescript@7.0.2)(vite@8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
       '@sveltejs/vite-plugin-svelte':
         specifier: 'catalog:'
         version: 7.0.0(svelte@5.55.5(@typescript-eslint/types@8.46.4))(vite@8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
@@ -2285,7 +2209,7 @@ importers:
         version: 5.55.5(@typescript-eslint/types@8.46.4)
       typescript:
         specifier: 'catalog:'
-        version: 6.0.2
+        version: 7.0.2
       vite:
         specifier: 'catalog:'
         version: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
@@ -2325,9 +2249,9 @@ importers:
         version: 5.55.5(@typescript-eslint/types@8.46.4)
       svelte-check:
         specifier: 'catalog:'
-        version: 4.4.7(picomatch@4.0.4)(svelte@5.55.5(@typescript-eslint/types@8.46.4))(typescript@6.0.2)
+        version: 4.7.2(picomatch@4.0.4)(svelte@5.55.5(@typescript-eslint/types@8.46.4))(typescript@6.0.2)
       typescript:
-        specifier: 'catalog:'
+        specifier: ^6.0.0
         version: 6.0.2
       vite:
         specifier: 'catalog:'
@@ -2369,9 +2293,9 @@ importers:
         version: 5.55.5(@typescript-eslint/types@8.46.4)
       svelte-check:
         specifier: 'catalog:'
-        version: 4.4.7(picomatch@4.0.4)(svelte@5.55.5(@typescript-eslint/types@8.46.4))(typescript@6.0.2)
+        version: 4.7.2(picomatch@4.0.4)(svelte@5.55.5(@typescript-eslint/types@8.46.4))(typescript@6.0.2)
       typescript:
-        specifier: 'catalog:'
+        specifier: ^6.0.0
         version: 6.0.2
       vite:
         specifier: 'catalog:'
@@ -2422,7 +2346,7 @@ importers:
         specifier: ^0.34.0
         version: 0.34.5
       typescript:
-        specifier: 'catalog:'
+        specifier: ^6.0.0
         version: 6.0.2
 
 packages:
@@ -4497,12 +4421,17 @@ packages:
       typescript:
         optional: true
 
+  '@sveltejs/load-config@0.2.0':
+    resolution: {integrity: sha512-1LgZ/qUqSoq+QorD83lk2hka79Px0wXNW2q5V1nZlxGhQgw1jrsIbVz5YiCeucVLo4XvFLjXukUaQjIiqowkcg==}
+    engines: {node: '>= 18.0.0'}
+
   '@sveltejs/package@2.5.7':
     resolution: {integrity: sha512-qqD9xa9H7TDiGFrF6rz7AirOR8k15qDK/9i4MIE8te4vWsv5GEogPks61rrZcLy+yWph+aI6pIj2MdoK3YI8AQ==}
     engines: {node: ^16.14 || >=18}
     hasBin: true
     peerDependencies:
       svelte: ^3.44.0 || ^4.0.0 || ^5.0.0-next.1
+      typescript: '*'
 
   '@sveltejs/vite-plugin-svelte@7.0.0':
     resolution: {integrity: sha512-ILXmxC7HAsnkK2eslgPetrqqW1BKSL7LktsFgqzNj83MaivMGZzluWq32m25j2mDOjmSKX7GGWahePhuEs7P/g==}
@@ -4909,240 +4838,125 @@ packages:
     resolution: {integrity: sha512-USjyxm3gQEePdUwJBFjjGNG18xY9A2grDVGuk7/9AkjIF1L+ZrVnwR5VAU5JXtUnBL/Nwt3H31KlRDaksnM7/w==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@typescript/native-preview-darwin-arm64@7.0.0-dev.20260504.1':
-    resolution: {integrity: sha512-+Qs1Q7Qxfp11n/hU3pweFU+EQ37FnDsdWOOxb7/vCy8QGBysrLUUYRhQ+GSW3s663oMtN6+9Kf82hk3ZT+kXlg==}
+  '@typescript/typescript-aix-ppc64@7.0.2':
+    resolution: {integrity: sha512-MTKKkWB7p/0E9xi1d1tHtZ5PiLkGEMIq88pK2CubZjOsLtYTLqhgIgi6zepFa+9GHZ6h05NMCkQxGKiPXMxXtQ==}
+    engines: {node: '>=16.20.0'}
+    cpu: [ppc64]
+    os: [aix]
+
+  '@typescript/typescript-darwin-arm64@7.0.2':
+    resolution: {integrity: sha512-gowzar9MwS/aRWp6f3a4KUqzRjAZjOsmGNCM6LcTgXum+dBfgsBVMN+AgvOCCbguXyick6LJhpBszxMebJ8syA==}
     engines: {node: '>=16.20.0'}
     cpu: [arm64]
     os: [darwin]
 
-  '@typescript/native-preview-darwin-arm64@7.0.0-dev.20260505.1':
-    resolution: {integrity: sha512-5W94O493huwcjrAkuP9yTQVPosXjX/0fEjCZsDn2D59m7VuPLy78R9D2i3UwlnajC75ubFiLcp/sh5o6/dFZVg==}
-    engines: {node: '>=16.20.0'}
-    cpu: [arm64]
-    os: [darwin]
-
-  '@typescript/native-preview-darwin-arm64@7.0.0-dev.20260507.1':
-    resolution: {integrity: sha512-2iWAWthp9tWDkgIOITi6GGQkEDQ8Mf+L28B83FR+MvvbLEtHJ5BIZoBOSBgKP5KW+eHlAv1LFUC9dggq1+NO0Q==}
-    engines: {node: '>=16.20.0'}
-    cpu: [arm64]
-    os: [darwin]
-
-  '@typescript/native-preview-darwin-arm64@7.0.0-dev.20260605.1':
-    resolution: {integrity: sha512-FR2ToauEC9dIAMV8OeTD7cXjgnpR09p1YZYrQzIpIOfzkg5FPccil+ca75BMbF0jT9h/0x+6+oy7JxzPO8sT+Q==}
-    engines: {node: '>=16.20.0'}
-    cpu: [arm64]
-    os: [darwin]
-
-  '@typescript/native-preview-darwin-arm64@7.0.0-dev.20260619.1':
-    resolution: {integrity: sha512-i07qdTFQEBYotjg/Iy0GAfARSFyKAjXmP5BNPo6+QXGOp5hJNnmXSxGyhIlooqbDXluTQRhESEmzVAuvYryKCA==}
-    engines: {node: '>=16.20.0'}
-    cpu: [arm64]
-    os: [darwin]
-
-  '@typescript/native-preview-darwin-x64@7.0.0-dev.20260504.1':
-    resolution: {integrity: sha512-Wr3GWTRiMgibmhe88cjQ612ZyY7sbgsPYEaWKGPUxBaXtMHFIzgTBIoJMuaQqQx4GEJs6AUDyhnIHG1gx4rJjg==}
+  '@typescript/typescript-darwin-x64@7.0.2':
+    resolution: {integrity: sha512-SZ9xZInqApNlNGc9s0W1VSsktYSOe9cFqNOIqmN1Gs8SmkjKZYFt017G4VwPxASInODuAdbTW7sXiFUf893RgA==}
     engines: {node: '>=16.20.0'}
     cpu: [x64]
     os: [darwin]
 
-  '@typescript/native-preview-darwin-x64@7.0.0-dev.20260505.1':
-    resolution: {integrity: sha512-j+N/276dONuTv2mOLgZy/jLsEZ2JLrxbZ8wBS/LIsMGtvp6elaN/ZESEntpUpIUbeoc5H6nHkjicJKNxQTZ90Q==}
+  '@typescript/typescript-freebsd-arm64@7.0.2':
+    resolution: {integrity: sha512-W5NH4y/J0plIIS5b2xvTEkU7JFxyqdMAOgf+Ilhl0vHQXKO5dZoxd+C/jEtq56c4F3wk71RB4BMRQ2XdI+bwYQ==}
+    engines: {node: '>=16.20.0'}
+    cpu: [arm64]
+    os: [freebsd]
+
+  '@typescript/typescript-freebsd-x64@7.0.2':
+    resolution: {integrity: sha512-UMGDx5sTpzNw3WiPebH7l90IWfJggEd+egHt/q6p7/Cm3zqoV7VxkGXt+3DxPIw8CcmvAB0j3sVVfbhX+M4Tpw==}
     engines: {node: '>=16.20.0'}
     cpu: [x64]
-    os: [darwin]
+    os: [freebsd]
 
-  '@typescript/native-preview-darwin-x64@7.0.0-dev.20260507.1':
-    resolution: {integrity: sha512-pXBJx0gF4D9aNZsFavprlbPzL5clAvHsueaVpb3c7M8wv/3FFCdjK7NJUESxpK3+M1RW5MvNaKR6QTzkdunfvQ==}
-    engines: {node: '>=16.20.0'}
-    cpu: [x64]
-    os: [darwin]
-
-  '@typescript/native-preview-darwin-x64@7.0.0-dev.20260605.1':
-    resolution: {integrity: sha512-vkqJpLeVN5RTtl/ibzasCubv4bQn45KDZRt8hHhneeibw9mZzm+vuvMvH/z/F5Sg/t/nz5kXKdDfhT+CV7aHAA==}
-    engines: {node: '>=16.20.0'}
-    cpu: [x64]
-    os: [darwin]
-
-  '@typescript/native-preview-darwin-x64@7.0.0-dev.20260619.1':
-    resolution: {integrity: sha512-WVetqm9ypzLv+b/8+SRYuO6bJDC4AaQmT/1EcYh8iP6y5vZl3h13iscJ+45eHc4Y3yMyoDHOivfOTyTIMH2Vrw==}
-    engines: {node: '>=16.20.0'}
-    cpu: [x64]
-    os: [darwin]
-
-  '@typescript/native-preview-linux-arm64@7.0.0-dev.20260504.1':
-    resolution: {integrity: sha512-y1Qai5l55Sl+/3B0hyQtvynq//C22BKFH3CfU35fbLYUo4P/ISUycyAbcA+PAPazpDFO3E56I96QUQrbJL2VVA==}
+  '@typescript/typescript-linux-arm64@7.0.2':
+    resolution: {integrity: sha512-Qh4eU4/y3yDjnfjjyPYihMj5/ODIlmt+Bzu17OI+fiSRDW57QmU5SiN63exPRNJPKUzcc1INa1NXdrJ+MqHjUQ==}
     engines: {node: '>=16.20.0'}
     cpu: [arm64]
     os: [linux]
 
-  '@typescript/native-preview-linux-arm64@7.0.0-dev.20260505.1':
-    resolution: {integrity: sha512-pP/LpkknUTeyQkIiC916BpW2R4ToXDZI7zTbkG6Llh5bGTPcTbtM/5SxXSzYH04ogrc5AP6yYRZsUxtv1GGeQA==}
-    engines: {node: '>=16.20.0'}
-    cpu: [arm64]
-    os: [linux]
-
-  '@typescript/native-preview-linux-arm64@7.0.0-dev.20260507.1':
-    resolution: {integrity: sha512-0F2o8sbpSOHR04ghnhWPFsyuH9uew78v3fc2+tplxAnwZ5Wt72hk6Ka0yG07m8D6Ca0SK/GtTVIq7BfjmNCP8w==}
-    engines: {node: '>=16.20.0'}
-    cpu: [arm64]
-    os: [linux]
-
-  '@typescript/native-preview-linux-arm64@7.0.0-dev.20260605.1':
-    resolution: {integrity: sha512-YYzUP7HlKNUzfHFND+CgrYpPPcQyrcYmV0GhjxxMVWvlhQe6SvmWQLcZdp8ZW0t1BDfvs+jMtL/lI85TiUpY2w==}
-    engines: {node: '>=16.20.0'}
-    cpu: [arm64]
-    os: [linux]
-
-  '@typescript/native-preview-linux-arm64@7.0.0-dev.20260619.1':
-    resolution: {integrity: sha512-peEnXecjZsnsW24GutRasmZlIgRLbyXPoR0inMkzXT1h7/+Ns5tM8RPnuxelXoC10dg4Ajo8I9BlUAgX45LwEQ==}
-    engines: {node: '>=16.20.0'}
-    cpu: [arm64]
-    os: [linux]
-
-  '@typescript/native-preview-linux-arm@7.0.0-dev.20260504.1':
-    resolution: {integrity: sha512-s8QkhZe0M4QD2xhK1Xiy2JUQv1AOl8kUg5DLx1G8ws0f1BK/oKyqDNbxhZMGINYLFvkjpr9lOxt7qehSnpJMYQ==}
+  '@typescript/typescript-linux-arm@7.0.2':
+    resolution: {integrity: sha512-gffT3xPz9sR7j/YJExkyPntrI0P2EP9XbOyWzth2/Gs0RstK+90RBcO0ncXoXy/beYll1SXw846Nf2zdnEz0QQ==}
     engines: {node: '>=16.20.0'}
     cpu: [arm]
     os: [linux]
 
-  '@typescript/native-preview-linux-arm@7.0.0-dev.20260505.1':
-    resolution: {integrity: sha512-Vo7nGP0Wbs+VafCMabS4pSDcfJj60fLAmuZ2+hfdsUMFMO0BzHIUFyKBhbaeKVgO5V0yAqvBKrWkovZy0YXxGA==}
+  '@typescript/typescript-linux-loong64@7.0.2':
+    resolution: {integrity: sha512-uEHck9i8hoAzXPiYRib1O7miOnz23SxIeVl6F4LXox+qov1K35jHcEW6VHKvZI+pyvl7fZEP4MCU5LYvIq1GuQ==}
     engines: {node: '>=16.20.0'}
-    cpu: [arm]
+    cpu: [loong64]
     os: [linux]
 
-  '@typescript/native-preview-linux-arm@7.0.0-dev.20260507.1':
-    resolution: {integrity: sha512-i2K4RRVjk9wSMpGcR5G2hKyUowSZMrnSKh5NYx1nVy6srBD7DVrTSBDH+KCVdAVAuZtsl0tOdVJixkRRjOsbpw==}
+  '@typescript/typescript-linux-mips64el@7.0.2':
+    resolution: {integrity: sha512-R4KvAMnE43W5Qeqb0Ly56O3mWMWIAgsMyz36DCaycd5nbg/9kzm0liw3JocfRqyJY0KPmzFjbswozXyW0DnIYA==}
     engines: {node: '>=16.20.0'}
-    cpu: [arm]
+    cpu: [mips64el]
     os: [linux]
 
-  '@typescript/native-preview-linux-arm@7.0.0-dev.20260605.1':
-    resolution: {integrity: sha512-gBsGhto81phtQHoQczJenb2aY2y4JVrgZDb7LPHQIEiFSEYe0uT6E1DR/ZT0XXdkLXn6wFBwcmoDLlDjo/uW2g==}
+  '@typescript/typescript-linux-ppc64@7.0.2':
+    resolution: {integrity: sha512-DORx5b3sd/4S7eayxm4FQv+A7CrkUIGRaHiwI8oiHTAI1fAPWhF4J0vAlkC8biAlHSVVwxMQ3tjZ2/DVbnQiiA==}
     engines: {node: '>=16.20.0'}
-    cpu: [arm]
+    cpu: [ppc64]
     os: [linux]
 
-  '@typescript/native-preview-linux-arm@7.0.0-dev.20260619.1':
-    resolution: {integrity: sha512-mqUzZ9htNWH0su9+A5QqnHJ25hQ+E8Cq5qOOmfdQjiCQnPT69HQZ9MiUozQc1qk0i9/UaXouYDK48Pe0oUvUOw==}
+  '@typescript/typescript-linux-riscv64@7.0.2':
+    resolution: {integrity: sha512-wf0jqEDOjrPRnKwYRyyJDRo11KMbvMFrU+q4zqKyChODBzvlkbhNQfKvLxQCcwTpdDaXSHZTVuh0JoCrKCUMHQ==}
     engines: {node: '>=16.20.0'}
-    cpu: [arm]
+    cpu: [riscv64]
     os: [linux]
 
-  '@typescript/native-preview-linux-x64@7.0.0-dev.20260504.1':
-    resolution: {integrity: sha512-ngN3Ie3Vin6pFtqeNywxm86RTxgI0Fo0GZyJ1PxokLES8J3xfMPtMYfv85c/+5uz5+7T+m4LRLyY5IoLY4gtuw==}
+  '@typescript/typescript-linux-s390x@7.0.2':
+    resolution: {integrity: sha512-IkwJc3L7yhytWd/ewjyxNDfOmswCm9GWMJT/ue/dU4aZNbwZeYAetq42VyLmsmSjvoX7z74X6ZaYCtzAr0EuGw==}
     engines: {node: '>=16.20.0'}
-    cpu: [x64]
+    cpu: [s390x]
     os: [linux]
 
-  '@typescript/native-preview-linux-x64@7.0.0-dev.20260505.1':
-    resolution: {integrity: sha512-90Bpi2xCPCE3S/pcL5uXn793AKSf8qLVvQ+w87FpwKknHYXQqOQ38KBO9jX2lynoxr8YcVO1S8BS7PngkwicYg==}
-    engines: {node: '>=16.20.0'}
-    cpu: [x64]
-    os: [linux]
-
-  '@typescript/native-preview-linux-x64@7.0.0-dev.20260507.1':
-    resolution: {integrity: sha512-dST5xeuhREr73obBJj4j5Dtf0dEQr6WuUyHIoLaVQCX9PZhWk0Iu2/9jJ0+Gtx7fh3jWGcidNPP1SgmSrXP6Sw==}
+  '@typescript/typescript-linux-x64@7.0.2':
+    resolution: {integrity: sha512-EYdf2cNg7rgCWJnxCdJ+F3V39O8ihb37eHAu1LK8oAFizgTQbPOK7zHHXbPt8rX24COqODXeI3sIf0fCXG7H/A==}
     engines: {node: '>=16.20.0'}
     cpu: [x64]
     os: [linux]
 
-  '@typescript/native-preview-linux-x64@7.0.0-dev.20260605.1':
-    resolution: {integrity: sha512-VRtSycQWdN2hMniqVXAzjWG5zgVwT9Yy+yk3O4qGJ+3ncFJ3nYu4VerupNNUNrmP4FFPViS8hjhQJbOUSuINXg==}
+  '@typescript/typescript-netbsd-arm64@7.0.2':
+    resolution: {integrity: sha512-+polYF4MF04aPpO5FTkHran9yUQDSXqy5GiSDKpsll5jy3l3+g9QLhpf39T+ePtefhXLOGrLl0QIjkQP6VnelA==}
+    engines: {node: '>=16.20.0'}
+    cpu: [arm64]
+    os: [netbsd]
+
+  '@typescript/typescript-netbsd-x64@7.0.2':
+    resolution: {integrity: sha512-8YIT0EHM/3dq10ZOVF/A7pc/YSMtbcecct4rWtexrnSCHOPcpC2KTLXfTCR6vDpnSiY12heNb1GiN/wu+T/FyA==}
     engines: {node: '>=16.20.0'}
     cpu: [x64]
-    os: [linux]
+    os: [netbsd]
 
-  '@typescript/native-preview-linux-x64@7.0.0-dev.20260619.1':
-    resolution: {integrity: sha512-vZhIHvtpQE4ZICMIzIrOVOl/YYOLJjA91CsJMyetNNzvuQCCtll7CWUsS6Sp1IdRqJdwM6seJrdDEAtWkEMFkA==}
+  '@typescript/typescript-openbsd-arm64@7.0.2':
+    resolution: {integrity: sha512-APT8+ClYnuYm1u9+kgGXoMj2VzWzcymwh2gNSQVySHfkRDGOTVkoWLjCmOQSaO+PoqQ57B0flRp9SA+7GnnkzQ==}
+    engines: {node: '>=16.20.0'}
+    cpu: [arm64]
+    os: [openbsd]
+
+  '@typescript/typescript-openbsd-x64@7.0.2':
+    resolution: {integrity: sha512-yX7s+Q0Dln0Dt9tEzZsAjXXR/+ytBM7AlglaqyeMPxQszJ1JhlJdZ6jLA+IzldHtflX81em7lDao1xXu+aRRkg==}
     engines: {node: '>=16.20.0'}
     cpu: [x64]
-    os: [linux]
+    os: [openbsd]
 
-  '@typescript/native-preview-win32-arm64@7.0.0-dev.20260504.1':
-    resolution: {integrity: sha512-/GZDJN/CsLbqIe7EdWDkXhNX9C41VjemBeUN6+9ckvEFLH8XyKTmXPYikNOn0N819M1KSeNZltplyUslfROOdw==}
+  '@typescript/typescript-sunos-x64@7.0.2':
+    resolution: {integrity: sha512-dLJDGaLZ1D4HPQn62u1n8mBDkJREwMsAkCdkwd4Ieqw+x3TUyTsqY0YiBCtE6H6OzzgGk3iuZ3vFWRS+E8/d1g==}
+    engines: {node: '>=16.20.0'}
+    cpu: [x64]
+    os: [sunos]
+
+  '@typescript/typescript-win32-arm64@7.0.2':
+    resolution: {integrity: sha512-Gyl1Vy6OsWesLzmq+EP0Fb7b4Nid5232AvcA2SFcdYreldpNtYFFofPjnt62y9hQy7VTaZp65ICJjuAQRaVcIQ==}
     engines: {node: '>=16.20.0'}
     cpu: [arm64]
     os: [win32]
 
-  '@typescript/native-preview-win32-arm64@7.0.0-dev.20260505.1':
-    resolution: {integrity: sha512-VkNazv418LbiI0X6SQPCqVFTiBBvCrIxGkdVD7WBO/M3WHZam4qhK8fF61uQclK2NqYPClI2hPbuR5i8+4s4cg==}
-    engines: {node: '>=16.20.0'}
-    cpu: [arm64]
-    os: [win32]
-
-  '@typescript/native-preview-win32-arm64@7.0.0-dev.20260507.1':
-    resolution: {integrity: sha512-21rGqCoY2FgnbY2YQFGoAnaHFs5kagwdCmGdn7GmsdNF7P3zvS1ag56BFRYITZ2xw02xYa0fvbXcIIycysBS1A==}
-    engines: {node: '>=16.20.0'}
-    cpu: [arm64]
-    os: [win32]
-
-  '@typescript/native-preview-win32-arm64@7.0.0-dev.20260605.1':
-    resolution: {integrity: sha512-fBvmDKqL10ST+FnryPLTD1lY8XbEiOYGSa6hi17jYJwCMZA6mLbYPre06lysOB1eO9oRM7N0zUsEQu57YiFWTw==}
-    engines: {node: '>=16.20.0'}
-    cpu: [arm64]
-    os: [win32]
-
-  '@typescript/native-preview-win32-arm64@7.0.0-dev.20260619.1':
-    resolution: {integrity: sha512-pRdZDV9Q3IzBKOi5WrIaEnlkVLB0w3zVj2/BliPV/oQ8r8N+4LmSCuyy8PbL5bMw8SznTlmiIfv5gvoEx2SpEw==}
-    engines: {node: '>=16.20.0'}
-    cpu: [arm64]
-    os: [win32]
-
-  '@typescript/native-preview-win32-x64@7.0.0-dev.20260504.1':
-    resolution: {integrity: sha512-EYQBdVZq4xIzhTtKxw6wvee9238hEb7XrPG413AEZBD3kcR3qqvPULXsPzQyEpneCReATSaihscP/LfhMQYUmA==}
+  '@typescript/typescript-win32-x64@7.0.2':
+    resolution: {integrity: sha512-0BQ3HkAHHlKLSp1qRvf3SUhGpGsDuhB/jgFw75guyqbxJqEaS0Cw/VFO8i2nHglJUzQCRtMMR/IBAKE3ETMC4g==}
     engines: {node: '>=16.20.0'}
     cpu: [x64]
     os: [win32]
-
-  '@typescript/native-preview-win32-x64@7.0.0-dev.20260505.1':
-    resolution: {integrity: sha512-QhueS4Y0hxYnkQoXrAmB0JKpnXn18nNJwqxLSpyEHCEr+XnggiHBNfjT+p1LeG42TEn0w+skcfwc/Mkmk/gyCg==}
-    engines: {node: '>=16.20.0'}
-    cpu: [x64]
-    os: [win32]
-
-  '@typescript/native-preview-win32-x64@7.0.0-dev.20260507.1':
-    resolution: {integrity: sha512-PORjTM6k/7ySuN7qbKKLKPJ5AlSQuZbaDkLsdQglapQySeHcrdjOhFl172U+V954sR+KhrE3ckhuinEH+Vjkug==}
-    engines: {node: '>=16.20.0'}
-    cpu: [x64]
-    os: [win32]
-
-  '@typescript/native-preview-win32-x64@7.0.0-dev.20260605.1':
-    resolution: {integrity: sha512-JDfR4uPr3ZJ7kfkEkPw2y4LvEVcnjLCRTCT9r3MxtYpKg0Oeg88E8TmDPbatVQ48GC9LlhLZ+4WSFSZRGUkIRA==}
-    engines: {node: '>=16.20.0'}
-    cpu: [x64]
-    os: [win32]
-
-  '@typescript/native-preview-win32-x64@7.0.0-dev.20260619.1':
-    resolution: {integrity: sha512-sOvPE+lA/+SU/cnva+MXA1oq70HO0lLajsj9ZA10T1CN1PUGgaC1Zw7V0objTJsZ9ri6I3Ldp+Fh4Onz3mLDXw==}
-    engines: {node: '>=16.20.0'}
-    cpu: [x64]
-    os: [win32]
-
-  '@typescript/native-preview@7.0.0-dev.20260504.1':
-    resolution: {integrity: sha512-bHFGxyIU83qjj6ywn3817A+Ug2ZID0GiBA5WFdbc/T7EjcrKnUUylexq0fU81N/mTbfw3FyP6ZCEdO2Ntcl/VQ==}
-    engines: {node: '>=16.20.0'}
-    hasBin: true
-
-  '@typescript/native-preview@7.0.0-dev.20260505.1':
-    resolution: {integrity: sha512-o82qX7L97dwQMpj6DzzokF6SQlChcxduNaL4OWzJhJkz1EP//gZOa0/xNPbPLufoJojHLQcANnpkA4JDXZDFhQ==}
-    engines: {node: '>=16.20.0'}
-    hasBin: true
-
-  '@typescript/native-preview@7.0.0-dev.20260507.1':
-    resolution: {integrity: sha512-1NCr79LEzPErrYtminofTji5EvFDYwJ2JDQfDhcQyP8XVJF93LZ5jiDXcYE2MgqDvwPUpaHMY8seC28jHrc/ew==}
-    engines: {node: '>=16.20.0'}
-    hasBin: true
-
-  '@typescript/native-preview@7.0.0-dev.20260605.1':
-    resolution: {integrity: sha512-JWqt9yAOq2BTh6u6nXiEAfdJVO7akc2bD23OuEwdCcc5sANhp5T3Hgci85NVs9rIQwDh59lqU23phGIUvkc0CA==}
-    engines: {node: '>=16.20.0'}
-    hasBin: true
-
-  '@typescript/native-preview@7.0.0-dev.20260619.1':
-    resolution: {integrity: sha512-YDmSiD6l+nikPoqrwDKn9wkCFUDFJCfkKcOKrYVycX5plwu6H03JWKyW1h1HjEfrMVw4Mq/Qk12VTsXJWP4TDQ==}
-    engines: {node: '>=16.20.0'}
-    hasBin: true
 
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
@@ -8349,6 +8163,14 @@ packages:
       svelte: ^4.0.0 || ^5.0.0-next.0
       typescript: '>=5.0.0'
 
+  svelte-check@4.7.2:
+    resolution: {integrity: sha512-GoS4XJdGswlq0rIT1vtFLzJY1bvHtY37McY9H9Gkm1Ggw/ICdZYn8J/Z8Yi0BEL0i3R4+jtaWVePjyppMlij/A==}
+    engines: {node: '>= 18.0.0'}
+    hasBin: true
+    peerDependencies:
+      svelte: ^4.0.0 || ^5.0.0-next.0
+      typescript: '>=5.0.0'
+
   svelte2tsx@0.7.55:
     resolution: {integrity: sha512-JWzgeM3lqySRNfqcsesvVEh8LhTWBxQJ9RMjzJ+VepdmXtVnNd0SbtGctG6+/fbHq0N6mhwSd823gszw9JHeGQ==}
     peerDependencies:
@@ -8485,19 +8307,14 @@ packages:
   typescript-auto-import-cache@0.3.6:
     resolution: {integrity: sha512-RpuHXrknHdVdK7wv/8ug3Fr0WNsNi5l5aB8MYYuXhq2UH5lnEB1htJ1smhtD5VeCsGr2p8mUDtd83LCQDFVgjQ==}
 
-  typescript@5.8.3:
-    resolution: {integrity: sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ==}
-    engines: {node: '>=14.17'}
-    hasBin: true
-
-  typescript@5.9.3:
-    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
-    engines: {node: '>=14.17'}
-    hasBin: true
-
   typescript@6.0.2:
     resolution: {integrity: sha512-bGdAIrZ0wiGDo5l8c++HWtbaNCWTS4UTv7RaTH/ThVIgjkveJt83m74bBHMJkuCbslY8ixgLBVZJIOiQlQTjfQ==}
     engines: {node: '>=14.17'}
+    hasBin: true
+
+  typescript@7.0.2:
+    resolution: {integrity: sha512-8FYau96o3NKOhbjKi/qNvG/W5jhzxkbdm5sj9AbZ/5T5sWqn3hJgLfGx27sRKZWTvyzCP8dLRBTf5tBTSRVUNA==}
+    engines: {node: '>=16.20.0'}
     hasBin: true
 
   ufo@1.6.3:
@@ -9774,11 +9591,11 @@ snapshots:
 
   '@colors/colors@1.6.0': {}
 
-  '@commitlint/cli@20.5.0(@types/node@24.0.14)(conventional-commits-parser@6.4.0)(typescript@6.0.2)':
+  '@commitlint/cli@20.5.0(@types/node@24.0.14)(conventional-commits-parser@6.4.0)(typescript@7.0.2)':
     dependencies:
       '@commitlint/format': 20.5.0
       '@commitlint/lint': 20.5.0
-      '@commitlint/load': 20.5.0(@types/node@24.0.14)(typescript@6.0.2)
+      '@commitlint/load': 20.5.0(@types/node@24.0.14)(typescript@7.0.2)
       '@commitlint/read': 20.5.0(conventional-commits-parser@6.4.0)
       '@commitlint/types': 20.5.0
       tinyexec: 1.0.2
@@ -9811,12 +9628,12 @@ snapshots:
       '@commitlint/types': 20.5.0
       ajv: 8.17.1
 
-  '@commitlint/cz-commitlint@20.5.1(@types/node@24.0.14)(commitizen@4.3.1(@types/node@24.0.14)(typescript@6.0.2))(inquirer@8.2.5)(typescript@6.0.2)':
+  '@commitlint/cz-commitlint@20.5.1(@types/node@24.0.14)(commitizen@4.3.1(@types/node@24.0.14)(typescript@7.0.2))(inquirer@8.2.5)(typescript@7.0.2)':
     dependencies:
       '@commitlint/ensure': 20.5.0
-      '@commitlint/load': 20.5.0(@types/node@24.0.14)(typescript@6.0.2)
+      '@commitlint/load': 20.5.0(@types/node@24.0.14)(typescript@7.0.2)
       '@commitlint/types': 20.5.0
-      commitizen: 4.3.1(@types/node@24.0.14)(typescript@6.0.2)
+      commitizen: 4.3.1(@types/node@24.0.14)(typescript@7.0.2)
       inquirer: 8.2.5
       is-plain-obj: 4.1.0
       picocolors: 1.1.1
@@ -9856,15 +9673,15 @@ snapshots:
       '@commitlint/rules': 20.5.0
       '@commitlint/types': 20.5.0
 
-  '@commitlint/load@19.8.1(@types/node@24.0.14)(typescript@6.0.2)':
+  '@commitlint/load@19.8.1(@types/node@24.0.14)(typescript@7.0.2)':
     dependencies:
       '@commitlint/config-validator': 19.8.1
       '@commitlint/execute-rule': 19.8.1
       '@commitlint/resolve-extends': 19.8.1
       '@commitlint/types': 19.8.1
       chalk: 5.4.1
-      cosmiconfig: 9.0.0(typescript@6.0.2)
-      cosmiconfig-typescript-loader: 6.1.0(@types/node@24.0.14)(cosmiconfig@9.0.0(typescript@6.0.2))(typescript@6.0.2)
+      cosmiconfig: 9.0.0(typescript@7.0.2)
+      cosmiconfig-typescript-loader: 6.1.0(@types/node@24.0.14)(cosmiconfig@9.0.0(typescript@7.0.2))(typescript@7.0.2)
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       lodash.uniq: 4.5.0
@@ -9873,14 +9690,14 @@ snapshots:
       - typescript
     optional: true
 
-  '@commitlint/load@20.5.0(@types/node@24.0.14)(typescript@6.0.2)':
+  '@commitlint/load@20.5.0(@types/node@24.0.14)(typescript@7.0.2)':
     dependencies:
       '@commitlint/config-validator': 20.5.0
       '@commitlint/execute-rule': 20.0.0
       '@commitlint/resolve-extends': 20.5.0
       '@commitlint/types': 20.5.0
-      cosmiconfig: 9.0.1(typescript@6.0.2)
-      cosmiconfig-typescript-loader: 6.1.0(@types/node@24.0.14)(cosmiconfig@9.0.1(typescript@6.0.2))(typescript@6.0.2)
+      cosmiconfig: 9.0.1(typescript@7.0.2)
+      cosmiconfig-typescript-loader: 6.1.0(@types/node@24.0.14)(cosmiconfig@9.0.1(typescript@7.0.2))(typescript@7.0.2)
       is-plain-obj: 4.1.0
       lodash.mergewith: 4.6.2
       picocolors: 1.1.1
@@ -11044,7 +10861,7 @@ snapshots:
       estraverse: 5.3.0
       picomatch: 4.0.4
 
-  '@stylistic/stylelint-plugin@3.1.3(stylelint@16.26.1(typescript@5.9.3))':
+  '@stylistic/stylelint-plugin@3.1.3(stylelint@16.26.1(typescript@7.0.2))':
     dependencies:
       '@csstools/css-parser-algorithms': 3.0.5(@csstools/css-tokenizer@3.0.4)
       '@csstools/css-tokenizer': 3.0.4
@@ -11054,7 +10871,7 @@ snapshots:
       postcss-selector-parser: 6.1.2
       postcss-value-parser: 4.2.0
       style-search: 0.1.0
-      stylelint: 16.26.1(typescript@5.9.3)
+      stylelint: 16.26.1(typescript@7.0.2)
 
   '@sveltejs/acorn-typescript@1.0.8(acorn@8.15.0)':
     dependencies:
@@ -11084,6 +10901,28 @@ snapshots:
     optionalDependencies:
       typescript: 6.0.2
 
+  '@sveltejs/kit@2.59.1(@sveltejs/vite-plugin-svelte@7.0.0(svelte@5.55.5(@typescript-eslint/types@8.46.4))(vite@8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)))(svelte@5.55.5(@typescript-eslint/types@8.46.4))(typescript@7.0.2)(vite@8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))':
+    dependencies:
+      '@standard-schema/spec': 1.1.0
+      '@sveltejs/acorn-typescript': 1.0.8(acorn@8.15.0)
+      '@sveltejs/vite-plugin-svelte': 7.0.0(svelte@5.55.5(@typescript-eslint/types@8.46.4))(vite@8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+      '@types/cookie': 0.6.0
+      acorn: 8.15.0
+      cookie: 0.6.0
+      devalue: 5.8.0
+      esm-env: 1.2.2
+      kleur: 4.1.5
+      magic-string: 0.30.21
+      mrmime: 2.0.1
+      set-cookie-parser: 3.1.0
+      sirv: 3.0.2
+      svelte: 5.55.5(@typescript-eslint/types@8.46.4)
+      vite: 8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
+    optionalDependencies:
+      typescript: 7.0.2
+
+  '@sveltejs/load-config@0.2.0': {}
+
   '@sveltejs/package@2.5.7(svelte@5.55.5(@typescript-eslint/types@8.46.4))(typescript@6.0.2)':
     dependencies:
       chokidar: 5.0.0
@@ -11092,8 +10931,7 @@ snapshots:
       semver: 7.7.3
       svelte: 5.55.5(@typescript-eslint/types@8.46.4)
       svelte2tsx: 0.7.55(svelte@5.55.5(@typescript-eslint/types@8.46.4))(typescript@6.0.2)
-    transitivePeerDependencies:
-      - typescript
+      typescript: 6.0.2
 
   '@sveltejs/vite-plugin-svelte@7.0.0(svelte@5.48.5)(vite@8.0.8(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))':
     dependencies:
@@ -11454,18 +11292,18 @@ snapshots:
       argue-cli: 2.1.0
       p-limit: 6.2.0
 
-  '@trigen/stylelint-config@8.0.0(postcss@8.5.16)(stylelint@16.26.1(typescript@5.9.3))':
+  '@trigen/stylelint-config@8.0.0(postcss@8.5.16)(stylelint@16.26.1(typescript@7.0.2))':
     dependencies:
-      '@stylistic/stylelint-plugin': 3.1.3(stylelint@16.26.1(typescript@5.9.3))
+      '@stylistic/stylelint-plugin': 3.1.3(stylelint@16.26.1(typescript@7.0.2))
       postcss-scss: 4.0.9(postcss@8.5.16)
-      stylelint: 16.26.1(typescript@5.9.3)
-      stylelint-declaration-strict-value: 1.10.11(stylelint@16.26.1(typescript@5.9.3))
-      stylelint-gamut: 1.3.4(stylelint@16.26.1(typescript@5.9.3))
-      stylelint-high-performance-animation: 1.11.0(stylelint@16.26.1(typescript@5.9.3))
-      stylelint-order: 7.0.1(stylelint@16.26.1(typescript@5.9.3))
-      stylelint-plugin-a11y: 1.0.1(stylelint@16.26.1(typescript@5.9.3))
-      stylelint-plugin-logical-css: 1.3.0(stylelint@16.26.1(typescript@5.9.3))
-      stylelint-scss: 6.14.0(stylelint@16.26.1(typescript@5.9.3))
+      stylelint: 16.26.1(typescript@7.0.2)
+      stylelint-declaration-strict-value: 1.10.11(stylelint@16.26.1(typescript@7.0.2))
+      stylelint-gamut: 1.3.4(stylelint@16.26.1(typescript@7.0.2))
+      stylelint-high-performance-animation: 1.11.0(stylelint@16.26.1(typescript@7.0.2))
+      stylelint-order: 7.0.1(stylelint@16.26.1(typescript@7.0.2))
+      stylelint-plugin-a11y: 1.0.1(stylelint@16.26.1(typescript@7.0.2))
+      stylelint-plugin-logical-css: 1.3.0(stylelint@16.26.1(typescript@7.0.2))
+      stylelint-scss: 6.14.0(stylelint@16.26.1(typescript@7.0.2))
     transitivePeerDependencies:
       - postcss
 
@@ -11606,160 +11444,65 @@ snapshots:
 
   '@typescript-eslint/types@8.46.4': {}
 
-  '@typescript/native-preview-darwin-arm64@7.0.0-dev.20260504.1':
+  '@typescript/typescript-aix-ppc64@7.0.2':
     optional: true
 
-  '@typescript/native-preview-darwin-arm64@7.0.0-dev.20260505.1':
+  '@typescript/typescript-darwin-arm64@7.0.2':
     optional: true
 
-  '@typescript/native-preview-darwin-arm64@7.0.0-dev.20260507.1':
+  '@typescript/typescript-darwin-x64@7.0.2':
     optional: true
 
-  '@typescript/native-preview-darwin-arm64@7.0.0-dev.20260605.1':
+  '@typescript/typescript-freebsd-arm64@7.0.2':
     optional: true
 
-  '@typescript/native-preview-darwin-arm64@7.0.0-dev.20260619.1':
+  '@typescript/typescript-freebsd-x64@7.0.2':
     optional: true
 
-  '@typescript/native-preview-darwin-x64@7.0.0-dev.20260504.1':
+  '@typescript/typescript-linux-arm64@7.0.2':
     optional: true
 
-  '@typescript/native-preview-darwin-x64@7.0.0-dev.20260505.1':
+  '@typescript/typescript-linux-arm@7.0.2':
     optional: true
 
-  '@typescript/native-preview-darwin-x64@7.0.0-dev.20260507.1':
+  '@typescript/typescript-linux-loong64@7.0.2':
     optional: true
 
-  '@typescript/native-preview-darwin-x64@7.0.0-dev.20260605.1':
+  '@typescript/typescript-linux-mips64el@7.0.2':
     optional: true
 
-  '@typescript/native-preview-darwin-x64@7.0.0-dev.20260619.1':
+  '@typescript/typescript-linux-ppc64@7.0.2':
     optional: true
 
-  '@typescript/native-preview-linux-arm64@7.0.0-dev.20260504.1':
+  '@typescript/typescript-linux-riscv64@7.0.2':
     optional: true
 
-  '@typescript/native-preview-linux-arm64@7.0.0-dev.20260505.1':
+  '@typescript/typescript-linux-s390x@7.0.2':
     optional: true
 
-  '@typescript/native-preview-linux-arm64@7.0.0-dev.20260507.1':
+  '@typescript/typescript-linux-x64@7.0.2':
     optional: true
 
-  '@typescript/native-preview-linux-arm64@7.0.0-dev.20260605.1':
+  '@typescript/typescript-netbsd-arm64@7.0.2':
     optional: true
 
-  '@typescript/native-preview-linux-arm64@7.0.0-dev.20260619.1':
+  '@typescript/typescript-netbsd-x64@7.0.2':
     optional: true
 
-  '@typescript/native-preview-linux-arm@7.0.0-dev.20260504.1':
+  '@typescript/typescript-openbsd-arm64@7.0.2':
     optional: true
 
-  '@typescript/native-preview-linux-arm@7.0.0-dev.20260505.1':
+  '@typescript/typescript-openbsd-x64@7.0.2':
     optional: true
 
-  '@typescript/native-preview-linux-arm@7.0.0-dev.20260507.1':
+  '@typescript/typescript-sunos-x64@7.0.2':
     optional: true
 
-  '@typescript/native-preview-linux-arm@7.0.0-dev.20260605.1':
+  '@typescript/typescript-win32-arm64@7.0.2':
     optional: true
 
-  '@typescript/native-preview-linux-arm@7.0.0-dev.20260619.1':
+  '@typescript/typescript-win32-x64@7.0.2':
     optional: true
-
-  '@typescript/native-preview-linux-x64@7.0.0-dev.20260504.1':
-    optional: true
-
-  '@typescript/native-preview-linux-x64@7.0.0-dev.20260505.1':
-    optional: true
-
-  '@typescript/native-preview-linux-x64@7.0.0-dev.20260507.1':
-    optional: true
-
-  '@typescript/native-preview-linux-x64@7.0.0-dev.20260605.1':
-    optional: true
-
-  '@typescript/native-preview-linux-x64@7.0.0-dev.20260619.1':
-    optional: true
-
-  '@typescript/native-preview-win32-arm64@7.0.0-dev.20260504.1':
-    optional: true
-
-  '@typescript/native-preview-win32-arm64@7.0.0-dev.20260505.1':
-    optional: true
-
-  '@typescript/native-preview-win32-arm64@7.0.0-dev.20260507.1':
-    optional: true
-
-  '@typescript/native-preview-win32-arm64@7.0.0-dev.20260605.1':
-    optional: true
-
-  '@typescript/native-preview-win32-arm64@7.0.0-dev.20260619.1':
-    optional: true
-
-  '@typescript/native-preview-win32-x64@7.0.0-dev.20260504.1':
-    optional: true
-
-  '@typescript/native-preview-win32-x64@7.0.0-dev.20260505.1':
-    optional: true
-
-  '@typescript/native-preview-win32-x64@7.0.0-dev.20260507.1':
-    optional: true
-
-  '@typescript/native-preview-win32-x64@7.0.0-dev.20260605.1':
-    optional: true
-
-  '@typescript/native-preview-win32-x64@7.0.0-dev.20260619.1':
-    optional: true
-
-  '@typescript/native-preview@7.0.0-dev.20260504.1':
-    optionalDependencies:
-      '@typescript/native-preview-darwin-arm64': 7.0.0-dev.20260504.1
-      '@typescript/native-preview-darwin-x64': 7.0.0-dev.20260504.1
-      '@typescript/native-preview-linux-arm': 7.0.0-dev.20260504.1
-      '@typescript/native-preview-linux-arm64': 7.0.0-dev.20260504.1
-      '@typescript/native-preview-linux-x64': 7.0.0-dev.20260504.1
-      '@typescript/native-preview-win32-arm64': 7.0.0-dev.20260504.1
-      '@typescript/native-preview-win32-x64': 7.0.0-dev.20260504.1
-
-  '@typescript/native-preview@7.0.0-dev.20260505.1':
-    optionalDependencies:
-      '@typescript/native-preview-darwin-arm64': 7.0.0-dev.20260505.1
-      '@typescript/native-preview-darwin-x64': 7.0.0-dev.20260505.1
-      '@typescript/native-preview-linux-arm': 7.0.0-dev.20260505.1
-      '@typescript/native-preview-linux-arm64': 7.0.0-dev.20260505.1
-      '@typescript/native-preview-linux-x64': 7.0.0-dev.20260505.1
-      '@typescript/native-preview-win32-arm64': 7.0.0-dev.20260505.1
-      '@typescript/native-preview-win32-x64': 7.0.0-dev.20260505.1
-
-  '@typescript/native-preview@7.0.0-dev.20260507.1':
-    optionalDependencies:
-      '@typescript/native-preview-darwin-arm64': 7.0.0-dev.20260507.1
-      '@typescript/native-preview-darwin-x64': 7.0.0-dev.20260507.1
-      '@typescript/native-preview-linux-arm': 7.0.0-dev.20260507.1
-      '@typescript/native-preview-linux-arm64': 7.0.0-dev.20260507.1
-      '@typescript/native-preview-linux-x64': 7.0.0-dev.20260507.1
-      '@typescript/native-preview-win32-arm64': 7.0.0-dev.20260507.1
-      '@typescript/native-preview-win32-x64': 7.0.0-dev.20260507.1
-
-  '@typescript/native-preview@7.0.0-dev.20260605.1':
-    optionalDependencies:
-      '@typescript/native-preview-darwin-arm64': 7.0.0-dev.20260605.1
-      '@typescript/native-preview-darwin-x64': 7.0.0-dev.20260605.1
-      '@typescript/native-preview-linux-arm': 7.0.0-dev.20260605.1
-      '@typescript/native-preview-linux-arm64': 7.0.0-dev.20260605.1
-      '@typescript/native-preview-linux-x64': 7.0.0-dev.20260605.1
-      '@typescript/native-preview-win32-arm64': 7.0.0-dev.20260605.1
-      '@typescript/native-preview-win32-x64': 7.0.0-dev.20260605.1
-
-  '@typescript/native-preview@7.0.0-dev.20260619.1':
-    optionalDependencies:
-      '@typescript/native-preview-darwin-arm64': 7.0.0-dev.20260619.1
-      '@typescript/native-preview-darwin-x64': 7.0.0-dev.20260619.1
-      '@typescript/native-preview-linux-arm': 7.0.0-dev.20260619.1
-      '@typescript/native-preview-linux-arm64': 7.0.0-dev.20260619.1
-      '@typescript/native-preview-linux-x64': 7.0.0-dev.20260619.1
-      '@typescript/native-preview-win32-arm64': 7.0.0-dev.20260619.1
-      '@typescript/native-preview-win32-x64': 7.0.0-dev.20260619.1
 
   '@ungap/structured-clone@1.3.0': {}
 
@@ -12478,10 +12221,10 @@ snapshots:
 
   commander@7.2.0: {}
 
-  commitizen@4.3.1(@types/node@24.0.14)(typescript@6.0.2):
+  commitizen@4.3.1(@types/node@24.0.14)(typescript@7.0.2):
     dependencies:
       cachedir: 2.3.0
-      cz-conventional-changelog: 3.3.0(@types/node@24.0.14)(typescript@6.0.2)
+      cz-conventional-changelog: 3.3.0(@types/node@24.0.14)(typescript@7.0.2)
       dedent: 0.7.0
       detect-indent: 6.1.0
       find-node-modules: 2.1.3
@@ -12543,48 +12286,38 @@ snapshots:
 
   core-util-is@1.0.3: {}
 
-  cosmiconfig-typescript-loader@6.1.0(@types/node@24.0.14)(cosmiconfig@9.0.0(typescript@6.0.2))(typescript@6.0.2):
+  cosmiconfig-typescript-loader@6.1.0(@types/node@24.0.14)(cosmiconfig@9.0.0(typescript@7.0.2))(typescript@7.0.2):
     dependencies:
       '@types/node': 24.0.14
-      cosmiconfig: 9.0.0(typescript@6.0.2)
+      cosmiconfig: 9.0.0(typescript@7.0.2)
       jiti: 2.4.2
-      typescript: 6.0.2
+      typescript: 7.0.2
     optional: true
 
-  cosmiconfig-typescript-loader@6.1.0(@types/node@24.0.14)(cosmiconfig@9.0.1(typescript@6.0.2))(typescript@6.0.2):
+  cosmiconfig-typescript-loader@6.1.0(@types/node@24.0.14)(cosmiconfig@9.0.1(typescript@7.0.2))(typescript@7.0.2):
     dependencies:
       '@types/node': 24.0.14
-      cosmiconfig: 9.0.1(typescript@6.0.2)
+      cosmiconfig: 9.0.1(typescript@7.0.2)
       jiti: 2.4.2
-      typescript: 6.0.2
+      typescript: 7.0.2
 
-  cosmiconfig@9.0.0(typescript@5.9.3):
+  cosmiconfig@9.0.0(typescript@7.0.2):
     dependencies:
       env-paths: 2.2.1
       import-fresh: 3.3.1
       js-yaml: 4.1.1
       parse-json: 5.2.0
     optionalDependencies:
-      typescript: 5.9.3
+      typescript: 7.0.2
 
-  cosmiconfig@9.0.0(typescript@6.0.2):
+  cosmiconfig@9.0.1(typescript@7.0.2):
     dependencies:
       env-paths: 2.2.1
       import-fresh: 3.3.1
       js-yaml: 4.1.1
       parse-json: 5.2.0
     optionalDependencies:
-      typescript: 6.0.2
-    optional: true
-
-  cosmiconfig@9.0.1(typescript@6.0.2):
-    dependencies:
-      env-paths: 2.2.1
-      import-fresh: 3.3.1
-      js-yaml: 4.1.1
-      parse-json: 5.2.0
-    optionalDependencies:
-      typescript: 6.0.2
+      typescript: 7.0.2
 
   cpy-cli@7.0.0:
     dependencies:
@@ -12670,16 +12403,16 @@ snapshots:
 
   csstype@3.2.3: {}
 
-  cz-conventional-changelog@3.3.0(@types/node@24.0.14)(typescript@6.0.2):
+  cz-conventional-changelog@3.3.0(@types/node@24.0.14)(typescript@7.0.2):
     dependencies:
       chalk: 2.4.2
-      commitizen: 4.3.1(@types/node@24.0.14)(typescript@6.0.2)
+      commitizen: 4.3.1(@types/node@24.0.14)(typescript@7.0.2)
       conventional-commit-types: 3.0.0
       lodash.map: 4.6.0
       longest: 2.0.1
       word-wrap: 1.2.5
     optionalDependencies:
-      '@commitlint/load': 19.8.1(@types/node@24.0.14)(typescript@6.0.2)
+      '@commitlint/load': 19.8.1(@types/node@24.0.14)(typescript@7.0.2)
     transitivePeerDependencies:
       - '@types/node'
       - typescript
@@ -15640,36 +15373,36 @@ snapshots:
       client-only: 0.0.1
       react: 19.2.3
 
-  stylelint-declaration-strict-value@1.10.11(stylelint@16.26.1(typescript@5.9.3)):
+  stylelint-declaration-strict-value@1.10.11(stylelint@16.26.1(typescript@7.0.2)):
     dependencies:
-      stylelint: 16.26.1(typescript@5.9.3)
+      stylelint: 16.26.1(typescript@7.0.2)
 
-  stylelint-gamut@1.3.4(stylelint@16.26.1(typescript@5.9.3)):
+  stylelint-gamut@1.3.4(stylelint@16.26.1(typescript@7.0.2)):
     dependencies:
       colorjs.io: 0.4.5
-      stylelint: 16.26.1(typescript@5.9.3)
+      stylelint: 16.26.1(typescript@7.0.2)
 
-  stylelint-high-performance-animation@1.11.0(stylelint@16.26.1(typescript@5.9.3)):
+  stylelint-high-performance-animation@1.11.0(stylelint@16.26.1(typescript@7.0.2)):
     dependencies:
       postcss-value-parser: 4.2.0
-      stylelint: 16.26.1(typescript@5.9.3)
+      stylelint: 16.26.1(typescript@7.0.2)
 
-  stylelint-order@7.0.1(stylelint@16.26.1(typescript@5.9.3)):
+  stylelint-order@7.0.1(stylelint@16.26.1(typescript@7.0.2)):
     dependencies:
       postcss: 8.5.6
       postcss-sorting: 9.1.0(postcss@8.5.6)
-      stylelint: 16.26.1(typescript@5.9.3)
+      stylelint: 16.26.1(typescript@7.0.2)
 
-  stylelint-plugin-a11y@1.0.1(stylelint@16.26.1(typescript@5.9.3)):
+  stylelint-plugin-a11y@1.0.1(stylelint@16.26.1(typescript@7.0.2)):
     dependencies:
       postcss: 8.5.6
-      stylelint: 16.26.1(typescript@5.9.3)
+      stylelint: 16.26.1(typescript@7.0.2)
 
-  stylelint-plugin-logical-css@1.3.0(stylelint@16.26.1(typescript@5.9.3)):
+  stylelint-plugin-logical-css@1.3.0(stylelint@16.26.1(typescript@7.0.2)):
     dependencies:
-      stylelint: 16.26.1(typescript@5.9.3)
+      stylelint: 16.26.1(typescript@7.0.2)
 
-  stylelint-scss@6.14.0(stylelint@16.26.1(typescript@5.9.3)):
+  stylelint-scss@6.14.0(stylelint@16.26.1(typescript@7.0.2)):
     dependencies:
       css-tree: 3.1.0
       is-plain-object: 5.0.0
@@ -15679,9 +15412,9 @@ snapshots:
       postcss-resolve-nested-selector: 0.1.6
       postcss-selector-parser: 7.1.1
       postcss-value-parser: 4.2.0
-      stylelint: 16.26.1(typescript@5.9.3)
+      stylelint: 16.26.1(typescript@7.0.2)
 
-  stylelint@16.26.1(typescript@5.9.3):
+  stylelint@16.26.1(typescript@7.0.2):
     dependencies:
       '@csstools/css-parser-algorithms': 3.0.5(@csstools/css-tokenizer@3.0.4)
       '@csstools/css-syntax-patches-for-csstree': 1.0.27
@@ -15691,7 +15424,7 @@ snapshots:
       '@dual-bundle/import-meta-resolve': 4.2.1
       balanced-match: 2.0.0
       colord: 2.9.3
-      cosmiconfig: 9.0.0(typescript@5.9.3)
+      cosmiconfig: 9.0.0(typescript@7.0.2)
       css-functions-list: 3.3.3
       css-tree: 3.1.0
       debug: 4.4.3
@@ -15739,18 +15472,6 @@ snapshots:
       has-flag: 4.0.0
       supports-color: 7.2.0
 
-  svelte-check@4.3.6(picomatch@4.0.4)(svelte@5.48.5)(typescript@5.8.3):
-    dependencies:
-      '@jridgewell/trace-mapping': 0.3.29
-      chokidar: 4.0.3
-      fdir: 6.5.0(picomatch@4.0.4)
-      picocolors: 1.1.1
-      sade: 1.8.1
-      svelte: 5.48.5
-      typescript: 5.8.3
-    transitivePeerDependencies:
-      - picomatch
-
   svelte-check@4.3.6(picomatch@4.0.4)(svelte@5.48.5)(typescript@6.0.2):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.29
@@ -15766,6 +15487,32 @@ snapshots:
   svelte-check@4.4.7(picomatch@4.0.4)(svelte@5.55.5(@typescript-eslint/types@8.46.4))(typescript@6.0.2):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
+      chokidar: 4.0.3
+      fdir: 6.5.0(picomatch@4.0.4)
+      picocolors: 1.1.1
+      sade: 1.8.1
+      svelte: 5.55.5(@typescript-eslint/types@8.46.4)
+      typescript: 6.0.2
+    transitivePeerDependencies:
+      - picomatch
+
+  svelte-check@4.7.2(picomatch@4.0.4)(svelte@5.48.5)(typescript@6.0.2):
+    dependencies:
+      '@jridgewell/trace-mapping': 0.3.31
+      '@sveltejs/load-config': 0.2.0
+      chokidar: 4.0.3
+      fdir: 6.5.0(picomatch@4.0.4)
+      picocolors: 1.1.1
+      sade: 1.8.1
+      svelte: 5.48.5
+      typescript: 6.0.2
+    transitivePeerDependencies:
+      - picomatch
+
+  svelte-check@4.7.2(picomatch@4.0.4)(svelte@5.55.5(@typescript-eslint/types@8.46.4))(typescript@6.0.2):
+    dependencies:
+      '@jridgewell/trace-mapping': 0.3.31
+      '@sveltejs/load-config': 0.2.0
       chokidar: 4.0.3
       fdir: 6.5.0(picomatch@4.0.4)
       picocolors: 1.1.1
@@ -15939,11 +15686,30 @@ snapshots:
     dependencies:
       semver: 7.7.3
 
-  typescript@5.8.3: {}
-
-  typescript@5.9.3: {}
-
   typescript@6.0.2: {}
+
+  typescript@7.0.2:
+    optionalDependencies:
+      '@typescript/typescript-aix-ppc64': 7.0.2
+      '@typescript/typescript-darwin-arm64': 7.0.2
+      '@typescript/typescript-darwin-x64': 7.0.2
+      '@typescript/typescript-freebsd-arm64': 7.0.2
+      '@typescript/typescript-freebsd-x64': 7.0.2
+      '@typescript/typescript-linux-arm': 7.0.2
+      '@typescript/typescript-linux-arm64': 7.0.2
+      '@typescript/typescript-linux-loong64': 7.0.2
+      '@typescript/typescript-linux-mips64el': 7.0.2
+      '@typescript/typescript-linux-ppc64': 7.0.2
+      '@typescript/typescript-linux-riscv64': 7.0.2
+      '@typescript/typescript-linux-s390x': 7.0.2
+      '@typescript/typescript-linux-x64': 7.0.2
+      '@typescript/typescript-netbsd-arm64': 7.0.2
+      '@typescript/typescript-netbsd-x64': 7.0.2
+      '@typescript/typescript-openbsd-arm64': 7.0.2
+      '@typescript/typescript-openbsd-x64': 7.0.2
+      '@typescript/typescript-sunos-x64': 7.0.2
+      '@typescript/typescript-win32-arm64': 7.0.2
+      '@typescript/typescript-win32-x64': 7.0.2
 
   ufo@1.6.3: {}
 

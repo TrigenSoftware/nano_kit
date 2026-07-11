@@ -19,7 +19,6 @@ catalog:
   '@testing-library/svelte': ^5.2.8
   '@testing-library/user-event': ^14.5.2
   '@types/node': ^24.0.14
-  '@typescript/native-preview': latest
   '@vitejs/plugin-react': ^6.0.1
   '@sveltejs/vite-plugin-svelte': ^7.0.0
   '@vitest/coverage-v8': ^4.1.4
@@ -33,8 +32,8 @@ catalog:
   size-limit: ^12.0.0
   storybook: ^10.3.5
   svelte: ^5.55.5
-  svelte-check: ^4.4.7
-  typescript: ^6.0.0
+  svelte-check: ^4.7.2
+  typescript: ^7.0.0
   vite: ^8.0.8
   vitest: ^4.1.4
 overrides:
@@ -56,3 +55,10 @@ overrides:
   '@nano_kit/svelte-router@*': workspace:^
   '@nano_kit/svelte-ssr@*': workspace:^
   'nanoviews@*': workspace:^
+packageExtensions:
+  # @sveltejs/package uses the TypeScript JS API but does not declare a
+  # typescript peer, so it resolves the hoisted TS. Declare the peer so it
+  # picks up svelte-router's TS 6 (the native TS 7 has no `ts.sys` JS API).
+  '@sveltejs/package':
+    peerDependencies:
+      typescript: '*'

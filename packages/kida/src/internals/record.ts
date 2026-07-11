@@ -38,7 +38,7 @@ export function recordBase(
   let cached = $source.record
 
   if (!cached) {
-    $source.record = cached = new Proxy($source, handler) as AnyRecordStore
+    $source.record = cached = new Proxy($source as AnyRecordStore, handler)
   }
 
   return cached

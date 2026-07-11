@@ -13,7 +13,6 @@
     "@nano_kit/store": "*"
   },
   "devDependencies": {
-    "@typescript/native-preview": "catalog:",
     "playwright": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
