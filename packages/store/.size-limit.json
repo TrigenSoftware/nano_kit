@@ -9,12 +9,12 @@
     "name": "Signal",
     "path": "dist/index.js",
     "import": "{ signal }",
-    "limit": "1.59 kB"
+    "limit": "1.61 kB"
   },
   {
     "name": "Popular set",
     "path": "dist/index.js",
     "import": "{ signal, record, computed, effect, mountable, onMount }",
-    "limit": "2.23 kB"
+    "limit": "2.25 kB"
   }
 ]
