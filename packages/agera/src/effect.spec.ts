@@ -337,6 +337,53 @@ describe('agera', () => {
       expect(yCalled).toBe(2)
     })
 
+    it('should handle consecutive inner resets through computed chain', () => {
+      const s = signal(0)
+      const c = computed(() => s())
+      let runs = 0
+
+      effect(() => {
+        runs++
+
+        if (c() > 0) {
+          s(0)
+        }
+      })
+
+      expect(runs).toBe(1)
+      s(1)
+      expect(s()).toBe(0)
+      expect(runs).toBe(2)
+      s(2)
+      expect(s()).toBe(0)
+      expect(runs).toBe(3)
+      s(3)
+      expect(s()).toBe(0)
+      expect(runs).toBe(4)
+    })
+
+    it('should handle consecutive inner resets inside trigger', () => {
+      const s = signal(0)
+      const c = computed(() => s())
+      let runs = 0
+
+      effect(() => {
+        runs++
+
+        if (c() > 0) {
+          trigger(() => {
+            s(0)
+          })
+        }
+      })
+
+      expect(runs).toBe(1)
+      s(1)
+      expect(s()).toBe(0)
+      s(2)
+      expect(s()).toBe(0)
+    })
+
     it('should handle effect recursion for the first execution', () => {
       const src1 = signal(0)
       const src2 = signal(0)
