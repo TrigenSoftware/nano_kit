@@ -759,10 +759,8 @@ function computedOper<T>(this: ComputedNode<T>): T {
     }
   }
 
-  const sub = activeSub
-
-  if (sub !== undefined) {
-    link(this, sub, cycle)
+  if (activeSub !== undefined) {
+    link(this, activeSub, cycle)
   }
 
   return this.value!
@@ -804,10 +802,8 @@ function signalOper<T>(this: SignalNode<T>, ...value: [NewValue<T>]): T | void {
       }
     }
 
-    const sub = activeSub
-
-    if (sub !== undefined) {
-      link(this, sub, cycle)
+    if (activeSub !== undefined) {
+      link(this, activeSub, cycle)
     }
 
     return this.value
