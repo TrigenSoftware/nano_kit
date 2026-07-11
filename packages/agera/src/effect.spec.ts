@@ -502,6 +502,60 @@ describe('agera', () => {
       ])
     })
 
+    it('should not recurse infinitely when destroy calls own stop', () => {
+      const s = signal(0)
+      let runs = 0
+      // oxlint-disable-next-line eslint/prefer-const
+      let stop!: () => void
+
+      stop = effect(() => {
+        runs++
+        s()
+
+        return () => {
+          stop()
+        }
+      })
+
+      expect(runs).toBe(1)
+
+      s(1)
+
+      expect(runs).toBe(1)
+
+      s(2)
+
+      expect(runs).toBe(1)
+    })
+
+    it('should not re-run effect disposed by own destroy function', () => {
+      const s = signal(0)
+      let runs = 0
+      // oxlint-disable-next-line eslint/prefer-const
+      let stop!: () => void
+
+      stop = effect(() => {
+        runs++
+        s()
+
+        return () => {
+          if (s() > 0) {
+            stop()
+          }
+        }
+      })
+
+      expect(runs).toBe(1)
+
+      s(1)
+
+      expect(runs).toBe(1)
+
+      s(2)
+
+      expect(runs).toBe(1)
+    })
+
     it('should handle clinchy effects', () => {
       const $yepnope = signal(true)
       const logs: string[] = []

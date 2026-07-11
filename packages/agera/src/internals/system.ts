@@ -65,10 +65,11 @@ export function untracked<T>(fn: () => T): T {
 
 function destroyEffect(dep: ReactiveNode) {
   const effect = dep as EffectNode
+  const { destroy } = effect
 
-  if (effect.destroy !== undefined) {
-    untracked(effect.destroy)
+  if (destroy !== undefined) {
     effect.destroy = undefined
+    untracked(destroy)
   }
 }
 
@@ -656,7 +657,6 @@ function runEffect(e: EffectNode, warmup?: true): void {
   const prevNoMount = isMountableUsed ? pushNoMount(e.noMount) : undefined
 
   try {
-    destroyEffect(e)
     e.destroy = e.fn(warmup) || undefined
   } finally {
     popNoMount(prevNoMount)
@@ -681,6 +681,15 @@ function run(e: EffectNode): void {
       && checkDirty(e.deps!, e)
     )
   ) {
+    if (e.destroy !== undefined) {
+      destroyEffect(e)
+
+      // Destroy function disposed the effect, do not re-run it
+      if (e.flags === NoneFlag) {
+        return
+      }
+    }
+
     ++cycle
     e.depsTail = undefined
     e.flags = WatchingFlag | RecursedCheckFlag
