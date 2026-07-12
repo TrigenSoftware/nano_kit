@@ -1,7 +1,10 @@
-import { navigation } from '#src/stores/router.ts'
+import {
+  navigation,
+  paths
+} from '#src/stores/router'
 
 export default function Home() {
-  navigation.replace('characters')
+  navigation.replace(paths.characters)
 
   return <></>
 }

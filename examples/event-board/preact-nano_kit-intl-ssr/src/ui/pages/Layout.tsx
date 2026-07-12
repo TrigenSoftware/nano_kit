@@ -14,7 +14,7 @@ import {
   useSyncHead
 } from '@nano_kit/preact-router'
 import { text } from '@nano_kit/intl'
-import { Intl$ } from '#src/stores/intl.ts'
+import { Intl$ } from '#src/stores/intl'
 
 function Messages$() {
   const { messages } = inject(Intl$)

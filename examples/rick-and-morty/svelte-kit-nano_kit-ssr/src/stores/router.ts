@@ -1,6 +1,7 @@
 import { inject } from '@nano_kit/store'
 import {
   Location$,
+  buildPaths,
   forRoute,
   param,
   searchParam,
@@ -16,6 +17,8 @@ export const routes = {
   episodes: '/episodes',
   episode: '/episode/:id'
 } as const
+
+export const paths = buildPaths(routes)
 
 export function Params$() {
   const $location = inject(Location$)

@@ -7,7 +7,10 @@ import {
   pace,
   signal
 } from '@nano_kit/store'
-import { Navigation$ } from '@nano_kit/router'
+import {
+  Navigation$,
+  Paths$
+} from '@nano_kit/router'
 import {
   type InfinitePages,
   disabled,
@@ -129,6 +132,7 @@ export function NewEventForm$() {
     revalidate
   } = inject(Client$)
   const navigation = inject(Navigation$)
+  const paths = inject(Paths$)
   const $title = signal('')
   const $description = signal('')
   const $startsAt = signal('')
@@ -189,7 +193,9 @@ export function NewEventForm$() {
       onSuccess(ctx, (created) => {
         revalidate(EventsKey)
         reset()
-        navigation.push(`/events/${created.slug}`)
+        navigation.push(paths.event({
+          slug: created.slug
+        }))
       })
 
       return createEvent(payload)

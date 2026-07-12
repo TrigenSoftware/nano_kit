@@ -1,8 +1,11 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { navigation } from '../../stores/router.js'
+  import {
+    navigation,
+    paths
+  } from '../../stores/router.js'
 
   onMount(() => {
-    navigation.replace('characters')
+    navigation.replace(paths.characters)
   })
 </script>

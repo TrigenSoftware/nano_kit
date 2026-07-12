@@ -8,7 +8,7 @@ import {
   inject
 } from '@nano_kit/store'
 import { title } from '@nano_kit/router'
-import { Location$ } from '#src/stores/locations.ts'
+import { Location$ } from '#src/stores/locations'
 import { Residents$ } from '#src/stores/characters'
 import { LocationDetail } from '#src/ui/blocks/LocationDetail'
 import { CharactersGrid } from '#src/ui/blocks/CharactersGrid'

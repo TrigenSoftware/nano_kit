@@ -13,7 +13,7 @@ import {
   useLinkComponentPreload,
   useSyncHead
 } from '@nano_kit/react-router'
-import { Intl$ } from '#src/stores/intl.ts'
+import { Intl$ } from '#src/stores/intl'
 
 function Messages$() {
   const { messages } = inject(Intl$)
