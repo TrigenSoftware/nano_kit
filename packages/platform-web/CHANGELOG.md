@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.7](https://github.com/TrigenSoftware/nano_kit/compare/platform-web%401.0.0-alpha.6...platform-web%401.0.0-alpha.7) (2026-07-12)
+
+### Features
+
+* add `serializeCookies` ssr helper to cookie store ([543d1d6](https://github.com/TrigenSoftware/nano_kit/commit/543d1d6dbf4c43c864275a2e53ad1f31429b6a13))
+
+### Bug Fixes
+
+* support TypeScript 7 ([#156](https://github.com/TrigenSoftware/nano_kit/issues/156)) ([6d9edce](https://github.com/TrigenSoftware/nano_kit/commit/6d9edce57bd709859deb9cf86d9a982ab7cf4a11))
+
 ## [1.0.0-alpha.6](https://github.com/TrigenSoftware/nano_kit/compare/platform-web@1.0.0-alpha.5...platform-web@1.0.0-alpha.6) (2026-06-09)
 
 ### Bug Fixes

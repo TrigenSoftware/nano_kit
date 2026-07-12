@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.6](https://github.com/TrigenSoftware/nano_kit/compare/svelte-router%401.0.0-alpha.5...svelte-router%401.0.0-alpha.6) (2026-07-12)
+
+### Bug Fixes
+
+* support TypeScript 7 ([#156](https://github.com/TrigenSoftware/nano_kit/issues/156)) ([6d9edce](https://github.com/TrigenSoftware/nano_kit/commit/6d9edce57bd709859deb9cf86d9a982ab7cf4a11))
+
 ## [1.0.0-alpha.5](https://github.com/TrigenSoftware/nano_kit/compare/svelte-router@1.0.0-alpha.4...svelte-router@1.0.0-alpha.5) (2026-06-15)
 
 ### Bug Fixes

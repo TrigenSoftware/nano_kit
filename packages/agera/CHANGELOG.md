@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.6](https://github.com/TrigenSoftware/nano_kit/compare/agera%401.0.0-beta.5...agera%401.0.0-beta.6) (2026-07-12)
+
+### Bug Fixes
+
+* prevent subs count desync when mountable signal is read by non-subscriber node ([#159](https://github.com/TrigenSoftware/nano_kit/issues/159)) ([1410c97](https://github.com/TrigenSoftware/nano_kit/commit/1410c9759567e67acb39c9cbb4313f82a7f7dce6))
+* support TypeScript 7 ([#156](https://github.com/TrigenSoftware/nano_kit/issues/156)) ([6d9edce](https://github.com/TrigenSoftware/nano_kit/commit/6d9edce57bd709859deb9cf86d9a982ab7cf4a11))
+* sync with alien-signals v3.2.1 ([#160](https://github.com/TrigenSoftware/nano_kit/issues/160)) ([d943a8d](https://github.com/TrigenSoftware/nano_kit/commit/d943a8dee548d03baaeaf1a0b5a68a79d2c7dc82))
+
 ## [1.0.0-beta.5](https://github.com/TrigenSoftware/nano_kit/compare/agera@1.0.0-beta.4...agera@1.0.0-beta.5) (2026-06-09)
 
 ### Bug Fixes
