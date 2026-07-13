@@ -3,7 +3,6 @@
 - correct sandbox for session example
 - inspect object copies
 - check === / !== undefined ? perf
-- examples/event-board/react-nano_kit-intl-ssr/src/stores/events.ts router paths
 - complete guide
 
 ## Agera/Kida/Store
