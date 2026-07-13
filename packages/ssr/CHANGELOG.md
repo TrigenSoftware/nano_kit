@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-alpha.7](https://github.com/TrigenSoftware/nano_kit/compare/ssr%401.0.0-alpha.6...ssr%401.0.0-alpha.7) (2026-07-13)
+
+### Features
+
+* add server entrypoint ([#164](https://github.com/TrigenSoftware/nano_kit/issues/164)) ([eefd560](https://github.com/TrigenSoftware/nano_kit/commit/eefd5606bfdb477409f649be3b34e67d3da7dd91))
+
 ## [1.0.0-alpha.6](https://github.com/TrigenSoftware/nano_kit/compare/ssr%401.0.0-alpha.5...ssr%401.0.0-alpha.6) (2026-07-12)
 
 ### Bug Fixes
