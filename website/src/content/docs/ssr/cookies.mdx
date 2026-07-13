@@ -141,6 +141,52 @@ export function Session$() {
 }
 ```
 
+## Forwarding Cookies to an API
+
+In the browser, `fetch` attaches the user's cookies automatically. During SSR the request is server-to-server, so a store that reads a cookie-authenticated backend must forward the incoming cookies itself. `serializeCookies` reads the named cookies from a `CookieStore` and serializes them into a `Cookie` request header value.
+
+A common pattern is a server-only API service that adds the forwarded headers to every request:
+
+```ts
+// src/services/api.server.ts
+import {
+  Injectable$,
+  inject
+} from '@nano_kit/store'
+import {
+  CookieStore$,
+  serializeCookies
+} from '@nano_kit/platform-web'
+
+export class ServerApi$ extends Injectable$ {
+  cookieStore = inject(CookieStore$)
+
+  async fetch(path: string, options?: RequestInit) {
+    const cookie = await serializeCookies(this.cookieStore, ['session'])
+
+    return fetch(`https://api.example.com/${path}`, {
+      ...options,
+      headers: {
+        ...options?.headers,
+        Cookie: cookie
+      }
+    })
+  }
+}
+```
+
+Swap it for a browser implementation with `import.meta.env.SSR`. The client version skips `serializeCookies` — the browser attaches the cookies for you:
+
+```ts
+// src/services/api.ts
+import { ClientApi$ } from './api.client'
+import { ServerApi$ } from './api.server'
+
+export const Api$ = import.meta.env.SSR ? ServerApi$ : ClientApi$
+```
+
+`serializeCookies(cookieStore, ['session', 'locale'])` resolves to a value like `session=abc123; locale=en`, and only the requested cookies that exist in the store are included.
+
 ## Production Server
 
 Pass the incoming `Cookie` header to `renderer.render(url, { cookie })`, and forward returned `Set-Cookie` headers to the HTTP response.

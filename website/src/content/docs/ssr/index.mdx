@@ -233,7 +233,7 @@ ssr({
 ### Build and Serve
 
 - **`vite dev`** — starts the development server with SSR rendering handled in-process via Vite's dev middleware.
-- **`vite build`** — produces two output directories: `dist/client/` (browser assets) and `dist/renderer/` (SSR renderer bundle).
+- **`vite build`** — produces `dist/client/` (browser assets) and `dist/renderer/` (SSR renderer bundle). With the [`server` option](#bundled-server-entry), the renderer is bundled into a `dist/server/` app instead.
 
 For production, you need to write your own HTTP server that imports the renderer bundle and serves the HTML:
 
@@ -263,6 +263,54 @@ app.get('*', async (req, res) => {
   res.status(result.statusCode).send('Not Found')
 })
 ```
+
+#### Bundled Server Entry
+
+Instead of hand-writing a server that imports `dist/renderer/`, pass a `server` entry and the plugin bundles **that file** for you. `vite build` then produces `dist/client/` and `dist/server/` (no separate `dist/renderer/`):
+
+```js
+// vite.config.js
+ssr({
+  index: 'src/index.js',
+  server: 'src/server.js'
+})
+```
+
+The server file receives the renderer through the typed `virtual:app-renderer` virtual module, which is bundled into the output:
+
+```js
+// src/server.js
+import { serve } from '@hono/node-server'
+import { serveStatic } from '@hono/node-server/serve-static'
+import { Hono } from 'hono'
+import { renderer } from 'virtual:app-renderer'
+
+const app = new Hono()
+
+app.use(`${renderer.base}*`, serveStatic({ root: './dist/client' }))
+
+app.get('*', async (c) => {
+  const result = await renderer.render(c.req.url, {
+    cookie: c.req.header('Cookie')
+  })
+
+  if (result.redirect) {
+    return c.redirect(result.redirect, result.statusCode)
+  }
+
+  return result.html !== null
+    ? c.html(result.html, result.statusCode)
+    : c.text('Not Found', result.statusCode)
+})
+
+serve({ fetch: app.fetch, port: 3000 })
+```
+
+Run the built server with `node dist/server/index.js`. The output directory name defaults to `server` and can be changed with the `serverDir` option.
+
+<Aside>
+  The `server` entry is a build-time bundle. In `vite dev`, SSR is still handled in-process by the plugin's dev middleware, so the server file is only used for production builds.
+</Aside>
 
 ## Next Steps
 

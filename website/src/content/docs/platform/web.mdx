@@ -266,6 +266,15 @@ cookieStore.drainSetCookieHeaders()
 // ['theme=light; Path=/; SameSite=Lax']
 ```
 
+`serializeCookies` reads named cookies from any `CookieStore`-compatible object and serializes them into a `Cookie` request header value. Use it to forward request cookies to a backend fetch during SSR:
+
+```ts
+import { serializeCookies } from '@nano_kit/platform-web'
+
+const cookie = await serializeCookies(cookieStore, ['session', 'locale'])
+// 'session=abc123; locale=en'
+```
+
 ## Broadcast Channel
 
 `broadcasted` creates a signal synchronized through `BroadcastChannel`. It is useful for transient cross-tab messages such as logout, refresh, or UI coordination events.
