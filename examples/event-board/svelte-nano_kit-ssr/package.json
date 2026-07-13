@@ -11,8 +11,8 @@
     "dev": "vite",
     "build": "svelte-check --tsconfig ./tsconfig.json && tsc --noEmit -p tsconfig.node.json && vite build",
     "build:only": "vite build",
-    "preview": "node server.js",
-    "start": "node server.js",
+    "preview": "node dist/server/index.js",
+    "start": "node dist/server/index.js",
     "test:types": "svelte-check --tsconfig ./tsconfig.json && tsc --noEmit -p tsconfig.node.json"
   },
   "dependencies": {

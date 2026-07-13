@@ -11,8 +11,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "build:only": "vite build",
-    "preview": "node server.js",
-    "start": "node server.js"
+    "preview": "node dist/server/index.js",
+    "start": "node dist/server/index.js"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.9",

@@ -1,3 +1,4 @@
+import './virtual.js'
 import type { Plugin } from 'vite'
 
 export interface SsrPluginAdapter {
@@ -37,6 +38,18 @@ export interface BaseSsrPluginOptions {
    * @default 'renderer'
    */
   rendererDir?: string
+  /**
+   * Path to the server entry file. When set, this file is bundled instead of the
+   * renderer (into `serverDir`), and the renderer is exposed to it through the
+   * `virtual:app-renderer` module.
+   */
+  server?: string
+  /**
+   * Directory inside the build output for server assets. Used only when the
+   * `server` option is set.
+   * @default 'server'
+   */
+  serverDir?: string
   /**
    * Development options.
    */

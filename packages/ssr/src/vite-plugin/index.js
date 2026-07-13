@@ -21,8 +21,10 @@ export default function SsrPlugin(options, adapter) {
     index: appIndex,
     client: clientPath = adapter.clientPath,
     renderer: rendererPath = adapter.rendererPath,
+    server: serverPath,
     clientDir = 'client',
     rendererDir = 'renderer',
+    serverDir = 'server',
     nativeMagicString = true,
     inject = {},
     dev = {}
@@ -108,6 +110,16 @@ export default function SsrPlugin(options, adapter) {
           return this.resolve(appIndex, importer, {
             ...options,
             isEntry: true
+          })
+        }
+
+        if (id === 'virtual:app-renderer') {
+          // `skipSelf: false` lets the adapter's default renderer (a virtual id
+          // that only this plugin's `resolveId` below knows how to handle) resolve;
+          // otherwise `this.resolve` would skip this plugin and return `null`.
+          return this.resolve(rendererPath, importer, {
+            ...options,
+            skipSelf: false
           })
         }
 
@@ -222,6 +234,7 @@ export default function SsrPlugin(options, adapter) {
         const outDir = config.build?.outDir || 'dist'
         const outClientDir = path.join(outDir, clientDir)
         const outRendererDir = path.join(outDir, rendererDir)
+        const outServerDir = serverPath && path.join(outDir, serverDir)
         const manifestOption = config.build?.manifest || true
         const manifestPath = typeof manifestOption === 'string'
           ? path.join(outClientDir, manifestOption)
@@ -233,7 +246,7 @@ export default function SsrPlugin(options, adapter) {
 
         if (isSsrBuild) {
           const bundlerOptions = {
-            input: rendererPath,
+            input: serverPath ?? rendererPath,
             output: {
               entryFileNames: 'index.js'
             }
@@ -245,7 +258,7 @@ export default function SsrPlugin(options, adapter) {
               sourcemap: true,
               rollupOptions: bundlerOptions,
               rolldownOptions: bundlerOptions,
-              outDir: outRendererDir
+              outDir: outServerDir || outRendererDir
             }
           }
         }
