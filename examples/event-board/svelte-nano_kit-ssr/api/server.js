@@ -8,7 +8,7 @@ const API_PORT = Number(process.env.PORT || DEFAULT_API_PORT)
 const app = new Hono()
 
 app.use(compress())
-app.use('/api/*', api())
+app.route('/', api())
 
 app.get('/', c => c.redirect('http://localhost:5173'))
 

@@ -7,6 +7,21 @@ import type {
   UnknownMatchRef
 } from '@nano_kit/router'
 import type { ManifestOptions } from './manifest.types.js'
+import type {
+  SUCCESS_STATUS,
+  MOVED_PERMANENTLY_STATUS,
+  FOUND_STATUS,
+  NOT_FOUND_STATUS
+} from './constants.js'
+
+/**
+ * Response status codes that the renderer can produce.
+ */
+export type ResponseStatusCode =
+  | typeof SUCCESS_STATUS
+  | typeof MOVED_PERMANENTLY_STATUS
+  | typeof FOUND_STATUS
+  | typeof NOT_FOUND_STATUS
 
 export interface KnownHeaders {
   cookie?: string
@@ -48,7 +63,7 @@ export interface RenderData {
   context: InjectionContext
   head: HeadDescriptor[]
   dehydrated: [string, unknown][]
-  statusCode: number
+  statusCode: ResponseStatusCode
   redirect: string | null
   page: PageRef<unknown> | null
   setCookieHeaders: string[] | null

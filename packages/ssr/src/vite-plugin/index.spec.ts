@@ -187,5 +187,34 @@ describe('ssr', () => {
       expect(rendererPageChunk.code).toContain('"Home Page"')
       expect(rendererPageChunk.code).toContain('Stores$')
     })
+
+    it('should build the server entry with virtual:app-renderer when server option is set', async () => {
+      const plugin = SsrPlugin({
+        index: input,
+        server: path.join(testAppDir, 'server.js')
+      }, adapter)
+      const serverResult: any = await build({
+        root: testAppDir,
+        logLevel: 'silent',
+        plugins: plugin,
+        build: {
+          minify: false,
+          ssr: true
+        }
+      })
+      const serverChunk = serverResult.output.find((c: any) => c.facadeModuleId?.endsWith('server.js'))
+
+      expect(serverChunk).toBeDefined()
+      expect(serverChunk.fileName).toBe('index.js')
+      expect(serverChunk.code).toContain('console.log("Server:"')
+      expect(serverChunk.code).toContain('console.log("Virtual renderer:"')
+      expect(serverChunk.code).toContain('__attachChunkname')
+
+      const serverPageChunk = serverResult.output.find((c: any) => c.facadeModuleId?.endsWith('home.js'))
+
+      expect(serverPageChunk).toBeDefined()
+      expect(serverPageChunk.code).toContain('"Home Page"')
+      expect(serverPageChunk.code).toContain('Stores$')
+    })
   })
 })

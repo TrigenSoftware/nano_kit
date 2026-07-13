@@ -1,9 +1,10 @@
+import type { RedirectStatusCode } from 'hono/utils/http-status'
 import { serve } from '@hono/node-server'
 import { serveStatic } from '@hono/node-server/serve-static'
 import { Hono } from 'hono'
 import { compress } from 'hono/compress'
-import { renderer } from './dist/renderer/index.js'
-import { api } from './api/index.js'
+import { renderer } from 'virtual:app-renderer'
+import { api } from '../api/index.js'
 
 const DEFAULT_PORT = 3001
 const CACHE_MAX_AGE = 31_536_000
@@ -11,7 +12,7 @@ const PORT = Number(process.env.PORT || DEFAULT_PORT)
 const app = new Hono()
 
 app.use(compress())
-app.use('/api/*', api())
+app.route('/', api())
 
 app.use(`${renderer.base.replace(/(.)\/$/, '$1')}*`, serveStatic({
   root: './dist/client',
@@ -27,7 +28,7 @@ app.get('*', async (c) => {
   })
 
   if (result.redirect) {
-    return c.redirect(result.redirect, result.statusCode)
+    return c.redirect(result.redirect, result.statusCode as RedirectStatusCode)
   }
 
   if (result.html !== null) {

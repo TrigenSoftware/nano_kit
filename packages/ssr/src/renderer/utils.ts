@@ -9,6 +9,7 @@ import {
   get,
   isEmpty
 } from '@nano_kit/store'
+import type { ResponseStatusCode } from './renderer.types.js'
 import {
   FOUND_STATUS,
   MOVED_PERMANENTLY_STATUS,
@@ -48,7 +49,7 @@ export function headDescriptorToHtml(descriptor: HeadDescriptor): string {
 
 export function responseRedirect(
   location: Location
-): [number, string] | null {
+): [typeof MOVED_PERMANENTLY_STATUS | typeof FOUND_STATUS, string] | null {
   const { action } = location
 
   if (action) {
@@ -65,7 +66,7 @@ export function responseRedirect(
 export function responseStatus(
   location: Location,
   page: PageRef<unknown> | null
-): [number, string | null] {
+): [ResponseStatusCode, string | null] {
   const redirect = responseRedirect(location)
 
   if (redirect) {
@@ -74,7 +75,7 @@ export function responseStatus(
 
   return [
     page
-      ? page.statusCode ?? SUCCESS_STATUS
+      ? (page.statusCode as ResponseStatusCode) ?? SUCCESS_STATUS
       : NOT_FOUND_STATUS,
     null
   ]
