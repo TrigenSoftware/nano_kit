@@ -27,6 +27,8 @@
 
 ## ssr
 
+- client and server contexts extendsers file for plugin - no need to eject entrypoints
+
 - cache handler
 - prerender / ssg
 - server cache
