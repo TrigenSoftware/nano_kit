@@ -26,6 +26,14 @@ export default defineConfig({
       favicon: '/favicon.svg',
       head: [
         {
+          // GitHub Pages can't set COOP/COEP headers, which StackBlitz
+          // WebContainers embeds require; this service worker injects them
+          tag: 'script',
+          attrs: {
+            src: '/coi-serviceworker.js'
+          }
+        },
+        {
           tag: 'meta',
           attrs: {
             property: 'og:image',
@@ -79,7 +87,9 @@ export default defineConfig({
           attrs: {
             'src': 'https://cloud.umami.is/script.js',
             'data-website-id': '6b792c30-fae6-48d2-95fa-c1d39706f328',
-            'defer': true
+            'defer': true,
+            // Required to pass the COEP require-corp check
+            'crossorigin': 'anonymous'
           }
         },
         {

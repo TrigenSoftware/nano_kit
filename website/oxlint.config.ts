@@ -11,5 +11,14 @@ export default defineConfig({
   ],
   env: {
     node: true
-  }
+  },
+  overrides: [
+    {
+      // Classic scripts served as static assets, not modules
+      files: ['public/**'],
+      rules: {
+        'import/unambiguous': 'off'
+      }
+    }
+  ]
 })
