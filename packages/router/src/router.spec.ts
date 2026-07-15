@@ -107,6 +107,28 @@ describe('router', () => {
       expect($page()?.default).toBe('Not Found Page')
     })
 
+    it('should keep status code for loadable not found page', async () => {
+      const [$location, navigation] = virtualNavigation('/', {
+        home: '/home'
+      })
+      const notFoundPagePromise = Promise.resolve({
+        default: 'Not Found Page'
+      })
+      const $page = router($location, [
+        page('home', 'Home Page'),
+        notFound(loadable(() => notFoundPagePromise))
+      ])
+
+      navigation.push('/unknown')
+
+      expect($page()?.statusCode).toBe(404)
+
+      await notFoundPagePromise
+
+      expect($page()?.default).toBe('Not Found Page')
+      expect($page()?.statusCode).toBe(404)
+    })
+
     it('should expose page stores when provided', () => {
       const [$location, navigation] = virtualNavigation('/', {
         home: '/home',

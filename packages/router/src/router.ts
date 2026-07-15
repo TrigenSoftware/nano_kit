@@ -82,7 +82,12 @@ function getViewRefGetter<C>(
   let getter: PageRefGetter<C>
 
   if (isLoadable(page)) {
-    getter = page.load
+    getter = extra
+      ? tasks => ({
+        ...extra,
+        ...page.load(tasks)
+      })
+      : page.load
   } else {
     const ref = isModule(page)
       ? {
