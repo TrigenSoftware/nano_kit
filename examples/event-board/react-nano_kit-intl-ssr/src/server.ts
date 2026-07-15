@@ -27,6 +27,14 @@ app.get('*', async (c) => {
     acceptLanguage: c.req.header('Accept-Language')
   })
 
+  if (result.setCookieHeaders) {
+    for (const cookie of result.setCookieHeaders) {
+      c.header('Set-Cookie', cookie, {
+        append: true
+      })
+    }
+  }
+
   if (result.redirect) {
     return c.redirect(result.redirect, result.statusCode as RedirectStatusCode)
   }

@@ -1,6 +1,7 @@
 /* oxlint-disable no-undef, no-console */
 import {
   cp,
+  mkdir,
   readdir,
   rm,
   stat
@@ -48,16 +49,27 @@ async function exists(path) {
   }
 }
 
-async function replaceDir(source, target) {
+// Replaces each entry from the source dir, keeping variant-local files that exist only in the target
+async function syncDir(source, target) {
   console.log(`  ${source} -> ${target}`)
 
-  await rm(target, {
-    force: true,
+  const entries = await readdir(source)
+
+  await mkdir(target, {
     recursive: true
   })
-  await cp(source, target, {
-    recursive: true
-  })
+
+  for (const entry of entries) {
+    const targetPath = join(target, entry)
+
+    await rm(targetPath, {
+      force: true,
+      recursive: true
+    })
+    await cp(join(source, entry), targetPath, {
+      recursive: true
+    })
+  }
 }
 
 async function syncExample(exampleName) {
@@ -70,7 +82,7 @@ async function syncExample(exampleName) {
     const source = join(sourceExampleDir, dir)
 
     if (await exists(source)) {
-      await replaceDir(
+      await syncDir(
         source,
         join(exampleDir, dir)
       )
@@ -81,7 +93,7 @@ async function syncExample(exampleName) {
     const source = join(sourceDir, dir)
 
     if (await exists(source)) {
-      await replaceDir(
+      await syncDir(
         source,
         join(targetSrcDir, dir)
       )
@@ -89,12 +101,12 @@ async function syncExample(exampleName) {
   }
 
   if (exampleName.includes('nano_kit')) {
-    await replaceDir(
+    await syncDir(
       join(sourceDir, exampleName.includes('ssr') || exampleName.includes('-di') ? 'stores-di' : 'stores'),
       join(targetSrcDir, 'stores')
     )
   } else if (exampleName.includes('nanostores')) {
-    await replaceDir(
+    await syncDir(
       join(sourceDir, 'nanostores'),
       join(targetSrcDir, 'stores')
     )

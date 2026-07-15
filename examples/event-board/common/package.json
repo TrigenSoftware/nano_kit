@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.19.9",
+    "@nano_kit/platform-web": "*",
     "@nano_kit/query": "*",
     "@nano_kit/router": "*",
     "@nano_kit/store": "*",

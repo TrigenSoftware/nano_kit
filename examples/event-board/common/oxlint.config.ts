@@ -5,6 +5,12 @@ import testConfig from '@trigen/oxlint-config/test'
 import rootConfig from '../../../oxlint.config.ts'
 
 export default defineConfig({
+  // These files import the variant-local intl service/store, which does not
+  // exist in common — they are linted in each variant after `pnpm sync`
+  ignorePatterns: [
+    'src/services/api/api.server.ts',
+    'src/stores-di/user.ts'
+  ],
   extends: [
     rootConfig,
     bundlerConfig,

@@ -12,9 +12,16 @@ import {
 
 export const routes = {
   home: '/',
+  login: '/login',
   newEvent: '/events/new',
   event: '/events/:slug'
 } as const
+
+export const publicRoutes = new Set<string>([
+  'home',
+  'login',
+  'event'
+])
 
 export function Params$() {
   const $location = inject(Location$)
