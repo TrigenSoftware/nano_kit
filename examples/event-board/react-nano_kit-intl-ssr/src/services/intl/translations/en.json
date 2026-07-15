@@ -1,0 +1,109 @@
+{
+  "layout": {
+    "title": "Event Board",
+    "events": "Events",
+    "newEvent": "New event",
+    "language": "Language",
+    "loading": "Loading...",
+    "login": "Log in",
+    "logout": "Log out"
+  },
+  "login": {
+    "pageTitle": "Log in | Event Board",
+    "eyebrow": "Account",
+    "title": "Log in",
+    "description": "Sign in to create events and RSVP with your name.",
+    "usernameLabel": "Username",
+    "passwordLabel": "Password",
+    "demoHint": "Demo users: ada / lovelace or grace / hopper.",
+    "submitting": "Logging in...",
+    "submit": "Log in",
+    "errors": {
+      "LOGIN_INVALID_CREDENTIALS": "Invalid username or password.",
+      "LOGIN_FAILED": "Login failed. Please try again."
+    }
+  },
+  "home": {
+    "pageTitle": "Upcoming events | Event Board",
+    "pageDescription": "Find meetups, workshops, webinars, and conferences.",
+    "eyebrow": "Upcoming events",
+    "title": "Find your next frontend event",
+    "description": "Meetups, workshops, webinars, and conferences collected in one small demo app.",
+    "search": "Search",
+    "searchPlaceholder": "Search events",
+    "category": "Category",
+    "allCategories": "All categories",
+    "categories": {
+      "conference": "conference",
+      "meetup": "meetup",
+      "workshop": "workshop",
+      "webinar": "webinar"
+    },
+    "noEvents": "No events found. Try another search or category.",
+    "attendees": {
+      "one": "{count} going",
+      "other": "{count} going"
+    },
+    "loadMore": "Load more",
+    "loading": "Loading..."
+  },
+  "event": {
+    "pageTitle": "Event | Event Board",
+    "pageDescription": "Event details",
+    "eventPageTitle": "{title} | Event Board",
+    "loading": "Loading event...",
+    "notFoundEyebrow": "Not found",
+    "notFoundTitle": "Event not found",
+    "notFoundDescription": "The event \"{slug}\" does not exist or was removed.",
+    "backToEvents": "Back to events",
+    "categories": {
+      "conference": "conference",
+      "meetup": "meetup",
+      "workshop": "workshop",
+      "webinar": "webinar"
+    },
+    "when": "When",
+    "where": "Where",
+    "going": "Going",
+    "saving": "Saving...",
+    "rsvp": "I'm going",
+    "rsvpCancel": "I'm not going",
+    "hostedBy": "Hosted by"
+  },
+  "newEvent": {
+    "pageTitle": "New event | Event Board",
+    "eyebrow": "New event",
+    "title": "Create an event",
+    "description": "Add an event to the in-memory API and open its public page.",
+    "shortcut": "Press Ctrl+M or Cmd+M to fill the form with sample data.",
+    "titleLabel": "Title",
+    "titlePlaceholder": "Frontend Meetup",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Short talks, demos, and hallway conversations.",
+    "startsAtLabel": "Date and time",
+    "categoryLabel": "Category",
+    "categories": {
+      "conference": "conference",
+      "meetup": "meetup",
+      "workshop": "workshop",
+      "webinar": "webinar"
+    },
+    "locationLabel": "Location",
+    "locationPlaceholder": "Online",
+    "errors": {
+      "title": "Title is required",
+      "description": "Description is required",
+      "startsAt": "Date and time are required",
+      "location": "Location is required"
+    },
+    "creating": "Creating...",
+    "create": "Create event"
+  },
+  "notFound": {
+    "pageTitle": "Page not found | Event Board",
+    "eyebrow": "Not found",
+    "title": "Page not found",
+    "description": "This page does not exist or was moved.",
+    "backToEvents": "Back to events"
+  }
+}

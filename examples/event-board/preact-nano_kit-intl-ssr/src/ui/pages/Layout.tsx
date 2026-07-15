@@ -15,6 +15,7 @@ import {
 } from '@nano_kit/preact-router'
 import { text } from '@nano_kit/intl'
 import { Intl$ } from '#src/stores/intl'
+import { User$ } from '#src/stores/user'
 
 function Messages$() {
   const { messages } = inject(Intl$)
@@ -23,6 +24,8 @@ function Messages$() {
     title: text(),
     events: text(),
     newEvent: text(),
+    login: text(),
+    logout: text(),
     language: text(),
     loading: text()
   })
@@ -30,8 +33,9 @@ function Messages$() {
 
 export function Stores$() {
   const [$t] = inject(Messages$)
+  const { $user } = inject(User$)
 
-  return [$t]
+  return [$t, $user]
 }
 
 export function Head$() {
@@ -56,10 +60,18 @@ export default function Layout() {
     $locale,
     supportedLocales
   } = useInject(Intl$)
+  const {
+    $user,
+    logout
+  } = useInject(User$)
   const [$t, $messagesPending] = useInject(Messages$)
   const locale = useSignal($locale)
   const messagesPending = useSignal($messagesPending)
+  const user = useSignal($user)
   const t = useSignal($t)
+  const onLogout = () => {
+    void logout()
+  }
 
   useSyncHead()
   useLinkComponentPreload(true)
@@ -80,6 +92,19 @@ export default function Layout() {
             <Link to='home'>{t.events}</Link>
             <Link to='newEvent'>{t.newEvent}</Link>
           </nav>
+
+          <div className='header__user'>
+            {user
+              ? (
+                <>
+                  <strong>{user.name}</strong>
+                  <button className='button_link' type='button' onClick={onLogout}>
+                    {t.logout}
+                  </button>
+                </>
+              )
+              : <Link to='login'>{t.login}</Link>}
+          </div>
         </div>
       </header>
 

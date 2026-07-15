@@ -39,6 +39,8 @@ function Messages$() {
     notFoundDescription: params({
       slug: text()
     }),
+    rsvpCancel: text(),
+    hostedBy: text(),
     backToEvents: text(),
     categories: raw<Record<string, string>>(),
     when: text(),
@@ -167,6 +169,12 @@ export default function EventPage() {
             <dt>{t.where}</dt>
             <dd>{event.location}</dd>
           </div>
+          {event.author && (
+            <div>
+              <dt>{t.hostedBy}</dt>
+              <dd>{event.author}</dd>
+            </div>
+          )}
           <div>
             <dt>{t.going}</dt>
             <dd>{t.attendees(event.attendees)}</dd>
@@ -185,7 +193,7 @@ export default function EventPage() {
           disabled={rsvpLoading}
           onClick={onRsvp}
         >
-          {rsvpLoading ? t.saving : t.rsvp}
+          {rsvpLoading ? t.saving : event.going ? t.rsvpCancel : t.rsvp}
         </button>
       </div>
 

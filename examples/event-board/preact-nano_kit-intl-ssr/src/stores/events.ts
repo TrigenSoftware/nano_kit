@@ -25,13 +25,11 @@ import {
   type EventCategory,
   type EventsPage,
   type NewEventForm,
-  createEvent,
-  fetchEvent,
-  fetchEvents,
-  rsvpEvent
+  EventsService$
 } from '#src/services/events'
 import { Params$ } from './router'
 import { Client$ } from './query'
+import { User$ } from './user'
 import { datetimeLocalValue } from './utils'
 
 const SEARCH_DEBOUNCE = 600
@@ -49,6 +47,7 @@ export const EventKey = queryKey<[slug: string | undefined], BoardEvent | null>(
 export const EventEntity = entity<BoardEvent>('event')
 
 export function EventsList$() {
+  const eventsService = inject(EventsService$)
   const {
     $data,
     infinite
@@ -76,7 +75,7 @@ export function EventsList$() {
         })
       })
 
-      return fetchEvents({
+      return eventsService.fetchEvents({
         cursor,
         q,
         category
@@ -102,6 +101,7 @@ export function EventsList$() {
 }
 
 export function EventDetails$() {
+  const eventsService = inject(EventsService$)
   const { query } = inject(Client$)
   const { $slug } = inject(Params$)
   const [
@@ -113,7 +113,7 @@ export function EventDetails$() {
     [$slug],
     async slug => (
       slug
-        ? await fetchEvent(slug)
+        ? await eventsService.fetchEvent(slug)
         : null
     ),
     [entities(EventEntity)]
@@ -127,6 +127,7 @@ export function EventDetails$() {
 }
 
 export function NewEventForm$() {
+  const eventsService = inject(EventsService$)
   const {
     mutation,
     revalidate
@@ -198,7 +199,7 @@ export function NewEventForm$() {
         }))
       })
 
-      return createEvent(payload)
+      return eventsService.createEvent(payload)
     },
     [
       disabled(not($valid)),
@@ -224,6 +225,8 @@ export function NewEventForm$() {
 }
 
 export function RsvpEvent$() {
+  const eventsService = inject(EventsService$)
+  const { $user } = inject(User$)
   const {
     $data,
     mutation
@@ -235,21 +238,15 @@ export function RsvpEvent$() {
     $rsvpLoading
   ] = mutation<[id: string], BoardEvent>(
     (id, ctx) => {
-      const key = EventEntity(id)
-      const previousEvent = $data(key)
+      const revert = $data(EventEntity(id), event => event && {
+        ...event,
+        going: Boolean($user()) && !event.going,
+        attendees: event.attendees + (event.going ? -1 : 1)
+      })
 
-      if (previousEvent) {
-        $data(key, {
-          ...previousEvent,
-          attendees: previousEvent.attendees + 1
-        })
+      onError(ctx, revert)
 
-        onError(ctx, () => {
-          $data(key, previousEvent)
-        })
-      }
-
-      return rsvpEvent(id)
+      return eventsService.rsvpEvent(id)
     }
   )
 

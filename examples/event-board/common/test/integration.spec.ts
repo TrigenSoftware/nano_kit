@@ -693,6 +693,66 @@ describe('Event Board App', async () => {
       }).toBe(initialCount + 1)
     })
 
+    it('should redirect anonymous visitor from new event page to login', async () => {
+      const response = await openPage(page, url, '/events/new')
+      const html = await response?.text()
+
+      expect(html).toContain('Log in | Event Board')
+
+      await expect.poll(() => new URL(page.url()).pathname, {
+        timeout: UI_TIMEOUT
+      }).toBe('/login')
+      await page.getByRole('heading', {
+        name: 'Log in'
+      }).waitFor({
+        state: 'visible',
+        timeout: UI_TIMEOUT
+      })
+    })
+
+    it('should redirect anonymous visitor to login on client-side navigation', async () => {
+      await openPage(page, url)
+      await page.locator('article.event-card').first().waitFor({
+        state: 'visible',
+        timeout: UI_TIMEOUT
+      })
+      await page.getByRole('link', {
+        name: 'New event'
+      }).click()
+
+      await expect.poll(() => new URL(page.url()).pathname, {
+        timeout: UI_TIMEOUT
+      }).toBe('/login')
+      await page.getByRole('heading', {
+        name: 'Log in'
+      }).waitFor({
+        state: 'visible',
+        timeout: UI_TIMEOUT
+      })
+    })
+
+    it('should login a demo user', async () => {
+      await page.getByLabel('Username').fill('ada')
+      await page.getByLabel('Password').fill('lovelace')
+      await page.getByRole('button', {
+        name: 'Log in'
+      }).click()
+
+      await expect.poll(() => new URL(page.url()).pathname, {
+        timeout: UI_TIMEOUT
+      }).toBe('/')
+      await page.getByText('Ada Lovelace').waitFor({
+        state: 'visible',
+        timeout: UI_TIMEOUT
+      })
+      await page.getByRole('button', {
+        name: 'Log out'
+      }).waitFor({
+        state: 'visible',
+        timeout: UI_TIMEOUT
+      })
+    })
+
     it('should render new event page', async () => {
       const response = await openPage(page, url, '/events/new')
       const html = await response?.text()
@@ -847,6 +907,85 @@ describe('Event Board App', async () => {
       }
     })
 
+    it('should server render the logged in user from the session cookie', async () => {
+      const response = await openPage(page, url)
+      const html = await response?.text()
+
+      expect(html).toContain('Ada Lovelace')
+      expect(html).toContain('Log out')
+    })
+
+    it('should toggle personal attendance from the event page', async () => {
+      await openPage(page, url, '/events/react-ssr-workshop')
+
+      const attendees = page.locator('.details-panel dd').last()
+      const initialCount = await numberText(attendees)
+
+      await page.getByRole('button', {
+        name: "I'm going"
+      }).click()
+
+      await expect.poll(() => numberText(attendees), {
+        timeout: UI_TIMEOUT
+      }).toBe(initialCount + 1)
+      await page.getByRole('button', {
+        name: "I'm not going"
+      }).waitFor({
+        state: 'visible',
+        timeout: UI_TIMEOUT
+      })
+
+      const response = await openPage(page, url, '/events/react-ssr-workshop')
+      const html = (await response?.text())?.replace(/&#x27;|&#39;/g, "'")
+
+      expect(html).toContain("I'm not going")
+
+      await page.getByRole('button', {
+        name: "I'm not going"
+      }).click()
+
+      await expect.poll(() => numberText(attendees), {
+        timeout: UI_TIMEOUT
+      }).toBe(initialCount)
+      await page.getByRole('button', {
+        name: "I'm going"
+      }).waitFor({
+        state: 'visible',
+        timeout: UI_TIMEOUT
+      })
+    })
+
+    it('should revert optimistic attendance on rsvp failure', async () => {
+      await openPage(page, url, '/events/react-ssr-workshop')
+
+      const attendees = page.locator('.details-panel dd').last()
+      const initialCount = await numberText(attendees)
+
+      await page.route('**/api/events/*/rsvp', route => route.abort())
+
+      try {
+        await page.getByRole('button', {
+          name: "I'm going"
+        }).click()
+
+        await page.locator('.details-panel .notice_error').waitFor({
+          state: 'visible',
+          timeout: UI_TIMEOUT
+        })
+        await expect.poll(() => numberText(attendees), {
+          timeout: UI_TIMEOUT
+        }).toBe(initialCount)
+        await page.getByRole('button', {
+          name: "I'm going"
+        }).waitFor({
+          state: 'visible',
+          timeout: UI_TIMEOUT
+        })
+      } finally {
+        await page.unroute('**/api/events/*/rsvp')
+      }
+    })
+
     it('should navigate top nav in browser', async () => {
       const documentRequests: string[] = []
       const preloadRequests: string[] = []
@@ -996,7 +1135,24 @@ describe('Event Board App', async () => {
       }
     })
 
-    it('should return not found for unknown routes', async () => {
+    it('should logout from the header', async () => {
+      await openPage(page, url)
+      await page.getByRole('button', {
+        name: 'Log out'
+      }).click()
+
+      await page.getByRole('link', {
+        name: 'Log in'
+      }).waitFor({
+        state: 'visible',
+        timeout: UI_TIMEOUT
+      })
+      await expect.poll(() => page.getByText('Ada Lovelace').count(), {
+        timeout: UI_TIMEOUT
+      }).toBe(0)
+    })
+
+    it('should render styled not found page for unknown routes', async () => {
       const resolvedUrl = await url
 
       if (!resolvedUrl) {
@@ -1007,8 +1163,23 @@ describe('Event Board App', async () => {
       const text = await response.text()
 
       expect(response.status).toBe(404)
-      expect(text).toContain('Not Found')
-      expect(text).not.toContain('Event Board')
+      expect(text).toContain('Page not found | Event Board')
+      expect(text).toContain('Page not found')
+      expect(text).toContain('Event Board')
+
+      await openPage(page, url, '/not-a-real-route')
+      await page.getByRole('heading', {
+        name: 'Page not found'
+      }).waitFor({
+        state: 'visible',
+        timeout: UI_TIMEOUT
+      })
+      await page.getByRole('link', {
+        name: 'Back to events'
+      }).click()
+      await expect.poll(() => new URL(page.url()).pathname, {
+        timeout: UI_TIMEOUT
+      }).toBe('/')
     })
 
     if (isIntl(name)) {

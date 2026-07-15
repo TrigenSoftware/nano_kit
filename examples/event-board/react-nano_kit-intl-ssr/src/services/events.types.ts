@@ -15,7 +15,9 @@ export interface BoardEvent {
   startsAt: number
   location: string
   category: EventCategory
+  author?: string
   attendees: number
+  going: boolean
 }
 
 export interface EventsPage {

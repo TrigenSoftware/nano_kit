@@ -5,29 +5,28 @@ import {
   intl
 } from '@nano_kit/intl'
 import {
-  Locales$,
   CookieStore$,
-  browserLocale,
   cookieStored
 } from '@nano_kit/platform-web'
 import {
   type SupportedLocale,
+  IntlService$,
   load,
   supportedLocales
-} from '../translations'
+} from '../services/intl'
 import { Client$ } from './query'
 
-const TranslationsKey = queryKey<[locale: SupportedLocale, namespace: string], AnyTranslationData>('translations')
+export const TranslationsKey = queryKey<[locale: SupportedLocale, namespace: string], AnyTranslationData>('translations')
 
 export function Intl$() {
-  const locales = inject(Locales$)
+  const intlService = inject(IntlService$)
   const cookieStore = inject(CookieStore$)
   const { query } = inject(Client$)
   const $locale = cookieStored(cookieStore, {
     name: 'locale',
     path: '/',
     sameSite: 'lax'
-  }, browserLocale(locales, supportedLocales, 'en'))
+  }, intlService.getBrowserLocale())
   const {
     messages,
     $loading

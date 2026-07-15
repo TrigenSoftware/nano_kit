@@ -19,7 +19,8 @@ const events = [
     startsAt: new Date('2026-05-12T18:00:00Z').getTime(),
     location: 'Online',
     category: 'workshop',
-    attendees: 24
+    guests: 24,
+    attendeeIds: []
   },
   {
     id: '2',
@@ -29,7 +30,8 @@ const events = [
     startsAt: new Date('2026-05-21T19:30:00Z').getTime(),
     location: 'Berlin',
     category: 'meetup',
-    attendees: 58
+    guests: 58,
+    attendeeIds: []
   },
   {
     id: '3',
@@ -39,7 +41,8 @@ const events = [
     startsAt: new Date('2026-06-03T17:00:00Z').getTime(),
     location: 'Online',
     category: 'webinar',
-    attendees: 102
+    guests: 102,
+    attendeeIds: []
   },
   {
     id: '4',
@@ -49,7 +52,8 @@ const events = [
     startsAt: new Date('2026-06-11T18:30:00Z').getTime(),
     location: 'Prague',
     category: 'meetup',
-    attendees: 41
+    guests: 41,
+    attendeeIds: []
   },
   {
     id: '5',
@@ -59,7 +63,8 @@ const events = [
     startsAt: new Date('2026-06-24T09:00:00Z').getTime(),
     location: 'Amsterdam',
     category: 'conference',
-    attendees: 180
+    guests: 180,
+    attendeeIds: []
   },
   {
     id: '6',
@@ -69,7 +74,8 @@ const events = [
     startsAt: new Date('2026-07-02T16:00:00Z').getTime(),
     location: 'Online',
     category: 'webinar',
-    attendees: 76
+    guests: 76,
+    attendeeIds: []
   }
 ]
 
@@ -116,6 +122,26 @@ function sortEvents(items) {
   return [...items].sort((a, b) => a.startsAt - b.startsAt || a.id.localeCompare(b.id))
 }
 
+/**
+ * Convert an internal event record into an API payload for a user.
+ * @param {object} event - Internal event record.
+ * @param {string | undefined} userId - Current user id, if authenticated.
+ * @returns {object} Event payload with `attendees` count and personal `going` flag.
+ */
+function serializeEvent(event, userId) {
+  const {
+    guests,
+    attendeeIds,
+    ...publicEvent
+  } = event
+
+  return {
+    ...publicEvent,
+    attendees: guests + attendeeIds.length,
+    going: userId ? attendeeIds.includes(userId) : false
+  }
+}
+
 function validateEventInput(input) {
   const errors = {}
 
@@ -155,9 +181,10 @@ function validateEventInput(input) {
  * @param {string | undefined} query.category - Category filter.
  * @param {string | undefined} query.cursor - Anchor cursor based on `startsAt`.
  * @param {string | undefined} query.limit - Page size.
+ * @param {string | undefined} userId - Current user id, if authenticated.
  * @returns {{ status: number, body: { events: object[], nextCursor?: number } | { error: string } }} API response payload.
  */
-export function listEvents(query) {
+export function listEvents(query, userId) {
   const q = query.q?.trim().toLowerCase()
   const category = normalizeCategory(query.category)
   const cursor = Number(query.cursor || 0)
@@ -193,7 +220,7 @@ export function listEvents(query) {
   return {
     status: 200,
     body: {
-      events: pageItems,
+      events: pageItems.map(event => serializeEvent(event, userId)),
       nextCursor: hasMore ? pageItems[pageItems.length - 1]?.startsAt : undefined
     }
   }
@@ -202,18 +229,22 @@ export function listEvents(query) {
 /**
  * Find an event by slug.
  * @param {string} slug - Event slug.
- * @returns {object | null} Event object or `null` when it does not exist.
+ * @param {string | undefined} userId - Current user id, if authenticated.
+ * @returns {object | null} Event payload or `null` when it does not exist.
  */
-export function findEvent(slug) {
-  return events.find(event => event.slug === slug) || null
+export function findEvent(slug, userId) {
+  const event = events.find(item => item.slug === slug) || null
+
+  return event && serializeEvent(event, userId)
 }
 
 /**
  * Create a new event in the in-memory store.
  * @param {object} input - Event form payload.
+ * @param {object | null} user - Current user, if authenticated.
  * @returns {{ status: number, body: object }} API response payload.
  */
-export function createEvent(input) {
+export function createEvent(input, user) {
   const errors = validateEventInput(input)
 
   if (Object.keys(errors).length > 0) {
@@ -233,30 +264,42 @@ export function createEvent(input) {
     startsAt: input.startsAt,
     location: input.location.trim(),
     category: input.category,
-    attendees: 0
+    author: user?.name,
+    guests: 0,
+    attendeeIds: []
   }
 
   events.push(event)
 
   return {
     status: 201,
-    body: event
+    body: serializeEvent(event, user?.id)
   }
 }
 
 /**
- * Increment attendees count for an event.
+ * Register an RSVP for an event. An authenticated user toggles their personal
+ * attendance, an anonymous request just increments the guest counter.
  * @param {string} id - Event id.
- * @returns {object | null} Updated event object or `null` when it does not exist.
+ * @param {string | undefined} userId - Current user id, if authenticated.
+ * @returns {object | null} Updated event payload or `null` when it does not exist.
  */
-export function rsvpEvent(id) {
+export function rsvpEvent(id, userId) {
   const event = events.find(item => item.id === id) || null
 
   if (!event) {
     return null
   }
 
-  event.attendees += 1
+  if (userId) {
+    if (event.attendeeIds.includes(userId)) {
+      event.attendeeIds = event.attendeeIds.filter(attendeeId => attendeeId !== userId)
+    } else {
+      event.attendeeIds = [...event.attendeeIds, userId]
+    }
+  } else {
+    event.guests += 1
+  }
 
-  return event
+  return serializeEvent(event, userId)
 }
