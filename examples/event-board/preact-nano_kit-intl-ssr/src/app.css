@@ -37,14 +37,15 @@ a {
 }
 
 .header__inner {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   min-height: 72px;
   gap: 24px;
 }
 
 .brand {
+  justify-self: start;
   font-size: 20px;
   font-weight: 700;
 }
@@ -62,6 +63,7 @@ a {
 
 .header__user {
   display: inline-flex;
+  justify-self: end;
   align-items: center;
   gap: 16px;
   font-size: 15px;
