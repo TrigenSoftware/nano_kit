@@ -1,13 +1,14 @@
 ---
-title: Preact Router
-description: "Integrate @nano_kit/router with Preact using @nano_kit/preact-router."
+title: React Router
+description: "Integrate @nano_kit/router with React using @nano_kit/react-router."
 sidebar:
-  order: 6
+  label: React
+  order: 1
 ---
 
 import { Tabs, TabItem, Code } from '@astrojs/starlight/components'
 
-The `@nano_kit/preact-router` package provides Preact integration for `@nano_kit/router`. It allows you to use the router's powerful features like code splitting, Dependency Injection, and state management directly within your Preact application.
+The `@nano_kit/react-router` package provides React integration for `@nano_kit/router`. It allows you to use the router's powerful features like code splitting, Dependency Injection, and state management directly within your React application.
 
 ## Installation
 
@@ -15,25 +16,25 @@ Install the package using your favorite package manager:
 
 <Tabs syncKey='pkg'>
   <TabItem label='pnpm' icon='pnpm'>
-    <Code frame='none' lang='bash' code='pnpm add @nano_kit/store @nano_kit/router @nano_kit/preact @nano_kit/preact-router' />
+    <Code frame='none' lang='bash' code='pnpm add @nano_kit/store @nano_kit/router @nano_kit/react @nano_kit/react-router' />
   </TabItem>
   <TabItem label='Yarn' icon='seti:yarn'>
-    <Code frame='none' lang='bash' code='yarn add @nano_kit/store @nano_kit/router @nano_kit/preact @nano_kit/preact-router' />
+    <Code frame='none' lang='bash' code='yarn add @nano_kit/store @nano_kit/router @nano_kit/react @nano_kit/react-router' />
   </TabItem>
   <TabItem label='npm' icon='seti:npm'>
-    <Code frame='none' lang='bash' code='npm install @nano_kit/store @nano_kit/router @nano_kit/preact @nano_kit/preact-router' />
+    <Code frame='none' lang='bash' code='npm install @nano_kit/store @nano_kit/router @nano_kit/react @nano_kit/react-router' />
   </TabItem>
 </Tabs>
 
 ## Setup
 
-Basically, `@nano_kit/preact-router` re-exports everything from `@nano_kit/router`, so you can use all base router functions. However, it enhances some of them and provides new utilities specifically for Preact.
+Basically, `@nano_kit/react-router` re-exports everything from `@nano_kit/router`, so you can use all base router functions. However, it enhances some of them and provides new utilities specifically for React.
 
 A typical setup looks like this:
 
 ```tsx
-import { render } from 'preact'
-import { browserNavigation, router, layout, page, loadable, usePageSignal } from '@nano_kit/preact-router'
+import { createRoot } from 'react-dom/client'
+import { browserNavigation, router, layout, page, loadable, usePageSignal } from '@nano_kit/react-router'
 import { MainLayout } from './MainLayout'
 
 /* Define routes config */
@@ -63,16 +64,16 @@ function App() {
 }
 
 /* Render App */
-render(<App />, document.getElementById('root')!)
+createRoot(document.getElementById('root')!).render(<App />)
 ```
 
 If you want to use DI-based setup, pass the router tokens through `InjectionContextProvider`:
 
 ```tsx
-import { render } from 'preact'
+import { createRoot } from 'react-dom/client'
 import { provide } from '@nano_kit/store'
-import { InjectionContextProvider } from '@nano_kit/preact'
-import { App, browserNavigation, router, LocationNavigation$, Page$, Pages$ } from '@nano_kit/preact-router'
+import { InjectionContextProvider } from '@nano_kit/react'
+import { App, browserNavigation, router, LocationNavigation$, Page$, Pages$ } from '@nano_kit/react-router'
 import { pages } from './pages'
 import { routes } from './routes'
 
@@ -89,7 +90,7 @@ const [$location] = locationNavigation
 const $page = router($location, pages)
 
 /* Render App with DI */
-render((
+createRoot(document.getElementById('root')!).render(
   <InjectionContextProvider
     context={[
       provide(LocationNavigation$, locationNavigation),
@@ -98,17 +99,17 @@ render((
   >
     <App />
   </InjectionContextProvider>
-), document.getElementById('root')!)
+)
 ```
 
-## Preact Specifics
+## React Specifics
 
 ### `router`
 
-The `router` function in this package is an enhanced version of the core router. It supports Preact components as views and correctly handles nested layouts using the `Outlet` component.
+The `router` function in this package is an enhanced version of the core router. It supports React components as views and correctly handles nested layouts using the `Outlet` component.
 
 ```tsx
-import { router, page } from '@nano_kit/preact-router'
+import { router, page } from '@nano_kit/react-router'
 
 const $page = router($location, [
   page('home', HomePage),
@@ -123,7 +124,7 @@ These hooks return the currently matched page component.
 Without DI, use `usePageSignal` with the `$page` accessor returned by `router()`:
 
 ```tsx
-import { usePageSignal } from '@nano_kit/preact-router'
+import { usePageSignal } from '@nano_kit/react-router'
 
 function App() {
   const Page = usePageSignal($page)
@@ -135,7 +136,7 @@ function App() {
 With DI, use `usePage` and let it read `Page$` from the current injection context:
 
 ```tsx
-import { usePage } from '@nano_kit/preact-router'
+import { usePage } from '@nano_kit/react-router'
 
 function App() {
   const Page = usePage()
@@ -146,12 +147,12 @@ function App() {
 
 ### `App`
 
-`App` is a ready-made Preact component that reads `Page$` from the current injection context and renders the matched page.
+`App` is a ready-made React component that reads `Page$` from the current injection context and renders the matched page.
 
 ```tsx
 import { provide } from '@nano_kit/store'
-import { router, page, Page$, App } from '@nano_kit/preact-router'
-import { InjectionContextProvider } from '@nano_kit/preact'
+import { router, page, Page$, App } from '@nano_kit/react-router'
+import { InjectionContextProvider } from '@nano_kit/react'
 
 const $page = router($location, [
   page('home', HomePage),
@@ -172,7 +173,7 @@ const $page = router($location, [
 Used within Layout components to define where the nested child route should be rendered.
 
 ```tsx
-import { Outlet } from '@nano_kit/preact-router'
+import { Outlet } from '@nano_kit/react-router'
 
 export function MainLayout() {
   return (
@@ -194,7 +195,7 @@ These hooks intercept clicks on native `<a>` elements and route them through the
 Without DI, pass the navigation instance explicitly:
 
 ```tsx
-import { useNavigationListenLinks, usePageSignal } from '@nano_kit/preact-router'
+import { useNavigationListenLinks, usePageSignal } from '@nano_kit/react-router'
 
 function App() {
   const Page = usePageSignal($page)
@@ -208,7 +209,7 @@ function App() {
 With DI, use `useListenLinks` and let it read `Navigation$` from the current injection context:
 
 ```tsx
-import { useListenLinks } from '@nano_kit/preact-router'
+import { useListenLinks } from '@nano_kit/react-router'
 
 function App() {
   const Page = usePage()
@@ -224,7 +225,7 @@ function App() {
 `linkComponent` creates a type-safe `Link` component bound to a specific navigation instance and paths object. `Link` is the DI-based variant that reads router dependencies from the current injection context.
 
 ```tsx
-import { linkComponent, buildPaths, preloadable } from '@nano_kit/preact-router'
+import { linkComponent, buildPaths, preloadable } from '@nano_kit/react-router'
 
 /* Create Link component */
 const Link = linkComponent(
@@ -243,7 +244,7 @@ const Link = linkComponent(
 For DI usage, use the built-in `Link` component inside `InjectionContextProvider`:
 
 ```tsx
-import { Link } from '@nano_kit/preact-router'
+import { Link } from '@nano_kit/react-router'
 
 <Link to='user' params={{ id: '123' }}>
   View User
@@ -259,7 +260,7 @@ These link extensions enable page preloading on hover and focus.
 Without DI, use `preloadable` when creating your custom `Link` component. It accepts either the pages array or a function returning it:
 
 ```tsx
-import { linkComponent, buildPaths, preloadable } from '@nano_kit/preact-router'
+import { linkComponent, buildPaths, preloadable } from '@nano_kit/react-router'
 import { pages } from './pages'
 
 const Link = linkComponent(
@@ -275,7 +276,7 @@ const Link = linkComponent(
 With DI, use `useLinkComponentPreload` to enable the same behavior for the built-in `Link` component:
 
 ```tsx
-import { useLinkComponentPreload } from '@nano_kit/preact-router'
+import { useLinkComponentPreload } from '@nano_kit/react-router'
 
 function App() {
   const Page = usePage()
@@ -296,7 +297,7 @@ Without DI, use `ariaCurrent` when creating your custom `Link` component:
 The optional second argument is a predicate that receives the link URL and current location and decides whether the link should be treated as current. By default, it checks `url.pathname === location.pathname`.
 
 ```tsx
-import { ariaCurrent, linkComponent, buildPaths } from '@nano_kit/preact-router'
+import { ariaCurrent, linkComponent, buildPaths } from '@nano_kit/react-router'
 
 const Link = linkComponent(
   navigation,
@@ -310,7 +311,7 @@ With DI, use `useLinkComponentAriaCurrent` to enable the same behavior for the b
 It accepts the same optional predicate, but reads the current location from DI instead of taking `$location` explicitly.
 
 ```tsx
-import { useLinkComponentAriaCurrent, usePage } from '@nano_kit/preact-router'
+import { useLinkComponentAriaCurrent, usePage } from '@nano_kit/react-router'
 
 function App() {
   const Page = usePage()
@@ -328,7 +329,7 @@ These hooks synchronize the current page's `Head$` descriptors.
 Without DI, use `usePageSyncHead` with an explicit `$page` accessor:
 
 ```tsx
-import { usePageSyncHead } from '@nano_kit/preact-router'
+import { usePageSyncHead } from '@nano_kit/react-router'
 
 function App() {
   const Page = usePageSignal($page)
@@ -342,7 +343,7 @@ function App() {
 With DI, use `useSyncHead` and let it read `Page$` from the current injection context:
 
 ```tsx
-import { useSyncHead } from '@nano_kit/preact-router'
+import { useSyncHead } from '@nano_kit/react-router'
 
 function App() {
   const Page = usePage()
@@ -358,7 +359,7 @@ function App() {
 `useLocation` subscribes to the current route location from the injection context.
 
 ```tsx
-import { useLocation } from '@nano_kit/preact-router'
+import { useLocation } from '@nano_kit/react-router'
 
 function RouteInfo() {
   const location = useLocation()
@@ -372,7 +373,7 @@ function RouteInfo() {
 `useNavigation` returns the navigation API from the injection context.
 
 ```tsx
-import { useNavigation } from '@nano_kit/preact-router'
+import { useNavigation } from '@nano_kit/react-router'
 
 function BackButton() {
   const navigation = useNavigation()
@@ -386,7 +387,7 @@ function BackButton() {
 `usePaths` returns the typed path builders derived from your route definitions.
 
 ```tsx
-import { usePaths } from '@nano_kit/preact-router'
+import { usePaths } from '@nano_kit/react-router'
 
 function UserLink({ id }: { id: string }) {
   const paths = usePaths()
@@ -400,7 +401,7 @@ function UserLink({ id }: { id: string }) {
 `useCanGoBack` subscribes to whether back navigation is currently possible.
 
 ```tsx
-import { useCanGoBack, useNavigation } from '@nano_kit/preact-router'
+import { useCanGoBack, useNavigation } from '@nano_kit/react-router'
 
 function BackButton() {
   const navigation = useNavigation()

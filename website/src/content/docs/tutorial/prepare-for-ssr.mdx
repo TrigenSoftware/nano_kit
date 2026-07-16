@@ -86,7 +86,7 @@ export function EventsList$() {
 
 `EventsList$` creates the same list query as before, but now it gets `infinite`, `$q`, and `$category` from injected tokens instead of module imports.
 
-React components read injectable results with [`useInject`](/integrations/react#useinject):
+React components read injectable results with [`useInject`](/store-integrations/react#useinject):
 
 ```tsx title="src/ui/pages/Home.tsx"
 import { useInject, useSignal } from '@nano_kit/react'
@@ -138,11 +138,11 @@ export const pages = [
 ]
 ```
 
-[`layout`](/integrations/react-router#setup) wraps several pages in the same shell.
+[`layout`](/router-integrations/react#setup) wraps several pages in the same shell.
 
-[`page`](/integrations/react-router#setup) connects a route name to a page module.
+[`page`](/router-integrations/react#setup) connects a route name to a page module.
 
-[`loadable`](/integrations/react-router#setup) keeps page modules lazy, so the browser can load page code on demand and the SSR renderer can still read page exports.
+[`loadable`](/router-integrations/react#setup) keeps page modules lazy, so the browser can load page code on demand and the SSR renderer can still read page exports.
 
 [`notFound`](/router/core-concepts) renders when no route matches. `NotFound` is a regular page:
 
@@ -165,7 +165,7 @@ The route type declaration belongs here because the DI-based router components n
 
 ## Layout Links
 
-With the router now available through DI, the layout can use the built-in [`Link`](/integrations/react-router#linkcomponent--link) component:
+With the router now available through DI, the layout can use the built-in [`Link`](/router-integrations/react#linkcomponent--link) component:
 
 ```tsx title="src/ui/pages/Layout.tsx"
 import { Link, Outlet, useLinkComponentAriaCurrent, useLinkComponentPreload } from '@nano_kit/react-router'
@@ -192,8 +192,8 @@ export default function Layout() {
 }
 ```
 
-[`Outlet`](/integrations/react-router#outlet) renders the active child page inside the layout.
+[`Outlet`](/router-integrations/react#outlet) renders the active child page inside the layout.
 
-[`useLinkComponentPreload(true)`](/integrations/react-router#preloadable--uselinkcomponentpreload) enables page preloading for the built-in `Link`. When a user is likely to open a link, the linked page module can be loaded before the click.
+[`useLinkComponentPreload(true)`](/router-integrations/react#preloadable--uselinkcomponentpreload) enables page preloading for the built-in `Link`. When a user is likely to open a link, the linked page module can be loaded before the click.
 
-[`useLinkComponentAriaCurrent`](/integrations/react-router#ariacurrent--uselinkcomponentariacurrent) adds `aria-current` to active links. The navigation can now expose the current page to assistive technology without custom link logic.
+[`useLinkComponentAriaCurrent`](/router-integrations/react#ariacurrent--uselinkcomponentariacurrent) adds `aria-current` to active links. The navigation can now expose the current page to assistive technology without custom link logic.

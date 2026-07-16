@@ -1,6 +1,7 @@
 import { defineConfig } from 'astro/config'
 import { unified } from '@astrojs/markdown-remark'
 import starlight from '@astrojs/starlight'
+import starlightSidebarTopics from 'starlight-sidebar-topics'
 import llmsTxt from 'starlight-llms-txt'
 import { viewTransitions } from 'astro-vtbot/starlight-view-transitions'
 import { rehypeNormalizeContent } from './rehype.js'
@@ -110,108 +111,163 @@ export default defineConfig({
       editLink: {
         baseUrl: 'https://github.com/TrigenSoftware/nano_kit/edit/main/website/'
       },
-      plugins: [llmsTxt(), viewTransitions()],
-      sidebar: [
-        {
-          label: 'Getting Started',
-          items: [
+      plugins: [
+        llmsTxt(),
+        viewTransitions(),
+        starlightSidebarTopics(
+          [
             {
-              autogenerate: {
-                directory: 'getting-started'
-              }
-            }
-          ]
-        },
-        {
-          label: 'Store',
-          items: [
+              id: 'documentation',
+              label: 'Documentation',
+              link: '/getting-started/',
+              icon: 'open-book',
+              items: [
+                {
+                  label: 'Getting Started',
+                  items: [
+                    {
+                      autogenerate: {
+                        directory: 'getting-started'
+                      }
+                    }
+                  ]
+                },
+                {
+                  label: 'Store',
+                  items: [
+                    {
+                      autogenerate: {
+                        directory: 'store'
+                      }
+                    },
+                    {
+                      label: 'Integrations',
+                      collapsed: true,
+                      items: [
+                        {
+                          autogenerate: {
+                            directory: 'store-integrations'
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  label: 'Query',
+                  items: [
+                    {
+                      autogenerate: {
+                        directory: 'query'
+                      }
+                    }
+                  ]
+                },
+                {
+                  label: 'Router',
+                  items: [
+                    {
+                      autogenerate: {
+                        directory: 'router'
+                      }
+                    },
+                    {
+                      label: 'Integrations',
+                      collapsed: true,
+                      items: [
+                        {
+                          autogenerate: {
+                            directory: 'router-integrations'
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  label: 'Internationalization',
+                  items: [
+                    {
+                      autogenerate: {
+                        directory: 'intl'
+                      }
+                    }
+                  ]
+                },
+                {
+                  label: 'SSR',
+                  items: [
+                    {
+                      autogenerate: {
+                        directory: 'ssr'
+                      }
+                    },
+                    {
+                      label: 'Integrations',
+                      collapsed: true,
+                      items: [
+                        {
+                          autogenerate: {
+                            directory: 'ssr-integrations'
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  label: 'Platforms',
+                  items: [
+                    {
+                      autogenerate: {
+                        directory: 'platform'
+                      }
+                    }
+                  ]
+                },
+                {
+                  label: 'Frameworks',
+                  items: [
+                    {
+                      autogenerate: {
+                        directory: 'frameworks'
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
             {
-              autogenerate: {
-                directory: 'store'
-              }
-            }
-          ]
-        },
-        {
-          label: 'Query',
-          items: [
+              label: 'Tutorial',
+              link: '/tutorial/',
+              icon: 'rocket',
+              items: [
+                {
+                  autogenerate: {
+                    directory: 'tutorial'
+                  }
+                }
+              ]
+            },
             {
-              autogenerate: {
-                directory: 'query'
-              }
+              label: 'Examples',
+              link: '/examples/',
+              icon: 'seti:svg',
+              items: [
+                {
+                  autogenerate: {
+                    directory: 'examples'
+                  }
+                }
+              ]
             }
-          ]
-        },
-        {
-          label: 'Router',
-          items: [
-            {
-              autogenerate: {
-                directory: 'router'
-              }
+          ],
+          {
+            topics: {
+              documentation: ['/articles/**/*']
             }
-          ]
-        },
-        {
-          label: 'Internationalization',
-          items: [
-            {
-              autogenerate: {
-                directory: 'intl'
-              }
-            }
-          ]
-        },
-        {
-          label: 'SSR',
-          items: [
-            {
-              autogenerate: {
-                directory: 'ssr'
-              }
-            }
-          ]
-        },
-        {
-          label: 'Platforms',
-          items: [
-            {
-              autogenerate: {
-                directory: 'platform'
-              }
-            }
-          ]
-        },
-        {
-          label: 'Integrations',
-          items: [
-            {
-              autogenerate: {
-                directory: 'integrations'
-              }
-            }
-          ]
-        },
-        {
-          label: 'Tutorial',
-          items: [
-            {
-              autogenerate: {
-                directory: 'tutorial'
-              }
-            }
-          ]
-        },
-        {
-          label: 'Examples',
-          items: [
-            {
-              autogenerate: {
-                directory: 'examples'
-              }
-            }
-          ]
-        }
+          }
+        )
       ],
       customCss: ['./src/styles/global.css'],
       expressiveCode: {

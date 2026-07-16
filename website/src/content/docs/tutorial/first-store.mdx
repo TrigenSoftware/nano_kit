@@ -50,7 +50,7 @@ This store module exports the state that the home page needs and one action for 
 
 `$events` is different because it is wrapped in [`mountable`](/store/core-concepts#mountable-stores). A mountable signal has a lifecycle. It can run setup code when something starts listening to it, and cleanup code when nobody needs it anymore. The read/write API stays the same, but the signal can now participate in [`onMount`](/store/core-concepts#mountable-stores).
 
-`onMount($events, callback)` runs the callback when `$events` becomes active. In React, that happens when a component calls [`useSignal`](/integrations/react#usesignal) for `$events`. If the component unmounts and nothing else uses `$events`, the cleanup returned by the callback runs.
+`onMount($events, callback)` runs the callback when `$events` becomes active. In React, that happens when a component calls [`useSignal`](/store-integrations/react#usesignal) for `$events`. If the component unmounts and nothing else uses `$events`, the cleanup returned by the callback runs.
 
 Here the callback creates an [`effect`](/store/core-concepts#signals-and-effects). The effect reads `$q` and `$category`, so it reruns when either filter changes. On each run it passes the current filter values to `loadEvents()`. The first request starts when the event list is actually rendered.
 

@@ -11,7 +11,7 @@ In our example, event pages are public URLs, so they are a good fit for SSR.
 
 The app is already in the shape that Nano Kit SSR needs: stores are factories, and the app entry exports `routes` and `pages`. The next step is to teach Vite how to build a renderer from that entry.
 
-Add the [React SSR integration](/integrations/react-ssr) and the Hono server runtime:
+Add the [React SSR integration](/ssr-integrations/react) and the Hono server runtime:
 
 ```bash
 pnpm add @nano_kit/react-ssr hono @hono/node-server
@@ -40,7 +40,7 @@ export default defineConfig({
 })
 ```
 
-[`@nano_kit/react-ssr`](/integrations/react-ssr) adds a Vite plugin that builds the client bundle and the server for you. The `index` option points to the file from the previous step: it exports `routes` and `pages`. The `server` option points to your production HTTP server file — the plugin bundles it together with the renderer.
+[`@nano_kit/react-ssr`](/ssr-integrations/react) adds a Vite plugin that builds the client bundle and the server for you. The `index` option points to the file from the previous step: it exports `routes` and `pages`. The `server` option points to your production HTTP server file — the plugin bundles it together with the renderer.
 
 Page modules can expose the data that SSR must await and dehydrate:
 
@@ -78,7 +78,7 @@ export default function Layout() {
 }
 ```
 
-[`useSyncHead`](/integrations/react-router#usepagesynchead--usesynchead) keeps the browser document head in sync when the active page changes.
+[`useSyncHead`](/router-integrations/react#usepagesynchead--usesynchead) keeps the browser document head in sync when the active page changes.
 
 Detail pages can use loaded data in `Head$`:
 

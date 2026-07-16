@@ -86,10 +86,10 @@ export function App() {
 }
 ```
 
-[`page`](/integrations/react-router#router) maps a route name to a React component. Here the `home` route renders `Home`.
+[`page`](/router-integrations/react#router) maps a route name to a React component. Here the `home` route renders `Home`.
 
-[`router`](/integrations/react-router#router) takes `$location` and the page list, then returns `$page`. `$page` is a signal with the component that matches the current URL.
+[`router`](/router-integrations/react#router) takes `$location` and the page list, then returns `$page`. `$page` is a signal with the component that matches the current URL.
 
-[`usePageSignal`](/integrations/react-router#usepagesignal--usepage) reads that signal inside React. If the current URL matches `home`, `Page` is `Home`; if no route matches, `Page` is `null`.
+[`usePageSignal`](/router-integrations/react#usepagesignal--usepage) reads that signal inside React. If the current URL matches `home`, `Page` is `Home`; if no route matches, `Page` is `null`.
 
-[`useNavigationListenLinks`](/integrations/react-router#usenavigationlistenlinks--uselistenlinks) lets normal `<a>` links use router navigation instead of forcing a full page reload. That keeps links simple while the app is still using the router directly.
+[`useNavigationListenLinks`](/router-integrations/react#usenavigationlistenlinks--uselistenlinks) lets normal `<a>` links use router navigation instead of forcing a full page reload. That keeps links simple while the app is still using the router directly.

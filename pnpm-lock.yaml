@@ -225,7 +225,7 @@ importers:
         version: 7.0.2
       vitest:
         specifier: 'catalog:'
-        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
 
   examples/cvapp/react-nano_kit:
     dependencies:
@@ -317,7 +317,7 @@ importers:
         version: 8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
 
   examples/event-board/preact-nano_kit-intl-ssr:
     dependencies:
@@ -507,7 +507,7 @@ importers:
         version: 8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
 
   examples/rick-and-morty/next-app-nano_kit-ssr:
     dependencies:
@@ -919,7 +919,7 @@ importers:
         version: 8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
 
   examples/session/react-nano_kit-ssr:
     dependencies:
@@ -1089,7 +1089,7 @@ importers:
         version: 8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
 
   examples/weather/nanoviews-nano_kit:
     dependencies:
@@ -1454,7 +1454,7 @@ importers:
         version: vite@7.3.2(@types/node@24.13.2)(jiti@2.6.1)(lightningcss@1.32.0)(yaml@2.9.0)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
     publishDirectory: package
 
   packages/benchmarks:
@@ -1518,7 +1518,7 @@ importers:
         version: 8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
     publishDirectory: package
 
   packages/kida:
@@ -1544,7 +1544,7 @@ importers:
         version: 8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
     publishDirectory: package
 
   packages/nanoviews:
@@ -1603,7 +1603,7 @@ importers:
         version: 8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
     publishDirectory: package
 
   packages/next-router:
@@ -1665,7 +1665,7 @@ importers:
         version: 8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
     publishDirectory: package
 
   packages/platform-web:
@@ -1699,7 +1699,7 @@ importers:
         version: 8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.4(@types/node@24.13.2)(@vitest/browser-playwright@4.1.7)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+        version: 4.1.4(@types/node@24.13.2)(@vitest/browser-playwright@4.1.7)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
     publishDirectory: package
 
   packages/preact:
@@ -1742,7 +1742,7 @@ importers:
         version: 8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
     publishDirectory: package
 
   packages/preact-router:
@@ -1791,7 +1791,7 @@ importers:
         version: 8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
     publishDirectory: package
 
   packages/preact-ssr:
@@ -1832,7 +1832,7 @@ importers:
         version: 8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
     publishDirectory: package
 
   packages/query:
@@ -1860,7 +1860,7 @@ importers:
         version: 8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
     publishDirectory: package
 
   packages/react:
@@ -1909,7 +1909,7 @@ importers:
         version: 8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
     publishDirectory: package
 
   packages/react-router:
@@ -1964,7 +1964,7 @@ importers:
         version: 8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
     publishDirectory: package
 
   packages/react-ssr:
@@ -2008,7 +2008,7 @@ importers:
         version: 8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
     publishDirectory: package
 
   packages/router:
@@ -2042,7 +2042,7 @@ importers:
         version: 8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
     publishDirectory: package
 
   packages/ssr:
@@ -2071,7 +2071,7 @@ importers:
         version: 8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
     publishDirectory: package
 
   packages/store:
@@ -2097,7 +2097,7 @@ importers:
         version: 8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
     publishDirectory: package
 
   packages/storybook:
@@ -2171,7 +2171,7 @@ importers:
         version: 8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
     publishDirectory: package
 
   packages/svelte-kit:
@@ -2215,7 +2215,7 @@ importers:
         version: 8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
     publishDirectory: package
 
   packages/svelte-router:
@@ -2258,7 +2258,7 @@ importers:
         version: 8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
     publishDirectory: package
 
   packages/svelte-ssr:
@@ -2302,7 +2302,7 @@ importers:
         version: 8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
     publishDirectory: package
 
   packages/testing-library:
@@ -2318,7 +2318,7 @@ importers:
         version: 8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
       vitest:
         specifier: 'catalog:'
-        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+        version: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
     publishDirectory: package
 
   website:
@@ -2341,6 +2341,9 @@ importers:
       starlight-llms-txt:
         specifier: ^0.10.0
         version: 0.10.0(@astrojs/starlight@0.41.1(@astrojs/markdown-remark@7.2.0)(astro@7.0.4(@astrojs/markdown-remark@7.2.0)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@types/node@24.13.2)(db0@0.3.4)(idb-keyval@6.2.2)(jiti@2.6.1)(rollup@4.60.1)(yaml@2.9.0))(typescript@6.0.2))(astro@7.0.4(@astrojs/markdown-remark@7.2.0)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@types/node@24.13.2)(db0@0.3.4)(idb-keyval@6.2.2)(jiti@2.6.1)(rollup@4.60.1)(yaml@2.9.0))
+      starlight-sidebar-topics:
+        specifier: ^0.8.0
+        version: 0.8.0(@astrojs/starlight@0.41.1(@astrojs/markdown-remark@7.2.0)(astro@7.0.4(@astrojs/markdown-remark@7.2.0)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@types/node@24.13.2)(db0@0.3.4)(idb-keyval@6.2.2)(jiti@2.6.1)(rollup@4.60.1)(yaml@2.9.0))(typescript@6.0.2))
     devDependencies:
       sharp:
         specifier: ^0.34.0
@@ -7536,6 +7539,12 @@ packages:
       '@astrojs/starlight': '>=0.38.0'
       astro: ^6.0.0
 
+  starlight-sidebar-topics@0.8.0:
+    resolution: {integrity: sha512-hE8+w2vNL13h6cq3UJGl05milJQ3+1BSlhaV5V4a993YzYczU6uLAj6jfUDKQ2mmgkdVWp8/UNDF4Je/rQXNQw==}
+    engines: {node: '>=22.12.0'}
+    peerDependencies:
+      '@astrojs/starlight': '>=0.38.0'
+
   std-env@4.0.0:
     resolution: {integrity: sha512-zUMPtQ/HBY3/50VbpkupYHbRroTRZJPRLvreamgErJVys0ceuzMkD44J/QjqhHjOzK42GQ3QZIeFG1OYfOtKqQ==}
 
@@ -8128,7 +8137,6 @@ packages:
       '@vitest/ui': 4.1.4
       happy-dom: '*'
       jsdom: '*'
-      vite: ^6.0.0 || ^7.0.0 || ^8.0.0
     peerDependenciesMeta:
       '@edge-runtime/vm':
         optional: true
@@ -10348,7 +10356,7 @@ snapshots:
       svelte: 5.55.5(@typescript-eslint/types@8.46.4)
     optionalDependencies:
       vite: 8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
-      vitest: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+      vitest: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
 
   '@testing-library/user-event@14.6.1(@testing-library/dom@10.4.0)':
     dependencies:
@@ -10568,7 +10576,7 @@ snapshots:
       '@vitest/mocker': 4.1.7(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
       playwright: 1.60.0
       tinyrainbow: 3.1.0
-      vitest: 4.1.4(@types/node@24.13.2)(@vitest/browser-playwright@4.1.7)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+      vitest: 4.1.4(@types/node@24.13.2)(@vitest/browser-playwright@4.1.7)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
     transitivePeerDependencies:
       - bufferutil
       - msw
@@ -10584,7 +10592,7 @@ snapshots:
       pngjs: 7.0.0
       sirv: 3.0.2
       tinyrainbow: 3.1.0
-      vitest: 4.1.4(@types/node@24.13.2)(@vitest/browser-playwright@4.1.7)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+      vitest: 4.1.4(@types/node@24.13.2)(@vitest/browser-playwright@4.1.7)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
       ws: 8.20.0
     transitivePeerDependencies:
       - bufferutil
@@ -10604,7 +10612,7 @@ snapshots:
       obug: 2.1.1
       std-env: 4.0.0
       tinyrainbow: 3.1.0
-      vitest: 4.1.4(@types/node@24.13.2)(@vitest/browser-playwright@4.1.7)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+      vitest: 4.1.4(@types/node@24.13.2)(@vitest/browser-playwright@4.1.7)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
     optionalDependencies:
       '@vitest/browser': 4.1.7(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))(vitest@4.1.4)
 
@@ -10620,7 +10628,7 @@ snapshots:
       obug: 2.1.1
       std-env: 4.0.0
       tinyrainbow: 3.1.0
-      vitest: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
+      vitest: 4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0)
 
   '@vitest/expect@3.2.4':
     dependencies:
@@ -14122,6 +14130,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  starlight-sidebar-topics@0.8.0(@astrojs/starlight@0.41.1(@astrojs/markdown-remark@7.2.0)(astro@7.0.4(@astrojs/markdown-remark@7.2.0)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@types/node@24.13.2)(db0@0.3.4)(idb-keyval@6.2.2)(jiti@2.6.1)(rollup@4.60.1)(yaml@2.9.0))(typescript@6.0.2)):
+    dependencies:
+      '@astrojs/starlight': 0.41.1(@astrojs/markdown-remark@7.2.0)(astro@7.0.4(@astrojs/markdown-remark@7.2.0)(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@types/node@24.13.2)(db0@0.3.4)(idb-keyval@6.2.2)(jiti@2.6.1)(rollup@4.60.1)(yaml@2.9.0))(typescript@6.0.2)
+      picomatch: 4.0.4
+
   std-env@4.0.0: {}
 
   stop-iteration-iterator@1.1.0:
@@ -14602,7 +14615,7 @@ snapshots:
     optionalDependencies:
       vite: 8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)
 
-  vitest@4.1.4(@types/node@24.13.2)(@vitest/browser-playwright@4.1.7)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)):
+  vitest@4.1.4(@types/node@24.13.2)(@vitest/browser-playwright@4.1.7)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0):
     dependencies:
       '@vitest/expect': 4.1.4
       '@vitest/mocker': 4.1.4(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
@@ -14630,9 +14643,20 @@ snapshots:
       '@vitest/coverage-v8': 4.1.4(@vitest/browser@4.1.7)(vitest@4.1.4)
       happy-dom: 20.8.9
     transitivePeerDependencies:
+      - '@vitejs/devtools'
+      - esbuild
+      - jiti
+      - less
       - msw
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - terser
+      - tsx
+      - yaml
 
-  vitest@4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(happy-dom@20.8.9)(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0)):
+  vitest@4.1.4(@types/node@24.13.2)(@vitest/coverage-v8@4.1.4)(esbuild@0.28.1)(happy-dom@20.8.9)(jiti@2.6.1)(yaml@2.9.0):
     dependencies:
       '@vitest/expect': 4.1.4
       '@vitest/mocker': 4.1.4(vite@8.1.2(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.6.1)(yaml@2.9.0))
@@ -14659,7 +14683,18 @@ snapshots:
       '@vitest/coverage-v8': 4.1.4(vitest@4.1.4)
       happy-dom: 20.8.9
     transitivePeerDependencies:
+      - '@vitejs/devtools'
+      - esbuild
+      - jiti
+      - less
       - msw
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - terser
+      - tsx
+      - yaml
 
   volar-service-css@0.0.70(@volar/language-service@2.4.28):
     dependencies:

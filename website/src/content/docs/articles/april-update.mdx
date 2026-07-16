@@ -5,13 +5,13 @@ description: SSR, hydration, and Next.js support land in Nano Kit's April update
 
 April's biggest update is server-side rendering.
 
-Nano Kit now has ready-to-use SSR for React apps through [`@nano_kit/react-ssr`](/integrations/react-ssr), plus Next.js support through [`@nano_kit/next-router`](/integrations/next-router). There is also a lower-level [`@nano_kit/ssr`](/ssr) package for building framework adapters.
+Nano Kit now has ready-to-use SSR for React apps through [`@nano_kit/react-ssr`](/ssr-integrations/react), plus Next.js support through [`@nano_kit/next-router`](/router-integrations/next). There is also a lower-level [`@nano_kit/ssr`](/ssr) package for building framework adapters.
 
 The goal is simple: keep application logic in the store layer, run it on the server when needed, dehydrate the result, and hydrate it back on the client without rebuilding the same data flow twice.
 
 ## First-Class SSR
 
-For React apps, [`@nano_kit/react-ssr`](/integrations/react-ssr) is the main new package in this update. It gives Nano Kit a ready-to-use SSR setup for Vite + React projects, so the same router, stores, and queries can participate in the server render and then continue on the client.
+For React apps, [`@nano_kit/react-ssr`](/ssr-integrations/react) is the main new package in this update. It gives Nano Kit a ready-to-use SSR setup for Vite + React projects, so the same router, stores, and queries can participate in the server render and then continue on the client.
 
 In practice, the setup starts with the plugin:
 
@@ -88,7 +88,7 @@ app.get('*', async (c) => {
 serve({ fetch: app.fetch, port: 5173 })
 ```
 
-Under the hood, [`@nano_kit/react-ssr`](/integrations/react-ssr) is built on top of [`@nano_kit/ssr`](/ssr). That base package is mostly for adapter authors: it provides the shared renderer lifecycle, client readiness helpers, Vite manifest handling, and build plugin pieces.
+Under the hood, [`@nano_kit/react-ssr`](/ssr-integrations/react) is built on top of [`@nano_kit/ssr`](/ssr). That base package is mostly for adapter authors: it provides the shared renderer lifecycle, client readiness helpers, Vite manifest handling, and build plugin pieces.
 
 ## Router-Aware SSR
 
@@ -132,25 +132,25 @@ After hydration, the browser can start from the server snapshot instead of repea
 
 ## React Server Components and Next.js Support
 
-RSC runtimes can use server and client helpers from [`@nano_kit/react`](/integrations/react):
+RSC runtimes can use server and client helpers from [`@nano_kit/react`](/store-integrations/react):
 
-- [`Dehydration`](/integrations/react#dehydration) for RSC-side store dehydration
-- [`StaticDehydration`](/integrations/react#staticdehydration) for initial-request-only dehydration
-- [`HydrationProvider`](/integrations/react#hydrationprovider) and [`StaticHydrationProvider`](/integrations/react#statichydrationprovider) for client hydration
-- [`FlightDetector`](/integrations/react#flightdetector) and [`isFlight()`](/integrations/react#isflight) for RSC flight request detection
-- [`serverDehydrate()`](/integrations/react#serverdehydrate--servercontextdehydrate) and [`serverContextDehydrate()`](/integrations/react#serverdehydrate--servercontextdehydrate) for lower-level control
+- [`Dehydration`](/store-integrations/react#dehydration) for RSC-side store dehydration
+- [`StaticDehydration`](/store-integrations/react#staticdehydration) for initial-request-only dehydration
+- [`HydrationProvider`](/store-integrations/react#hydrationprovider) and [`StaticHydrationProvider`](/store-integrations/react#statichydrationprovider) for client hydration
+- [`FlightDetector`](/store-integrations/react#flightdetector) and [`isFlight()`](/store-integrations/react#isflight) for RSC flight request detection
+- [`serverDehydrate()`](/store-integrations/react#serverdehydrate--servercontextdehydrate) and [`serverContextDehydrate()`](/store-integrations/react#serverdehydrate--servercontextdehydrate) for lower-level control
 
-This update also adds [`@nano_kit/next-router`](/integrations/next-router), a Next.js integration for Nano Kit router.
+This update also adds [`@nano_kit/next-router`](/router-integrations/next), a Next.js integration for Nano Kit router.
 
 It works with both App Router and Pages Router:
 
-- [`NextNavigation`](/integrations/next-router#nextnavigation) creates request-aware navigation for App Router layouts and pages
-- [`NextNavigationProvider`](/integrations/next-router#nextnavigationprovider) provides client-side navigation in Pages Router
-- [`Link`](/integrations/next-router#link) wraps `next/link` while keeping typed route names and params
-- [`virtualNavigationContext()`](/integrations/next-router#pages-router) connects `getServerSideProps` with Nano Kit routing
-- Pages Router helpers handle [`redirect()`](/integrations/next-router#redirect--notfound) and [`notFound()`](/integrations/next-router#redirect--notfound) results after dehydration
+- [`NextNavigation`](/router-integrations/next#nextnavigation) creates request-aware navigation for App Router layouts and pages
+- [`NextNavigationProvider`](/router-integrations/next#nextnavigationprovider) provides client-side navigation in Pages Router
+- [`Link`](/router-integrations/next#link) wraps `next/link` while keeping typed route names and params
+- [`virtualNavigationContext()`](/router-integrations/next#pages-router) connects `getServerSideProps` with Nano Kit routing
+- Pages Router helpers handle [`redirect()`](/router-integrations/next#redirect--notfound) and [`notFound()`](/router-integrations/next#redirect--notfound) results after dehydration
 
-The broader [Next.js guide](/integrations/next) covers flight dehydration, static dehydration, Pages Router hydration, and when to use each setup.
+The broader [Next.js guide](/frameworks/next) covers flight dehydration, static dehydration, Pages Router hydration, and when to use each setup.
 
 ## Try the Examples
 
@@ -170,8 +170,8 @@ You can also browse the [examples overview](/examples) for smaller apps, includi
 
 If you want to try the April update:
 
-- Start with [React SSR](/integrations/react-ssr) if you are building a Vite + React app.
-- Start with [Next.js](/integrations/next) if you are using App Router or Pages Router.
+- Start with [React SSR](/ssr-integrations/react) if you are building a Vite + React app.
+- Start with [Next.js](/frameworks/next) if you are using App Router or Pages Router.
 - Read [Store SSR](/store/ssr), [Query SSR](/query/ssr), and [Router SSR](/router/ssr) if you want to understand how the pieces work together.
 - Open the [Rick and Morty example](/examples/rick-and-morty) when you want a complete app with source code and live sandboxes.
 
