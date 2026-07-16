@@ -9,7 +9,7 @@ Reading data is only half of a real app. At some point the user also needs to se
 
 In our example, that means a page for creating a new event. That page gets its own route:
 
-```ts
+```ts title="src/stores/router.ts"
 export const routes = {
   home: '/',
   newEvent: '/events/new',
@@ -17,7 +17,7 @@ export const routes = {
 } as const
 ```
 
-```tsx
+```tsx title="src/index.tsx"
 import { page, router, useNavigationListenLinks, usePageSignal } from '@nano_kit/react-router'
 import { $location, navigation } from './stores/router'
 import Event from './ui/pages/Event'
@@ -47,7 +47,7 @@ Nano Kit solves that by combining store signals for local form values with query
 
 Form input values are local UI state, so plain store [`signal`](/store/core-concepts#signals-and-effects) values are enough. Derived values like validation errors and request payload can be computed from those signals.
 
-```ts
+```ts title="src/stores/newEvent.ts"
 import { action, computed, signal } from '@nano_kit/store'
 import { type EventCategory, type NewEventForm } from '#src/services/events'
 
@@ -103,7 +103,7 @@ export const resetNewEventForm = action(() => {
 
 The submit action is another mutation:
 
-```ts
+```ts title="src/stores/newEvent.ts"
 import { disabled, onSuccess } from '@nano_kit/query'
 import { not } from '@nano_kit/store'
 import { type BoardEvent, createEvent as createEventRequest } from '#src/services/events'

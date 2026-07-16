@@ -86,7 +86,7 @@ Waiting works through query tasks. The client is created with `ssr()`, which tra
 
 Cookie-dependent stores get the same treatment with [`VirtualCookieStore`](/ssr/cookies#low-level-usage). Provide one with a `Cookie` header string, and the locale store reads it like a browser cookie:
 
-```ts
+```ts title="test/intl.spec.ts"
 import { CookieStore$, VirtualCookieStore } from '@nano_kit/platform-web'
 import { Intl$ } from '#src/stores/intl'
 

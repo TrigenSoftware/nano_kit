@@ -13,7 +13,7 @@ Before adding SSR, move shared stores into injectable tokens. Nano Kit uses Depe
 
 The query client becomes an injectable factory first:
 
-```ts
+```ts title="src/stores/query.ts"
 import { client, infinites, mutations, ssr } from '@nano_kit/query'
 
 export function Client$() {
@@ -29,7 +29,7 @@ The query client now includes [`ssr()`](/query/ssr#ssr). This setting lets query
 
 Router-derived state moves into an injectable factory too. The router integration provides [`Location$`](/router/ssr#setting-up-ssr), and the factory derives params from it:
 
-```ts
+```ts title="src/stores/router.ts"
 import { inject } from '@nano_kit/store'
 import { Location$, param, searchParam, searchParams } from '@nano_kit/router'
 import { type EventCategory, eventCategories } from '#src/services/events'
@@ -58,7 +58,7 @@ export function Params$() {
 
 Stores can now ask for the dependencies they need:
 
-```ts
+```ts title="src/stores/events.ts"
 export function EventsList$() {
   const { infinite } = inject(Client$)
   const { $q, $category } = inject(Params$)
@@ -88,7 +88,7 @@ export function EventsList$() {
 
 React components read injectable results with [`useInject`](/integrations/react#useinject):
 
-```tsx
+```tsx title="src/ui/pages/Home.tsx"
 import { useInject, useSignal } from '@nano_kit/react'
 import { EventsList$ } from '#src/stores/events'
 
@@ -114,7 +114,7 @@ This changes how stores are created, but not what the UI can do. The app still h
 
 The app entry can now use the router shape expected by the SSR renderer. Instead of creating `$page` manually, it exports `routes` and `pages`:
 
-```tsx
+```tsx title="src/index.tsx"
 import { layout, loadable, notFound, page } from '@nano_kit/react-router'
 import { routes } from './stores/router'
 import * as Layout from './ui/pages/Layout'
@@ -146,7 +146,7 @@ export const pages = [
 
 [`notFound`](/router/core-concepts) renders when no route matches. `NotFound` is a regular page:
 
-```tsx title="ui/pages/NotFound.tsx"
+```tsx title="src/ui/pages/NotFound.tsx"
 import { Link } from '@nano_kit/react-router'
 
 export default function NotFound() {
@@ -167,7 +167,7 @@ The route type declaration belongs here because the DI-based router components n
 
 With the router now available through DI, the layout can use the built-in [`Link`](/integrations/react-router#linkcomponent--link) component:
 
-```tsx
+```tsx title="src/ui/pages/Layout.tsx"
 import { Link, Outlet, useLinkComponentAriaCurrent, useLinkComponentPreload } from '@nano_kit/react-router'
 
 export default function Layout() {

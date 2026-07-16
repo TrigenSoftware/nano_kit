@@ -9,7 +9,7 @@ A routed app usually needs pages for individual records too: one post, one produ
 
 In our example, the next step is a public page for one event. That means the route needs a dynamic `slug` parameter:
 
-```ts
+```ts title="src/stores/router.ts"
 import { param } from '@nano_kit/router'
 
 export const routes = {
@@ -24,7 +24,7 @@ export const $slug = param($location, 'slug')
 
 The router can now include that page:
 
-```tsx
+```tsx title="src/index.tsx"
 import { page, router, useNavigationListenLinks, usePageSignal } from '@nano_kit/react-router'
 import { $location, navigation } from './stores/router'
 import Event from './ui/pages/Event'
@@ -48,7 +48,7 @@ The `event` page uses the new `/events/:slug` route. When the browser URL matche
 
 The event page can load one event by slug.
 
-```ts
+```ts title="src/stores/events.ts"
 import { queryKey } from '@nano_kit/query'
 import { type BoardEvent, fetchEvent } from '#src/services/events'
 import { query } from './query'
@@ -81,7 +81,7 @@ The detail page also needs an RSVP button. When the user clicks it, the app will
 
 The query client needs mutations for this action:
 
-```ts
+```ts title="src/stores/query.ts"
 import { client, infinites, mutations } from '@nano_kit/query'
 
 export const {
@@ -101,7 +101,7 @@ export const {
 
 The button action is a mutation:
 
-```ts
+```ts title="src/stores/events.ts"
 import { onSuccess } from '@nano_kit/query'
 import { type BoardEvent, rsvpEvent } from '#src/services/events'
 import { mutation, revalidate } from './query'
@@ -125,7 +125,7 @@ When the request succeeds, `revalidate(EventKey($slug()))` refreshes the event q
 
 The React page reads the query signals and uses the mutation signals only for the button state:
 
-```tsx
+```tsx title="src/ui/pages/Event.tsx"
 import { useSignal } from '@nano_kit/react'
 import { $event, $eventError, $eventLoading, $rsvpError, $rsvpLoading, rsvp } from '#src/stores/events'
 

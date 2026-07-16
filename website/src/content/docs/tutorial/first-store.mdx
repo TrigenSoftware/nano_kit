@@ -15,7 +15,7 @@ The first store will hold the filters, the loaded events, and the loading flag. 
 pnpm add @nano_kit/store @nano_kit/react
 ```
 
-```ts
+```ts title="src/stores/events.ts"
 import { action, effect, mountable, onMount, signal } from '@nano_kit/store'
 import { type BoardEvent, type EventCategory, fetchEvents } from '#src/services/events'
 
@@ -58,7 +58,7 @@ Here the callback creates an [`effect`](/store/core-concepts#signals-and-effects
 
 Let's render that state with one React component:
 
-```tsx
+```tsx title="src/ui/pages/Home.tsx"
 import { useSignal } from '@nano_kit/react'
 import { $events, $loading, $q } from '#src/stores/events'
 

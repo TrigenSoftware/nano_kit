@@ -19,7 +19,7 @@ Nano Kit Query solves this with [`entities`](/query/advanced#entities). An entit
 
 The app needs one [`entity`](/query/advanced#entities) for events:
 
-```ts
+```ts title="src/stores/events.ts"
 import { entities, entity } from '@nano_kit/query'
 
 export const EventEntity = entity<BoardEvent>('event')
@@ -27,7 +27,7 @@ export const EventEntity = entity<BoardEvent>('event')
 
 Event detail results can be mapped into that entity:
 
-```ts
+```ts title="src/stores/events.ts"
 query(
   EventKey,
   [$slug],
@@ -38,7 +38,7 @@ query(
 
 The list query can map every event inside every infinite page too:
 
-```ts
+```ts title="src/stores/events.ts"
 infinite(
   EventsKey,
   [$pacedQ, $category],
@@ -60,7 +60,7 @@ infinite(
 
 The mutation also needs `$data` from the query client:
 
-```ts
+```ts title="src/stores/query.ts"
 import { client, infinites, mutations } from '@nano_kit/query'
 
 export const {
@@ -76,7 +76,7 @@ export const {
 
 RSVP can now update one entity immediately, then keep it or roll it back:
 
-```ts
+```ts title="src/stores/events.ts"
 export const [rsvp, $rsvpEvent, $rsvpError, $rsvpLoading] = mutation<[id: string], BoardEvent>(
   (id, ctx) => {
     const revert = $data(EventEntity(id), event => event && {

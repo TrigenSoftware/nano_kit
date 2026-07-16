@@ -15,7 +15,7 @@ For React apps, [`@nano_kit/react-ssr`](/integrations/react-ssr) is the main new
 
 In practice, the setup starts with the plugin:
 
-```js
+```js title="vite.config.js"
 import ssr from '@nano_kit/react-ssr/vite-plugin'
 
 export default {
@@ -58,7 +58,7 @@ For production, it does not generate a complete HTTP server. You bring your own 
 
 For example, a small Hono server can look like this:
 
-```js
+```js title="src/server.js"
 import { serve } from '@hono/node-server'
 import { serveStatic } from '@hono/node-server/serve-static'
 import { Hono } from 'hono'

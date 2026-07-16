@@ -19,7 +19,7 @@ pnpm add @nano_kit/react-ssr hono @hono/node-server
 
 The Vite config gets the React SSR plugin:
 
-```ts
+```ts title="vite.config.ts"
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import ssr from '@nano_kit/react-ssr/vite-plugin'
@@ -44,7 +44,7 @@ export default defineConfig({
 
 Page modules can expose the data that SSR must await and dehydrate:
 
-```tsx title="Home.tsx"
+```tsx title="src/ui/pages/Home.tsx"
 export function Stores$() {
   const { $events } = inject(EventsList$)
 
@@ -68,7 +68,7 @@ export function Head$() {
 
 The layout should sync page head entries during client navigation:
 
-```tsx
+```tsx title="src/ui/pages/Layout.tsx"
 import { useSyncHead } from '@nano_kit/react-router'
 
 export default function Layout() {
@@ -82,7 +82,7 @@ export default function Layout() {
 
 Detail pages can use loaded data in `Head$`:
 
-```tsx title="Event.tsx"
+```tsx title="src/ui/pages/Event.tsx"
 export function Stores$() {
   const { $event } = inject(EventDetails$)
 

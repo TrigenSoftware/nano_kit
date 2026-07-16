@@ -9,7 +9,7 @@ As an app grows, API calls tend to spread. Every request repeats the same transp
 
 In our example, the stores are injectable factories now, but the API layer is still a set of standalone functions:
 
-```ts title="services/events.ts"
+```ts title="src/services/events.ts"
 export async function fetchEvent(slug: string) {
   const response = await fetch(`/api/events/${slug}`)
 
@@ -43,7 +43,7 @@ The class itself is the DI token. The first `inject(EventsService$)` call create
 
 The transport differs between the browser and the server, so it gets two implementations behind one interface. The browser one stays relative to the page origin:
 
-```ts title="services/api/api.client.ts"
+```ts title="src/services/api/api.client.ts"
 import { Injectable$ } from '@nano_kit/store'
 import type { ApiService$ } from './api'
 
@@ -66,7 +66,7 @@ export class ClientApiService$ extends Injectable$ implements ApiService$ {
 
 The server one targets the API origin directly:
 
-```ts title="services/api/api.server.ts"
+```ts title="src/services/api/api.server.ts"
 import { Injectable$ } from '@nano_kit/store'
 import type { ApiService$ } from './api'
 
@@ -91,7 +91,7 @@ export class ServerApiService$ extends Injectable$ implements ApiService$ {
 
 The interface and the token pick the implementation at build time:
 
-```ts title="services/api/api.ts"
+```ts title="src/services/api/api.ts"
 import { ClientApiService$ } from './api.client'
 import { ServerApiService$ } from './api.server'
 
@@ -104,7 +104,7 @@ export const ApiService$ = import.meta.env.SSR
   : ClientApiService$
 ```
 
-```ts title="services/api/index.ts"
+```ts title="src/services/api/index.ts"
 export * from './api'
 ```
 
@@ -116,7 +116,7 @@ This split is also where request context will live. The server implementation is
 
 The standalone functions become methods of `EventsService$`:
 
-```ts title="services/events.ts"
+```ts title="src/services/events.ts"
 import { Injectable$, inject } from '@nano_kit/store'
 import { ApiService$ } from './api'
 
@@ -143,7 +143,7 @@ export class EventsService$ extends Injectable$ {
 
 Stores inject the service instead of importing functions:
 
-```ts title="stores/events.ts"
+```ts title="src/stores/events.ts"
 export function EventsList$() {
   const eventsService = inject(EventsService$)
   const { infinite } = inject(Client$)

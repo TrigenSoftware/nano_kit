@@ -1,9 +1,7 @@
 - tweak colors on the website
 - no-magic-numbers pain
-- correct sandbox for session example
 - inspect object copies
 - check === / !== undefined ? perf
-- complete guide
 
 ## Agera/Kida/Store
 

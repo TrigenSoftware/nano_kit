@@ -17,7 +17,7 @@ Putting filters in the URL is a good first use case for the router. A filtered l
 pnpm add @nano_kit/router @nano_kit/react-router
 ```
 
-```ts
+```ts title="src/stores/router.ts"
 import { browserNavigation, searchParam, searchParams } from '@nano_kit/router'
 import { type EventCategory, eventCategories } from '#src/services/events'
 
@@ -47,7 +47,7 @@ The list query from the previous step can keep using `$q` and `$category`. Only 
 
 `Home` can update the URL instead of writing to a local filter store:
 
-```tsx
+```tsx title="src/ui/pages/Home.tsx"
 import { $searchParams, navigation } from '#src/stores/router'
 
 const onSearch = (event: ChangeEvent<HTMLInputElement>) => {
@@ -67,7 +67,7 @@ const onSearch = (event: ChangeEvent<HTMLInputElement>) => {
 
 `browserNavigation(routes)` gave us `$location`. React still needs one more piece: a signal that turns the current location into the page component to render.
 
-```tsx
+```tsx title="src/index.tsx"
 import { page, router, useNavigationListenLinks, usePageSignal } from '@nano_kit/react-router'
 import { $location, navigation } from './stores/router'
 import Home from './ui/pages/Home'

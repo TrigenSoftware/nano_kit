@@ -19,7 +19,7 @@ pnpm add @nano_kit/query
 
 The app starts with one query client:
 
-```ts
+```ts title="src/stores/query.ts"
 import { client, infinites } from '@nano_kit/query'
 
 export const {
@@ -36,7 +36,7 @@ export const {
 
 For the event list, keep the filter signals and replace the manual request state with [`infinite()`](/query/advanced#infinite). The app can now show cursor pagination and `Load more`.
 
-```ts
+```ts title="src/stores/events.ts"
 import { type InfinitePages, queryKey } from '@nano_kit/query'
 import { signal } from '@nano_kit/store'
 import { type EventCategory, type EventsPage, fetchEvents } from '#src/services/events'
@@ -87,7 +87,7 @@ The return value also has a shape:
 
 In the component, read the query signals and flatten pages for rendering:
 
-```tsx
+```tsx title="src/ui/pages/Home.tsx"
 import { useSignal } from '@nano_kit/react'
 import { $events, $eventsError, $eventsLoading, $q, fetchNextEventPage } from '#src/stores/events'
 
@@ -131,7 +131,7 @@ export default function Home() {
 
 Search inputs should update immediately, but the server should not receive a request for every keystroke. Keep the input signal responsive and pace the value used by query:
 
-```ts
+```ts title="src/stores/events.ts"
 import { computed, debounce, pace } from '@nano_kit/store'
 
 const $pacedQ = computed(pace($q, debounce(600)))

@@ -193,7 +193,7 @@ The SSR plugin can provide request-bound browser-like dependencies for stores th
 
 Use `inject.cookieStore: true` when the renderer should provide a request-bound `CookieStore$` during SSR. This feature uses the optional peer package `@nano_kit/platform-web`, so install it in the app before enabling the option. See [SSR Cookies](/ssr/cookies) for the full setup, including store code and `Set-Cookie` forwarding.
 
-```js
+```js title="vite.config.js"
 ssr({
   index: 'src/index.js',
   inject: {
@@ -206,7 +206,7 @@ ssr({
 
 Use `inject.browserLocale: true` when the renderer should provide request-bound `Locales$` during SSR. This feature uses the optional peer package `@nano_kit/platform-web`, so install it in the app before enabling the option. The renderer parses the incoming `Accept-Language` header with [`parseLocales`](/platform/web/#locale), so universal stores can inject `Locales$` and resolve the same locale shape on the server and in the browser. See [SSR Locale](/ssr/locale) for the full setup.
 
-```js
+```js title="vite.config.js"
 ssr({
   index: 'src/index.js',
   inject: {
@@ -219,7 +219,7 @@ ssr({
 
 Use `inject.userAgent: true` when the renderer should provide request-bound `UserAgent$` during SSR. This feature uses the optional peer package `@nano_kit/platform-web`, so install it in the app before enabling the option. The renderer reads the incoming `User-Agent` header, so universal stores can inject `UserAgent$` and read a user agent string on the server and in the browser.
 
-```js
+```js title="vite.config.js"
 ssr({
   index: 'src/index.js',
   inject: {
