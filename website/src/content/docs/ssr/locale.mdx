@@ -31,8 +31,7 @@ Use them when server-rendered code needs to resolve the user's preferred locale 
 
 Enable request-bound locale containers with the SSR plugin option:
 
-```ts
-// vite.config.ts
+```ts title="vite.config.ts"
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import ssr from '@nano_kit/react-ssr/vite-plugin'
@@ -60,8 +59,7 @@ The option makes the renderer parse the incoming `Accept-Language` header and pr
 
 Read `Locales$` inside a store factory when you want to resolve the current locale from the context.
 
-```ts
-// src/stores/locale.ts
+```ts title="src/stores/locale.ts"
 import { inject } from '@nano_kit/store'
 import {
   Locales$,
@@ -86,8 +84,7 @@ In the browser, `Locales$` resolves to `navigator`. During SSR, it resolves to a
 
 Pass the incoming `Accept-Language` header to `renderer.render(url, { acceptLanguage })`.
 
-```js
-// server.js
+```js title="server.js"
 import { renderer } from './dist/renderer/index.js'
 
 app.get('*', async (req, res) => {

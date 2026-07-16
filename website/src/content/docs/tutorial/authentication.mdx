@@ -23,8 +23,7 @@ The cookie is HttpOnly, so the frontend never reads or writes it. The browser st
 
 Auth failures are part of the domain, so the service maps HTTP statuses to typed error codes:
 
-```ts
-// services/user.types.ts
+```ts title="services/user.types.ts"
 export const UserError = {
   Unauthenticated: 'UNAUTHENTICATED',
   LoginFailed: 'LOGIN_FAILED',
@@ -45,8 +44,7 @@ export interface LoginParams {
 }
 ```
 
-```ts
-// services/user.ts
+```ts title="services/user.ts"
 import { Injectable$, inject } from '@nano_kit/store'
 import { ApiService$ } from './api'
 import { type LoginParams, type User, UserError } from './user.types'
@@ -101,8 +99,7 @@ export class UserService$ extends Injectable$ {
 
 The session state is just a query: `GET /api/users/me` keyed as `UserKey`. For an anonymous visitor the query fails with `UserError.Unauthenticated`, and that error code *is* the "logged out" state.
 
-```ts
-// stores/user.ts
+```ts title="stores/user.ts"
 import { inject, onMountEffect } from '@nano_kit/store'
 import { keys, onSuccess, queryKey } from '@nano_kit/query'
 import { LocationNavigation$, Paths$ } from '@nano_kit/router'
@@ -178,8 +175,7 @@ The [`onMountEffect`](/store/advanced#onmounteffect-and-onmounteffectscope) bloc
 
 The `publicRoutes` set lives next to the routes:
 
-```ts
-// stores/router.ts
+```ts title="stores/router.ts"
 export const routes = {
   home: '/',
   login: '/login',
@@ -200,8 +196,7 @@ During SSR the same guard produces a real redirect: `navigation.replace` becomes
 
 The login page is a form wired to the `login` mutation:
 
-```tsx
-// ui/pages/Login.tsx
+```tsx title="ui/pages/Login.tsx"
 import type { FormEvent } from 'react'
 import { useInject, useSignal } from '@nano_kit/react'
 import { title } from '@nano_kit/react-router'
@@ -271,8 +266,7 @@ The error signal holds the typed code thrown by the service, and the page maps c
 
 The route table gets the new page:
 
-```tsx
-// index.tsx
+```tsx title="index.tsx"
 export const pages = [
   layout(Layout, [
     page('home', loadable(() => import('./ui/pages/Home'))),
@@ -285,8 +279,7 @@ export const pages = [
 
 The layout shows who is logged in. Including `$user` in the layout `Stores$` means SSR waits for the session before rendering, so the name appears in the first HTML response:
 
-```tsx
-// ui/pages/Layout.tsx
+```tsx title="ui/pages/Layout.tsx"
 export function Stores$() {
   const { $user } = inject(User$)
 
@@ -336,8 +329,7 @@ ssr({
 
 Now `CookieStore$` is injectable during SSR, and the server transport from the API services chapter gets its promised upgrade — it forwards the session cookie to the API:
 
-```ts
-// services/api/api.server.ts
+```ts title="services/api/api.server.ts"
 import { CookieStore$, serializeCookies } from '@nano_kit/platform-web'
 import { Injectable$, inject } from '@nano_kit/store'
 import type { ApiService$ } from './api'
@@ -374,8 +366,7 @@ export class ServerApiService$ extends Injectable$ implements ApiService$ {
 
 The cookies come from the HTTP server. It passes the incoming `Cookie` header into the render and forwards any `Set-Cookie` headers back:
 
-```ts
-// src/server.ts
+```ts title="src/server.ts"
 app.get('*', async (c) => {
   const result = await renderer.render(c.req.url, {
     cookie: c.req.header('Cookie')
@@ -409,8 +400,7 @@ export interface BoardEvent {
 
 The optimistic update from the optimistic updates chapter becomes a toggle. Setting cache data returns a revert callback, so rolling back on error takes one line:
 
-```ts
-// stores/events.ts
+```ts title="stores/events.ts"
 export function RsvpEvent$() {
   const eventsService = inject(EventsService$)
   const { $user } = inject(User$)

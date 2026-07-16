@@ -31,8 +31,7 @@ Use it when server-rendered code needs to read incoming cookies, write `Set-Cook
 
 Enable request-bound cookie stores with the SSR plugin option:
 
-```ts
-// vite.config.ts
+```ts title="vite.config.ts"
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import ssr from '@nano_kit/react-ssr/vite-plugin'
@@ -60,8 +59,7 @@ The option makes the renderer create a `VirtualCookieStore` for each request and
 
 Read `CookieStore$` inside a store factory when you want to work with the [`CookieStore` API](https://developer.mozilla.org/en-US/docs/Web/API/Cookie_Store_API) directly.
 
-```ts
-// src/stores/session.ts
+```ts title="src/stores/session.ts"
 import { action, inject } from '@nano_kit/store'
 import { CookieStore$ } from '@nano_kit/platform-web'
 
@@ -104,8 +102,7 @@ In the browser, `CookieStore$` resolves to the native browser `cookieStore`. Dur
 
 If you want a writable signal backed by cookies, pass the injected `CookieStore$` value to [`cookieStored`](/platform/web/#cookies):
 
-```ts
-// src/stores/session.ts
+```ts title="src/stores/session.ts"
 import { action, inject } from '@nano_kit/store'
 import {
   CookieStore$,
@@ -147,8 +144,7 @@ In the browser, `fetch` attaches the user's cookies automatically. During SSR th
 
 A common pattern is a server-only API service that adds the forwarded headers to every request:
 
-```ts
-// src/services/api.server.ts
+```ts title="src/services/api.server.ts"
 import {
   Injectable$,
   inject
@@ -177,8 +173,7 @@ export class ServerApi$ extends Injectable$ {
 
 Swap it for a browser implementation with `import.meta.env.SSR`. The client version skips `serializeCookies` — the browser attaches the cookies for you:
 
-```ts
-// src/services/api.ts
+```ts title="src/services/api.ts"
 import { ClientApi$ } from './api.client'
 import { ServerApi$ } from './api.server'
 
@@ -191,8 +186,7 @@ export const Api$ = import.meta.env.SSR ? ServerApi$ : ClientApi$
 
 Pass the incoming `Cookie` header to `renderer.render(url, { cookie })`, and forward returned `Set-Cookie` headers to the HTTP response.
 
-```js
-// server.js
+```js title="server.js"
 import { renderer } from './dist/renderer/index.js'
 
 app.get('*', async (req, res) => {
@@ -220,8 +214,7 @@ app.get('*', async (req, res) => {
 
 Because cookies are available in `Stores$`, a route can mutate cookies on the server and redirect without rendering UI.
 
-```tsx
-// src/pages/Logout.tsx
+```tsx title="src/pages/Logout.tsx"
 import { Navigation$ } from '@nano_kit/router'
 import { inject } from '@nano_kit/store'
 import { Session$ } from '../stores/session'

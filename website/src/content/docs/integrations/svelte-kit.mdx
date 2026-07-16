@@ -142,8 +142,7 @@ Set up navigation only when stores or components use Nano Kit router dependencie
 
 In the root server layout, provide request navigation.
 
-```ts
-// src/routes/+layout.server.ts
+```ts title="src/routes/+layout.server.ts"
 import { provide } from '@nano_kit/store'
 import {
   LocationNavigation$,
@@ -168,8 +167,7 @@ export const load: LayoutServerLoad = () => {
 
 In the root layout component, provide browser navigation.
 
-```svelte
-<!-- src/routes/+layout.svelte -->
+```svelte title="src/routes/+layout.svelte"
 <script lang="ts">
   import { provide } from '@nano_kit/store'
   import {
@@ -202,8 +200,7 @@ In the root layout component, provide browser navigation.
 
 `@nano_kit/svelte-kit` exports `CookieStore`, a server adapter around SvelteKit's `cookies` object. Provide it through [`CookieStore$`](/platform/web/#cookies) when stores use cookie-backed signals.
 
-```ts
-// src/routes/+layout.server.ts
+```ts title="src/routes/+layout.server.ts"
 import { provide } from '@nano_kit/store'
 import {
   CookieStore,
@@ -225,8 +222,7 @@ export const load: LayoutServerLoad = ({ cookies }) => {
 
 Then inject `CookieStore$` in stores that use cookie-backed signals.
 
-```ts
-// src/lib/stores/session.ts
+```ts title="src/lib/stores/session.ts"
 import { inject } from '@nano_kit/store'
 import {
   CookieStore$,

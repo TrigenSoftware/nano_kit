@@ -157,8 +157,7 @@ ssr({
 
 To customize the HTML output, extend `SvelteRenderer` and override `renderToString`:
 
-```ts
-// src/renderer.ts
+```ts title="src/renderer.ts"
 import { SvelteRenderer, type RenderData } from '@nano_kit/svelte-ssr/renderer'
 import { routes, pages } from './index.js'
 
@@ -180,8 +179,7 @@ export const renderer = new AppRenderer({
 
 Then point the plugin to your custom renderer file:
 
-```js
-// vite.config.js
+```js title="vite.config.js"
 ssr({
   index: 'src/index.ts',
   renderer: 'src/renderer.ts'
@@ -192,8 +190,7 @@ ssr({
 
 To customize client-side hydration, provide your own client entry:
 
-```ts
-// src/client.ts
+```ts title="src/client.ts"
 import { hydrate } from 'svelte'
 import { setInjectionContext } from '@nano_kit/svelte'
 import { App } from '@nano_kit/svelte-router'
@@ -213,8 +210,7 @@ ready({ routes, pages }).then((context) => {
 
 Then point the plugin to your client file:
 
-```js
-// vite.config.js
+```js title="vite.config.js"
 ssr({
   index: 'src/index.ts',
   client: 'src/client.ts'

@@ -31,8 +31,7 @@ import { Steps, Tabs, TabItem, Code, Aside } from '@astrojs/starlight/components
 
 Every SSR app needs a shared **index file** that exports `routes` and `pages`. This file is the single source of truth consumed by both the server renderer and the Vite plugin. It is also the right place to declare global TypeScript types for route names.
 
-```ts
-// src/index.ts
+```ts title="src/index.ts"
 import { page, layout, loadable } from '@nano_kit/router'
 import * as Layout from './Layout.js'
 
@@ -177,8 +176,7 @@ An adapter consists of three parts: a **renderer**, a **client entry**, and a **
 
 Once an adapter package is published, end users configure their project like this:
 
-```js
-// vite.config.js
+```js title="vite.config.js"
 import { defineConfig } from 'vite'
 import ssr from 'your-framework-ssr/vite-plugin'
 
@@ -237,8 +235,7 @@ ssr({
 
 For production, you need to write your own HTTP server that imports the renderer bundle and serves the HTML:
 
-```js
-// server.js
+```js title="server.js"
 import { renderer } from './dist/renderer/index.js'
 
 app.get('*', async (req, res) => {
@@ -268,8 +265,7 @@ app.get('*', async (req, res) => {
 
 Instead of hand-writing a server that imports `dist/renderer/`, pass a `server` entry and the plugin bundles **that file** for you. `vite build` then produces `dist/client/` and `dist/server/` (no separate `dist/renderer/`):
 
-```js
-// vite.config.js
+```js title="vite.config.js"
 ssr({
   index: 'src/index.js',
   server: 'src/server.js'
@@ -278,8 +274,7 @@ ssr({
 
 The server file receives the renderer through the typed `virtual:app-renderer` virtual module, which is bundled into the output:
 
-```js
-// src/server.js
+```js title="src/server.js"
 import { serve } from '@hono/node-server'
 import { serveStatic } from '@hono/node-server/serve-static'
 import { Hono } from 'hono'

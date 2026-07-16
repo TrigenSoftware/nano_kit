@@ -19,8 +19,7 @@ pnpm add @nano_kit/intl
 
 Translations are plain JSON grouped by namespace — one namespace per page or layout:
 
-```json
-// services/intl/translations/en.json
+```json title="services/intl/translations/en.json"
 {
   "layout": {
     "title": "Event Board",
@@ -44,8 +43,7 @@ Translations are plain JSON grouped by namespace — one namespace per page or l
 
 The loader imports one file per locale on demand, so a visitor downloads only their language:
 
-```ts
-// services/intl/translations/index.ts
+```ts title="services/intl/translations/index.ts"
 export type SupportedLocale = 'en' | 'ru'
 
 export type Translations = Awaited<ReturnType<typeof load>>
@@ -69,8 +67,7 @@ export async function load(locale: SupportedLocale) {
 
 Which locale should a visitor get before they pick one? In the browser it comes from `navigator.languages`; during SSR — from the `Accept-Language` request header. `Locales$` from `@nano_kit/platform-web` abstracts both, and the service resolves it against the supported list:
 
-```ts
-// services/intl/intl.ts
+```ts title="services/intl/intl.ts"
 import { CookieStore$, Locales$, browserLocale } from '@nano_kit/platform-web'
 import { Injectable$, inject } from '@nano_kit/store'
 import { type SupportedLocale, supportedLocales } from './translations'
@@ -93,8 +90,7 @@ export class IntlService$ extends Injectable$ {
 
 `Locales$` needs the request headers during SSR, so the renderer must provide them. Enable it in the Vite config next to the cookie store, and pass the header through the server:
 
-```ts
-// vite.config.ts
+```ts title="vite.config.ts"
 ssr({
   index: 'src/index.tsx',
   server: 'src/server.ts',
@@ -105,8 +101,7 @@ ssr({
 })
 ```
 
-```ts
-// src/server.ts
+```ts title="src/server.ts"
 const result = await renderer.render(c.req.url, {
   cookie: c.req.header('Cookie'),
   acceptLanguage: c.req.header('Accept-Language')
@@ -117,8 +112,7 @@ const result = await renderer.render(c.req.url, {
 
 The active locale is a writable signal backed by a cookie. When the cookie is missing, it falls back to the negotiated browser locale. Translations load through a regular query, so they are cached, deduplicated, and dehydrated by SSR like any other data:
 
-```ts
-// stores/intl.ts
+```ts title="stores/intl.ts"
 import { inject } from '@nano_kit/store'
 import { queryKey } from '@nano_kit/query'
 import { intl } from '@nano_kit/intl'
@@ -160,8 +154,7 @@ export function Intl$() {
 
 One store needs an update: `invalidateSession` from the authentication chapter invalidates every cache key, but translations do not depend on the session. Exclude them:
 
-```ts
-// stores/user.ts
+```ts title="stores/user.ts"
 import { TranslationsKey } from './intl'
 
 const invalidateSession = () => {
@@ -173,8 +166,7 @@ const invalidateSession = () => {
 
 Each page declares the messages it needs as a small injectable factory. Plain strings come as-is; formatted messages get a scheme:
 
-```tsx
-// ui/pages/Home.tsx
+```tsx title="ui/pages/Home.tsx"
 import { datetime, format, plural, capitalize } from '@nano_kit/intl'
 import { Intl$ } from '#src/stores/intl'
 
@@ -228,8 +220,7 @@ const t = useSignal($t)
 
 The login page finally replaces its error map from the authentication chapter. [`match`](/intl/api#matchparam-cases) selects a translation by the error code, with a fallback case:
 
-```tsx
-// ui/pages/Login.tsx
+```tsx title="ui/pages/Login.tsx"
 import { match, other } from '@nano_kit/intl'
 
 function Messages$() {
@@ -248,8 +239,7 @@ function Messages$() {
 
 The layout marks the document language with [`lang`](/router/ssr#head-management) and renders the switcher. Writing to `$locale` is all it takes:
 
-```tsx
-// ui/pages/Layout.tsx
+```tsx title="ui/pages/Layout.tsx"
 import { lang } from '@nano_kit/react-router'
 
 export function Head$() {
@@ -295,8 +285,7 @@ The `$loading` signal covers the moment a new locale's translations are still lo
 
 The server transport gets its final upgrade. The API can localize its own responses, so SSR requests forward the resolved locale as `Accept-Language`, next to the session cookie:
 
-```ts
-// services/api/api.server.ts
+```ts title="services/api/api.server.ts"
 export class ServerApiService$ extends Injectable$ implements ApiService$ {
   cookieStore = inject(CookieStore$)
   intlService = inject(IntlService$)

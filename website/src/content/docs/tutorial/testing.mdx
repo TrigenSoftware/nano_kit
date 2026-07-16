@@ -13,8 +13,7 @@ In our example, a store under test receives a mock transport and never knows the
 
 A mock transport is any object that implements `ApiService$`. The shape is entirely up to you — for example, a class that answers with fixture data:
 
-```ts
-// test/mock-api.ts
+```ts title="test/mock-api.ts"
 import type { ApiService$ } from '#src/services/api'
 
 const events = [
@@ -50,8 +49,7 @@ Whatever the implementation, the contract stays the same — `implements ApiServ
 
 A store test builds an [`InjectionContext`](/store/testing#mocking-dependencies) with the dependencies it wants to control and passes it to `inject` as the second argument. Stores need a location, so the context also provides [virtual navigation](/router/testing):
 
-```ts
-// test/events.spec.ts
+```ts title="test/events.spec.ts"
 import { describe, it, expect } from 'vitest'
 import { InjectionContext, TasksPool$, inject, provide, start, waitTasks } from '@nano_kit/store'
 import { LocationNavigation$, virtualNavigation } from '@nano_kit/router'
@@ -106,8 +104,7 @@ expect($locale()).toBe('ru')
 
 The same mock powers component workshops like Storybook. A story decorator wraps the component in an `InjectionContextProvider` with the mock transport and virtual navigation — the block renders with realistic data, no backend running:
 
-```tsx
-// EventsList.stories.tsx
+```tsx title="EventsList.stories.tsx"
 import { InjectionContextProvider } from '@nano_kit/react'
 import { LocationNavigation$, virtualNavigation } from '@nano_kit/router'
 import { provide } from '@nano_kit/store'

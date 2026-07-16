@@ -44,8 +44,7 @@ export default defineConfig({
 
 Page modules can expose the data that SSR must await and dehydrate:
 
-```tsx
-// Home.tsx
+```tsx title="Home.tsx"
 export function Stores$() {
   const { $events } = inject(EventsList$)
 
@@ -83,8 +82,7 @@ export default function Layout() {
 
 Detail pages can use loaded data in `Head$`:
 
-```tsx
-// Event.tsx
+```tsx title="Event.tsx"
 export function Stores$() {
   const { $event } = inject(EventDetails$)
 
@@ -116,8 +114,7 @@ In development, `vite dev` handles SSR rendering in-process through the plugin. 
 
 The server itself is a regular Hono app. It receives the built renderer through the typed [`virtual:app-renderer`](/ssr#bundled-server-entry) virtual module:
 
-```ts
-// src/server.ts
+```ts title="src/server.ts"
 import type { RedirectStatusCode } from 'hono/utils/http-status'
 import { serve } from '@hono/node-server'
 import { serveStatic } from '@hono/node-server/serve-static'

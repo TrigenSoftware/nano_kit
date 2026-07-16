@@ -215,10 +215,7 @@ export default defineConfig({
       ],
       customCss: ['./src/styles/global.css'],
       expressiveCode: {
-        themes: ['github-dark-high-contrast', 'github-light-default'],
-        frames: {
-          extractFileNameFromCode: false
-        }
+        themes: ['github-dark-high-contrast', 'github-light-default']
       }
     })
   ]
