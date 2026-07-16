@@ -1,0 +1,165 @@
+---
+title: API Services
+description: Move API calls into injectable service classes.
+sidebar:
+  order: 9
+---
+
+As an app grows, API calls tend to spread. Every request repeats the same transport details — base URL, headers, error handling — and none of them can carry request context.
+
+In our example, the stores are injectable factories now, but the API layer is still a set of standalone functions:
+
+```ts
+// services/events.ts
+export async function fetchEvent(slug: string) {
+  const response = await fetch(`/api/events/${slug}`)
+
+  if (response.status === 404) {
+    return null
+  }
+
+  if (!response.ok) {
+    throw new Error(response.statusText || `Request failed with status ${response.status}`)
+  }
+
+  return await response.json() as BoardEvent
+}
+```
+
+The transport is about to become a real problem. Server rendering is next: in the browser `fetch('/api/...')` is relative to the page origin, but during SSR the same code runs in Node, where there is no origin at all.
+
+Nano Kit DI solves this with services. Besides store factories, [`inject`](/store/core-concepts#dependency-injection) accepts [classes](/store/core-concepts#class-tokens) that extend `Injectable$`:
+
+```ts
+import { Injectable$, inject } from '@nano_kit/store'
+
+export class EventsService$ extends Injectable$ {
+  api = inject(ApiService$)
+}
+```
+
+The class itself is the DI token. The first `inject(EventsService$)` call creates the instance lazily inside the current injection context, and class fields can call `inject(...)` to receive other dependencies — no registration or constructor wiring needed.
+
+## The Transport Service
+
+The transport differs between the browser and the server, so it gets two implementations behind one interface. The browser one stays relative to the page origin:
+
+```ts
+// services/api/api.client.ts
+import { Injectable$ } from '@nano_kit/store'
+import type { ApiService$ } from './api'
+
+export class ClientApiService$ extends Injectable$ implements ApiService$ {
+  fetch(url: string, options?: RequestInit) {
+    return globalThis.fetch(`/api/${url}`, {
+      ...options,
+      headers: {
+        ...typeof options?.body === 'string'
+          ? {
+            'Content-Type': 'application/json'
+          }
+          : undefined,
+        ...options?.headers as Record<string, string>
+      }
+    })
+  }
+}
+```
+
+The server one targets the API origin directly:
+
+```ts
+// services/api/api.server.ts
+import { Injectable$ } from '@nano_kit/store'
+import type { ApiService$ } from './api'
+
+const API_ORIGIN = import.meta.env.VITE_EVENT_BOARD_API_ORIGIN || 'http://localhost:3001'
+
+export class ServerApiService$ extends Injectable$ implements ApiService$ {
+  fetch(url: string, options?: RequestInit) {
+    return globalThis.fetch(`${API_ORIGIN}/api/${url}`, {
+      ...options,
+      headers: {
+        ...typeof options?.body === 'string'
+          ? {
+            'Content-Type': 'application/json'
+          }
+          : undefined,
+        ...options?.headers as Record<string, string>
+      }
+    })
+  }
+}
+```
+
+The interface and the token pick the implementation at build time:
+
+```ts
+// services/api/api.ts
+import { ClientApiService$ } from './api.client'
+import { ServerApiService$ } from './api.server'
+
+export interface ApiService$ {
+  fetch(url: string, options?: RequestInit): Promise<Response>
+}
+
+export const ApiService$ = import.meta.env.SSR
+  ? ServerApiService$
+  : ClientApiService$
+```
+
+```ts
+// services/api/index.ts
+export * from './api'
+```
+
+Vite replaces `import.meta.env.SSR` with a constant per build, so the client bundle keeps only `ClientApiService$` and the server bundle keeps only `ServerApiService$`. Code that injects `ApiService$` does not know or care which one it gets.
+
+This split is also where request context will live. The server implementation is the single place that can attach the incoming request cookies and locale to outgoing API calls — the authentication and internationalization chapters will extend exactly this class.
+
+## The Domain Service
+
+The standalone functions become methods of `EventsService$`:
+
+```ts
+// services/events.ts
+import { Injectable$, inject } from '@nano_kit/store'
+import { ApiService$ } from './api'
+
+export class EventsService$ extends Injectable$ {
+  api = inject(ApiService$)
+
+  async fetchEvent(slug: string) {
+    const response = await this.api.fetch(`events/${slug}`)
+
+    if (response.status === 404) {
+      return null
+    }
+
+    if (!response.ok) {
+      throw new Error(response.statusText || `Request failed with status ${response.status}`)
+    }
+
+    return await response.json() as BoardEvent
+  }
+}
+```
+
+`fetchEvents`, `createEvent`, and `rsvpEvent` move the same way. The methods keep their logic — the only change is that the transport comes from the injected `ApiService$`.
+
+Stores inject the service instead of importing functions:
+
+```ts
+// stores/events.ts
+export function EventsList$() {
+  const eventsService = inject(EventsService$)
+  const { infinite } = inject(Client$)
+  const { $q, $category } = inject(Params$)
+
+  /* ... */
+    (q, category, cursor) => eventsService.fetchEvents({ q, category, cursor })
+  /* ... */
+}
+```
+
+Because `ApiService$` is a token, any injection context can also [provide](/store/core-concepts#providing-custom-values) a completely different implementation — the [testing chapter](/tutorial/testing) builds on exactly that.

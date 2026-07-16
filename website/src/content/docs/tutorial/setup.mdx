@@ -17,18 +17,20 @@ The finished app can:
 - filter events by search text and category;
 - load more events with cursor pagination;
 - open a public event page;
-- create a new event;
+- log in with a session cookie and create a new event;
 - RSVP with an optimistic attendee count;
-- render list and detail pages on the server.
+- render every page on the server, with the session and locale intact;
+- speak English and Russian with a locale switcher.
 
 ## Packages
 
-The tutorial starts with a Vite React app and the Nano Kit packages used throughout the project:
+The tutorial starts with a plain Vite React app:
 
 ```bash
-pnpm add @nano_kit/store @nano_kit/query @nano_kit/router @nano_kit/react @nano_kit/react-router @nano_kit/react-ssr react react-dom hono @hono/node-server
-pnpm add -D vite @vitejs/plugin-react typescript
+pnpm create vite event-board --template react-ts
 ```
+
+Nano Kit packages are installed along the way — each chapter adds the ones it introduces.
 
 ## API Shape
 
@@ -39,6 +41,11 @@ GET  /api/events
 GET  /api/events/:slug
 POST /api/events
 POST /api/events/:id/rsvp
+POST /api/auth/login
+POST /api/auth/logout
+GET  /api/users/me
 ```
 
-You can compare each step with the complete implementation in the [Event Board source](https://github.com/TrigenSoftware/nano_kit/tree/main/examples/event-board/react-nano_kit-ssr).
+The events endpoints are public. Event creation requires a session, and RSVP counts a logged in user personally — but that arrives late in the tutorial. Until the authentication chapter, the app works with the API anonymously.
+
+You can compare each step with the complete implementation in the [Event Board source](https://github.com/TrigenSoftware/nano_kit/tree/main/examples/event-board/react-nano_kit-intl-ssr).

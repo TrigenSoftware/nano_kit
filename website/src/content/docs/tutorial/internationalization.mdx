@@ -1,0 +1,317 @@
+---
+title: Internationalization
+description: Add translated messages, a locale switcher, and locale-aware SSR.
+sidebar:
+  order: 12
+---
+
+Not every app needs translations, but the ones that do need them everywhere: in components, in the document head, and in server-rendered HTML.
+
+In our example, the finished Event Board speaks English and Russian: the locale is negotiated from the browser, can be switched by the user, survives reloads in a cookie, and server-rendered HTML arrives already translated.
+
+Add [`@nano_kit/intl`](/intl):
+
+```bash
+pnpm add @nano_kit/intl
+```
+
+## Translations
+
+Translations are plain JSON grouped by namespace — one namespace per page or layout:
+
+```json
+// services/intl/translations/en.json
+{
+  "layout": {
+    "title": "Event Board",
+    "events": "Events",
+    "language": "Language",
+    "loading": "Loading..."
+  },
+  "home": {
+    "pageTitle": "Upcoming events | Event Board",
+    "pageDescription": "Find meetups, workshops, webinars, and conferences.",
+    "title": "Find your next frontend event",
+    "attendees": {
+      "one": "{count} going",
+      "other": "{count} going"
+    }
+  }
+}
+```
+
+`ru.json` mirrors the same structure with Russian values, including real plural forms for `attendees` (`one` / `few` / `many`).
+
+The loader imports one file per locale on demand, so a visitor downloads only their language:
+
+```ts
+// services/intl/translations/index.ts
+export type SupportedLocale = 'en' | 'ru'
+
+export type Translations = Awaited<ReturnType<typeof load>>
+
+export const supportedLocales: SupportedLocale[] = ['en', 'ru']
+
+export async function load(locale: SupportedLocale) {
+  let mod
+
+  if (locale === 'en') {
+    mod = await import('./en.json')
+  } else if (locale === 'ru') {
+    mod = await import('./ru.json')
+  }
+
+  return mod!.default
+}
+```
+
+## The Intl Service
+
+Which locale should a visitor get before they pick one? In the browser it comes from `navigator.languages`; during SSR — from the `Accept-Language` request header. `Locales$` from `@nano_kit/platform-web` abstracts both, and the service resolves it against the supported list:
+
+```ts
+// services/intl/intl.ts
+import { CookieStore$, Locales$, browserLocale } from '@nano_kit/platform-web'
+import { Injectable$, inject } from '@nano_kit/store'
+import { type SupportedLocale, supportedLocales } from './translations'
+
+export class IntlService$ extends Injectable$ {
+  locales = inject(Locales$)
+  cookieStore = inject(CookieStore$)
+
+  getBrowserLocale() {
+    return browserLocale(this.locales, supportedLocales, 'en')
+  }
+
+  async getServerLocale() {
+    const locale = (await this.cookieStore.get('locale'))?.value
+
+    return (locale || this.getBrowserLocale()) as SupportedLocale
+  }
+}
+```
+
+`Locales$` needs the request headers during SSR, so the renderer must provide them. Enable it in the Vite config next to the cookie store, and pass the header through the server:
+
+```ts
+// vite.config.ts
+ssr({
+  index: 'src/index.tsx',
+  server: 'src/server.ts',
+  inject: {
+    cookieStore: true,
+    browserLocale: true
+  }
+})
+```
+
+```ts
+// src/server.ts
+const result = await renderer.render(c.req.url, {
+  cookie: c.req.header('Cookie'),
+  acceptLanguage: c.req.header('Accept-Language')
+})
+```
+
+## The Intl Store
+
+The active locale is a writable signal backed by a cookie. When the cookie is missing, it falls back to the negotiated browser locale. Translations load through a regular query, so they are cached, deduplicated, and dehydrated by SSR like any other data:
+
+```ts
+// stores/intl.ts
+import { inject } from '@nano_kit/store'
+import { queryKey } from '@nano_kit/query'
+import { intl } from '@nano_kit/intl'
+import { CookieStore$, cookieStored } from '@nano_kit/platform-web'
+import { type SupportedLocale, type Translations, IntlService$, load, supportedLocales } from '#src/services/intl'
+import { Client$ } from './query'
+
+export const TranslationsKey = queryKey<[locale: SupportedLocale], Translations>('translations')
+
+export function Intl$() {
+  const intlService = inject(IntlService$)
+  const cookieStore = inject(CookieStore$)
+  const { query } = inject(Client$)
+  const $locale = cookieStored(cookieStore, {
+    name: 'locale',
+    path: '/',
+    sameSite: 'lax'
+  }, intlService.getBrowserLocale())
+  const {
+    messages,
+    $loading
+  } = intl(
+    $locale,
+    query(TranslationsKey, [$locale], load)
+  )
+
+  return {
+    supportedLocales,
+    messages,
+    $locale,
+    $loading
+  }
+}
+```
+
+[`cookieStored`](/platform/web/#cookies) gives a writable signal: reading returns the cookie value, writing sets the cookie. Assigning `$locale('ru')` is the whole "switch language" feature — the query re-runs for the new locale, and the cookie keeps the choice for the next visit.
+
+[`intl`](/intl/core-concepts) connects the locale to the loaded translation data and returns `messages` — the factory pages use to read their namespace.
+
+One store needs an update: `invalidateSession` from the authentication chapter invalidates every cache key, but translations do not depend on the session. Exclude them:
+
+```ts
+// stores/user.ts
+import { TranslationsKey } from './intl'
+
+const invalidateSession = () => {
+  keys(Key => Key !== TranslationsKey && invalidate(Key))
+}
+```
+
+## Messages In Pages
+
+Each page declares the messages it needs as a small injectable factory. Plain strings come as-is; formatted messages get a scheme:
+
+```tsx
+// ui/pages/Home.tsx
+import { datetime, format, plural, capitalize } from '@nano_kit/intl'
+import { Intl$ } from '#src/stores/intl'
+
+function Messages$() {
+  const { messages } = inject(Intl$)
+
+  return messages('home', {
+    attendees: plural('count'),
+    eventDate: format(capitalize(datetime({
+      dateStyle: 'medium',
+      timeStyle: 'short'
+    })))
+  })
+}
+
+export function Stores$() {
+  const [$t] = inject(Messages$)
+  const { $events } = inject(EventsList$)
+
+  return [$t, $events]
+}
+
+export function Head$() {
+  const [$t] = inject(Messages$)
+
+  return [
+    title($t.$pageTitle),
+    meta({
+      name: 'description',
+      content: $t.$pageDescription
+    })
+  ]
+}
+```
+
+Returning `$t` from `Stores$` makes SSR wait for the translations, so the first HTML response is already in the right language. `Head$` reads per-key signals like `$t.$pageTitle`, so the document title follows the locale too.
+
+Inside the component the hardcoded strings become message reads:
+
+```tsx
+const [$t] = useInject(Messages$)
+const t = useSignal($t)
+
+/* ... */
+<h1>{t.title}</h1>
+<span>{t.eventDate(event.startsAt)}</span>
+<span>{t.attendees(event.attendees)}</span>
+```
+
+[`plural`](/intl/core-concepts) picks the right form from the `attendees` object by count, and [`datetime`](/intl/core-concepts) formats the timestamp with the locale-aware `Intl.DateTimeFormat` — the Russian home page shows «25 участников» and a Russian date without any extra code.
+
+The login page finally replaces its error map from the authentication chapter. [`match`](/intl/api#matchparam-cases) selects a translation by the error code, with a fallback case:
+
+```tsx
+// ui/pages/Login.tsx
+import { match, other } from '@nano_kit/intl'
+
+function Messages$() {
+  const { messages } = inject(Intl$)
+
+  return messages('login', {
+    errors: match('type', other(UserError.LoginFailed))
+  })
+}
+
+/* ... */
+{error && <p>{t.errors(error)}</p>}
+```
+
+## The Locale Switcher
+
+The layout marks the document language with [`lang`](/router/ssr#head-management) and renders the switcher. Writing to `$locale` is all it takes:
+
+```tsx
+// ui/pages/Layout.tsx
+import { lang } from '@nano_kit/react-router'
+
+export function Head$() {
+  const { $locale } = inject(Intl$)
+  const [$t] = inject(Messages$)
+
+  return [
+    lang($locale),
+    title($t.$title),
+    /* ... */
+  ]
+}
+
+export default function Layout() {
+  const {
+    $locale,
+    $loading,
+    supportedLocales
+  } = useInject(Intl$)
+  const locale = useSignal($locale)
+  const loading = useSignal($loading)
+
+  /* ... */
+    <div role='group'>
+      {supportedLocales.map(supportedLocale => (
+        <button
+          key={supportedLocale}
+          type='button'
+          aria-pressed={locale === supportedLocale}
+          onClick={() => $locale(supportedLocale)}
+        >
+          {supportedLocale.toUpperCase()}
+        </button>
+      ))}
+    </div>
+  /* ... */
+}
+```
+
+The `$loading` signal covers the moment a new locale's translations are still loading — the layout can show an overlay instead of flashing untranslated keys.
+
+## Locale In API Requests
+
+The server transport gets its final upgrade. The API can localize its own responses, so SSR requests forward the resolved locale as `Accept-Language`, next to the session cookie:
+
+```ts
+// services/api/api.server.ts
+export class ServerApiService$ extends Injectable$ implements ApiService$ {
+  cookieStore = inject(CookieStore$)
+  intlService = inject(IntlService$)
+
+  async fetch(url: string, options?: RequestInit) {
+    const [cookie, locale] = await Promise.all([
+      serializeCookies(this.cookieStore, ['session']),
+      this.intlService.getServerLocale()
+    ])
+
+    /* attach Cookie and Accept-Language headers to the request */
+  }
+}
+```
+
+The browser transport still does nothing special — the browser sends `Accept-Language` on its own.
+
+Everything is locale-aware now, end to end. Open the app with a Russian browser: the `Accept-Language` header picks `ru`, SSR renders «Доска Событий» with Russian dates and plurals, the `<html lang="ru">` attribute is set, and switching to EN writes the cookie so the next visit starts in English. See [SSR Locale](/ssr/locale) for the underlying request-bound locale machinery.

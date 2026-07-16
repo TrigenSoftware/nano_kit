@@ -1,0 +1,137 @@
+---
+title: Testing
+description: Test stores with injection contexts and power stories with a mock transport.
+sidebar:
+  order: 13
+---
+
+Everything the app wires through `inject(...)` can be swapped in a test. No network stubs, no module mocking.
+
+In our example, a store under test receives a mock transport and never knows the difference.
+
+## The Mock Transport
+
+A mock transport is any object that implements `ApiService$`. The shape is entirely up to you — for example, a class that answers with fixture data:
+
+```ts
+// test/mock-api.ts
+import type { ApiService$ } from '#src/services/api'
+
+const events = [
+  {
+    id: '1',
+    slug: 'react-ssr-workshop',
+    title: 'React SSR Workshop',
+    description: 'A hands-on workshop about server rendering.',
+    startsAt: new Date('2026-05-12T18:00:00Z').getTime(),
+    location: 'Online',
+    category: 'workshop',
+    attendees: 24,
+    going: false
+  }
+]
+
+export class MockApiService implements ApiService$ {
+  async fetch(url: string) {
+    if (url.startsWith('events')) {
+      return Response.json({ events })
+    }
+
+    return Response.json(null, {
+      status: 404
+    })
+  }
+}
+```
+
+Whatever the implementation, the contract stays the same — `implements ApiService$` — so nothing that injects the transport has to change.
+
+## Testing Stores
+
+A store test builds an [`InjectionContext`](/store/testing#mocking-dependencies) with the dependencies it wants to control and passes it to `inject` as the second argument. Stores need a location, so the context also provides [virtual navigation](/router/testing):
+
+```ts
+// test/events.spec.ts
+import { describe, it, expect } from 'vitest'
+import { InjectionContext, TasksPool$, inject, provide, start, waitTasks } from '@nano_kit/store'
+import { LocationNavigation$, virtualNavigation } from '@nano_kit/router'
+import { ApiService$ } from '#src/services/api'
+import { EventsList$ } from '#src/stores/events'
+import { routes } from '#src/stores/router'
+import { MockApiService } from './mock-api'
+
+describe('stores', () => {
+  describe('events', () => {
+    describe('EventsList$', () => {
+      it('should load the first events page', async () => {
+        const context = new InjectionContext([
+          provide(LocationNavigation$, virtualNavigation('/', routes)),
+          provide(ApiService$, new MockApiService())
+        ])
+        const { $events } = inject(EventsList$, context)
+        const stop = start($events)
+
+        await waitTasks(inject(TasksPool$, context))
+
+        expect($events()!.pages[0].events.length).toBeGreaterThan(0)
+
+        stop()
+      })
+    })
+  })
+})
+```
+
+[`start`](/store/testing#triggering-mount-events) keeps `$events` mounted the way a rendered component would, so the query actually runs.
+
+Waiting works through query tasks. The client is created with `ssr()`, which tracks every in-flight query as a task in the context's `TasksPool$`. The test pulls that pool out of the same context and [`waitTasks`](/query/advanced#tasks) awaits it — the same mechanism the SSR renderer uses to wait for page data. The store graph created inside the context is fully isolated: its own query client, its own transport, its own navigation.
+
+Cookie-dependent stores get the same treatment with [`VirtualCookieStore`](/ssr/cookies#low-level-usage). Provide one with a `Cookie` header string, and the locale store reads it like a browser cookie:
+
+```ts
+import { CookieStore$, VirtualCookieStore } from '@nano_kit/platform-web'
+import { Intl$ } from '#src/stores/intl'
+
+const context = new InjectionContext([
+  provide(CookieStore$, new VirtualCookieStore('locale=ru', '/')),
+  provide(LocationNavigation$, virtualNavigation('/', routes)),
+  provide(ApiService$, new MockApiService())
+])
+const { $locale } = inject(Intl$, context)
+
+expect($locale()).toBe('ru')
+```
+
+## Stories
+
+The same mock powers component workshops like Storybook. A story decorator wraps the component in an `InjectionContextProvider` with the mock transport and virtual navigation — the block renders with realistic data, no backend running:
+
+```tsx
+// EventsList.stories.tsx
+import { InjectionContextProvider } from '@nano_kit/react'
+import { LocationNavigation$, virtualNavigation } from '@nano_kit/router'
+import { provide } from '@nano_kit/store'
+import { ApiService$ } from '#src/services/api'
+import { routes } from '#src/stores/router'
+import { MockApiService } from '../test/mock-api'
+
+const meta = {
+  component: EventsList,
+  decorators: [
+    Story => (
+      <InjectionContextProvider
+        context={[
+          provide(LocationNavigation$, virtualNavigation('/', routes)),
+          provide(ApiService$, new MockApiService())
+        ]}
+      >
+        <Story />
+      </InjectionContextProvider>
+    )
+  ]
+}
+```
+
+Each story runs in its own injection context, so switching stories resets the data, and a story can seed its mock differently to show empty, loading, or error states.
+
+The Event Board example does not ship a Storybook setup — this is the recipe, not a requirement. The point is the shape of the app: once the transport, navigation, and cookies are injectable, tests and stories are consumers of the same three `provide(...)` lines.

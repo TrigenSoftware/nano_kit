@@ -275,6 +275,8 @@ cookieStore.drainSetCookieHeaders()
 // ['theme=light; Path=/; SameSite=Lax']
 ```
 
-## Example
+## Examples
 
 See the [Session Cookies example](/examples/session) for a complete React SSR app using request cookies, cookie-backed signals, server-side logout, and hydration without mismatches.
+
+See the [Event Board example](/examples/event-board) for session authentication with an HttpOnly cookie: a login flow, a route guard with SSR redirects, and an injectable API service that forwards the session cookie to the API during SSR.

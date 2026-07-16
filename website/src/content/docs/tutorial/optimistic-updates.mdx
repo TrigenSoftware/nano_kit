@@ -79,25 +79,22 @@ RSVP can now update one entity immediately, then keep it or roll it back:
 ```ts
 export const [rsvp, $rsvpEvent, $rsvpError, $rsvpLoading] = mutation<[id: string], BoardEvent>(
   (id, ctx) => {
-    const key = EventEntity(id)
-    const previousEvent = $data(key)
+    const revert = $data(EventEntity(id), event => event && {
+      ...event,
+      attendees: event.attendees + 1
+    })
 
-    if (previousEvent) {
-      $data(key, {
-        ...previousEvent,
-        attendees: previousEvent.attendees + 1
-      })
-
-      onError(ctx, () => {
-        $data(key, previousEvent)
-      })
-    }
+    onError(ctx, revert)
 
     return rsvpEvent(id)
   }
 )
 ```
 
-[`$data`](/query/core-concepts#reading-and-writing-data) updates the normalized entity immediately. [`onError`](/query/advanced#request-context) restores the previous value if the request fails.
+[`$data`](/query/core-concepts#reading-and-writing-data) with an updater function applies the change immediately and returns a revert callback.
+
+[`onError`](/query/advanced#request-context) registers that callback, so a failed request rolls the entity back to the previous value.
 
 `EventEntity(id)` points to one shared event record in cache. RSVP updates that one record, and every query result that references it sees the new attendees count.
+
+For now RSVP is anonymous — every click adds one more attendee. The authentication chapter later turns it into a personal toggle.

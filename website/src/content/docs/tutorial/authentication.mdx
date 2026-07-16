@@ -1,0 +1,458 @@
+---
+title: Authentication And Cookies
+description: Add session auth with an HttpOnly cookie, a route guard, and SSR cookie forwarding.
+sidebar:
+  order: 11
+---
+
+Most apps eventually need to know who the user is.
+
+In our example, the board stays public, but creating events should belong to someone. The API grows a session:
+
+- `POST /api/auth/login` — checks `{ username, password }`, sets an **HttpOnly** `session` cookie, and returns the user.
+- `POST /api/auth/logout` — deletes the session and clears the cookie.
+- `GET /api/users/me` — returns the current user, or `401` without a valid session.
+- `POST /api/events` — now requires the session; created events get an `author`.
+- `POST /api/events/:id/rsvp` — toggles personal attendance for a logged in user, and event payloads include a personal `going` flag.
+
+The demo API ships two users: `ada` / `lovelace` and `grace` / `hopper`.
+
+The cookie is HttpOnly, so the frontend never reads or writes it. The browser stores it from the login response and attaches it to every `/api` request automatically. The application only needs to ask the API who the current user is.
+
+## The User Service
+
+Auth failures are part of the domain, so the service maps HTTP statuses to typed error codes:
+
+```ts
+// services/user.types.ts
+export const UserError = {
+  Unauthenticated: 'UNAUTHENTICATED',
+  LoginFailed: 'LOGIN_FAILED',
+  LoginInvalidCredentials: 'LOGIN_INVALID_CREDENTIALS'
+} as const
+
+export type UserError = typeof UserError[keyof typeof UserError]
+
+export interface User {
+  id: string
+  username: string
+  name: string
+}
+
+export interface LoginParams {
+  username: string
+  password: string
+}
+```
+
+```ts
+// services/user.ts
+import { Injectable$, inject } from '@nano_kit/store'
+import { ApiService$ } from './api'
+import { type LoginParams, type User, UserError } from './user.types'
+
+export class UserService$ extends Injectable$ {
+  api = inject(ApiService$)
+
+  async getUser() {
+    const response = await this.api.fetch('users/me')
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error(UserError.Unauthenticated)
+      }
+
+      throw new Error(response.statusText || `Request failed with status ${response.status}`)
+    }
+
+    return await response.json() as User
+  }
+
+  async login(params: LoginParams) {
+    const response = await this.api.fetch('auth/login', {
+      method: 'POST',
+      body: JSON.stringify(params)
+    })
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error(UserError.LoginInvalidCredentials)
+      }
+
+      throw new Error(UserError.LoginFailed)
+    }
+
+    return await response.json() as User
+  }
+
+  async logout() {
+    const response = await this.api.fetch('auth/logout', {
+      method: 'POST'
+    })
+
+    if (!response.ok) {
+      throw new Error(response.statusText || `Request failed with status ${response.status}`)
+    }
+  }
+}
+```
+
+## The User Store
+
+The session state is just a query: `GET /api/users/me` keyed as `UserKey`. For an anonymous visitor the query fails with `UserError.Unauthenticated`, and that error code *is* the "logged out" state.
+
+```ts
+// stores/user.ts
+import { inject, onMountEffect } from '@nano_kit/store'
+import { keys, onSuccess, queryKey } from '@nano_kit/query'
+import { LocationNavigation$, Paths$ } from '@nano_kit/router'
+import { type LoginParams, type User, UserError } from '#src/services/user.types'
+import { UserService$ } from '#src/services/user'
+import { Client$ } from './query'
+import { publicRoutes } from './router'
+
+export const UserKey = queryKey<[], User>('user')
+
+export function User$() {
+  const userService = inject(UserService$)
+  const [$location, navigation] = inject(LocationNavigation$)
+  const paths = inject(Paths$)
+  const {
+    query,
+    mutation,
+    invalidate
+  } = inject(Client$)
+  const [
+    $user,
+    $userError,
+    $userLoading
+  ] = query(UserKey, [], () => userService.getUser())
+  const invalidateSession = () => {
+    keys(Key => invalidate(Key))
+  }
+  const [
+    login, ,
+    $loginError,
+    $loginLoading
+  ] = mutation<[params: LoginParams], User>(
+    (params, ctx) => {
+      onSuccess(ctx, () => {
+        invalidateSession()
+        navigation.replace(paths.home)
+      })
+
+      return userService.login(params)
+    }
+  )
+  const logout = async () => {
+    await userService.logout()
+    invalidateSession()
+  }
+
+  onMountEffect($user, () => {
+    const route = $location.$route()
+    const userError = $userError()
+
+    if (userError === UserError.Unauthenticated && route && !publicRoutes.has(route)) {
+      navigation.replace(paths.login)
+    }
+  })
+
+  return {
+    login,
+    logout,
+    $user,
+    $userError,
+    $userLoading,
+    $loginError,
+    $loginLoading
+  }
+}
+```
+
+Two details carry the weight here.
+
+`invalidateSession` runs after every login and logout. A session change invalidates more than the user: the personal `going` flags inside cached events are stale too. Instead of listing keys by hand, [`keys`](/query/advanced#registered-cache-keys) iterates every registered cache key and invalidates it.
+
+The [`onMountEffect`](/store/advanced#onmounteffect-and-onmounteffectscope) block is the route guard. The effect reads `$location.$route()` and `$userError()`, so both are tracked dependencies: it re-runs when the visitor navigates *and* when the session state changes. When an unauthenticated visitor reaches a route that is not public, the guard replaces the location with the login page. The location and navigation pair comes from [`LocationNavigation$`](/router/advanced#tokens), which provides both as one injectable tuple.
+
+The `publicRoutes` set lives next to the routes:
+
+```ts
+// stores/router.ts
+export const routes = {
+  home: '/',
+  login: '/login',
+  newEvent: '/events/new',
+  event: '/events/:slug'
+} as const
+
+export const publicRoutes = new Set<string>([
+  'home',
+  'login',
+  'event'
+])
+```
+
+During SSR the same guard produces a real redirect: `navigation.replace` becomes a `302 Location: /login` response, because the server from the previous chapter already handles `result.redirect`. An anonymous request to `/events/new` never renders the form — it gets an HTTP redirect.
+
+## The Login Page
+
+The login page is a form wired to the `login` mutation:
+
+```tsx
+// ui/pages/Login.tsx
+import type { FormEvent } from 'react'
+import { useInject, useSignal } from '@nano_kit/react'
+import { title } from '@nano_kit/react-router'
+import { UserError } from '#src/services/user.types'
+import { User$ } from '#src/stores/user'
+
+const loginErrorMessages: Record<string, string> = {
+  [UserError.LoginInvalidCredentials]: 'Invalid username or password.',
+  [UserError.LoginFailed]: 'Login failed. Please try again.'
+}
+
+export function Head$() {
+  return [
+    title('Log in | Event Board')
+  ]
+}
+
+export default function LoginPage() {
+  const {
+    login,
+    $loginError,
+    $loginLoading
+  } = useInject(User$)
+  const error = useSignal($loginError)
+  const loading = useSignal($loginLoading)
+  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    const formData = new FormData(event.currentTarget)
+    const username = formData.get('username')
+    const password = formData.get('password')
+
+    void login({
+      username: typeof username === 'string' ? username : '',
+      password: typeof password === 'string' ? password : ''
+    })
+  }
+
+  return (
+    <section>
+      <h1>Log in</h1>
+      <p>Demo users: ada / lovelace or grace / hopper.</p>
+
+      <form onSubmit={onSubmit}>
+        <label>
+          Username
+          <input name='username' type='text' required />
+        </label>
+
+        <label>
+          Password
+          <input name='password' type='password' required />
+        </label>
+
+        {error && <p>{loginErrorMessages[error] ?? loginErrorMessages[UserError.LoginFailed]}</p>}
+
+        <button type='submit' disabled={loading}>
+          {loading ? 'Logging in...' : 'Log in'}
+        </button>
+      </form>
+    </section>
+  )
+}
+```
+
+The error signal holds the typed code thrown by the service, and the page maps codes to text. The internationalization chapter will replace this map with translated messages.
+
+The route table gets the new page:
+
+```tsx
+// index.tsx
+export const pages = [
+  layout(Layout, [
+    page('home', loadable(() => import('./ui/pages/Home'))),
+    page('login', loadable(() => import('./ui/pages/Login'))),
+    page('newEvent', loadable(() => import('./ui/pages/NewEvent'))),
+    page('event', loadable(() => import('./ui/pages/Event')))
+  ])
+]
+```
+
+The layout shows who is logged in. Including `$user` in the layout `Stores$` means SSR waits for the session before rendering, so the name appears in the first HTML response:
+
+```tsx
+// ui/pages/Layout.tsx
+export function Stores$() {
+  const { $user } = inject(User$)
+
+  return [$user]
+}
+
+export default function Layout() {
+  const { $user, logout } = useInject(User$)
+  const user = useSignal($user)
+
+  /* ... */
+    <div>
+      {user
+        ? (
+          <>
+            <strong>{user.name}</strong>
+            <button type='button' onClick={() => void logout()}>
+              Log out
+            </button>
+          </>
+        )
+        : <Link to='login'>Log in</Link>}
+    </div>
+  /* ... */
+}
+```
+
+## Forwarding Cookies During SSR
+
+There is one hole left. In the browser, the session works by itself — the browser attaches the cookie to every `/api` request. During SSR the API calls are server-to-server: no browser, no cookie, and the "logged in" page would render as logged out, only to flip after hydration.
+
+The renderer can provide the incoming request cookies to stores and services. Add [`@nano_kit/platform-web`](/platform/web) and enable the cookie store in the Vite config:
+
+```bash
+pnpm add @nano_kit/platform-web
+```
+
+```ts
+ssr({
+  index: 'src/index.tsx',
+  server: 'src/server.ts',
+  inject: {
+    cookieStore: true
+  }
+})
+```
+
+Now `CookieStore$` is injectable during SSR, and the server transport from the API services chapter gets its promised upgrade — it forwards the session cookie to the API:
+
+```ts
+// services/api/api.server.ts
+import { CookieStore$, serializeCookies } from '@nano_kit/platform-web'
+import { Injectable$, inject } from '@nano_kit/store'
+import type { ApiService$ } from './api'
+
+const API_ORIGIN = import.meta.env.VITE_EVENT_BOARD_API_ORIGIN || 'http://localhost:3001'
+
+export class ServerApiService$ extends Injectable$ implements ApiService$ {
+  cookieStore = inject(CookieStore$)
+
+  async fetch(url: string, options?: RequestInit) {
+    const cookie = await serializeCookies(this.cookieStore, ['session'])
+
+    return globalThis.fetch(`${API_ORIGIN}/api/${url}`, {
+      ...options,
+      headers: {
+        ...typeof options?.body === 'string'
+          ? {
+            'Content-Type': 'application/json'
+          }
+          : undefined,
+        ...cookie
+          ? {
+            Cookie: cookie
+          }
+          : undefined,
+        ...options?.headers as Record<string, string>
+      }
+    })
+  }
+}
+```
+
+[`serializeCookies`](/ssr/cookies#forwarding-cookies-to-an-api) reads the named cookies from the request-bound store and builds a `Cookie` header value. The client transport does not change — the browser already does this.
+
+The cookies come from the HTTP server. It passes the incoming `Cookie` header into the render and forwards any `Set-Cookie` headers back:
+
+```ts
+// src/server.ts
+app.get('*', async (c) => {
+  const result = await renderer.render(c.req.url, {
+    cookie: c.req.header('Cookie')
+  })
+
+  if (result.setCookieHeaders) {
+    for (const cookie of result.setCookieHeaders) {
+      c.header('Set-Cookie', cookie, {
+        append: true
+      })
+    }
+  }
+
+  /* redirect and html handling stays the same */
+})
+```
+
+See [SSR Cookies](/ssr/cookies) for the full picture of request-bound cookie stores.
+
+## Personal RSVP
+
+With a session, RSVP stops being an anonymous counter. The API toggles attendance per user and returns a `going` flag, so `BoardEvent` grows one field:
+
+```ts
+export interface BoardEvent {
+  /* ... */
+  attendees: number
+  going: boolean
+}
+```
+
+The optimistic update from the optimistic updates chapter becomes a toggle. Setting cache data returns a revert callback, so rolling back on error takes one line:
+
+```ts
+// stores/events.ts
+export function RsvpEvent$() {
+  const eventsService = inject(EventsService$)
+  const { $user } = inject(User$)
+  const { $data, mutation } = inject(Client$)
+  const [
+    rsvp,
+    $rsvpEvent,
+    $rsvpError,
+    $rsvpLoading
+  ] = mutation<[id: string], BoardEvent>(
+    (id, ctx) => {
+      const revert = $data(EventEntity(id), event => event && {
+        ...event,
+        going: Boolean($user()) && !event.going,
+        attendees: event.attendees + (event.going ? -1 : 1)
+      })
+
+      onError(ctx, revert)
+
+      return eventsService.rsvpEvent(id)
+    }
+  )
+
+  return {
+    rsvp,
+    $rsvpEvent,
+    $rsvpError,
+    $rsvpLoading
+  }
+}
+```
+
+A logged in user toggles `going` in both directions; an anonymous visitor still just adds a guest, so `going` stays `false` for them. The event page picks the button label from the flag:
+
+```tsx
+<button
+  type='button'
+  disabled={rsvpLoading}
+  onClick={onRsvp}
+>
+  {rsvpLoading ? 'Saving...' : event.going ? "I'm not going" : "I'm going"}
+</button>
+```
+
+Now the whole session survives a hard refresh: log in, RSVP to an event, and reload the page — the first HTML response already contains your name in the header and the "I'm not going" button, because the server forwarded your cookie to the API while rendering.

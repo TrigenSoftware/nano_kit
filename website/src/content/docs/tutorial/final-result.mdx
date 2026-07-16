@@ -2,7 +2,7 @@
 title: Final Result
 description: Open the completed project and review the final architecture.
 sidebar:
-  order: 10
+  order: 14
 ---
 
 The completed project is the Event Board example. You can inspect the source, run it in StackBlitz, or compare it with the code you wrote during the tutorial.
@@ -30,6 +30,10 @@ This tutorial moved through Nano Kit in the same order an app tends to grow:
 6. Improve mutations with optimistic updates.
 7. Normalize shared records with entities.
 8. Prepare stores and router integration for SSR.
-9. Add server rendering with `Stores$`, `Head$`, hydration, and a production Hono server.
+9. Move API calls into injectable service classes.
+10. Add server rendering with `Stores$`, `Head$`, hydration, and a bundled production server.
+11. Add session auth with an HttpOnly cookie, a route guard, and SSR cookie forwarding.
+12. Translate the app and make SSR locale-aware.
+13. Test stores through injection contexts with a mock transport.
 
 The important bit is not that every app must use every layer. The useful pattern is adding each layer when the app asks for it.

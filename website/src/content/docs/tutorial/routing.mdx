@@ -11,7 +11,11 @@ In our example, we already have a useful event list page. The next step is to ma
 
 That is the job of [`@nano_kit/router`](/router/core-concepts). It keeps the current route in a signal, gives us navigation methods, and lets stores derive values from the URL. In this step, we start with the smallest useful router setup: one `home` route and filters stored in the search string.
 
-Putting filters in the URL is a good first use case for the router. A filtered list can survive refresh, and the user can copy the link and open the same view later.
+Putting filters in the URL is a good first use case for the router. A filtered list can survive refresh, and the user can copy the link and open the same view later. Add [`@nano_kit/router`](/router) and the React integration:
+
+```bash
+pnpm add @nano_kit/router @nano_kit/react-router
+```
 
 ```ts
 import { browserNavigation, searchParam, searchParams } from '@nano_kit/router'

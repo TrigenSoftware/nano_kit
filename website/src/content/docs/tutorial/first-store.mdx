@@ -9,7 +9,11 @@ Most web apps begin with the same task: fetch data from an API and show it on th
 
 In our example, that first task is the home page with a list of events, a search field, and a category filter.
 
-The first store will hold the filters, the loaded events, and the loading flag.
+The first store will hold the filters, the loaded events, and the loading flag. Add [`@nano_kit/store`](/store) and the React bindings:
+
+```bash
+pnpm add @nano_kit/store @nano_kit/react
+```
 
 ```ts
 import { action, effect, mountable, onMount, signal } from '@nano_kit/store'
@@ -58,7 +62,7 @@ Let's render that state with one React component:
 import { useSignal } from '@nano_kit/react'
 import { $events, $loading, $q } from '#src/stores/events'
 
-export function Home() {
+export default function Home() {
   const q = useSignal($q)
   const events = useSignal($events)
   const loading = useSignal($loading)
