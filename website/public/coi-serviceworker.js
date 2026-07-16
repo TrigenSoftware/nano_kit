@@ -1,8 +1,8 @@
+const pagesWithEmbeds = /^\/(?:examples|tutorial)(?:\/|$)/
+
 if (typeof window === 'undefined') {
   self.addEventListener('install', () => self.skipWaiting())
   self.addEventListener('activate', event => event.waitUntil(self.clients.claim()))
-
-  const pagesWithEmbeds = /^\/(?:examples|tutorial)(?:\/|$)/
 
   self.addEventListener('fetch', (event) => {
     const request = event.request
@@ -31,5 +31,17 @@ if (typeof window === 'undefined') {
     )
   })
 } else if (window.crossOriginIsolated === false && window.isSecureContext && navigator.serviceWorker) {
-  void navigator.serviceWorker.register(window.document.currentScript.src)
+  void navigator.serviceWorker.register(window.document.currentScript.src).then((registration) => {
+    if (!pagesWithEmbeds.test(window.location.pathname)) {
+      return
+    }
+
+    if (registration.active && !navigator.serviceWorker.controller) {
+      window.location.reload()
+    } else {
+      navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload(), {
+        once: true
+      })
+    }
+  })
 }
