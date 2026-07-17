@@ -1,4 +1,3 @@
-- tweak colors on the website
 - no-magic-numbers pain
 - inspect object copies
 - check === / !== undefined ? perf

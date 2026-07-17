@@ -8,7 +8,7 @@
   --sl-color-gray-4: hsl(0, 0%, 42%);
   --sl-color-gray-5: hsl(0, 0%, 28%);
   --sl-color-gray-6: hsl(0, 0%, 18%);
-  --sl-color-black: hsl(0, 0%, 0%);
+  --sl-color-black: hsl(0, 0%, 8.2%);
 
   --sl-hue-orange: 41;
   --sl-color-orange-low: hsl(var(--sl-hue-orange), 39%, 22%);
@@ -31,15 +31,15 @@
   --sl-color-red: hsl(var(--sl-hue-red), 82%, 63%);
   --sl-color-red-high: hsl(var(--sl-hue-red), 82%, 87%);
 
-  --sl-color-accent-low: hsl(199, 92%, 25%);
-  --sl-color-accent: hsl(199, 92%, 75%); /* Light cyan from logo */
-  --sl-color-accent-high: hsl(199, 92%, 88%);
+  --sl-color-accent-low: hsl(281, 25%, 25%);
+  --sl-color-accent: hsl(281, 22%, 80%); /* Lavender from the poster */
+  --sl-color-accent-high: hsl(281, 30%, 89%);
 
   --sl-color-text: var(--sl-color-white);
   --sl-color-text-accent: var(--sl-color-accent-high);
   --sl-color-text-invert: var(--sl-color-black);
   --sl-color-bg: var(--sl-color-black);
-  --sl-color-bg-nav: hsl(0, 0%, 3%);
+  --sl-color-bg-nav: hsl(0, 0%, 11%);
   --sl-color-bg-sidebar: var(--sl-color-black);
   --sl-color-bg-inline-code: var(--sl-color-gray-6);
   --sl-color-bg-accent: var(--sl-color-accent-high);
@@ -51,6 +51,11 @@
 
   & .expressive-code .frame {
     --code-background: var(--sl-color-bg-nav);
+    --ec-frm-edTabBarBg: var(--sl-color-bg);
+    --ec-frm-edActTabBg: var(--sl-color-bg-nav);
+    --ec-frm-edActTabIndBtmCol: var(--sl-color-bg-nav);
+    --ec-frm-trmTtbBg: var(--sl-color-bg);
+    --ec-frm-trmBg: var(--sl-color-bg-nav);
     box-shadow: none;
   }
 
@@ -88,9 +93,9 @@
   --sl-color-red: hsl(var(--sl-hue-red), 90%, 60%);
   --sl-color-red-low: hsl(var(--sl-hue-red), 80%, 90%);
 
-  --sl-color-accent-high: hsl(199, 60%, 35%);
-  --sl-color-accent: hsl(199, 60%, 48%); /* Muted cyan from light logo */
-  --sl-color-accent-low: hsl(199, 92%, 88%);
+  --sl-color-accent-high: hsl(281, 30%, 35%);
+  --sl-color-accent: hsl(281, 25%, 48%); /* Muted violet for light mode */
+  --sl-color-accent-low: hsl(281, 30%, 88%);
 
   --sl-color-text-accent: var(--sl-color-accent);
   --sl-color-bg-nav: hsl(0, 0%, 97%);
@@ -101,6 +106,11 @@
 
   & .expressive-code .frame {
     --code-background: var(--sl-color-black);
+    --ec-frm-edTabBarBg: var(--sl-color-bg-nav);
+    --ec-frm-edActTabBg: var(--sl-color-black);
+    --ec-frm-edActTabIndBtmCol: var(--sl-color-black);
+    --ec-frm-trmTtbBg: var(--sl-color-black);
+    --ec-frm-trmBg: var(--sl-color-bg-nav);
   }
 }
 
