@@ -523,7 +523,7 @@ export function effect(fn: EffectCallback, noDefer = false): Destroy {
     }
   }
 
-  runEffect(e, true)
+  warmupEffect(e)
 
   return effectOper.bind(e)
 }
@@ -654,22 +654,41 @@ function updateSignal(s: SignalNode): boolean {
   return s.value !== (s.value = s.pendingValue)
 }
 
-function runEffect(e: EffectNode, warmup?: true): void {
+function warmupEffect(e: EffectNode): void {
   const prevSub = pushActiveSub(e)
   const prevNoMount = isMountableUsed ? pushNoMount(e.noMount) : undefined
 
   try {
-    e.destroy = e.fn(warmup) || undefined
+    e.destroy = e.fn(true) || undefined
   } finally {
-    popNoMount(prevNoMount)
     popActiveSub(prevSub)
     e.flags &= ~RecursedCheckFlag
 
-    if (warmup === undefined) {
-      purgeDeps(e)
+    if (isMountableUsed) {
+      popNoMount(prevNoMount)
+      notifyMounted(activeSub)
+    }
+  }
+}
+
+function runEffect(e: EffectNode): void {
+  const prevSub = pushActiveSub(e)
+  const prevNoMount = isMountableUsed ? pushNoMount(e.noMount) : undefined
+
+  try {
+    e.destroy = e.fn() || undefined
+  } finally {
+    if (isMountableUsed) {
+      popNoMount(prevNoMount)
     }
 
-    notifyMounted(activeSub)
+    popActiveSub(prevSub)
+    e.flags &= ~RecursedCheckFlag
+    purgeDeps(e)
+
+    if (isMountableUsed) {
+      notifyMounted(activeSub)
+    }
   }
 }
 
@@ -840,7 +859,7 @@ function runDeferredEffects(link: Link): void {
           runDeferredEffects(dep.deps)
         }
       } else {
-        runEffect(dep as EffectNode, true)
+        warmupEffect(dep as EffectNode)
       }
     }
 

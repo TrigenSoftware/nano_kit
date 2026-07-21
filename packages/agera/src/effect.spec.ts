@@ -459,7 +459,7 @@ describe('agera', () => {
 
       $num(1)
 
-      expect(fn).toHaveBeenCalledWith(undefined)
+      expect(fn).toHaveBeenLastCalledWith()
 
       stop()
     })
