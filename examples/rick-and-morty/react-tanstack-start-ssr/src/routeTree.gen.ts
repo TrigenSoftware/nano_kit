@@ -1,4 +1,4 @@
-/* oxlint-disable */
+/* eslint-disable */
 
 // @ts-nocheck
 
@@ -9,22 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as LocationsRouteImport } from './routes/locations'
-import { Route as EpisodesRouteImport } from './routes/episodes'
-import { Route as CharactersRouteImport } from './routes/characters'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as LocationLocationIdRouteImport } from './routes/location.$locationId'
-import { Route as EpisodeEpisodeIdRouteImport } from './routes/episode.$episodeId'
+import { Route as CharactersRouteImport } from './routes/characters'
+import { Route as EpisodesRouteImport } from './routes/episodes'
+import { Route as LocationsRouteImport } from './routes/locations'
 import { Route as CharacterCharacterIdRouteImport } from './routes/character.$characterId'
+import { Route as EpisodeEpisodeIdRouteImport } from './routes/episode.$episodeId'
+import { Route as LocationLocationIdRouteImport } from './routes/location.$locationId'
 
-const LocationsRoute = LocationsRouteImport.update({
-  id: '/locations',
-  path: '/locations',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EpisodesRoute = EpisodesRouteImport.update({
-  id: '/episodes',
-  path: '/episodes',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CharactersRoute = CharactersRouteImport.update({
@@ -32,14 +27,19 @@ const CharactersRoute = CharactersRouteImport.update({
   path: '/characters',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const EpisodesRoute = EpisodesRouteImport.update({
+  id: '/episodes',
+  path: '/episodes',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LocationLocationIdRoute = LocationLocationIdRouteImport.update({
-  id: '/location/$locationId',
-  path: '/location/$locationId',
+const LocationsRoute = LocationsRouteImport.update({
+  id: '/locations',
+  path: '/locations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CharacterCharacterIdRoute = CharacterCharacterIdRouteImport.update({
+  id: '/character/$characterId',
+  path: '/character/$characterId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EpisodeEpisodeIdRoute = EpisodeEpisodeIdRouteImport.update({
@@ -47,9 +47,9 @@ const EpisodeEpisodeIdRoute = EpisodeEpisodeIdRouteImport.update({
   path: '/episode/$episodeId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CharacterCharacterIdRoute = CharacterCharacterIdRouteImport.update({
-  id: '/character/$characterId',
-  path: '/character/$characterId',
+const LocationLocationIdRoute = LocationLocationIdRouteImport.update({
+  id: '/location/$locationId',
+  path: '/location/$locationId',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -123,18 +123,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/locations': {
-      id: '/locations'
-      path: '/locations'
-      fullPath: '/locations'
-      preLoaderRoute: typeof LocationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/episodes': {
-      id: '/episodes'
-      path: '/episodes'
-      fullPath: '/episodes'
-      preLoaderRoute: typeof EpisodesRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/characters': {
@@ -144,18 +137,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CharactersRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/episodes': {
+      id: '/episodes'
+      path: '/episodes'
+      fullPath: '/episodes'
+      preLoaderRoute: typeof EpisodesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/location/$locationId': {
-      id: '/location/$locationId'
-      path: '/location/$locationId'
-      fullPath: '/location/$locationId'
-      preLoaderRoute: typeof LocationLocationIdRouteImport
+    '/locations': {
+      id: '/locations'
+      path: '/locations'
+      fullPath: '/locations'
+      preLoaderRoute: typeof LocationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/character/$characterId': {
+      id: '/character/$characterId'
+      path: '/character/$characterId'
+      fullPath: '/character/$characterId'
+      preLoaderRoute: typeof CharacterCharacterIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/episode/$episodeId': {
@@ -165,11 +165,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EpisodeEpisodeIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/character/$characterId': {
-      id: '/character/$characterId'
-      path: '/character/$characterId'
-      fullPath: '/character/$characterId'
-      preLoaderRoute: typeof CharacterCharacterIdRouteImport
+    '/location/$locationId': {
+      id: '/location/$locationId'
+      path: '/location/$locationId'
+      fullPath: '/location/$locationId'
+      preLoaderRoute: typeof LocationLocationIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
