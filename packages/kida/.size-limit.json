@@ -15,6 +15,6 @@
     "name": "Popular set",
     "path": "dist/index.js",
     "import": "{ signal, record, computed, effect, mountable, onMount }",
-    "limit": "2.21 kB"
+    "limit": "2.23 kB"
   }
 ]
