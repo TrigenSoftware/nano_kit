@@ -4,6 +4,7 @@ import * as signals3 from 'alien-signals-3'
 import * as agera from '../agera/dist/index.js' // 'agera'
 
 const bench = new Bench({
+  warmup: true,
   time: 1000
 })
 
@@ -73,3 +74,5 @@ await bench.warmup()
 await bench.run()
 
 console.table(bench.table())
+
+process.exit(0)

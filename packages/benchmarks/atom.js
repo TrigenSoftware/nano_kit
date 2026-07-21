@@ -11,6 +11,7 @@ import * as jotai from 'jotai'
 import * as agera from '../agera/dist/index.js' // 'agera'
 
 const bench = new Bench({
+  warmup: true,
   time: 1000
 })
 
@@ -78,3 +79,5 @@ bench
 await bench.run()
 
 console.table(bench.table())
+
+process.exit(0)

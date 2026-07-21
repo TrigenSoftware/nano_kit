@@ -13,6 +13,7 @@ import * as reatom from '@reatom/core'
 import * as agera from '../agera/dist/index.js' // 'agera'
 
 const bench = new Bench({
+  warmup: true,
   time: 1000,
   throws: true
 })
@@ -203,3 +204,5 @@ bench
 await bench.run()
 
 console.table(bench.table())
+
+process.exit(0)
