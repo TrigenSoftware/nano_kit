@@ -1,3 +1,3 @@
 {
-  "*.{c,m,}{js,ts}{x,}": "oxlint"
+  "*.{c,m,}{js,ts}{x,}": "oxlint --fix"
 }
