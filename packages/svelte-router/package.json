@@ -85,7 +85,7 @@
     "happy-dom": "catalog:",
     "svelte": "catalog:",
     "svelte-check": "catalog:",
-    "typescript": "^6.0.0",
+    "typescript": "^7.0.0",
     "vite": "catalog:",
     "vitest": "catalog:"
   }
