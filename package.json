@@ -34,10 +34,10 @@
     "updateGitHooks": "simple-git-hooks"
   },
   "devDependencies": {
-    "@commitlint/cli": "^20.0.0",
-    "@commitlint/config-conventional": "^20.0.0",
-    "@commitlint/config-pnpm-scopes": "^20.0.0",
-    "@commitlint/cz-commitlint": "^20.0.0",
+    "@commitlint/cli": "^21.0.0",
+    "@commitlint/config-conventional": "^21.0.0",
+    "@commitlint/config-pnpm-scopes": "^21.0.0",
+    "@commitlint/cz-commitlint": "^21.0.0",
     "@nano_kit/query": "workspace:^",
     "@nano_kit/react": "workspace:^",
     "@nano_kit/react-router": "workspace:^",
