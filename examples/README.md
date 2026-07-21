@@ -14,18 +14,19 @@ This document contains bundle size information for various examples in the proje
 
 | Stack | Raw Size | Gzipped Size |
 |-------|----------|--------------|
-| nanoviews + nano_kit | 22.68 kB | 8.72 kB 🪶 |
-| nanoviews + nano_kit + DI | 23.55 kB | 9.00 kB |
-| Solid + Nano Stores | 30.18 kB | 11.97 kB |
-| Svelte + Nano Stores | 45.73 kB | 18.01 kB |
-| React + Nano Stores | 206.99 kB | 65.94 kB |
-| React + nano_kit | 210.45 kB | 66.61 kB |
-| React + nano_kit + DI | 211.60 kB | 66.95 kB |
-| React + TanStack Query | 233.11 kB | 72.51 kB 🪨 |
+| nanoviews + nano_kit | 25.96 kB | 9.77 kB 🪶 |
+| nanoviews + nano_kit + DI | 26.81 kB | 10.01 kB |
+| Solid + Nano Stores | 36.44 kB | 13.68 kB |
+| Svelte + Nano Stores | 56.46 kB | 21.69 kB |
+| React + Nano Stores | 206.77 kB | 65.90 kB |
+| React + nano_kit | 211.32 kB | 67.25 kB |
+| React + nano_kit + DI | 212.49 kB | 67.60 kB |
+| React + Reatom | 228.16 kB | 73.00 kB |
+| React + TanStack Query | 232.63 kB | 72.42 kB 🪨 |
 
 ## rick-and-morty 🛸
 
 | Stack | Raw Size | Gzipped Size |
 |-------|----------|--------------|
-| React + nano_kit query + nano_kit router | 234.87 kB | 76.66 kB 🪶 |
-| React + TanStack Query + TanStack Router | 333.78 kB | 107.28 kB 🪨 |
+| React + nano_kit query + nano_kit router | 229.85 kB | 74.48 kB 🪶 |
+| React + TanStack Query + TanStack Router | 330.61 kB | 103.44 kB 🪨 |

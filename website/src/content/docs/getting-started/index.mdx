@@ -141,18 +141,18 @@ The [benchmark results below](https://github.com/TrigenSoftware/nano_kit/tree/ma
 
 | Library | Latency avg&nbsp;(ns) | Latency med&nbsp;(ns) | Throughput avg&nbsp;(ops/s) | Throughput med&nbsp;(ops/s) | Samples |
 |---------|------------------|------------------|------------------------|------------------------|---------|
-| alien-signals | 318.57<br/>±&nbsp;0.34% | 300.00<br/>±&nbsp;0.00 | 3262408<br/>±&nbsp;0.01% | 3333333<br/>±&nbsp;0 | 3138998 |
-| **@nano_kit/store** | **338.98<br/>±&nbsp;0.26%** | **330.00<br/>±&nbsp;0.00** | **2986876<br/>±&nbsp;0.01%** | **3030303<br/>±&nbsp;0** | **2950008** |
-| svelte/store | 445.39<br/>±&nbsp;0.25% | 410.00<br/>±&nbsp;0.00 | 2329147<br/>±&nbsp;0.02% | 2439024<br/>±&nbsp;0 | 2245219 |
-| rxjs | 549.11<br/>±&nbsp;3.36% | 470.00<br/>±&nbsp;20.00 | 2071142<br/>±&nbsp;0.02% | 2127660<br/>±&nbsp;86843 | 1821114 |
-| nanostores | 1127.1<br/>±&nbsp;1.75% | 1000.0<br/>±&nbsp;19.00 | 966136<br/>±&nbsp;0.02% | 1000000<br/>±&nbsp;18646 | 887286 |
-| mobx | 4285.9<br/>±&nbsp;3.67% | 3470.0<br/>±&nbsp;50.00 | 281427<br/>±&nbsp;0.04% | 288184<br/>±&nbsp;4094 | 233326 |
-| valtio | 5401.6<br/>±&nbsp;8.52% | 3910.0<br/>±&nbsp;160.00 | 240525<br/>±&nbsp;0.07% | 255754<br/>±&nbsp;10912 | 185132 |
-| jotai | 10859<br/>±&nbsp;7.97% | 7620.0<br/>±&nbsp;160.00 | 128036<br/>±&nbsp;0.06% | 131234<br/>±&nbsp;2815 | 92089 |
-| effector | 31122<br/>±&nbsp;13.37% | 18700<br/>±&nbsp;1110.0 | 53314<br/>±&nbsp;0.16% | 53476<br/>±&nbsp;3123 | 32132 |
-| @reatom/core | 63818<br/>±&nbsp;17.66% | 45480<br/>±&nbsp;1030.0 | 21631<br/>±&nbsp;0.13% | 21988<br/>±&nbsp;501 | 15670 |
+| alien-signals | 294.00<br/>±&nbsp;2.24% | 270.00<br/>±&nbsp;0.00 | 3559763<br/>±&nbsp;0.01% | 3703704<br/>±&nbsp;0 | 3401312 |
+| **@nano_kit/store** | **303.55<br/>±&nbsp;0.75%** | **290.00<br/>±&nbsp;0.00** | **3365816<br/>±&nbsp;0.01%** | **3448276<br/>±&nbsp;0** | **3294342** |
+| svelte/store | 428.58<br/>±&nbsp;0.61% | 380.00<br/>±&nbsp;10.00 | 2479118<br/>±&nbsp;0.02% | 2631579<br/>±&nbsp;67476 | 2333274 |
+| rxjs | 454.74<br/>±&nbsp;0.07% | 430.00<br/>±&nbsp;0.00 | 2250397<br/>±&nbsp;0.01% | 2325581<br/>±&nbsp;0 | 2199049 |
+| nanostores | 1373.2<br/>±&nbsp;5.96% | 980.00<br/>±&nbsp;10.00 | 952399<br/>±&nbsp;0.04% | 1020408<br/>±&nbsp;10520 | 728224 |
+| mobx | 3474.7<br/>±&nbsp;1.86% | 3180.0<br/>±&nbsp;30.00 | 306094<br/>±&nbsp;0.03% | 314465<br/>±&nbsp;2995 | 287796 |
+| valtio | 5041.3<br/>±&nbsp;11.46% | 3820.0<br/>±&nbsp;160.00 | 254109<br/>±&nbsp;0.05% | 261780<br/>±&nbsp;10699 | 198361 |
+| jotai | 9454.6<br/>±&nbsp;16.45% | 6180.0<br/>±&nbsp;110.00 | 157853<br/>±&nbsp;0.05% | 161812<br/>±&nbsp;2932 | 105769 |
+| effector | 24885<br/>±&nbsp;11.78% | 15160<br/>±&nbsp;410.00 | 62744<br/>±&nbsp;0.15% | 65963<br/>±&nbsp;1834 | 40186 |
+| @reatom/core | 59430<br/>±&nbsp;15.61% | 41890<br/>±&nbsp;2429.0 | 22741<br/>±&nbsp;0.20% | 23872<br/>±&nbsp;1438 | 16827 |
 
-*Benchmark was run on AMD Ryzen 5 PRO 3400G with Node.js v22.4.1*
+*Benchmark was run on AMD Ryzen 5 PRO 3400G with Node.js v24.14.1*
 
 ## Bundle Sizes
 
@@ -162,11 +162,11 @@ Comparison of bundle sizes for various implementations of the [weather example](
 
 | Stack | Raw&nbsp;Size | Gzipped&nbsp;Size |
 |-------|----------|--------------|
-| React +&nbsp;Nano&nbsp;Stores | 204.71&nbsp;kB | 65.29&nbsp;kB |
-| React +&nbsp;**Nano&nbsp;Kit** | **209.31&nbsp;kB** | **66.66&nbsp;kB** |
-| React +&nbsp;**Nano&nbsp;Kit +&nbsp;DI** | **210.44&nbsp;kB** | **67.03&nbsp;kB** |
-| React +&nbsp;TanStack&nbsp;Query | 230.34&nbsp;kB | 71.82&nbsp;kB |
-| React +&nbsp;Reatom | 242.81&nbsp;kB | 77.30&nbsp;kB |
+| React +&nbsp;Nano&nbsp;Stores | 206.77&nbsp;kB | 65.90&nbsp;kB |
+| React +&nbsp;**Nano&nbsp;Kit** | **211.32&nbsp;kB** | **67.25&nbsp;kB** |
+| React +&nbsp;**Nano&nbsp;Kit +&nbsp;DI** | **212.49&nbsp;kB** | **67.60&nbsp;kB** |
+| React +&nbsp;Reatom | 228.16&nbsp;kB | 73.00&nbsp;kB |
+| React +&nbsp;TanStack&nbsp;Query | 232.63&nbsp;kB | 72.42&nbsp;kB |
 
 *Bundled with Vite 8*
 
@@ -176,9 +176,9 @@ Comparison of **frontend** bundle sizes for various SSR implementations of the [
 
 | Stack | Raw&nbsp;Size | Gzipped&nbsp;Size | Raw&nbsp;Size<br/>`/characters` page |
 |-------|----------|--------------|------------------------------|
-| React +&nbsp;**Nano&nbsp;Kit&nbsp;SSR** | **238.85&nbsp;kB** | **78.24&nbsp;kB** | **227.01&nbsp;kB** |
-| React +&nbsp;TanStack&nbsp;Start | 379.50&nbsp;kB | 121.66&nbsp;kB | 367.37&nbsp;kB |
-| Next.js Pages&nbsp;Router +&nbsp;Nano&nbsp;Kit | 515.09&nbsp;kB | 163.65&nbsp;kB | 367.51&nbsp;kB |
-| Next.js App&nbsp;Router +&nbsp;Nano&nbsp;Kit | 916.37&nbsp;kB | 284.96&nbsp;kB | 438.17&nbsp;kB |
+| React +&nbsp;**Nano&nbsp;Kit&nbsp;SSR** | **236.62&nbsp;kB** | **78.01&nbsp;kB** | **223.87&nbsp;kB** |
+| React +&nbsp;TanStack&nbsp;Start | 374.95&nbsp;kB | 117.43&nbsp;kB | 364.59&nbsp;kB |
+| Next.js Pages&nbsp;Router +&nbsp;Nano&nbsp;Kit | 509.29&nbsp;kB | 161.25&nbsp;kB | 367.60&nbsp;kB |
+| Next.js App&nbsp;Router +&nbsp;Nano&nbsp;Kit | 946.14&nbsp;kB | 292.69&nbsp;kB | 470.21&nbsp;kB |
 
 *Bundled with Vite 8 / Next.js 16*
