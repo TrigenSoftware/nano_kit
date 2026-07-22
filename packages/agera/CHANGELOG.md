@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.0-beta.7](https://github.com/TrigenSoftware/nano_kit/compare/agera%401.0.0-beta.6...agera%401.0.0-beta.7) (2026-07-22)
+
+### Performance Improvements
+
+* speed up effect runs by splitting warmup and rerun paths ([#178](https://github.com/TrigenSoftware/nano_kit/issues/178)) ([f550458](https://github.com/TrigenSoftware/nano_kit/commit/f5504584815c8fe2df16fef44001bccb32ed7574))
+
 ## [1.0.0-beta.6](https://github.com/TrigenSoftware/nano_kit/compare/agera%401.0.0-beta.5...agera%401.0.0-beta.6) (2026-07-12)
 
 ### Bug Fixes
