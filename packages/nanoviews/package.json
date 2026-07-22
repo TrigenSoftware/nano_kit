@@ -1,5 +1,6 @@
 {
   "name": "nanoviews",
+  "private": true,
   "type": "module",
   "version": "1.0.0-alpha.9",
   "description": "A small Direct DOM library for creating user interfaces.",

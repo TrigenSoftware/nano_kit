@@ -1,6 +1,6 @@
 {
-  "project": ["@simple-release/pnpm#PnpmWorkspacesProject", {
-    "mode": "independent"
+  "project": ["@simple-release/pnpm@3.2.5#PnpmWorkspacesProject", {
+    "mode": "fixed"
   }],
   "releaser": {
     "verbose": true
