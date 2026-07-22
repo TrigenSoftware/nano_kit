@@ -6,9 +6,6 @@ A lightweight, modular, and performant state management ecosystem for building m
 
 | Package | Description | Version |
 |---------|-------------|---------|
-| [`nanoviews`](packages/nanoviews#readme) | Direct DOM library for creating user interfaces. | [![NPM version][nanoviews-npm]][nanoviews-npm-url] |
-| [`agera`](packages/agera#readme) | Push-pull based signal library based on alien-signals algorithm. | [![NPM version][agera-npm]][agera-npm-url] |
-| [`kida`](packages/kida#readme) | State management library inspired by Nano Stores. | [![NPM version][kida-npm]][kida-npm-url] |
 | [`@nano_kit/store`](packages/store#readme) | Signals-based state management library. | [![NPM version][store-npm]][store-npm-url] |
 | [`@nano_kit/platform-web`](packages/platform-web#readme) | Web platform adapters and reactive helpers. | [![NPM version][platform-web-npm]][platform-web-npm-url] |
 | [`@nano_kit/router`](packages/router#readme) | Routing library, built on @nano_kit/store. | [![NPM version][router-npm]][router-npm-url] |
@@ -26,21 +23,6 @@ A lightweight, modular, and performant state management ecosystem for building m
 | [`@nano_kit/svelte-ssr`](packages/svelte-ssr#readme) | Svelte adapter for server-side rendering capabilities. | [![NPM version][svelte-ssr-npm]][svelte-ssr-npm-url] |
 | [`@nano_kit/svelte-kit`](packages/svelte-kit#readme) | SvelteKit integration for stores, router, and SSR. | [![NPM version][svelte-kit-npm]][svelte-kit-npm-url] |
 | [`@nano_kit/next-router`](packages/next-router#readme) | Next.js integration for @nano_kit/router. | [![NPM version][next-router-npm]][next-router-npm-url] |
-
-<!-- nanoviews -->
-
-[nanoviews-npm]: https://img.shields.io/npm/v/nanoviews.svg
-[nanoviews-npm-url]: https://www.npmjs.com/package/nanoviews
-
-<!-- agera -->
-
-[agera-npm]: https://img.shields.io/npm/v/agera.svg
-[agera-npm-url]: https://www.npmjs.com/package/agera
-
-<!-- kida -->
-
-[kida-npm]: https://img.shields.io/npm/v/kida.svg
-[kida-npm-url]: https://www.npmjs.com/package/kida
 
 <!-- store -->
 
