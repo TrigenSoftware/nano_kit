@@ -2,7 +2,7 @@
   "name": "nano_kit",
   "type": "module",
   "private": true,
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "description": "A small Direct DOM library for creating user interfaces.",
   "author": "dangreen",
   "license": "MIT",
