@@ -410,17 +410,18 @@ $t().message({
 
 ### `rich(tags)` / `rich(fallback, tags)`
 
-Maps lightweight tags inside translated strings to rich chunks.
+Maps lightweight tags inside translated strings to rich chunks. Self-closing tags like `<br/>` are supported and mapped with empty chunks. Each tag handler also receives an unique index, usable as a key for framework nodes.
 
 ```ts
 const [$t] = messages('docs', {
-  message: rich('Read <link>the docs</link>', {
-    link: chunks => <a href='/docs'>{chunks}</a>
+  message: rich('Read <link>the docs</link><br/>today', {
+    link: (chunks, i) => <a key={i} href='/docs'>{chunks}</a>,
+    br: (_, i) => <br key={i} />
   })
 })
 
 $t().message
-// ['Read ', <a href='/docs'>the docs</a>]
+// ['Read ', <a href='/docs'>the docs</a>, <br />, 'today']
 ```
 
 ### `markup(tags)` / `markup(fallback, tags)`

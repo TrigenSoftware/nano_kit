@@ -2,7 +2,7 @@ import type { Format } from './types.js'
 
 export type RichChunks<T> = (string | T)[]
 
-export type RichTag<T> = (chunks: RichChunks<T>) => T
+export type RichTag<T> = (chunks: RichChunks<T>, index: number) => T
 
 export type RichTags<T> = Record<string, RichTag<T>>
 
@@ -72,6 +72,7 @@ interface RichFrame<T> {
 
 /**
  * Maps rich-text tags in a string to chunks using provided tag handlers.
+ * Each handler call receives an unique index, usable as a key for framework nodes.
  * Self-closing tags are mapped with empty chunks.
  * Unknown or malformed tags are ignored as markup and only their text content is kept.
  * @param input - Rich-text input string.
@@ -89,7 +90,11 @@ export function mapTags<T>(
   }
   const stack = [root]
   let lastIndex = 0
+  let index = 0
   let match: RegExpExecArray | null
+
+  // reset the shared regex state possibly clobbered by an interrupted outer call
+  tagRegex.lastIndex = 0
 
   while (match = tagRegex.exec(input)) {
     const [, closing, tag, selfClosing] = match
@@ -99,16 +104,18 @@ export function mapTags<T>(
       current.chunks.push(input.slice(lastIndex, match.index))
     }
 
+    lastIndex = tagRegex.lastIndex
+
     if (tag in tags) {
       if (closing) {
         if (current.tag === tag) {
           stack.pop()
           stack[stack.length - 1].chunks.push(
-            tags[tag](current.chunks)
+            tags[tag](current.chunks, index++)
           )
         }
       } else if (selfClosing) {
-        current.chunks.push(tags[tag]([]))
+        current.chunks.push(tags[tag]([], index++))
       } else {
         stack.push({
           tag,
@@ -117,7 +124,8 @@ export function mapTags<T>(
       }
     }
 
-    lastIndex = tagRegex.lastIndex
+    // restore the shared regex state possibly clobbered by a nested call in a tag handler
+    tagRegex.lastIndex = lastIndex
   }
 
   if (lastIndex < input.length) {

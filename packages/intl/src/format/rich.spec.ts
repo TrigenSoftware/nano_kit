@@ -139,6 +139,67 @@ describe('intl', () => {
           'second'
         ])
       })
+
+      it('should support nested calls in tag handlers', () => {
+        const nestedTags = {
+          ...tags,
+          wrap: (chunks: (string | Node)[]) => ({
+            type: 'wrap',
+            children: [...chunks, ...mapTags('<strong>inner</strong>', tags)]
+          })
+        }
+
+        expect(mapTags('<wrap>outer</wrap> and <strong>after</strong>', nestedTags)).toEqual([
+          {
+            type: 'wrap',
+            children: [
+              'outer',
+              {
+                type: 'strong',
+                children: ['inner']
+              }
+            ]
+          },
+          ' and ',
+          {
+            type: 'strong',
+            children: ['after']
+          }
+        ])
+      })
+
+      it('should pass unique index to tag handlers', () => {
+        const indexedTags = {
+          strong: (chunks: unknown[], index: number) => ({
+            type: 'strong',
+            index,
+            children: chunks
+          }),
+          br: (_: unknown[], index: number) => ({
+            type: 'br',
+            index,
+            children: []
+          })
+        }
+
+        expect(mapTags('<strong>First</strong><br/><strong>second</strong>', indexedTags)).toEqual([
+          {
+            type: 'strong',
+            index: 0,
+            children: ['First']
+          },
+          {
+            type: 'br',
+            index: 1,
+            children: []
+          },
+          {
+            type: 'strong',
+            index: 2,
+            children: ['second']
+          }
+        ])
+      })
     })
   })
 })
