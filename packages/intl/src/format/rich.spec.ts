@@ -24,6 +24,10 @@ const tags = {
   strong: (chunks: (string | Node)[]) => ({
     type: 'strong',
     children: chunks
+  }),
+  br: () => ({
+    type: 'br',
+    children: []
   })
 }
 
@@ -91,6 +95,48 @@ describe('intl', () => {
         expect(mapTags('Read <link>guidelines.', tags)).toEqual([
           'Read ',
           'guidelines.'
+        ])
+      })
+
+      it('should map self-closing tags', () => {
+        expect(mapTags('First line<br/>second line', tags)).toEqual([
+          'First line',
+          {
+            type: 'br',
+            children: []
+          },
+          'second line'
+        ])
+        expect(mapTags('First line<br />second line', tags)).toEqual([
+          'First line',
+          {
+            type: 'br',
+            children: []
+          },
+          'second line'
+        ])
+      })
+
+      it('should map self-closing tags inside other tags', () => {
+        expect(mapTags('<strong>First<br/>second</strong>', tags)).toEqual([
+          {
+            type: 'strong',
+            children: [
+              'First',
+              {
+                type: 'br',
+                children: []
+              },
+              'second'
+            ]
+          }
+        ])
+      })
+
+      it('should ignore unknown self-closing tags', () => {
+        expect(mapTags('First<hr/>second', tags)).toEqual([
+          'First',
+          'second'
         ])
       })
     })

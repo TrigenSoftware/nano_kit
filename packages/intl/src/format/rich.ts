@@ -63,7 +63,7 @@ export function rich<T>(
   }
 }
 
-const tagRegex = /<\/?([A-Za-z][\w.-]*)>/g
+const tagRegex = /<(\/?)([A-Za-z][\w.-]*)\s*(\/?)>/g
 
 interface RichFrame<T> {
   tag: string
@@ -72,6 +72,7 @@ interface RichFrame<T> {
 
 /**
  * Maps rich-text tags in a string to chunks using provided tag handlers.
+ * Self-closing tags are mapped with empty chunks.
  * Unknown or malformed tags are ignored as markup and only their text content is kept.
  * @param input - Rich-text input string.
  * @param tags - Tag handlers used to map known tags.
@@ -91,7 +92,7 @@ export function mapTags<T>(
   let match: RegExpExecArray | null
 
   while (match = tagRegex.exec(input)) {
-    const [rawTag, tag] = match
+    const [, closing, tag, selfClosing] = match
     const current = stack[stack.length - 1]
 
     if (match.index > lastIndex) {
@@ -99,13 +100,15 @@ export function mapTags<T>(
     }
 
     if (tag in tags) {
-      if (rawTag[1] === '/') {
+      if (closing) {
         if (current.tag === tag) {
           stack.pop()
           stack[stack.length - 1].chunks.push(
             tags[tag](current.chunks)
           )
         }
+      } else if (selfClosing) {
+        current.chunks.push(tags[tag]([]))
       } else {
         stack.push({
           tag,
