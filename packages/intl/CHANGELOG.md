@@ -3,6 +3,46 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0...v1.1.0) (2026-08-03)
+
+### ✨ Highlights
+
+#### Self-closing tags in rich text (`@nano_kit/intl`)
+
+`rich` (and `mapTags`) now understand self-closing tags like `<br/>` and `<br />` — handy for line breaks and other void elements in translations. Handlers for such tags are called with empty chunks. Unknown self-closing tags are still stripped as markup.
+
+```tsx
+const [$t] = messages('pages', {
+  sticker: rich({
+    br: () => '\n'
+  })
+})
+
+// 'First line<br/>second line' → ['First line', '\n', 'second line']
+```
+
+#### Rich tag handlers receive an unique index (`@nano_kit/intl`)
+
+Every tag handler now gets an unique index as the second argument — use it as a `key` for framework nodes:
+
+```tsx
+const [$t] = messages('pages', {
+  sticker: rich({
+    title: (chunks, i) => <strong key={i}>{chunks}</strong>,
+    br: (_, i) => <br key={i} />
+  })
+})
+```
+
+No more `key` warnings and `Children.toArray(t.sticker)` workarounds in React.
+
+Bonus: `mapTags` is now reentrant — nested calls from tag handlers no longer clobber the outer call's parsing state.
+
+### Features
+
+* pass unique index to rich tag handlers to use as framework key ([#187](https://github.com/TrigenSoftware/nano_kit/issues/187)) ([5b4008b](https://github.com/TrigenSoftware/nano_kit/commit/5b4008b2bba8196a66aa5e30e49bde84783cc2a6))
+* support self-closing tags in rich-text formatter ([#185](https://github.com/TrigenSoftware/nano_kit/issues/185)) ([fa4fcb8](https://github.com/TrigenSoftware/nano_kit/commit/fa4fcb8e64b5afafd1f407328f72f7bf32c3d384))
+
 ## [1.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0-alpha.1...v1.0.0) (2026-07-22)
 
 ### Nano Kit 1.0 🎉
