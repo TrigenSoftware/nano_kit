@@ -23,8 +23,8 @@ function setStyle(
 /**
  * Effect attribute to set style properties on element
  */
-export const $$style = /* @__PURE__ */ createEffectAttribute<'$$style', HTMLElement | SVGAElement, StyleProps>(
-  '$$style',
+export const style$ = /* @__PURE__ */ createEffectAttribute<'style$', HTMLElement | SVGAElement, StyleProps>(
+  'style$',
   (element, style) => {
     const keys = Object.keys(style)
     const len = keys.length
@@ -41,10 +41,10 @@ export const $$style = /* @__PURE__ */ createEffectAttribute<'$$style', HTMLElem
 
 declare module 'nanoviews' {
   interface EffectAttributeValues {
-    $$style: StyleProps
+    style$: StyleProps
   }
 
   interface EffectAttributeTargets {
-    $$style: HTMLElement | SVGAElement
+    style$: HTMLElement | SVGAElement
   }
 }

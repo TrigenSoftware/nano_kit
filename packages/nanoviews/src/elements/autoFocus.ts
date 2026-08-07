@@ -8,8 +8,8 @@ import { createEffectAttribute } from '../internals/index.js'
 /**
  * Effect attribute to set auto focus on element
  */
-export const $$autoFocus = /* @__PURE__ */ createEffectAttribute<'$$autoFocus', HTMLElement | SVGElement, ValueOrAccessor<boolean>>(
-  '$$autoFocus',
+export const autoFocus$ = /* @__PURE__ */ createEffectAttribute<'autoFocus$', HTMLElement | SVGElement, ValueOrAccessor<boolean>>(
+  'autoFocus$',
   (element, $value) => {
     if (isAccessor($value) && $value() || $value) {
       effect(() => {
@@ -21,10 +21,10 @@ export const $$autoFocus = /* @__PURE__ */ createEffectAttribute<'$$autoFocus', 
 
 declare module 'nanoviews' {
   interface EffectAttributeValues {
-    $$autoFocus: ValueOrAccessor<boolean>
+    autoFocus$: ValueOrAccessor<boolean>
   }
 
   interface EffectAttributeTargets {
-    $$autoFocus: HTMLElement | SVGElement
+    autoFocus$: HTMLElement | SVGElement
   }
 }

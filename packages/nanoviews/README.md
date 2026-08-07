@@ -169,35 +169,35 @@ mount(App, document.querySelector('#app'))
 
 Effect attributes are special attributes that can control element's behavior.
 
-### $$ref
+### ref$
 
-`$$ref` is an effect attribute that can provide a reference to the DOM node.
+`ref$` is an effect attribute that can provide a reference to the DOM node.
 
 ```js
 import { signal } from 'nanoviews/store'
-import { div, $$ref } from 'nanoviews'
+import { div, ref$ } from 'nanoviews'
 
 const $ref = signal(null)
 
 div({
-  [$$ref]: $ref
+  [ref$]: $ref
 })(
   'Target element'
 )
 ```
 
-### $$style
+### style$
 
-`$$style` is an effect attribute that manages the style of the element.
+`style$` is an effect attribute that manages the style of the element.
 
 ```js
 import { signal } from 'nanoviews/store'
-import { button, $$style } from 'nanoviews'
+import { button, style$ } from 'nanoviews'
 
 const $color = signal('white')
 
 button({
-  [$$style]: {
+  [style$]: {
     color: $color,
     backgroundColor: 'black'
   }
@@ -206,50 +206,50 @@ button({
 )
 ```
 
-### $$autoFocus
+### autoFocus$
 
-`$$autoFocus` is an effect attribute that sets the auto focus on the element.
+`autoFocus$` is an effect attribute that sets the auto focus on the element.
 
 ```js
-import { input, $$autoFocus } from 'nanoviews'
+import { input, autoFocus$ } from 'nanoviews'
 
 input({
   type: 'text',
-  [$$autoFocus]: true
+  [autoFocus$]: true
 })
 ```
 
-### $$value
+### value$
 
-`$$value` is an effect attribute that manages the value of text inputs.
+`value$` is an effect attribute that manages the value of text inputs.
 
 ```js
 import { signal } from 'nanoviews/store'
-import { textarea, $$value } from 'nanoviews'
+import { textarea, value$ } from 'nanoviews'
 
 const $review = signal('')
 
 textarea({
   name: 'review',
-  [$$value]: $review
+  [value$]: $review
 })(
   'Write your review here'
 )
 ```
 
-### $$checked
+### checked$
 
-`$$checked` is an effect attribute that manages the checked state of checkboxes and radio buttons.
+`checked$` is an effect attribute that manages the checked state of checkboxes and radio buttons.
 
 ```js
 import { signal } from 'nanoviews/store'
-import { input, $$checked, Indeterminate } from 'nanoviews'
+import { input, checked$, Indeterminate } from 'nanoviews'
 
 const $checked = signal(false)
 
 input({
   type: 'checkbox',
-  [$$checked]: $checked
+  [checked$]: $checked
 })
 ```
 
@@ -259,19 +259,19 @@ Also you can manage [indeterminate state of checkboxes](https://developer.mozill
 $checked(Indeterminate)
 ```
 
-### $$selected
+### selected$
 
-`$$selected` is an effect attribute that manages the selected state of select's options.
+`selected$` is an effect attribute that manages the selected state of select's options.
 
 ```js
 import { signal } from 'nanoviews/store'
-import { select, option, $$selected } from 'nanoviews'
+import { select, option, selected$ } from 'nanoviews'
 
 const $selected = signal('mid')
 
 select({
   name: 'player-pos',
-  [$$selected]: $selected
+  [selected$]: $selected
 })(
   option({
     value: 'carry'
@@ -298,7 +298,7 @@ const $selected = signal(['mid', 'carry'])
 
 select({
   name: 'player-pos',
-  [$$selected]: $selected
+  [selected$]: $selected
 })(
   option({
     value: 'carry'
@@ -318,19 +318,19 @@ select({
 )
 ```
 
-### $$files
+### files$
 
-`$$files` is an effect attribute that can provide the files of file inputs.
+`files$` is an effect attribute that can provide the files of file inputs.
 
 ```js
 import { signal } from 'nanoviews/store'
-import { input, $$files } from 'nanoviews'
+import { input, files$ } from 'nanoviews'
 
 const $files = signal([])
 
 input({
   type: 'file',
-  [$$files]: $files
+  [files$]: $files
 })
 ```
 

@@ -26,7 +26,7 @@ const {
 describe('nanoviews', () => {
   describe('elements', () => {
     describe('controls', () => {
-      describe('$$value', () => {
+      describe('value$', () => {
         it('should handle value of text input', () => {
           const value = signal('Hello, world!')
 
@@ -76,7 +76,7 @@ describe('nanoviews', () => {
         })
       })
 
-      describe('$$selected', () => {
+      describe('selected$', () => {
         it('should handle value of select', () => {
           const value = signal('green')
 
@@ -126,7 +126,7 @@ describe('nanoviews', () => {
         })
       })
 
-      describe('$$checked', () => {
+      describe('checked$', () => {
         it('should handle checked state of checkbox', () => {
           const checked = signal<boolean | typeof Indeterminate>(true)
 
@@ -152,7 +152,7 @@ describe('nanoviews', () => {
         })
       })
 
-      describe('$$files', () => {
+      describe('files$', () => {
         it('should save files to signal', async () => {
           const files = signal<File[]>([])
           const user = userEvent.setup()

@@ -11,7 +11,7 @@ import {
   select,
   option,
   ul,
-  $$selected,
+  selected$,
   trackBy,
   for_,
   if_
@@ -43,7 +43,7 @@ export function Forecast() {
         ),
         select({
           class: 'forecast-mode',
-          [$$selected]: $mode
+          [selected$]: $mode
         })(
           option({
             value: 'hourly'

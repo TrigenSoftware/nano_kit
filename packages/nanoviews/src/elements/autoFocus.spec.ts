@@ -17,7 +17,7 @@ const {
 
 describe('nanoviews', () => {
   describe('elements', () => {
-    describe('$$autoFocus', () => {
+    describe('autoFocus$', () => {
       it('should focus element by static value', () => {
         render(StaticValue())
 

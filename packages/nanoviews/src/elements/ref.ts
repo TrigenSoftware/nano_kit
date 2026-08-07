@@ -7,8 +7,8 @@ import { createEffectAttribute } from '../internals/index.js'
 /**
  * Effect attribute to get element reference
  */
-export const $$ref = /* @__PURE__ */ createEffectAttribute<'$$ref', Element, WritableSignal<Element | null>>(
-  '$$ref',
+export const ref$ = /* @__PURE__ */ createEffectAttribute<'ref$', Element, WritableSignal<Element | null>>(
+  'ref$',
   (element, $ref) => {
     $ref(element)
 
@@ -18,10 +18,10 @@ export const $$ref = /* @__PURE__ */ createEffectAttribute<'$$ref', Element, Wri
 
 declare module 'nanoviews' {
   interface EffectAttributeValues {
-    $$ref: WritableSignal<Element | null>
+    ref$: WritableSignal<Element | null>
   }
 
   interface EffectAttributeTargets {
-    $$ref: Element
+    ref$: Element
   }
 }

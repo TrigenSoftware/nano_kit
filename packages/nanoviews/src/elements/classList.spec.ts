@@ -15,7 +15,7 @@ const {
 
 describe('nanoviews', () => {
   describe('elements', () => {
-    describe('$$classList', () => {
+    describe('classList$', () => {
       it('should render static class list', () => {
         const { container } = render(StaticValue())
 

@@ -13,10 +13,10 @@ import {
 } from './elements.js'
 import {
   Indeterminate,
-  $$value,
-  $$checked,
-  $$selected,
-  $$files
+  value$,
+  checked$,
+  selected$,
+  files$
 } from './controls.js'
 
 const meta: Meta<{
@@ -52,7 +52,7 @@ export const TextInput: StoryObj<{
 
     return input({
       type: 'text',
-      [$$value]: value
+      [value$]: value
     })
   })
 }
@@ -77,7 +77,7 @@ export const Textarea: StoryObj<{
     }
 
     return textarea({
-      [$$value]: value
+      [value$]: value
     })()
   })
 }
@@ -112,7 +112,7 @@ export const Select: StoryObj<{
     }
 
     return select({
-      [$$selected]: value
+      [selected$]: value
     })(
       option({
         value: 'red'
@@ -157,7 +157,7 @@ export const MultipleSelect: StoryObj<{
     }
 
     return select({
-      [$$selected]: values
+      [selected$]: values
     })(
       option({
         value: 'red'
@@ -203,7 +203,7 @@ export const Checkbox: StoryObj<{
 
     return input({
       type: 'checkbox',
-      [$$checked]: checked
+      [checked$]: checked
     })
   })
 }
@@ -229,7 +229,7 @@ export const Files: StoryObj<{
 
     return input({
       type: 'file',
-      [$$files]: files
+      [files$]: files
     })
   })
 }

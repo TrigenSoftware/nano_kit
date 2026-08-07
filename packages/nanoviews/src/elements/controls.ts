@@ -77,8 +77,8 @@ function getValue(control: TextboxElement) {
 /**
  * Effect attribute to set and read text value of input element
  */
-export const $$value = /* @__PURE__ */ createEffectAttribute<'$$value', TextboxElement, Value>(
-  '$$value',
+export const value$ = /* @__PURE__ */ createEffectAttribute<'value$', TextboxElement, Value>(
+  'value$',
   createElementPropertySetter(
     onInputEvent,
     getValue,
@@ -105,8 +105,8 @@ function getChecked(control: CheckboxElement): CheckedPrimitive {
 /**
  * Effect attribute to set and read checked value of checkbox or radio button element
  */
-export const $$checked = /* @__PURE__ */ createEffectAttribute<'$$checked', CheckboxElement, WritableSignal<CheckedPrimitive>>(
-  '$$checked',
+export const checked$ = /* @__PURE__ */ createEffectAttribute<'checked$', CheckboxElement, WritableSignal<CheckedPrimitive>>(
+  'checked$',
   createElementPropertySetter(
     onChangeEvent,
     getChecked,
@@ -161,8 +161,8 @@ function getSelected(control: ComboboxElement): SelectedPrimitive {
 /**
  * Effect attribute to set and read selected value of combobox element
  */
-export const $$selected = /* @__PURE__ */ createEffectAttribute<'$$selected', ComboboxElement, WritableSignal<SelectedPrimitive>>(
-  '$$selected',
+export const selected$ = /* @__PURE__ */ createEffectAttribute<'selected$', ComboboxElement, WritableSignal<SelectedPrimitive>>(
+  'selected$',
   createElementPropertySetter(
     onChangeEvent,
     getSelected,
@@ -186,23 +186,23 @@ function filesEffectAttribute(
 /**
  * Effect attribute to read files of file input element
  */
-export const $$files = /* @__PURE__ */ createEffectAttribute<'$$files', FileElement, Files>(
-  '$$files',
+export const files$ = /* @__PURE__ */ createEffectAttribute<'files$', FileElement, Files>(
+  'files$',
   filesEffectAttribute
 )
 
 declare module 'nanoviews' {
   interface EffectAttributeValues {
-    $$value: Value
-    $$checked: Checked
-    $$selected: Selected
-    $$files: Files
+    value$: Value
+    checked$: Checked
+    selected$: Selected
+    files$: Files
   }
 
   interface EffectAttributeTargets {
-    $$value: TextboxElement
-    $$checked: CheckboxElement
-    $$selected: ComboboxElement
-    $$files: FileElement
+    value$: TextboxElement
+    checked$: CheckboxElement
+    selected$: ComboboxElement
+    files$: FileElement
   }
 }

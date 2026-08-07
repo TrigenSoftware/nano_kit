@@ -29,8 +29,8 @@ function cx(parts: unknown[]) {
 /**
  * Effect attribute to set class list on element
  */
-export const $$classList = /* @__PURE__ */ createEffectAttribute<'$$classList', HTMLElement, ClassList>(
-  '$$classList',
+export const classList$ = /* @__PURE__ */ createEffectAttribute<'classList$', HTMLElement, ClassList>(
+  'classList$',
   (element, parts) => {
     subscribe(
       () => cx(parts.map($get)),
@@ -42,10 +42,10 @@ export const $$classList = /* @__PURE__ */ createEffectAttribute<'$$classList', 
 
 declare module 'nanoviews' {
   interface EffectAttributeValues {
-    $$classList: ClassList
+    classList$: ClassList
   }
 
   interface EffectAttributeTargets {
-    $$classList: HTMLElement
+    classList$: HTMLElement
   }
 }
