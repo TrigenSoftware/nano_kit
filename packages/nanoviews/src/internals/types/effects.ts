@@ -1,7 +1,6 @@
-import type { Destroy } from 'kida'
+import type { DeferredScope } from 'kida'
 
 export type EffectScopeSwapperCallback<T> = (
-  destroyPrev: Destroy | undefined,
-  value: T,
-  prevValue: T | undefined
-) => (() => Destroy) | Destroy
+  destroyPrev: DeferredScope | undefined,
+  value: T
+) => DeferredScope

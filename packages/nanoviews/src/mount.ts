@@ -1,4 +1,10 @@
-import { deferScope } from 'kida'
+import {
+  type DeferredScope,
+  batch,
+  deferScope,
+  startScope,
+  stopScope
+} from 'kida'
 import {
   type Child,
   type MaybeDestroy,
@@ -18,11 +24,17 @@ export function mount(app: () => Child, target: ParentNode) {
   target.__mp = true
 
   let unmount: MaybeDestroy
-  const start = deferScope(() => unmount = mountChild(target, app()))
-  const destroy = start()
+  let scope!: DeferredScope
+
+  // Batch defers render- and destroy-time signal writes until the phase completes
+  batch(
+    () => startScope(
+      scope = deferScope(() => unmount = mountChild(target, app()))
+    )
+  )
 
   return () => {
-    destroy()
+    batch(() => stopScope(scope))
     unmount?.()
   }
 }

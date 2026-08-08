@@ -68,6 +68,30 @@ export function getContext() {
 }
 
 /**
+ * Run a function within an injection context without untracking.
+ * Reads inside will be tracked by the current tracking scope.
+ * @param context - The injection context.
+ * @param fn - The function to run.
+ * @param args - The arguments to pass to the function.
+ * @returns The return value of the function.
+ */
+export function unsafeRun<T extends AnyFn>(
+  context: InjectionContext | undefined,
+  fn: T,
+  ...args: Parameters<T>
+): ReturnType<T> {
+  const parentContext = currentContext
+
+  currentContext = context
+
+  try {
+    return fn(...args as unknown[])
+  } finally {
+    currentContext = parentContext
+  }
+}
+
+/**
  * Run a function within an injection context.
  * @param context - The injection context.
  * @param fn - The function to run.
@@ -79,15 +103,7 @@ export function run<T extends AnyFn>(
   fn: T,
   ...args: Parameters<T>
 ): ReturnType<T> {
-  const parentContext = currentContext
-
-  currentContext = context
-
-  try {
-    return untracked(() => fn(...args as unknown[]))
-  } finally {
-    currentContext = parentContext
-  }
+  return untracked(() => unsafeRun(context, fn, ...args))
 }
 
 /**

@@ -7,14 +7,20 @@ import {
   effect,
   effectScope,
   deferScope,
+  boundDeferScope,
+  startScope,
+  stopScope,
   untracked
 } from './internals/system.js'
 import { noMount } from './internals/lifecycle.js'
 
 export {
   effect,
+  boundDeferScope,
   effectScope,
-  deferScope
+  deferScope,
+  startScope,
+  stopScope
 }
 
 function singleEffect<T>(

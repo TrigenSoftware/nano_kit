@@ -1,5 +1,4 @@
 import type {
-  WritableSignal,
   Stack,
   ReactiveNode,
   Link,
@@ -11,14 +10,14 @@ import {
   LazyMode
 } from './flags.js'
 
-type MountedListener = Stack<WritableSignal<boolean>>
+type MountedListener = Stack<ReadableNode>
 
 let mountedListeners: MountedListener | undefined
 let mountedListenersTail: MountedListener | undefined
 
-function queueMounted(onMounted: WritableSignal<boolean>): void {
+function queueMounted(node: ReadableNode): void {
   const listener: MountedListener = {
-    value: onMounted,
+    value: node,
     prev: undefined
   }
 
@@ -44,7 +43,11 @@ export function notifyMounted(
     mountedListenersTail = undefined
 
     do {
-      listener.value(true)
+      // The subscriber may be gone before the flush: stay unmounted then
+      if (listener.value.subsCount > 0) {
+        listener.value.mounted!(true)
+      }
+
       listener = listener.prev!
     } while (listener !== undefined)
   }
@@ -71,7 +74,7 @@ export function incrementEffectCount(dep: ReactiveNode | ReadableNode): void {
     }
 
     if (dep.subsCount === 1 && 'mounted' in dep) {
-      queueMounted(dep.mounted!)
+      queueMounted(dep)
     }
   }
 }

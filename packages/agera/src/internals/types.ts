@@ -99,3 +99,9 @@ export interface SignalNode<T = any> extends WritableNode {
   value: T
   pendingValue: T
 }
+
+/**
+ * Opaque deferred scope handle.
+ * @internal
+ */
+export type DeferredScope = DefineVirtualFlags<'scope', true>

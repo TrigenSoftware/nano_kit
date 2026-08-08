@@ -5,6 +5,7 @@ import {
   expect
 } from 'vitest'
 import {
+  type DeferredScope,
   computed,
   effect,
   effectScope,
@@ -15,6 +16,9 @@ import {
   mountable,
   onMounted,
   deferScope,
+  boundDeferScope,
+  startScope,
+  stopScope,
   observe
 } from './index.js'
 
@@ -1455,8 +1459,7 @@ describe('agera', () => {
             subs()
           }
         })
-        let start = confition(tab)
-        let stop: () => void
+        let scope = confition(tab)
 
         effect((warmup) => {
           const tab = $tab()
@@ -1465,16 +1468,16 @@ describe('agera', () => {
 
           if (!warmup) {
             log.push(`body tab effect render ${tab}`)
-            start = confition(tab)
-            stop = start()
+            scope = confition(tab)
           } else {
             log.push(`body tab initial effect render ${tab}`)
-            stop = start()
           }
+
+          startScope(scope)
 
           return () => {
             log.push('body tab destroy')
-            stop()
+            stopScope(scope)
           }
         })
       }
@@ -1493,7 +1496,7 @@ describe('agera', () => {
         footer()
       }
 
-      const run = deferScope(page)
+      const scope = deferScope(page)
 
       expect(log).toEqual([
         'page',
@@ -1506,7 +1509,7 @@ describe('agera', () => {
 
       log.length = 0
 
-      const stop = run()
+      startScope(scope)
 
       expect(log).toEqual([
         'page mount',
@@ -1570,7 +1573,7 @@ describe('agera', () => {
       ])
 
       log.length = 0
-      stop()
+      stopScope(scope)
 
       expect(log).toEqual([
         'page destroy',
@@ -1582,13 +1585,428 @@ describe('agera', () => {
       ])
     })
 
+    it('should run nested scopes before own effects', () => {
+      const log: string[] = []
+      const scope = deferScope(() => {
+        effect(() => {
+          log.push('own-1')
+        })
+        effectScope(() => {
+          effect(() => {
+            log.push('nested-a')
+          })
+          effectScope(() => {
+            effect(() => {
+              log.push('nested-a-deep')
+            })
+          })
+          effect(() => {
+            log.push('nested-b')
+          })
+        })
+        effect(() => {
+          log.push('own-2')
+        })
+        effectScope(() => {
+          effect(() => {
+            log.push('nested-c')
+          })
+        })
+      })
+
+      log.length = 0
+
+      startScope(scope)
+
+      expect(log).toEqual([
+        'nested-a-deep',
+        'nested-a',
+        'nested-b',
+        'nested-c',
+        'own-1',
+        'own-2'
+      ])
+
+      stopScope(scope)
+    })
+
+    it('should start linked deferred scopes with parent before own effects', () => {
+      const log: string[] = []
+      const scope = deferScope(() => {
+        effect(() => {
+          log.push('own-1')
+        })
+
+        boundDeferScope()(() => {
+          effect(() => {
+            log.push('content')
+          })
+        })
+
+        effect(() => {
+          log.push('own-2')
+        })
+      })
+
+      log.length = 0
+
+      startScope(scope)
+
+      expect(log).toEqual([
+        'content',
+        'own-1',
+        'own-2'
+      ])
+
+      stopScope(scope)
+    })
+
+    it('should stop linked deferred scope with parent scope', () => {
+      const log: string[] = []
+      const scope = deferScope(() => {
+        boundDeferScope()(() => {
+          effect(() => {
+            log.push('content')
+
+            return () => log.push('content destroy')
+          })
+        })
+      })
+
+      startScope(scope)
+
+      expect(log).toEqual(['content'])
+
+      stopScope(scope)
+
+      expect(log).toEqual(['content', 'content destroy'])
+    })
+
+    it('should dispose linked scope stopped before parent start', () => {
+      const log: string[] = []
+      let content: DeferredScope
+      const scope = deferScope(() => {
+        content = boundDeferScope()(() => {
+          effect(() => {
+            log.push('content')
+          })
+        })
+      })
+
+      // stop before the parent start must discard the scope, not start it
+      stopScope(content!)
+
+      startScope(scope)
+
+      expect(log).toEqual([])
+
+      stopScope(scope)
+
+      expect(log).toEqual([])
+    })
+
+    it('should stop linked scope disposed after parent start', () => {
+      const log: string[] = []
+      let content: DeferredScope
+      const scope = deferScope(() => {
+        content = boundDeferScope()(() => {
+          effect(() => {
+            log.push('content')
+
+            return () => log.push('content destroy')
+          })
+        })
+      })
+
+      startScope(scope)
+
+      expect(log).toEqual(['content'])
+
+      log.length = 0
+      stopScope(content!)
+
+      expect(log).toEqual(['content destroy'])
+
+      stopScope(scope)
+
+      expect(log).toEqual(['content destroy'])
+    })
+
+    it('should destroy nested scope effects before own effects', () => {
+      const log: string[] = []
+      const scope = deferScope(() => {
+        effect(() => () => {
+          log.push('own-1 destroy')
+        })
+        boundDeferScope()(() => {
+          effect(() => () => {
+            log.push('nested destroy')
+          })
+        })
+        effect(() => () => {
+          log.push('own-2 destroy')
+        })
+      })
+
+      startScope(scope)
+
+      log.length = 0
+      stopScope(scope)
+
+      expect(log).toEqual([
+        'nested destroy',
+        'own-1 destroy',
+        'own-2 destroy'
+      ])
+    })
+
+    it('should destroy trailing nested scope before own effects', () => {
+      const log: string[] = []
+      const scope = deferScope(() => {
+        effect(() => () => {
+          log.push('own destroy')
+        })
+        boundDeferScope()(() => {
+          effect(() => () => {
+            log.push('nested destroy')
+          })
+        })
+      })
+
+      startScope(scope)
+
+      log.length = 0
+      stopScope(scope)
+
+      expect(log).toEqual(['nested destroy', 'own destroy'])
+    })
+
+    it('should start and stop deferred scope with same handle', () => {
+      const log: string[] = []
+      const scope = deferScope(() => {
+        effect(() => {
+          log.push('run')
+
+          return () => log.push('destroy')
+        })
+      })
+
+      startScope(scope)
+
+      expect(log).toEqual(['run'])
+
+      stopScope(scope)
+
+      expect(log).toEqual(['run', 'destroy'])
+    })
+
+    it('should not warm up effect stopped during deferred start', () => {
+      const log: string[] = []
+      const scope = deferScope(() => {
+        const stopFirst = effect(() => {
+          log.push('first')
+
+          return () => log.push('first destroy')
+        })
+
+        effectScope(() => {
+          effect(() => {
+            log.push('stopper')
+            stopFirst()
+          })
+        })
+      })
+
+      log.length = 0
+
+      startScope(scope)
+
+      // 'first' is stopped from pass 1 before its warmup and must not resurrect
+      expect(log).toEqual(['stopper'])
+
+      stopScope(scope)
+
+      expect(log).toEqual(['stopper'])
+    })
+
+    it('should start linked scope without lazy parent via startScope', () => {
+      const log: string[] = []
+      const scope = boundDeferScope()(() => {
+        effect(() => {
+          log.push('run')
+
+          return () => log.push('destroy')
+        })
+      })
+
+      // scopes are created lazy and started explicitly
+      expect(log).toEqual([])
+
+      startScope(scope)
+
+      expect(log).toEqual(['run'])
+
+      stopScope(scope)
+
+      expect(log).toEqual(['run', 'destroy'])
+    })
+
+    it('should start linked scope when parent is already started', () => {
+      const log: string[] = []
+      let linked: (fn: () => void) => DeferredScope
+      const scope = deferScope(() => {
+        linked = boundDeferScope()
+      })
+
+      startScope(scope)
+
+      const late = linked!(() => {
+        effect(() => {
+          log.push('late')
+
+          return () => log.push('late destroy')
+        })
+      })
+
+      expect(log).toEqual([])
+
+      startScope(late)
+
+      expect(log).toEqual(['late'])
+
+      // parent teardown must reach the scope created after the start
+      stopScope(scope)
+
+      expect(log).toEqual(['late', 'late destroy'])
+    })
+
+    it('should run destroy of effect disposed during its own warmup', () => {
+      const log: string[] = []
+      let stopSelf!: () => void
+      const scope = deferScope(() => {
+        const inner = deferScope(() => {
+          effect(() => {
+            log.push('run')
+            stopSelf()
+
+            return () => log.push('destroy')
+          })
+        })
+
+        stopSelf = () => stopScope(inner)
+
+        effect(() => {
+          startScope(inner)
+        })
+      })
+
+      startScope(scope)
+
+      // the destroy returned by the disposed-during-warmup effect must run
+      expect(log).toEqual(['run', 'destroy'])
+
+      stopScope(scope)
+    })
+
+    it('should not fire mounted for scope discarded before start', () => {
+      const $num = mountable(signal(0))
+      const callback = vi.fn()
+
+      onMounted($num, callback)
+
+      const scope = deferScope(() => {
+        effect(() => {
+          $num()
+        }, true)
+      })
+
+      stopScope(scope)
+      startScope(deferScope(() => { /* flush mounted queue */ }))
+
+      expect(callback).not.toHaveBeenCalled()
+      expect($num.node.subsCount).toBe(0)
+    })
+
+    it('should not crash batch flush after scope stop empties its parent', () => {
+      const $source = signal(0)
+      let child: DeferredScope | undefined
+
+      effect(() => {
+        if (child === undefined) {
+          child = boundDeferScope()(() => {
+            $source()
+          })
+          startScope(child)
+        }
+      })
+
+      expect(() => {
+        batch(() => {
+          $source(1)
+          stopScope(child!)
+        })
+      }).not.toThrow()
+    })
+
+    it('should unlink deps created after disposal during warmup', () => {
+      const mountedEvents: boolean[] = []
+      const cleanupEvents: string[] = []
+      const $source = mountable(signal(1))
+      let scope: DeferredScope | undefined = undefined
+
+      onMounted($source, (mounted) => {
+        mountedEvents.push(mounted)
+      })
+
+      const $derived = computed(() => {
+        stopScope(scope!)
+
+        return $source() * 2
+      })
+
+      scope = deferScope(() => {
+        effect(() => {
+          $derived()
+
+          return () => cleanupEvents.push('effect cleanup')
+        })
+      })
+
+      startScope(scope)
+
+      expect(cleanupEvents).toEqual(['effect cleanup'])
+      expect(mountedEvents).toEqual([])
+      expect($source.node.subsCount).toBe(0)
+    })
+
+    it('should not start linked scope under stopped parent', () => {
+      const log: string[] = []
+      let linked: (fn: () => void) => DeferredScope
+      const scope = deferScope(() => {
+        linked = boundDeferScope()
+      })
+
+      startScope(scope)
+      stopScope(scope)
+
+      const late = linked!(() => {
+        effect(() => {
+          log.push('late')
+        })
+      })
+
+      startScope(late)
+
+      expect(log).toEqual([])
+    })
+
     it('should trigger signal activation after start', () => {
       const $num = mountable(signal(0))
       const callback = vi.fn()
 
       onMounted($num, callback)
 
-      const start = deferScope(() => {
+      const scope = deferScope(() => {
         $num()
 
         effect(() => {
@@ -1598,11 +2016,11 @@ describe('agera', () => {
 
       expect(callback).not.toHaveBeenCalled()
 
-      const stop = start()
+      startScope(scope)
 
       expect(callback).toHaveBeenCalledTimes(1)
 
-      stop()
+      stopScope(scope)
     })
 
     it('should trigger computed dep activation after start', () => {
@@ -1612,7 +2030,7 @@ describe('agera', () => {
 
       onMounted($num, callback)
 
-      const start = deferScope(() => {
+      const scope = deferScope(() => {
         $double()
 
         effect(() => {
@@ -1622,11 +2040,11 @@ describe('agera', () => {
 
       expect(callback).not.toHaveBeenCalled()
 
-      const stop = start()
+      startScope(scope)
 
       expect(callback).toHaveBeenCalledTimes(1)
 
-      stop()
+      stopScope(scope)
     })
 
     it('should trigger computed activation after start', () => {
@@ -1638,7 +2056,7 @@ describe('agera', () => {
       onMounted($num, callback)
       onMounted($double, computedCallback)
 
-      const start = deferScope(() => {
+      const scope = deferScope(() => {
         $double()
 
         effect(() => {
@@ -1649,18 +2067,18 @@ describe('agera', () => {
       expect(callback).not.toHaveBeenCalled()
       expect(computedCallback).not.toHaveBeenCalled()
 
-      const stop = start()
+      startScope(scope)
 
       expect(callback).toHaveBeenCalledTimes(1)
       expect(computedCallback).toHaveBeenCalledTimes(1)
 
-      stop()
+      stopScope(scope)
     })
 
     it('should ignore update', () => {
       const $num = signal(0)
       const onEffect = vi.fn()
-      const start = deferScope(() => {
+      const scope = deferScope(() => {
         effect(() => {
           onEffect($num())
         })
@@ -1672,11 +2090,11 @@ describe('agera', () => {
 
       expect(onEffect).not.toHaveBeenCalled()
 
-      const stop = start()
+      startScope(scope)
 
       expect(onEffect).toHaveBeenCalledWith(2)
 
-      stop()
+      stopScope(scope)
     })
 
     it('should not break child effects', () => {
@@ -1689,17 +2107,16 @@ describe('agera', () => {
       const createItem = (i: number) => effect(() => {
         onChange($items()[i])
       })
-      const startScope = deferScope(() => {
+      const itemsScope = deferScope(() => {
         $items().forEach((_, i) => {
           createItem(i)
         })
       })
-      let stopScope
       const stop = effect((warmup) => {
         $items()
 
         if (warmup) {
-          stopScope = startScope()
+          startScope(itemsScope)
         } else {
           effectScope(() => {})
         }
@@ -1724,7 +2141,7 @@ describe('agera', () => {
         [6]
       ])
 
-      stopScope!()
+      stopScope(itemsScope)
       stop()
     })
 
@@ -1737,7 +2154,7 @@ describe('agera', () => {
       ])
       const $index = signal(0)
       let destroyItemEffect: () => void
-      const loopStart = deferScope(() => {
+      const loopScope = deferScope(() => {
         logs.push('loop scope init')
 
         const $item = computed(() => $items()[$index()])
@@ -1751,7 +2168,6 @@ describe('agera', () => {
 
       expect(logs).toEqual(['loop scope init'])
 
-      let loopDestroy: () => void
       const itemsDestroy = effect((warmup) => {
         logs.push('items effect')
 
@@ -1759,7 +2175,7 @@ describe('agera', () => {
 
         if (warmup) {
           logs.push('items effect warmup')
-          loopDestroy = loopStart()
+          startScope(loopScope)
         } else {
           logs.push('items effect update')
           $index(1)
@@ -1783,7 +2199,7 @@ describe('agera', () => {
       expect(logs).toEqual(['items effect', 'items effect update'])
 
       destroyItemEffect!()
-      loopDestroy!()
+      stopScope(loopScope)
       itemsDestroy()
     })
   })

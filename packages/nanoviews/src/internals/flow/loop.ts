@@ -2,13 +2,19 @@ import {
   type ReadableSignal,
   type Accessor,
   type WritableSignal,
+  type DeferredScope,
   signal,
-  effectScope,
+  effect,
+  deferScope,
+  startScope,
+  stopScope,
+  getContext,
+  unsafeRun,
+  untracked,
   atIndex,
   batch
 } from 'kida'
 import type {
-  Destroy,
   Child,
   EmptyValue
 } from '../types/index.js'
@@ -31,11 +37,12 @@ interface LoopItem {
   l: ChildNode | EmptyValue
   n: LoopItem | undefined
   p: LoopItem | undefined
-  d: Destroy
+  d: DeferredScope
 }
 
 interface LoopItemsList {
   f: LoopItem | undefined
+  s: boolean
 }
 
 type LookupMap = Map<unknown, LoopItem>
@@ -73,9 +80,11 @@ function link(
 
 function move(
   item: LoopItem,
-  anchor: ChildNode
+  anchorItem: LoopItem | undefined,
+  fallback: ChildNode
 ) {
   if (!isEmpty(item.f)) {
+    const anchor = getAnchor(anchorItem, fallback)
     const nextStart = item.l!.nextSibling!
     let node = item.f
 
@@ -147,7 +156,7 @@ function reconcile(
           const b = matched[matched.length - 1]
 
           for (j = 0; j < matched.length; j += 1) {
-            move(matched[j], getAnchor(start, anchor))
+            move(matched[j], start, anchor)
           }
 
           for (j = 0; j < stashed.length; j += 1) {
@@ -166,7 +175,7 @@ function reconcile(
           stashed = []
         } else {
           seen.delete(item)
-          move(item, getAnchor(current, anchor))
+          move(item, current, anchor)
 
           link(itemsList, item.p, item.n)
           link(itemsList, item, prev === undefined ? itemsList.f : prev.n)
@@ -213,7 +222,7 @@ function reconcile(
 }
 
 function destroyLoopItem(itemsList: LoopItemsList, item: LoopItem, lookupMap: LookupMap) {
-  item.d()
+  stopScope(item.d)
 
   if (!isEmpty(item.f)) {
     remove(item.f, item.l!)
@@ -238,10 +247,10 @@ function createEachBlock(
     l: undefined,
     n: undefined,
     p: undefined,
-    d: undefined as Destroy | undefined
+    d: undefined as DeferredScope | undefined
   }
 
-  item.d = effectScope(() => insertChildBeforeAnchor(
+  item.d = deferScope(() => insertChildBeforeAnchor(
     each_(atIndex($items, $index), $index),
     anchor,
     item
@@ -258,85 +267,115 @@ export function loop(
 ): Child {
   const start = createTextNode()
   const end = createTextNode()
-  const deferScope = deferScopeBindContext()
+  const context = getContext()
+  const periodScope = deferScopeBindContext(context)
   const fragment = document.createDocumentFragment()
   const blocksMap: LookupMap = new Map()
   const itemsList: LoopItemsList = {
-    f: undefined
+    f: undefined,
+    s: false
+  }
+  // The loop owns its rows: they are started and stopped
+  // in the itemsList order, which mirrors the visual order.
+  // The start is deferred with the period (effect(ownRows)), the teardown
+  // is held by an eager effect (effect(holdRows, true)) so it exists even
+  // when the period is stopped before it ever started
+  const startRows = () => {
+    itemsList.s = true
+
+    for (let item = itemsList.f; item !== undefined; item = item.n) {
+      startScope(item.d)
+    }
+  }
+  const stopRows = () => {
+    itemsList.s = false
+
+    for (let item = itemsList.f; item !== undefined; item = item.n) {
+      stopScope(item.d)
+    }
+
+    blocksMap.clear()
+    itemsList.f = undefined
+  }
+  const ownRows = () => {
+    untracked(startRows)
+  }
+  const holdRows = () => stopRows
+  // Clear the previous period DOM; its rows are already stopped -
+  // stopping the period destroyed holdRows, whose teardown ran stopRows
+  const resetPeriod = (destroyPrev?: DeferredScope) => {
+    if (destroyPrev !== undefined) {
+      removeBetween(start, end)
+    }
   }
   let isPlaceholder = false
 
   fragment.append(start, end)
 
   effectScopeSwapper($items, (
-    destroyPrev: Destroy | undefined,
-    items: unknown[],
-    prevItems: unknown[] | undefined
+    destroyPrev: DeferredScope | undefined,
+    items: unknown[]
   ) => {
     const itemsCount = items.length
-    const prevItemsCount = prevItems?.length
 
-    if (itemsCount && prevItemsCount) {
+    if (itemsCount && destroyPrev !== undefined && !isPlaceholder) {
       // [...m] -> [...n]
-      // swap
-      return deferScope(() => {
-        batch(() => reconcile(
-          itemsList,
-          blocksMap,
-          $items,
-          each_,
-          track,
-          end,
-          items
-        ))
-      })()
-    }
+      // reconcile within the persistent period under the loop context;
+      // the context is restored before the trailing flush of the batch
+      batch(() => unsafeRun(
+        context,
+        reconcile,
+        itemsList,
+        blocksMap,
+        $items,
+        each_,
+        track,
+        end,
+        items
+      ))
 
-    const shouldRender = itemsCount || !isPlaceholder
-
-    if (shouldRender && destroyPrev !== undefined) {
-      destroyPrev()
-      removeBetween(start, end)
-      blocksMap.clear()
-      itemsList.f = undefined
-    }
-
-    let runEffects
-
-    if (itemsCount) {
-      // [] -> [...n]
-      isPlaceholder = false
-      runEffects = deferScope(() => {
-        reconcile(
-          itemsList,
-          blocksMap,
-          $items,
-          each_,
-          track,
-          end,
-          items
-        )
-      })
-    } else if (!isPlaceholder) {
-      // ([...n] | []) -> []
-      isPlaceholder = true
-      runEffects = deferScope(
-        () => insertChildBeforeAnchor(else_?.(), end)
-      )
-    }
-
-    if (shouldRender) {
-      // swap
-      if (destroyPrev !== undefined) {
-        // oxlint-disable-next-line typescript/no-unnecessary-type-assertion
-        destroyPrev = runEffects!()
-      } else {
-        // initial
-        destroyPrev = runEffects!
+      if (itemsList.s) {
+        // Rows created by the reconcile start only now, after the removed
+        // rows were destroyed; startScope is a no-op on the started ones
+        for (let item = itemsList.f; item !== undefined; item = item.n) {
+          startScope(item.d)
+        }
       }
+
+      return destroyPrev
     }
 
-    return destroyPrev!
+    if (!itemsCount && isPlaceholder) {
+      // [] -> []
+      return destroyPrev!
+    }
+
+    isPlaceholder = !itemsCount
+
+    // The previous period is destroyed first, while its DOM is still
+    // attached; then the body removes it and renders the new content
+    return periodScope(
+      itemsCount
+        ? () => {
+          resetPeriod(destroyPrev)
+          effect(holdRows, true)
+          effect(ownRows)
+          reconcile(
+            itemsList,
+            blocksMap,
+            $items,
+            each_,
+            track,
+            end,
+            items
+          )
+        }
+        : () => {
+          resetPeriod(destroyPrev)
+          insertChildBeforeAnchor(else_?.(), end)
+        },
+      destroyPrev
+    )
   })
 
   return fragment

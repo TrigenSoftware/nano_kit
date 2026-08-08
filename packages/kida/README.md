@@ -167,33 +167,6 @@ const stop = effectScope(() => {
 stop() // stop all effects
 ```
 
-### `deferScope`
-
-Also there is a possibility to create a defer scope.
-
-```ts
-import { signal, deferScope, effectScope, effect } from 'kida'
-
-const $a = signal(0)
-const $b = signal(0)
-// All scopes will run immediately, but effects run is delayed
-const start = deferScope(() => {
-  effect(() => {
-    console.log('A:', $a())
-  })
-
-  effectScope(() => {
-    effect(() => {
-      console.log('B:', $b())
-    })
-  })
-}, true) // marks scope as lazy
-// start all effects
-const stop = start()
-
-stop() // stop all effects
-```
-
 ### `onMountEffect`
 
 `onMountEffect` accepts a signal as a first argument to start effect on this [signal mount](#lifecycles).

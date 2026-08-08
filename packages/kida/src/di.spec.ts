@@ -6,6 +6,8 @@ import {
 } from 'vitest'
 import {
   deferScope,
+  startScope,
+  stopScope,
   effect
 } from 'agera'
 import {
@@ -257,7 +259,7 @@ describe('kida', () => {
           return 42
         })
         let value
-        const start = deferScope(() => {
+        const scope = deferScope(() => {
           value = inject(Factory$, context)
           value = inject(Factory$, context)
         })
@@ -267,13 +269,13 @@ describe('kida', () => {
         expect(fn).toHaveBeenCalledTimes(1)
         expect(destroy).not.toHaveBeenCalled()
 
-        const stop = start()
+        startScope(scope)
 
         expect(Factory$).toHaveBeenCalledTimes(1)
         expect(fn).toHaveBeenCalledTimes(1)
         expect(destroy).not.toHaveBeenCalled()
 
-        stop()
+        stopScope(scope)
 
         expect(Factory$).toHaveBeenCalledTimes(1)
         expect(fn).toHaveBeenCalledTimes(1)

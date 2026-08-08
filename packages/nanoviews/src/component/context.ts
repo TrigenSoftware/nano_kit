@@ -3,6 +3,7 @@ import {
   InjectionContext,
   getContext,
   run,
+  unsafeRun,
   provide,
   inject,
   isFunction
@@ -46,7 +47,7 @@ export function context<R>(providersOrFn: InjectionProvider[] | (() => R), maybe
     fn = maybeFn!
   }
 
-  return run(new InjectionContext(providers, currentContext), fn)
+  return unsafeRun(new InjectionContext(providers, currentContext), fn)
 }
 
 /**
@@ -55,5 +56,5 @@ export function context<R>(providersOrFn: InjectionProvider[] | (() => R), maybe
  * @returns The return value of the function.
  */
 export function isolate<R>(fn: () => R): R {
-  return run(undefined, fn)
+  return unsafeRun(undefined, fn)
 }

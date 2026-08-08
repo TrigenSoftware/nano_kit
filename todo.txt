@@ -5,8 +5,7 @@
 ## Agera/Kida/Store
 
 - latest util? computed(latest($searchQuery, $searchParam))
-- lazy scope to start and stop methods? for example for resort in loop
-- later: resort effects
+- rework signal lifecycle/mounted mechanism holistically (lifecycle.ts): pending mounted queue, activation counts, noMount - current subsCount guard in notifyMounted is a spot fix
 
 ## 🔥🔥🔥 Query 🔥🔥🔥
 
@@ -45,9 +44,10 @@
 
 - hooks/effects naming convention
 
-- check old version -> defer effects wroked bottom->top, now it works top -> bottom -> its ok for stores, not ok for views
 - wrap into untracked needed parts
+- error boundaries: cleanup half-created scope on render throw (stopScope in catch) - rows/content are not parent-linked, teardown must be explicit
 - for loop array or empty check for else
+- for_ crashes on duplicate track keys (pre-existing, loop.ts reconcile matched/stashed)
 - rework return slot$ to look like element/component? fn.prop is faster than {f,p}
 - util to transform static props to signal props?
 - rename decide? export as public - as Dynamic in solidjs

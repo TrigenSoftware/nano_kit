@@ -1,43 +1,31 @@
 import {
   type Accessor,
-  type Destroy,
+  type DeferredScope,
   effect,
-  deferScope,
+  boundDeferScope,
+  startScope,
   getContext,
-  run,
+  unsafeRun,
   untracked
 } from 'kida'
 import type { EffectScopeSwapperCallback } from './types/index.js'
 
 export function deferScopeBindContext(context = getContext()) {
-  return (fn => deferScope(() => run(context, fn))) as typeof deferScope
+  const factory = boundDeferScope()
+
+  // Render under the injection context, start strictly outside of it
+  return (fn: () => void, replace?: DeferredScope): DeferredScope => startScope(unsafeRun(context, factory, fn, replace))
 }
 
 export function effectScopeSwapper<T>(
   $signal: Accessor<T>,
   callback: EffectScopeSwapperCallback<T>
 ) {
-  let prevValue: T | undefined
-  let start: (() => Destroy) | undefined
-  let stop: Destroy | undefined
-
-  effect((warmup) => {
-    const value = $signal()
-
-    stop = untracked(() => callback(stop, value, prevValue))
-
-    if (warmup) {
-      start = stop as () => Destroy
-      stop = undefined
-    }
-
-    prevValue = value
-  }, true)
+  let prev: DeferredScope | undefined
 
   effect(() => {
-    stop = start!()
-    start = undefined
+    const value = $signal()
 
-    return () => stop!()
-  })
+    prev = untracked(() => callback(prev, value))
+  }, true)
 }

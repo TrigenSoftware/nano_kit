@@ -147,33 +147,6 @@ const stop = effectScope(() => {
 stop() // stop all effects
 ```
 
-### `deferScope`
-
-Also there is a possibility to create a defer scope.
-
-```ts
-import { signal, deferScope, effectScope, effect } from 'agera'
-
-const $a = signal(0)
-const $b = signal(0)
-// All scopes will run immediately, but effects run is delayed
-const start = deferScope(() => {
-  effect(() => {
-    console.log('A:', $a())
-  })
-
-  effectScope(() => {
-    effect(() => {
-      console.log('B:', $b())
-    })
-  })
-}, true) // marks scope as lazy
-// start all effects
-const stop = start()
-
-stop() // stop all effects
-```
-
 ### `subscribe`
 
 `subscribe` subscribes to accessor changes. Callback will be called immediately with the current value and on every subsequent change. Will trigger accessor mount if applicable.

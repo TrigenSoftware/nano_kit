@@ -1,7 +1,7 @@
 import {
   type Accessor,
   type ValueOrAccessor,
-  type Destroy,
+  type DeferredScope,
   isAccessor
 } from 'kida'
 import type { Child } from '../types/index.js'
@@ -26,29 +26,18 @@ export function reactiveDecide<T>(
 
   fragment.append(start, end)
 
+  // The replaced scope is destroyed first, while its DOM is still
+  // attached; then the body removes it and renders the new content
   effectScopeSwapper($condition, (
-    destroyPrev: Destroy | undefined,
+    destroyPrev: DeferredScope | undefined,
     condition: T
-  ) => {
+  ) => deferScope(() => {
     if (destroyPrev !== undefined) {
-      destroyPrev()
       removeBetween(start, end)
     }
 
-    const runEffects = deferScope(
-      () => insertChildBeforeAnchor(decider(condition), end)
-    )
-
-    // Rerender on condition change in effect
-    if (destroyPrev !== undefined) {
-      // Should return effect stop function
-      return runEffects()
-    }
-
-    // First render, before effects run
-    // Should return effect start function
-    return runEffects
-  })
+    insertChildBeforeAnchor(decider(condition), end)
+  }, destroyPrev))
 
   return fragment
 }

@@ -13,7 +13,8 @@ import type {
   Destroy,
   Compute,
   NewValue,
-  Morph
+  Morph,
+  DeferredScope
 } from './types.js'
 import {
   NoneFlag,
@@ -562,31 +563,6 @@ export function effectScope(fn: () => void): Destroy {
 }
 
 /**
- * Defer scope creation to delay its effects execution.
- * @param fn - The deferred scope function to run.
- * @returns A function to start effects.
- */
-export function deferScope(fn: () => void): () => Destroy {
-  const e: ReactiveNode = {
-    deps: undefined,
-    depsTail: undefined,
-    subs: undefined,
-    subsTail: undefined,
-    flags: MutableFlag,
-    modes: ScopeMode | LazyMode
-  }
-  const prevSub = pushActiveSub(e)
-
-  try {
-    fn()
-  } finally {
-    popActiveSub(prevSub)
-  }
-
-  return deferScopeOper.bind(e)
-}
-
-/**
  * Manually trigger signals update propagation.
  * @param fn - Function with signal reads to trigger.
  */
@@ -660,6 +636,16 @@ function warmupEffect(e: EffectNode): void {
 
   try {
     e.destroy = e.fn(true) || undefined
+
+    // Stopping is total: the effect reached STOPPED while this body was
+    // still running, so finish the teardown the stop could not do - run the
+    // destroy it just returned, and drop the links it made after it died,
+    // because nothing will ever reach them again
+    if (e.flags === NoneFlag) {
+      destroyEffect(e)
+      e.depsTail = undefined
+      purgeDeps(e)
+    }
   } finally {
     popActiveSub(prevSub)
     e.flags &= ~RecursedCheckFlag
@@ -834,49 +820,31 @@ function effectOper(this: EffectNode): void {
   effectScopeOper.call(this)
 }
 
+// The STOPPED transition, shared by effect and scope disposal: make the node
+// terminal, destroy what it owns, detach it from its position
 function effectScopeOper(this: ReactiveNode): void {
   this.depsTail = undefined
   this.flags = NoneFlag
+  // Spend the deferral token. This single line is what turns every stale
+  // reference - a start walk cursor, a retained handle, a link made during
+  // the teardown - into a no-op instead of a resurrection
+  this.modes &= ~LazyMode
   purgeDeps(this)
 
   const sub = this.subs
 
   if (sub !== undefined) {
+    const parent = sub.sub
+
     unlink(sub)
-  }
-}
 
-function runDeferredEffects(link: Link): void {
-  do {
-    const dep = link.dep
-    const nextDep = link.nextDep
-
-    if (dep.modes & LazyMode) {
-      dep.modes &= ~LazyMode
-
-      if (dep.modes & ScopeMode) {
-        if (dep.deps !== undefined) {
-          runDeferredEffects(dep.deps)
-        }
-      } else {
-        warmupEffect(dep as EffectNode)
-      }
+    // Stopping is total: a scope node holds no value, so one emptied by this
+    // stop must not stay dirty or pending - `checkDirty` would descend into
+    // deps that are gone
+    if (parent.deps === undefined && parent.modes & ScopeMode) {
+      parent.flags &= ~(DirtyFlag | PendingFlag)
     }
-
-    link = nextDep!
-  } while (link !== undefined)
-}
-
-function deferScopeOper(this: ReactiveNode): Destroy {
-  this.modes &= ~LazyMode
-
-  notifyMounted(activeSub)
-
-  if (this.deps !== undefined) {
-    runDeferredEffects(this.deps)
   }
-
-  return effectScopeOper.bind(this)
 }
 
 function purgeDeps(sub: ReactiveNode) {
@@ -887,3 +855,232 @@ function purgeDeps(sub: ReactiveNode) {
     dep = unlink(dep, sub)
   }
 }
+
+// #region Defer scopes
+//
+// A deferred scope is an ordinary effect scope whose effects are captured
+// but not warmed up: `deferScope` runs the body, `startScope` releases it,
+// `stopScope` discards it. The layer introduces no node kind and no new
+// field - the whole state machine is one mode bit on a scope node:
+//
+//   LazyMode set     LAZY      body ran, nothing was warmed up yet
+//   LazyMode clear   STARTED   effects are live      (flags & MutableFlag)
+//   LazyMode clear   STOPPED   effects are gone      (flags === NoneFlag)
+//
+// LAW 1 - LazyMode is a one-shot token.
+// Minted in exactly one place, `deferScope`. Inherited everywhere else by a
+// single rule shared with `effect` and `effectScope`: a node created at a
+// lazy position is created lazy, so a subtree defers as one. Spent by
+// exactly one of two claimants - `startScope`, which keeps the promise and
+// warms the subtree up, or the STOPPED transition (`effectScopeOper`),
+// which revokes it. Spending is always `modes &= ~LazyMode`.
+// Every guard below is this one rule meeting an already spent token:
+//   - `startScope` on a started or on a stopped scope - nothing to claim;
+//   - a scope or an effect stopped by a sibling in the middle of the start
+//     walk - the stop claimed it, the walk steps over it;
+//   - a retained handle or a stale cursor into a stopped node - the same.
+// A node may therefore be stopped at any moment, including from inside the
+// walk that is starting it, and no participant has to know about it.
+// Two edges sit outside the contract: stopping a node from inside its own
+// still-running body leaves whatever the body creates after that point
+// live (imperative self-teardown mid-body is not a supported move), and a
+// lazy scope discarded by `unwatched` keeps an unspent token over already
+// purged deps, so a later start finds nothing to do.
+//
+// LAW 2 - stopping is total.
+// `stopScope` is defined on a scope in any state, at any moment, and has to
+// leave a graph the core can still traverse. Its two obligations live with
+// the STOPPED transition itself rather than here, because plain effect
+// disposal owes exactly the same:
+//   - `effectScopeOper`: a scope emptied by the stop drops DirtyFlag and
+//     PendingFlag - a scope node holds no value, so `checkDirty` would
+//     descend into deps that no longer exist;
+//   - `warmupEffect`: an effect stopped while its own body is still running
+//     finishes the teardown it missed - the destroy it returns is run, and
+//     the links it made after it died are dropped.
+//
+// ORDER - both directions walk the same list, children first.
+// A scope's `deps` is its capture list in creation order, holding nested
+// scopes (`effectScope` and `deferScope` alike) and own effects; a scope
+// created without a parent joins no capture list and is reached only
+// through its handle. Start walks
+// it twice - nested scopes, then own effects - so an effect body observes a
+// subtree that is already live. Stop walks it once for nested scopes and
+// leaves the own effects to `purgeDeps`, so a destroy observes a subtree
+// that is already gone. Both walks may be edited under themselves: `unlink`
+// leaves the removed link's `nextDep` intact, so a cursor survives the
+// removal of the node it is standing on.
+//
+// POSITION - `boundDeferScope` captures a site, not a scope. Its anchor is
+// an empty scope node that stays where it was created, so the scopes
+// swapped through it keep their place among the siblings; it inherits the
+// state of that site, so they follow the parent's start and stop.
+//
+
+function createScope(parent: ReactiveNode | undefined): ReactiveNode {
+  const e: ReactiveNode = {
+    deps: undefined,
+    depsTail: undefined,
+    subs: undefined,
+    subsTail: undefined,
+    flags: MutableFlag,
+    modes: ScopeMode
+  }
+
+  if (parent !== undefined) {
+    link(e, parent, 0)
+    // Inherit the state of the position, exactly as `effect` and
+    // `effectScope` do, so a subtree defers and starts as one
+    e.modes |= parent.modes & LazyMode
+  }
+
+  return e
+}
+
+/**
+ * Defer scope creation to delay its effects execution.
+ * @internal
+ * @param fn - The deferred scope function to run.
+ * @param parent - Optional parent scope node to link the created scope to.
+ * @returns Deferred scope handle.
+ */
+export function deferScope(fn: () => void, parent?: ReactiveNode): DeferredScope {
+  const e = createScope(parent)
+  const prevSub = pushActiveSub(e)
+
+  // The single mint of the token: a deferred scope is lazy wherever it is
+  // created, and everything the body creates below it inherits that
+  e.modes |= LazyMode
+
+  try {
+    fn()
+  } finally {
+    popActiveSub(prevSub)
+  }
+
+  return e as unknown as DeferredScope
+}
+
+function startDeferred(e: ReactiveNode): void {
+  const deps = e.deps
+
+  if (deps !== undefined) {
+    let nested: Link | undefined = deps
+    let own: Link | undefined = deps
+
+    // Nested scopes claim their token and release their own capture list
+    // first, so an effect body below observes a subtree that is already live
+    do {
+      const dep = nested.dep
+
+      nested = nested.nextDep
+
+      if ((dep.modes & (LazyMode | ScopeMode)) === (LazyMode | ScopeMode)) {
+        dep.modes &= ~LazyMode
+        startDeferred(dep)
+      }
+    } while (nested !== undefined)
+
+    // Then the effects captured directly here. Whatever still holds a token
+    // is an effect: nested scopes were spent by the pass above, and anything
+    // stopped meanwhile - by a sibling warmed up in this very walk - was
+    // spent by the stop and is stepped over instead of being resurrected
+    do {
+      const dep = own.dep
+
+      own = own.nextDep
+
+      if (dep.modes & LazyMode) {
+        dep.modes &= ~LazyMode
+        warmupEffect(dep as EffectNode)
+      }
+    } while (own !== undefined)
+  }
+}
+
+/**
+ * Start deferred effects of the scope. Does nothing if the scope is already
+ * started or stopped, or if it is linked to a parent that has not started
+ * yet or is already stopped.
+ * @internal
+ * @param scope - Deferred scope handle.
+ * @returns The same scope handle.
+ */
+export function startScope(scope: DeferredScope): DeferredScope {
+  const e = scope as unknown as ReactiveNode
+  const parent = e.subs?.sub
+
+  if (
+    e.modes & LazyMode
+    && (
+      // A linked scope starts with its position: never ahead of a parent
+      // that is still LAZY, never under one that is already STOPPED
+      parent === undefined
+      || !(parent.modes & LazyMode) && parent.flags & MutableFlag
+    )
+  ) {
+    e.modes &= ~LazyMode
+
+    // What the lazy body queued for mounting belongs to this moment - the
+    // scope became live now, before any of its deferred effects queue more
+    notifyMounted(activeSub)
+    startDeferred(e)
+  }
+
+  return scope
+}
+
+/**
+ * Stop the scope and destroy its effects.
+ * @internal
+ * @param scope - Deferred scope handle.
+ */
+export function stopScope(scope: DeferredScope): void {
+  const e = scope as unknown as ReactiveNode
+  // Nested scopes go first, so a destroy observes a subtree that is already
+  // gone. Unlike the start walk this takes every scope child, LAZY or
+  // STARTED: stopping is total, and a child left to `purgeDeps` below would
+  // be torn down in list order and would keep an unspent token
+  let nested = e.deps
+
+  while (nested !== undefined) {
+    const dep = nested.dep
+
+    nested = nested.nextDep
+
+    if (dep.modes & ScopeMode) {
+      stopScope(dep as unknown as DeferredScope)
+    }
+  }
+
+  // The other half - destroying the effects captured directly here - is the
+  // `purgeDeps` of the shared STOPPED transition
+  effectScopeOper.call(e)
+}
+
+/**
+ * Capture the current scope as a position and create deferred scopes at it.
+ * The anchor keeps that position among the siblings for the lifetime of the
+ * capture site, and passes the parent's start and stop down to every scope
+ * created through it.
+ * Capture inside an effect: an anchor captured in an effect body is torn
+ * down by the effect re-run in the deps order, not children-first.
+ * The optional second argument of the factory is a sibling scope to replace:
+ * it is stopped before the new scope body runs.
+ * Created scopes are not started: use `startScope`.
+ * @internal
+ * @returns Function to create linked deferred scopes.
+ */
+export function boundDeferScope() {
+  const anchor = createScope(activeSub)
+
+  return (fn: () => void, replace?: DeferredScope): DeferredScope => {
+    if (replace !== undefined) {
+      stopScope(replace)
+    }
+
+    return deferScope(fn, anchor)
+  }
+}
+
+// #endregion
