@@ -10,9 +10,9 @@ import {
   boundDeferScope,
   startScope,
   stopScope,
-  untracked
+  untracked,
+  noMount
 } from './internals/system.js'
-import { noMount } from './internals/lifecycle.js'
 
 export {
   effect,

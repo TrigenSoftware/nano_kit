@@ -98,19 +98,15 @@ describe('agera', () => {
     })
 
     describe('Vite 7', () => {
-      it('should remove mountable effect count helpers when mountable is not imported', async () => {
+      it('should remove the lifecycle module when mountable is not imported', async () => {
         const signal = await vite7('signal', '{ signal }')
         const mountableSignal = await vite7('mountable-signal', '{ mountable, signal }')
 
-        expect(signal).not.toContain('pushNoMount')
-        expect(signal).not.toContain('popNoMount')
-        expect(signal).not.toContain('incrementEffectCount')
-        expect(signal).not.toContain('decrementEffectCount')
+        expect(signal).not.toContain('touchLifecycle')
+        expect(signal).not.toContain('onEdge')
 
-        expect(mountableSignal).toContain('pushNoMount')
-        expect(mountableSignal).toContain('popNoMount')
-        expect(mountableSignal).toContain('incrementEffectCount')
-        expect(mountableSignal).toContain('decrementEffectCount')
+        expect(mountableSignal).toContain('touchLifecycle')
+        expect(mountableSignal).toContain('onEdge')
       })
 
       it('should remove signal callback hook when onSignal is not imported', async () => {
@@ -127,20 +123,16 @@ describe('agera', () => {
     // https://github.com/rolldown/rolldown/issues/9272
     // https://github.com/rolldown/rolldown/issues/9279
     // https://github.com/rolldown/rolldown/issues/9281
-    describe('Vite 8 [fails]', () => {
-      it.fails('should remove mountable effect count helpers when mountable is not imported', async () => {
+    describe('Vite 8', () => {
+      it('should remove the lifecycle module when mountable is not imported', async () => {
         const signal = await vite8('signal', '{ signal }')
         const mountableSignal = await vite8('mountable-signal', '{ mountable, signal }')
 
-        expect(signal).not.toContain('pushNoMount')
-        expect(signal).not.toContain('popNoMount')
-        expect(signal).not.toContain('incrementEffectCount')
-        expect(signal).not.toContain('decrementEffectCount')
+        expect(signal).not.toContain('touchLifecycle')
+        expect(signal).not.toContain('onEdge')
 
-        expect(mountableSignal).toContain('pushNoMount')
-        expect(mountableSignal).toContain('popNoMount')
-        expect(mountableSignal).toContain('incrementEffectCount')
-        expect(mountableSignal).toContain('decrementEffectCount')
+        expect(mountableSignal).toContain('touchLifecycle')
+        expect(mountableSignal).toContain('onEdge')
       })
 
       it.fails('should remove signal callback hook when onSignal is not imported', async () => {

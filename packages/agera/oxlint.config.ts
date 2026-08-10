@@ -17,6 +17,7 @@ export default defineConfig({
   rules: {
     'typescript/no-invalid-void-type': 'off',
     'eslint/no-return-assign': 'off',
-    'eslint/no-multi-assign': 'off'
+    'eslint/no-multi-assign': 'off',
+    'eslint/no-param-reassign': 'off'
   }
 })

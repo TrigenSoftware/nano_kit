@@ -12,11 +12,9 @@ export default defineConfig({
     'typescript/no-unsafe-assignment': 'off',
     'typescript/prefer-for-of': 'off',
     'typescript/prefer-optional-chain': 'off',
-    'eslint/no-param-reassign': 'off',
     'eslint/no-label-var': 'off',
     'eslint/no-labels': 'off',
     'eslint/no-constant-condition': 'off',
-    'eslint/no-multi-assign': 'off',
     'eslint/no-sequences': 'off'
   }
 })

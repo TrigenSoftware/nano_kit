@@ -19,7 +19,8 @@ import {
   boundDeferScope,
   startScope,
   stopScope,
-  observe
+  observe,
+  isMounted
 } from './index.js'
 
 describe('agera', () => {
@@ -1325,7 +1326,7 @@ describe('agera', () => {
       dispose()
     })
 
-    it('should not desync mountable subs count on direct signal read in scope', () => {
+    it('should not change mounted state on direct signal read in scope', () => {
       const $a = mountable(signal(1))
       const log: boolean[] = []
 
@@ -1344,21 +1345,21 @@ describe('agera', () => {
         })
       })
 
-      expect($a.node.subsCount).toBe(2)
+      expect(isMounted($a)).toBe(true)
       expect(log).toEqual([true])
 
       stop()
 
-      expect($a.node.subsCount).toBe(1)
+      expect(isMounted($a)).toBe(true)
       expect(log).toEqual([true])
 
       stopOuter()
 
-      expect($a.node.subsCount).toBe(0)
+      expect(isMounted($a)).toBe(false)
       expect(log).toEqual([true, false])
     })
 
-    it('should decrement effect count on stop', () => {
+    it('should unmount dependencies on scope stop', () => {
       const $a = mountable(signal(1))
       const $b = mountable(signal(1))
       const aListener = vi.fn()
@@ -1380,13 +1381,13 @@ describe('agera', () => {
         })
       })
 
-      expect($a.node.subsCount).toBe(2)
-      expect($b.node.subsCount).toBe(1)
+      expect(isMounted($a)).toBe(true)
+      expect(isMounted($b)).toBe(true)
 
       stop()
 
-      expect($a.node.subsCount).toBe(0)
-      expect($b.node.subsCount).toBe(0)
+      expect(isMounted($a)).toBe(false)
+      expect(isMounted($b)).toBe(false)
     })
   })
 
@@ -1924,7 +1925,7 @@ describe('agera', () => {
       startScope(deferScope(() => { /* flush mounted queue */ }))
 
       expect(callback).not.toHaveBeenCalled()
-      expect($num.node.subsCount).toBe(0)
+      expect(isMounted($num)).toBe(false)
     })
 
     it('should not crash batch flush after scope stop empties its parent', () => {
@@ -1976,7 +1977,7 @@ describe('agera', () => {
 
       expect(cleanupEvents).toEqual(['effect cleanup'])
       expect(mountedEvents).toEqual([])
-      expect($source.node.subsCount).toBe(0)
+      expect(isMounted($source)).toBe(false)
     })
 
     it('should not start linked scope under stopped parent', () => {
@@ -2210,12 +2211,12 @@ describe('agera', () => {
       const observeCallback = vi.fn()
       const stop = observe($num, observeCallback)
 
-      expect($num.node.subsCount).toBe(0)
+      expect(isMounted($num)).toBe(false)
 
       $num(1)
 
       expect(observeCallback).toHaveBeenCalledWith(1)
-      expect($num.node.subsCount).toBe(0)
+      expect(isMounted($num)).toBe(false)
 
       stop()
     })

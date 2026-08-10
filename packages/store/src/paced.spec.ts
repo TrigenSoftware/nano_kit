@@ -11,7 +11,8 @@ import {
   computed,
   effect,
   signal,
-  mountable
+  mountable,
+  isMounted
 } from 'kida'
 import { debounce } from './utils.js'
 import {
@@ -96,22 +97,22 @@ describe('store', () => {
       const $source = mountable(signal(0))
       const $paced = mountable(paced($source, debounce(300)))
 
-      expect($source.node.subsCount).toBe(0)
-      expect($paced.node.subsCount).toBe(0)
+      expect(isMounted($source)).toBe(false)
+      expect(isMounted($paced)).toBe(false)
 
       const stop3 = effect(() => {
         $paced()
       })
 
-      expect($source.node.subsCount).toBe(1)
-      expect($paced.node.subsCount).toBe(1)
+      expect(isMounted($source)).toBe(true)
+      expect(isMounted($paced)).toBe(true)
 
       stop3()
 
       vi.advanceTimersByTime(STORE_UNMOUNT_DELAY)
 
-      expect($source.node.subsCount).toBe(0)
-      expect($paced.node.subsCount).toBe(0)
+      expect(isMounted($source)).toBe(false)
+      expect(isMounted($paced)).toBe(false)
     })
   })
 

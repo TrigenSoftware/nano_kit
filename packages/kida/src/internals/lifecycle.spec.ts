@@ -39,13 +39,14 @@ describe('kida', () => {
 
           onStart($signal, listener)
 
-          expect(listener).not.toHaveBeenCalled()
+          // a listener registered on an already started signal starts late
+          expect(listener).toHaveBeenCalledTimes(1)
 
           const off2 = effect(() => {
             $signal()
           })
 
-          expect(listener).not.toHaveBeenCalled()
+          expect(listener).toHaveBeenCalledTimes(1)
 
           off1()
           off2()
@@ -54,7 +55,7 @@ describe('kida', () => {
             $signal()
           })
 
-          expect(listener).toHaveBeenCalledTimes(1)
+          expect(listener).toHaveBeenCalledTimes(2)
 
           off3()
         })
@@ -68,9 +69,12 @@ describe('kida', () => {
 
           onStart($signal, listener)
 
+          // the late-registration start, not the get below
+          expect(listener).toHaveBeenCalledTimes(1)
+
           $signal()
 
-          expect(listener).not.toHaveBeenCalled()
+          expect(listener).toHaveBeenCalledTimes(1)
 
           off1()
         })
@@ -127,7 +131,8 @@ describe('kida', () => {
 
           vi.runAllTimers()
 
-          expect(mount).not.toHaveBeenCalled()
+          // a listener registered on an already mounted signal mounts late
+          expect(mount).toHaveBeenCalledTimes(1)
           expect(unmount).not.toHaveBeenCalled()
 
           const off2 = effect(() => {
@@ -136,7 +141,7 @@ describe('kida', () => {
 
           vi.runAllTimers()
 
-          expect(mount).not.toHaveBeenCalled()
+          expect(mount).toHaveBeenCalledTimes(1)
           expect(unmount).not.toHaveBeenCalled()
 
           off1()
@@ -144,8 +149,8 @@ describe('kida', () => {
 
           vi.runAllTimers()
 
-          expect(mount).not.toHaveBeenCalled()
-          expect(unmount).not.toHaveBeenCalled()
+          expect(mount).toHaveBeenCalledTimes(1)
+          expect(unmount).toHaveBeenCalledTimes(1)
 
           const off3 = effect(() => {
             $signal()
@@ -153,15 +158,15 @@ describe('kida', () => {
 
           vi.runAllTimers()
 
-          expect(mount).toHaveBeenCalledTimes(1)
-          expect(unmount).not.toHaveBeenCalled()
+          expect(mount).toHaveBeenCalledTimes(2)
+          expect(unmount).toHaveBeenCalledTimes(1)
 
           off3()
 
           vi.runAllTimers()
 
-          expect(mount).toHaveBeenCalledTimes(1)
-          expect(unmount).toHaveBeenCalledTimes(1)
+          expect(mount).toHaveBeenCalledTimes(2)
+          expect(unmount).toHaveBeenCalledTimes(2)
         })
 
         it('should debounce unmount callback', () => {

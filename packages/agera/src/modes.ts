@@ -11,8 +11,10 @@ import {
   MountableMode,
   WritableMode
 } from './internals/flags.js'
-import { markMountableUsed } from './internals/lifecycle.js'
+import { touchLifecycle } from './internals/system.js'
 
+// Over-approximate on purpose: contagion marks every computed that ever
+// linked a mountable dep, and the mark is a permanent latch
 /* @__NO_SIDE_EFFECTS__ */
 export function isMountable<T extends Mountable<AnySignal> = Mountable<AnySignal>>(value: AnyAccessor): value is T {
   return ((value as AnyWritableSignal).node?.modes & MountableMode) > 0
@@ -29,8 +31,9 @@ export function unsafeMarkMountable($signal: AnySignal) {
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function mountable<T extends AnySignal>($signal: T): Mountable<T> {
-  markMountableUsed()
   unsafeMarkMountable($signal)
+  // A signal marked after it gained subscribers re-derives its level
+  touchLifecycle($signal.node)
 
   return $signal as Mountable<T>
 }

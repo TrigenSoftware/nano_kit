@@ -20,9 +20,44 @@ export type Accessor<T> = () => T
 
 export type NewValue<T> = T | ((prevValue: T) => T)
 
+export type MountedListener = (mounted: boolean) => void
+
 export interface ReadableNode extends ReactiveNode, DefineVirtualFlags<'writable' | 'mountable'> {
-  subsCount: number
-  mounted?: WritableSignal<boolean>
+  /**
+   * Lifecycle: mount listeners.
+   * @internal
+   */
+  lcl?: MountedListener[]
+  /**
+   * Lifecycle: last delivered level.
+   * @internal
+   */
+  lcd?: boolean
+  /**
+   * Lifecycle: listeners delivered so far.
+   * @internal
+   */
+  lcf?: number
+  /**
+   * Lifecycle: bound of the current fire.
+   * @internal
+   */
+  lce?: number
+  /**
+   * Lifecycle: last queued position.
+   * @internal
+   */
+  lcq?: number
+  /**
+   * Lifecycle: presence memo stamp.
+   * @internal
+   */
+  lcs?: number
+  /**
+   * Lifecycle: presence memo value.
+   * @internal
+   */
+  lcv?: boolean
 }
 
 export interface WritableNode extends EnableVirtualFlags<ReadableNode, 'writable'> {}
@@ -67,7 +102,11 @@ export interface ReactiveNode {
   subsTail?: Link
   flags: number
   modes: number
-  noMount?: ReactiveNode
+  /**
+   * Lifecycle exemption: the mountable node this subscriber must not keep alive.
+   * @internal
+   */
+  lcx?: ReactiveNode | false
 }
 
 export interface Link {

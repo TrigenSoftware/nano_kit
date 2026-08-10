@@ -1,6 +1,7 @@
 import { isFunction } from '../utils.js'
 import type {
   ReactiveNode,
+  ReadableNode,
   SignalNode,
   ComputedNode,
   EffectNode,
@@ -29,23 +30,23 @@ import {
   MountableMode,
   LazyMode
 } from './flags.js'
-import {
-  incrementEffectCount,
-  isSubscriber,
-  isActiveSubscriber,
-  decrementEffectCount,
-  notifyMounted,
-  isMountableUsed,
-  pushNoMount,
-  popNoMount,
-  activeNoMount
-} from './lifecycle.js'
 
+// #region Lifecycle sockets
+
+// The sockets the optional lifecycle layer plugs into: they stay undefined
+// until the "#region Lifecycle" at the end of the file wires them on first
+// use, so the core paths carry no reference to it and bundles that never
+// mount pay only the empty slot checks. Declared above the core because a
+// slot must exist before the first core path that checks it
+let lifecycleEdge: ((dep: ReactiveNode, sub?: ReactiveNode) => void) | undefined
+let lifecycleSettle: (() => void) | undefined
+// #endregion
+// #region Core
 let cycle = 0
-let batchDepth = 0
-let flushDepth = 0
 let notifyIndex = 0
 let queuedLength = 0
+let batchDepth = 0
+let flushDepth = 0
 let activeSub: ReactiveNode | undefined
 const queued: (EffectNode | undefined)[] = []
 
@@ -173,15 +174,8 @@ function link(dep: ReactiveNode, sub: ReactiveNode, version: number): void {
     dep.subs = newLink
   }
 
-  const isDepMountable = isMountableUsed && dep.modes & MountableMode
-
-  // Mark computed signals as mountable if any of their dependencies are mountable
-  if (isDepMountable && 'compute' in sub) {
-    sub.modes |= MountableMode
-  }
-
-  if (isDepMountable && isActiveSubscriber(sub) && sub.noMount !== dep) {
-    incrementEffectCount(dep)
+  if (dep.modes & MountableMode) {
+    lifecycleEdge?.(dep, sub)
   }
 }
 
@@ -221,8 +215,8 @@ function unlink(link: Link, sub = link.sub): Link | undefined {
     unwatch = true
   }
 
-  if (isMountableUsed && dep.modes & MountableMode && isSubscriber(sub) && sub.noMount !== dep) {
-    decrementEffectCount(dep, unwatch)
+  if (dep.modes & MountableMode) {
+    lifecycleEdge?.(dep)
   }
 
   if (unwatch) {
@@ -468,8 +462,7 @@ export function signal<T>(value?: T): WritableSignal<T | undefined> {
     subs: undefined,
     subsTail: undefined,
     flags: MutableFlag,
-    modes: WritableMode,
-    subsCount: 0
+    modes: WritableMode
   }) as WritableSignal<T | undefined>
 }
 
@@ -488,8 +481,7 @@ export function computed<T>(compute: Compute<T>): ReadableSignal<T> {
     depsTail: undefined,
     flags: NoneFlag,
     modes: NoneFlag,
-    compute,
-    subsCount: 0
+    compute
   }) as ReadableSignal<T>
 }
 
@@ -511,9 +503,7 @@ export function effect(fn: EffectCallback, noDefer = false): Destroy {
     modes: NoneFlag
   }
 
-  if (isMountableUsed && activeNoMount !== undefined) {
-    e.noMount = activeNoMount
-  }
+  lifecycleEdge?.(e, e)
 
   if (activeSub !== undefined) {
     link(e, activeSub, 0)
@@ -621,7 +611,7 @@ function updateComputed(c: ComputedNode): boolean {
     popActiveSub(prevSub)
     c.flags &= ~RecursedCheckFlag
     purgeDeps(c)
-    notifyMounted(activeSub)
+    lifecycleSettle?.()
   }
 }
 
@@ -632,7 +622,6 @@ function updateSignal(s: SignalNode): boolean {
 
 function warmupEffect(e: EffectNode): void {
   const prevSub = pushActiveSub(e)
-  const prevNoMount = isMountableUsed ? pushNoMount(e.noMount) : undefined
 
   try {
     e.destroy = e.fn(true) || undefined
@@ -649,32 +638,20 @@ function warmupEffect(e: EffectNode): void {
   } finally {
     popActiveSub(prevSub)
     e.flags &= ~RecursedCheckFlag
-
-    if (isMountableUsed) {
-      popNoMount(prevNoMount)
-      notifyMounted(activeSub)
-    }
+    lifecycleSettle?.()
   }
 }
 
 function runEffect(e: EffectNode): void {
   const prevSub = pushActiveSub(e)
-  const prevNoMount = isMountableUsed ? pushNoMount(e.noMount) : undefined
 
   try {
     e.destroy = e.fn() || undefined
   } finally {
-    if (isMountableUsed) {
-      popNoMount(prevNoMount)
-    }
-
     popActiveSub(prevSub)
     e.flags &= ~RecursedCheckFlag
     purgeDeps(e)
-
-    if (isMountableUsed) {
-      notifyMounted(activeSub)
-    }
+    lifecycleSettle?.()
   }
 }
 
@@ -728,6 +705,8 @@ function flush(): void {
     notifyIndex = 0
     queuedLength = 0
     --flushDepth
+
+    lifecycleSettle?.()
   }
 }
 
@@ -761,6 +740,7 @@ function computedOper<T>(this: ComputedNode<T>): T {
     } finally {
       popActiveSub(prevSub)
       this.flags &= ~RecursedCheckFlag
+      lifecycleSettle?.()
     }
   }
 
@@ -845,6 +825,8 @@ function effectScopeOper(this: ReactiveNode): void {
       parent.flags &= ~(DirtyFlag | PendingFlag)
     }
   }
+
+  lifecycleSettle?.()
 }
 
 function purgeDeps(sub: ReactiveNode) {
@@ -855,6 +837,8 @@ function purgeDeps(sub: ReactiveNode) {
     dep = unlink(dep, sub)
   }
 }
+
+// #endregion
 
 // #region Defer scopes
 //
@@ -1021,9 +1005,9 @@ export function startScope(scope: DeferredScope): DeferredScope {
   ) {
     e.modes &= ~LazyMode
 
-    // What the lazy body queued for mounting belongs to this moment - the
-    // scope became live now, before any of its deferred effects queue more
-    notifyMounted(activeSub)
+    // What the lazy body left pending belongs to this moment - the scope
+    // became live now, before any of its deferred effects add more
+    lifecycleSettle?.()
     startDeferred(e)
   }
 
@@ -1080,6 +1064,239 @@ export function boundDeferScope() {
     }
 
     return deferScope(fn, anchor)
+  }
+}
+
+// #endregion
+
+// #region Lifecycle
+//
+// A mountable signal mounts when it gains its first live subscriber and
+// unmounts when it loses the last one. The whole mechanism is a plugin
+// behind the core's lifecycle slots, installed on first use - a bundle
+// that never imports it pays only the empty slot checks.
+//
+// PRESENCE - mounted state is derived, never stored.
+// Nothing counts subscribers. The authoritative answer is a question asked
+// of the graph itself: does this node have a live path upward to an
+// effect? `present` walks the node's subs, short-circuiting on the first
+// live effect and relaying through mountable computeds (contagion marks
+// every computed that ever linked a mountable dep). A state that is never
+// stored cannot go stale, whenever the links were made; the walk itself is
+// memoized (`lcs`/`lcv`), and the memo dies with any edge edit (`stamp`).
+//
+// LEVEL - mount and unmount are one event, a level change.
+// Graph edits only enqueue the touched node as worth asking about. The
+// drain compares the actual level against the last delivered one; equal
+// means silence. Churn inside one turn is therefore invisible, and both
+// directions travel the same road: sources mount before their dependents
+// and unmount after them. A late listener joins with the settled level as
+// its baseline - the `lcf` watermark tracks how much of the listener list
+// the level was already delivered to.
+//
+// BOUNDARY - listeners run only on a consistent graph.
+// The drain runs when the core is quiescent (no running subscriber, no
+// open batch, no active flush). Listener code runs untracked and unowned,
+// and whatever it creates is exempted from mounting the node that fired
+// it, so a mount handler cannot keep its own node alive through a direct
+// subscription (a path relayed through a computed is not exempted, as
+// before this redesign; the exemption is captured at creation and does
+// not travel to effects created by later re-runs). Delivery is best-effort under a throwing
+// listener: the processed queue prefix is dropped, the tail survives.
+// Registration from inside an `untracked` window of a running body counts
+// as quiescent and delivers immediately.
+
+const pending: ReadableNode[] = []
+let pendingStart = 0
+let stamp = 0
+let draining = 0
+let exemptCtx: ReactiveNode | undefined
+let fireCtx: ReactiveNode | undefined
+
+// A node handed to itself is a freshly created effect, not an edge: the
+// two hooks share one slot
+function onEdge(dep: ReactiveNode, sub?: ReactiveNode): void {
+  if (dep !== sub) {
+    // Contagion: a computed that links a mountable dep relays liveness
+    if ((sub as ComputedNode | undefined)?.compute) {
+      sub!.modes |= MountableMode
+    }
+
+    // The presence memo goes stale exactly when an edge changes
+    ++stamp
+    ;(dep as ReadableNode).lcq = pending.push(dep as ReadableNode)
+  } else {
+    // A queued effect re-run is not part of the listener's creation
+    // frame: what it builds is a genuine subscriber
+    dep.lcx = exemptCtx || !flushDepth && fireCtx
+  }
+}
+
+function present(node: ReadableNode): boolean {
+  if (node.lcs !== stamp) {
+    node.lcs = stamp
+    node.lcv = false
+
+    for (let link = node.subs; link; link = link.nextSub) {
+      const sub = link.sub
+
+      if (
+        sub.lcx !== node
+        && (
+          // A live effect settles the question; anything else relays only
+          // if it is a mountable computed
+          sub.flags & WatchingFlag
+          || sub.modes & MountableMode && present(sub as ReadableNode)
+        )
+      ) {
+        node.lcv = true
+        break
+      }
+    }
+  }
+
+  return node.lcv!
+}
+
+function walkDeps(node: ReadableNode): void {
+  for (let link = (node as ComputedNode).deps; link; link = link.nextDep) {
+    if (link.dep.modes & MountableMode) {
+      evaluate(link.dep as ReadableNode)
+    }
+  }
+}
+
+function evaluate(node: ReadableNode): void {
+  const mounted = present(node)
+  const listeners = node.lcl
+  const changed = !node.lcd === mounted
+  // The delivered watermark doubles as the fire cursor. An unchanged level
+  // is still delivered to listeners past it; a changed one rewinds to the
+  // head. It stays undefined while nothing was ever delivered, which is
+  // exactly the state in which no comparison against it may pass
+  const from = node.lcf = changed ? 0 : node.lcf!
+  // Undefined for a node that never had listeners: every comparison
+  // against it is false, which is exactly the answer that state needs
+  const to = listeners?.length as number
+
+  node.lcd = mounted
+
+  // Sources mount before their dependents and unmount after them
+  if (changed && mounted) {
+    walkDeps(node)
+  }
+
+  // Listeners run untracked and unowned, and whatever they create is
+  // exempted from mounting the node that fired them. The cursor lives on
+  // the node, so an unsubscribe from inside a firing listener keeps the
+  // walk aligned with its splice through the same decrement it uses
+  // outside a fire, and a listener registered during the fire is picked up
+  // by the very next turn of the loop
+  if ((mounted || changed) && from < to) {
+    fireCtx = node
+
+    // The live bound belongs to the mount fire only: a listener
+    // registered during an unmount fire must stay silent until the next
+    // mount, its first delivery is always `true`. The frozen bound lives
+    // on the node, next to the cursor and spliced along with it, so a
+    // listener unsubscribed from under the bound cannot pull a newcomer
+    // below it - and both bounds stay inside the list, so the cursor never
+    // reads a vacated slot
+    node.lce = to
+
+    while (node.lcf < (mounted ? listeners!.length : node.lce)) {
+      listeners![node.lcf++](mounted)
+    }
+  }
+
+  if (changed && !mounted) {
+    walkDeps(node)
+  }
+}
+
+function settle(): void {
+  // Quiescent: no running subscriber except a started scope body, no open
+  // batch and no active flush
+  if (
+    !draining
+    && pending.length
+    && (
+      activeSub === undefined
+      || (activeSub.modes & (ScopeMode | LazyMode)) === ScopeMode
+    )
+    && !batchDepth
+    && !flushDepth
+  ) {
+    const prevSub = pushActiveSub(undefined)
+    const prevCtx = fireCtx
+
+    draining = 1
+
+    try {
+      // The queue is drained by a moving cursor: whatever a listener
+      // enqueues is picked up by the same walk, in the order it arrived
+      while (pendingStart < pending.length) {
+        const node = pending[pendingStart++]
+
+        // A node re-queued by the tear-down of its own dependent belongs
+        // to that later position: firing at the first one would deliver a
+        // source before the dependent that is going down with it
+        if (node.lcq === pendingStart) {
+          evaluate(node)
+        }
+      }
+    } finally {
+      // Nothing is dropped from under the queued positions: the array is
+      // emptied only by a walk that reached its end, so after a listener
+      // throw the tail survives for the next boundary exactly where its
+      // positions say it is - and emptying it there is also what keeps
+      // `pending.length` the whole quiescence test above
+      if (pendingStart === pending.length) {
+        pending.length = pendingStart = 0
+      }
+
+      fireCtx = prevCtx
+      popActiveSub(prevSub)
+      draining = 0
+    }
+  }
+}
+
+/**
+ * Mark the node as lifecycle-relevant and re-derive its level at the next
+ * boundary. Used when a node is marked mountable after it gained direct
+ * subscribers; contagion through computeds linked before the marking is
+ * not retroactive, and the marking itself does not invalidate the presence
+ * memo - it stays valid until the next edge edit.
+ * @internal
+ * @param node - The node to touch.
+ */
+export function touchLifecycle(node: ReactiveNode): void {
+  lifecycleEdge = onEdge
+  lifecycleSettle = settle
+  ;(node as ReadableNode).lcq = pending.push(node as ReadableNode)
+  settle()
+}
+
+/**
+ * Call a function where subscribers created inside will ignore mount of the specified signal.
+ * @param $signal - The signal to ignore mount for.
+ * @param fn - The function to call.
+ * @returns The result of the function.
+ */
+export function noMount<T>($signal: AnySignal, fn: () => T): T {
+  // No install: the exemption is read only by the edge hook, and a node
+  // that is mountable now has installed the plugin at its own marking.
+  // A node marked mountable AFTER this window is the documented
+  // non-retroactive case
+  const prevCtx = exemptCtx
+
+  exemptCtx = $signal.node
+
+  try {
+    return fn()
+  } finally {
+    exemptCtx = prevCtx
   }
 }
 

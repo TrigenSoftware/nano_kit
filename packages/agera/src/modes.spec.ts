@@ -12,6 +12,7 @@ import {
   trigger,
   mountable,
   isMountable,
+  isMounted,
   readonly,
   isWritable,
   unsafeMarkWritable
@@ -70,7 +71,7 @@ describe('agera', () => {
         ])
       })
 
-      it('should not desync subs count when signal is read by non-subscriber node', () => {
+      it('should not change mounted state when signal is read by non-subscriber node', () => {
         const $num = mountable(signal(1))
         const log: string[] = []
 
@@ -82,17 +83,17 @@ describe('agera', () => {
           $num()
         })
 
-        expect($num.node.subsCount).toBe(1)
+        expect(isMounted($num)).toBe(true)
         expect(log).toEqual(['mount'])
 
         trigger($num)
 
-        expect($num.node.subsCount).toBe(1)
+        expect(isMounted($num)).toBe(true)
         expect(log).toEqual(['mount'])
 
         stop()
 
-        expect($num.node.subsCount).toBe(0)
+        expect(isMounted($num)).toBe(false)
         expect(log).toEqual(['mount', 'unmount'])
       })
 
@@ -448,7 +449,7 @@ describe('agera', () => {
           $d()
         })
 
-        expect($a.node.subsCount).toBe(2)
+        expect(isMounted($a)).toBe(true)
         expect(aListener.mock.calls).toEqual([[true]])
         expect(bListener.mock.calls).toEqual([[true]])
         expect(cListener.mock.calls).toEqual([[true]])
@@ -456,7 +457,7 @@ describe('agera', () => {
 
         stop()
 
-        expect($a.node.subsCount).toBe(0)
+        expect(isMounted($a)).toBe(false)
         expect(aListener.mock.calls).toEqual([[true], [false]])
         expect(bListener.mock.calls).toEqual([[true], [false]])
         expect(cListener.mock.calls).toEqual([[true], [false]])
@@ -479,21 +480,329 @@ describe('agera', () => {
           $b()
         })
 
-        expect($a.node.subsCount).toBe(2)
+        expect(isMounted($a)).toBe(true)
         expect(aListener.mock.calls).toEqual([[true]])
         expect(bListener.mock.calls).toEqual([[true]])
 
         stop1()
 
-        expect($a.node.subsCount).toBe(1)
+        expect(isMounted($a)).toBe(true)
         expect(aListener.mock.calls).toEqual([[true]])
         expect(bListener.mock.calls).toEqual([[true]])
 
         stop2()
 
-        expect($a.node.subsCount).toBe(0)
+        expect(isMounted($a)).toBe(false)
         expect(aListener.mock.calls).toEqual([[true], [false]])
         expect(bListener.mock.calls).toEqual([[true], [false]])
+      })
+
+      it('should unmount a source after its dependent when both are read directly', () => {
+        const $a = mountable(signal(1))
+        const $b = mountable(computed(() => `${$a() + 1}`))
+        const log: string[] = []
+
+        onMounted($a, mounted => log.push(mounted ? 'a mount' : 'a unmount'))
+        onMounted($b, mounted => log.push(mounted ? 'b mount' : 'b unmount'))
+
+        const stop = effect(() => {
+          $a()
+          $b()
+        })
+
+        expect(log).toEqual(['a mount', 'b mount'])
+        log.length = 0
+
+        stop()
+
+        expect(log).toEqual(['b unmount', 'a unmount'])
+      })
+
+      it('should unmount a middle computed after its dependent computed', () => {
+        const $a = mountable(signal(1))
+        const $b = mountable(computed(() => $a() + 1))
+        const $c = mountable(computed(() => $b() + 1))
+        const log: string[] = []
+
+        onMounted($a, mounted => log.push(mounted ? 'a mount' : 'a unmount'))
+        onMounted($b, mounted => log.push(mounted ? 'b mount' : 'b unmount'))
+        onMounted($c, mounted => log.push(mounted ? 'c mount' : 'c unmount'))
+
+        const stop = effect(() => {
+          $b()
+          $c()
+        })
+
+        expect(log).toEqual([
+          'a mount',
+          'b mount',
+          'c mount'
+        ])
+        log.length = 0
+
+        stop()
+
+        expect(log).toEqual([
+          'c unmount',
+          'b unmount',
+          'a unmount'
+        ])
+      })
+
+      it('should not exempt an effect created by a flush that a listener triggered', () => {
+        const $a = mountable(signal(0))
+        const $t = signal(0)
+        let inner: (() => void) | undefined
+
+        onMounted($a, (mounted) => {
+          if (mounted) {
+            $t(1)
+          }
+        })
+        effect(() => {
+          if ($t() === 1 && !inner) {
+            inner = effect(() => {
+              $a()
+            })
+          }
+        })
+
+        const stop = effect(() => {
+          $a()
+        })
+
+        expect(isMounted($a)).toBe(true)
+        expect(inner).toBeDefined()
+
+        stop()
+
+        // `inner` is a live direct subscriber of $a
+        expect(isMounted($a)).toBe(true)
+
+        inner!()
+
+        expect(isMounted($a)).toBe(false)
+      })
+
+      it('should still exempt an effect created directly by the listener', () => {
+        const $a = mountable(signal(0))
+
+        onMounted($a, (mounted) => {
+          if (mounted) {
+            effect(() => {
+              $a()
+            })
+          }
+        })
+
+        const stop = effect(() => {
+          $a()
+        })
+
+        expect(isMounted($a)).toBe(true)
+
+        stop()
+
+        expect(isMounted($a)).toBe(false)
+      })
+
+      it('should survive unsubscribing a later listener during an unmount fire', () => {
+        const $num = mountable(signal(0))
+        const calls: string[] = []
+        let offC: (() => void) | undefined = undefined
+
+        onMounted($num, m => calls.push(`a ${m}`))
+        onMounted($num, (m) => {
+          calls.push(`b ${m}`)
+
+          if (!m) {
+            offC!()
+          }
+        })
+        offC = onMounted($num, m => calls.push(`c ${m}`))
+
+        const stop = effect(() => {
+          $num()
+        })
+
+        expect(calls).toEqual([
+          'a true',
+          'b true',
+          'c true'
+        ])
+        calls.length = 0
+
+        stop()
+
+        expect(calls).toEqual(['a false', 'b false'])
+      })
+
+      it('should not deliver anything to a listener registered during an unmount fire', () => {
+        const $num = mountable(signal(0))
+        const calls: string[] = []
+
+        onMounted($num, (mounted) => {
+          calls.push(`a ${mounted}`)
+
+          if (!mounted) {
+            onMounted($num, m => calls.push(`late ${m}`))
+          }
+        })
+
+        const stop = effect(() => {
+          $num()
+        })
+
+        stop()
+
+        // the late listener stays silent until the next mount
+        expect(calls).toEqual(['a true', 'a false'])
+
+        const stop2 = effect(() => {
+          $num()
+        })
+
+        expect(calls).toEqual([
+          'a true',
+          'a false',
+          'a true',
+          'late true'
+        ])
+
+        stop2()
+      })
+
+      it('should not deliver anything to a listener registered by a re-arming listener during an unmount fire', () => {
+        const $num = mountable(signal(0))
+        const calls: string[] = []
+        let off: (() => void) | undefined = undefined
+
+        off = onMounted($num, (mounted) => {
+          calls.push(`first ${mounted}`)
+
+          if (!mounted) {
+            off!()
+            off = onMounted($num, m => calls.push(`second ${m}`))
+          }
+        })
+
+        const stop = effect(() => {
+          $num()
+        })
+
+        stop()
+
+        // the re-armed listener stays silent until the next mount
+        expect(calls).toEqual(['first true', 'first false'])
+
+        const stop2 = effect(() => {
+          $num()
+        })
+
+        expect(calls).toEqual([
+          'first true',
+          'first false',
+          'second true'
+        ])
+
+        stop2()
+      })
+
+      it('should not skip listeners when one unsubscribes during the fire', () => {
+        const $num = mountable(signal(0))
+        const calls: string[] = []
+        const offA = onMounted($num, (mounted) => {
+          calls.push(`a ${mounted}`)
+          offA()
+        })
+
+        onMounted($num, (mounted) => {
+          calls.push(`b ${mounted}`)
+        })
+
+        const stop = effect(() => {
+          $num()
+        })
+
+        expect(calls).toEqual(['a true', 'b true'])
+
+        stop()
+
+        expect(calls).toEqual([
+          'a true',
+          'b true',
+          'b false'
+        ])
+      })
+
+      it('should deliver the level once to a listener registered during the fire', () => {
+        const $num = mountable(signal(0))
+        const calls: string[] = []
+
+        onMounted($num, (mounted) => {
+          calls.push(`a ${mounted}`)
+
+          if (mounted && calls.length === 1) {
+            onMounted($num, m => calls.push(`b ${m}`))
+          }
+        })
+
+        const stop = effect(() => {
+          $num()
+        })
+
+        expect(calls).toEqual(['a true', 'b true'])
+
+        stop()
+
+        expect(calls).toEqual([
+          'a true',
+          'b true',
+          'a false',
+          'b false'
+        ])
+      })
+
+      it('should keep destroy idempotent for a listener registered twice', () => {
+        const $num = mountable(signal(0))
+        const listener = vi.fn()
+        const off1 = onMounted($num, listener)
+
+        onMounted($num, listener)
+
+        off1()
+        off1()
+
+        const stop = effect(() => {
+          $num()
+        })
+
+        expect(listener.mock.calls).toEqual([[true]])
+
+        stop()
+      })
+
+      it('should keep delivering to other nodes after a listener throws', () => {
+        const $a = mountable(signal(0))
+        const $b = mountable(signal(0))
+        const bListener = vi.fn()
+
+        onMounted($a, () => {
+          throw new Error('boom')
+        })
+        onMounted($b, bListener)
+
+        expect(() => effect(() => {
+          $a()
+          $b()
+        })).toThrow('boom')
+
+        // the tail of the queue survives the throw and is delivered
+        // at the next boundary
+        effect(() => { /* boundary */ })()
+
+        expect(bListener.mock.calls).toEqual([[true]])
+        expect(isMounted($b)).toBe(true)
       })
 
       it('should not dead lock signal mounted state', () => {
@@ -519,7 +828,7 @@ describe('agera', () => {
         const stop = onMounted($value, callback)
 
         expect(events).toEqual([])
-        expect($value.node.subsCount).toBe(0)
+        expect(isMounted($value)).toBe(false)
 
         const stopEffect = effect(() => {
           events.push(`effect ${$value()}`)
@@ -530,7 +839,7 @@ describe('agera', () => {
           'onMounted callback true',
           'mount effect 0'
         ])
-        expect($value.node.subsCount).toBe(1)
+        expect(isMounted($value)).toBe(true)
         events.length = 0
 
         $value(2)
@@ -540,7 +849,7 @@ describe('agera', () => {
           'mount effect destroy',
           'mount effect 2'
         ])
-        expect($value.node.subsCount).toBe(1)
+        expect(isMounted($value)).toBe(true)
         events.length = 0
 
         const stopEffect2 = effect(() => {
@@ -548,24 +857,24 @@ describe('agera', () => {
         })
 
         expect(events).toEqual(['effect 2 2'])
-        expect($value.node.subsCount).toBe(2)
+        expect(isMounted($value)).toBe(true)
         events.length = 0
 
         stopEffect()
         expect(events).toEqual([])
-        expect($value.node.subsCount).toBe(1)
+        expect(isMounted($value)).toBe(true)
 
         stopEffect2()
         expect(events).toEqual([
           'mount effect destroy',
           'onMounted callback false'
         ])
-        expect($value.node.subsCount).toBe(0)
+        expect(isMounted($value)).toBe(false)
         events.length = 0
 
         stop()
         expect(events).toEqual([])
-        expect($value.node.subsCount).toBe(0)
+        expect(isMounted($value)).toBe(false)
       })
     })
   })

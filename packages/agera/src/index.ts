@@ -5,7 +5,6 @@ export {
   trigger,
   onSignal
 } from './internals/system.js'
-export { noMount } from './internals/lifecycle.js'
 export * from './signal.js'
 export * from './modes.js'
 export * from './effect.js'
