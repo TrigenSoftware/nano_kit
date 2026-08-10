@@ -25,6 +25,30 @@ describe('agera', () => {
       expect($num()).toBe(6)
     })
 
+    it('should not subscribe the writing effect to signals read by the reducer', () => {
+      const $count = signal(0)
+      const $step = signal(1)
+      const listener = vi.fn()
+      let written = false
+      const stop = effect(() => {
+        listener($count())
+
+        if (!written) {
+          written = true
+
+          $count(count => count + $step())
+        }
+      })
+      const runs = listener.mock.calls.length
+
+      $step(10)
+
+      // the reducer's read must not be a dependency of the writing effect
+      expect(listener).toHaveBeenCalledTimes(runs)
+
+      stop()
+    })
+
     it('should notify recursed effect by external update', () => {
       const log: string[] = []
       const $data = signal()

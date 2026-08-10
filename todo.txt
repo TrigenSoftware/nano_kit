@@ -43,7 +43,6 @@
 
 - hooks/effects naming convention
 
-- wrap into untracked needed parts
 - error boundaries: cleanup half-created scope on render throw (stopScope in catch) - rows/content are not parent-linked, teardown must be explicit
 - for loop array or empty check for else
 - for_ crashes on duplicate track keys (pre-existing, loop.ts reconcile matched/stashed)

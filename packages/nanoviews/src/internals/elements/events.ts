@@ -1,3 +1,4 @@
+import { untracked } from 'kida'
 import { defineProtoProp } from './utils.js'
 
 type Target = EventTarget & {
@@ -16,22 +17,26 @@ function eventHandler(event: Event) {
 
   const path = event.composedPath()
 
-  for (let i = 0, len = path.length - 4, handler; i < len; i++) {
-    node = path[i]
+  // A handler is user code: it must not subscribe whatever effect happens to
+  // be running when the event is dispatched synchronously from inside one
+  untracked(() => {
+    for (let i = 0, len = path.length - 4, handler; i < len; i++) {
+      node = path[i]
 
-    // @ts-expect-error Get monkey defined property
-    if ((handler = node[key] as EventListener | undefined) !== undefined && !node.disabled) {
-      handler.call(node, event)
+      // @ts-expect-error Get monkey defined property
+      if ((handler = node[key] as EventListener | undefined) !== undefined && !node.disabled) {
+        handler.call(node, event)
 
-      if (event.cancelBubble) {
+        if (event.cancelBubble) {
+          break
+        }
+      }
+
+      if (node.__mp) {
         break
       }
     }
-
-    if (node.__mp) {
-      break
-    }
-  }
+  })
 
   node = undefined
 }

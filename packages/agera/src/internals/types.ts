@@ -18,7 +18,7 @@ export type Compute<T> = (prevValue?: T) => T
 
 export type Accessor<T> = () => T
 
-export type NewValue<T> = T | ((prevValue: T) => T)
+export type NewValue<T, A = void> = T | ((prevValue: T, arg: A) => T)
 
 export type MountedListener = (mounted: boolean) => void
 

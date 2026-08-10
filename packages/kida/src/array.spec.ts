@@ -108,6 +108,32 @@ describe('kida', () => {
       expect(atIndex($array, 1)()).toBe(4)
     })
 
+    it('should not subscribe the writing effect to signals read by the updater', () => {
+      const $array = signal([1, 2])
+      const $unrelated = signal(0)
+      const listener = vi.fn()
+      let written = false
+      const off = effect(() => {
+        listener($array())
+
+        if (!written) {
+          written = true
+
+          updateArray($array, (array) => {
+            array[1] = $unrelated()
+          })
+        }
+      })
+      const runs = listener.mock.calls.length
+
+      $unrelated(5)
+
+      // the updater's read must not be a dependency of the writing effect
+      expect(listener).toHaveBeenCalledTimes(runs)
+
+      off()
+    })
+
     it('should update child by root and notify listeners', () => {
       const $array = signal([
         1,

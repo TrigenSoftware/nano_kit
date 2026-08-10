@@ -399,6 +399,7 @@ export function pushActiveSub(sub?: ReactiveNode) {
   const prevSub = activeSub
 
   activeSub = sub
+
   return prevSub
 }
 
@@ -751,8 +752,27 @@ function computedOper<T>(this: ComputedNode<T>): T {
   return this.value!
 }
 
-export function nextValue<T>(prevValue: T, nextValue: NewValue<T>): T {
-  return isFunction(nextValue) ? nextValue(prevValue) : nextValue
+/**
+ * Resolve the new value of a signal, calling the reducer form untracked.
+ * A reducer is user code that runs while some effect may be running: its
+ * reads must not become dependencies of that effect.
+ * @param prevValue - The current value.
+ * @param nextValue - The new value or a reducer of the current one.
+ * @param arg - Extra argument passed to the reducer.
+ * @returns The resolved value.
+ */
+export function nextValue<T, A>(prevValue: T, nextValue: NewValue<T, A>, arg?: A): T {
+  if (isFunction(nextValue)) {
+    const prevSub = pushActiveSub(undefined)
+
+    try {
+      return nextValue(prevValue, arg as A)
+    } finally {
+      popActiveSub(prevSub)
+    }
+  }
+
+  return nextValue
 }
 
 export function signalNextValue<T>($signal: WritableSignal<T>, newValue: NewValue<T>): T {

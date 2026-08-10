@@ -4,7 +4,10 @@ import {
   it,
   expect
 } from 'vitest'
-import { effect } from '@nano_kit/store'
+import {
+  effect,
+  signal
+} from '@nano_kit/store'
 import { CacheStorage } from './CacheStorage.js'
 import {
   queryKey,
@@ -101,6 +104,31 @@ describe('query', () => {
         $cache(key, 42)
 
         expect($cache(key)).toBe(42)
+      })
+
+      it('should not subscribe the writing effect to signals read by the updater', () => {
+        const $cache = dataCacheFacade(new CacheStorage())
+        const key = queryKey<[string], number>('test')('a')
+        const $unrelated = signal(1)
+        const listener = vi.fn()
+        let written = false
+        const off = effect(() => {
+          listener($cache(key))
+
+          if (!written) {
+            written = true
+
+            $cache(key, () => $unrelated())
+          }
+        })
+        const runs = listener.mock.calls.length
+
+        $unrelated(2)
+
+        // the updater's read must not be a dependency of the writing effect
+        expect(listener).toHaveBeenCalledTimes(runs)
+
+        off()
       })
 
       it('should revert value change', () => {

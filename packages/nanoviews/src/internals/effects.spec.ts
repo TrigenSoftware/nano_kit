@@ -15,6 +15,7 @@ import {
   getContext
 } from 'kida'
 import {
+  button,
   div,
   span
 } from '../elements/elements.js'
@@ -749,6 +750,39 @@ describe('nanoviews', () => {
             'middle',
             'outer'
           ])
+        })
+      })
+
+      describe('tracking barriers', () => {
+        it('should not subscribe an effect that dispatches an event to what the handler reads', () => {
+          const $unrelated = signal(0)
+          const effectRuns: number[] = []
+          const handlerRuns: number[] = []
+          let el!: HTMLButtonElement
+
+          render(() => {
+            el = button({
+              onClick: () => {
+                handlerRuns.push($unrelated())
+              }
+            })('click')
+
+            effect(() => {
+              effectRuns.push(effectRuns.length)
+              el.click()
+            })
+
+            return el
+          })
+
+          expect(effectRuns).toHaveLength(1)
+          expect(handlerRuns).toHaveLength(1)
+
+          $unrelated(1)
+
+          // the handler's read must not be a dependency of the dispatching effect
+          expect(effectRuns).toHaveLength(1)
+          expect(handlerRuns).toHaveLength(1)
         })
       })
     })

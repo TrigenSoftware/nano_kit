@@ -1,7 +1,7 @@
 import {
   assignKey,
   batch,
-  isFunction
+  nextValue
 } from '@nano_kit/store'
 import type {
   CacheKeyBuilder,
@@ -86,11 +86,11 @@ function cacheGetterSetter<F extends 'data' | 'error', P extends unknown[], R>(
     this.set(key, (entry = this.initial()) => {
       prevEntry = entry
 
-      const next = isFunction(newValue)
-        ? newValue(entry[field] as CacheEntry<P, R>[F], entry.params as P)
-        : newValue
-
-      return assignKey(entry, field, next)
+      return assignKey(entry, field, nextValue(
+        entry[field] as CacheEntry<P, R>[F],
+        newValue,
+        entry.params as P
+      ))
     })
 
     return () => this.set(

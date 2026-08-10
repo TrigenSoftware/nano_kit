@@ -7,7 +7,7 @@ import {
   morph,
   isWritable,
   unsafeMarkWritable,
-  isFunction,
+  nextValue,
   untracked
 } from 'agera'
 import type { AnyObject } from './types.js'
@@ -74,7 +74,7 @@ export function child<
     $parent(setValue!(
       parent,
       k,
-      isFunction(value) ? value(parent[k]) : value
+      nextValue(parent[k], value)
     ))
   })
 
