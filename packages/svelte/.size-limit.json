@@ -1,8 +1,15 @@
 [
   {
-    "name": "All publics",
+    "name": "All publics (Gzip)",
+    "gzip": true,
     "path": "dist/index.js",
     "import": "*",
-    "limit": "1 kB"
+    "limit": "350 B"
+  },
+  {
+    "name": "All publics (Brotli)",
+    "path": "dist/index.js",
+    "import": "*",
+    "limit": "250 B"
   }
 ]

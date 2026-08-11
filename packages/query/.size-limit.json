@@ -1,14 +1,28 @@
 [
   {
-    "name": "All publics",
+    "name": "All publics (Gzip)",
+    "gzip": true,
     "path": "dist/index.js",
     "import": "*",
-    "limit": "4.26 kB"
+    "limit": "4.7 kB"
   },
   {
-    "name": "Minimal set",
+    "name": "All publics (Brotli)",
+    "path": "dist/index.js",
+    "import": "*",
+    "limit": "4.3 kB"
+  },
+  {
+    "name": "Minimal set (Gzip)",
+    "gzip": true,
     "path": "dist/index.js",
     "import": "{ client, mutations, queryKey }",
-    "limit": "1.71 kB"
+    "limit": "1.9 kB"
+  },
+  {
+    "name": "Minimal set (Brotli)",
+    "path": "dist/index.js",
+    "import": "{ client, mutations, queryKey }",
+    "limit": "1.7 kB"
   }
 ]
