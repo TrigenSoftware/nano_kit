@@ -2,7 +2,7 @@ import {
   type Accessor,
   type NewValue,
   type WritableSignal,
-  morph,
+  createSignal,
   mountable,
   onMount,
   signal,
@@ -10,6 +10,10 @@ import {
   untracked
 } from 'kida'
 import type { RateLimiter } from './types.js'
+import {
+  type FacadeNode,
+  facadeOper
+} from './facade.js'
 
 /**
  * Creates a compute function that returns a rate-limited value from an accessor.
@@ -50,13 +54,16 @@ export function paced<T>(
 ) {
   const $proxy = mountable(signal<T>(untracked($signal)))
   const update = rateLimiter<[NewValue<T>]>($signal)
+  const node = $proxy.node as FacadeNode<T>
 
   onMount($proxy, () => subscribe($signal, $proxy))
 
-  return morph($proxy, {
-    set(value: NewValue<T>) {
-      $proxy(value)
-      update(value)
-    }
-  })
+  node.get = $proxy
+
+  node.set = (value) => {
+    $proxy(value)
+    update(value)
+  }
+
+  return createSignal(facadeOper, node) as WritableSignal<T>
 }

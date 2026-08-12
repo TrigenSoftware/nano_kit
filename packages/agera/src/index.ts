@@ -1,9 +1,15 @@
 export type * from './internals/types.js'
-export { ExternalModesBase } from './internals/flags.js'
+export {
+  NoneFlag,
+  WritableMode,
+  ExternalModesBase
+} from './internals/flags.js'
 export {
   untracked,
   trigger,
-  onSignal
+  onSignal,
+  createSignal,
+  computedOper
 } from './internals/system.js'
 export * from './signal.js'
 export * from './modes.js'

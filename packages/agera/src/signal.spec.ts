@@ -5,11 +5,12 @@ import {
   expect
 } from 'vitest'
 import {
+  type SignalNode,
   computed,
   signal,
   effect,
   isSignal,
-  morph,
+  createSignal,
   trigger
 } from './index.js'
 
@@ -120,12 +121,32 @@ describe('agera', () => {
       })
     })
 
-    describe('morph', () => {
-      it('should pass isSignal check', () => {
-        const $num = signal(0)
-        const $morph = morph($num, {})
+    describe('createSignal', () => {
+      it('should create a second face over the same node', () => {
+        const $num = signal(1)
+        const node = $num.node as SignalNode<number> & {
+          get(): number
+          set(value: number): void
+        }
 
-        expect(isSignal($morph)).toBe(true)
+        node.get = () => $num() * 2
+        node.set = value => $num(value / 2)
+
+        const $double = createSignal(function doubleOper(this: typeof node, ...value: [number]) {
+          if (value.length) {
+            this.set(value[0])
+          } else {
+            return this.get()
+          }
+        }, node)
+
+        expect(isSignal($double)).toBe(true)
+        expect($double.node).toBe($num.node)
+        expect($double()).toBe(2)
+
+        $double(10)
+
+        expect($num()).toBe(5)
       })
     })
 

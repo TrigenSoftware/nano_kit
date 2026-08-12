@@ -81,40 +81,6 @@ const stop = noMount($data, () => effect(() => {
 }))
 ```
 
-## Signal Morphing
-
-**`morph`** creates a new signal that wraps an existing one with custom get/set behavior. The key feature is that you can dynamically change these behaviors on the fly by modifying `this.get` and `this.set` within the methods themselves.
-
-```ts
-import { signal, morph } from '@nano_kit/store'
-
-const $source = signal(0)
-const $doubled = morph($source, {
-  get() {
-    return this.source() * 2
-  },
-  set(value) {
-    this.source(value / 2)
-  }
-})
-
-$doubled(10)
-console.log($source()) /* 5 */
-console.log($doubled()) /* 10 */
-
-/* You can change behavior on the fly */
-const $dynamic = morph($source, {
-  get() {
-    /* Dynamically change get behavior */
-    if (this.source() > 10) {
-      this.get = () => this.source() * 3
-    }
-
-    return this.source()
-  }
-})
-```
-
 ## Next Values
 
 **`nextValue`** resolves a signal setter value against the previous value. Use it when your low-level API accepts the same `value | updater` shape as writable signals.
@@ -131,18 +97,16 @@ nextValue(prev, value => value + 1) /* 2 */
 **`signalNextValue`** resolves a signal setter value against a writable signal's pending value. This is useful inside custom setters where several writes may happen during the same propagation cycle.
 
 ```ts
-import { signal, morph, signalNextValue } from '@nano_kit/store'
+import { signal, signalNextValue } from '@nano_kit/store'
 
 const $count = signal(0)
-const $positiveCount = morph($count, {
-  set(next) {
-    const value = signalNextValue(this.source, next)
+const setPositive = (next) => {
+  const value = signalNextValue($count, next)
 
-    this.source(Math.max(0, value))
-  }
-})
+  $count(Math.max(0, value))
+}
 
-$positiveCount(count => count + 1)
+setPositive(count => count + 1)
 ```
 
 ## External Signals

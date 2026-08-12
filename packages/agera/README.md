@@ -293,28 +293,6 @@ $a(1)
 $b(2)
 ```
 
-### Morph
-
-`morph` methods allows to create signals that can change their getter and setter on the fly.
-
-```ts
-import { signal, morph } from 'agera'
-
-const $string = signal('')
-// Debounce signal updates
-const $debouncedString = morph($string, {
-  set: debounce($string, 300)
-})
-// Lazy initialization
-const $lazyString = morph($string, {
-  get() {
-    this.set('Lazy string')
-    this.get = this.source
-    return 'Lazy string'
-  }
-})
-```
-
 ### `isSignal`
 
 `isSignal` method checks if the value is a signal.

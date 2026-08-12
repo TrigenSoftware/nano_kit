@@ -23,6 +23,6 @@
     "name": "Average usage (Brotli)",
     "path": "dist/index.js",
     "import": "{ fragment, div, form, input, button, label, classList$, if_, for_, value$, $$children, effect }",
-    "limit": "4.05 kB"
+    "limit": "4 kB"
   }
 ]

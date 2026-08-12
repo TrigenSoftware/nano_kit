@@ -1,17 +1,54 @@
 import {
   type WritableSignal,
   type ReadableSignal,
+  type ComputedNode,
   type Accessor,
   type NewValue,
-  computed,
-  morph,
+  NoneFlag,
+  WritableMode,
+  computedOper,
+  createSignal,
   isWritable,
-  unsafeMarkWritable,
   nextValue,
   untracked
 } from 'agera'
 import type { AnyObject } from './types.js'
 import { $get } from './utils.js'
+
+// A child is one node and one bound function: the parent, the key and the
+// writer live on the node the operators are bound to, so nothing here
+// allocates a closure per child
+interface ChildNode extends ComputedNode {
+  /**
+   * Parent signal.
+   */
+  p: WritableSignal<AnyObject>
+  /**
+   * Key to read from the parent, static or reactive.
+   */
+  k: PropertyKey | Accessor<PropertyKey>
+  /**
+   * Writes the key back into a copy of the parent value.
+   */
+  sv(parentValue: AnyObject, key: PropertyKey, value: unknown): AnyObject
+}
+
+function childCompute(this: ChildNode) {
+  return this.p()?.[$get(this.k)]
+}
+
+function childOper(this: ChildNode, ...value: [NewValue<unknown>]) {
+  if (value.length) {
+    untracked(() => {
+      const parent = this.p()
+      const key = $get(this.k)
+
+      this.p(this.sv(parent, key, nextValue(parent[key], value[0])))
+    })
+  } else {
+    return computedOper.call(this)
+  }
+}
 
 /**
  * Create a writable child signal from a parent signal.
@@ -57,31 +94,22 @@ export function child<
   key: K | Accessor<K>,
   setValue?: (parentValue: P, key: K, value: V) => P
 ) {
-  const getter = computed(() => {
-    const parent = $parent()
+  const writable = isWritable($parent)
 
-    return parent?.[$get(key)]
-  })
-
-  if (!isWritable($parent)) {
-    return getter
-  }
-
-  const setter = (value: NewValue<V>) => untracked(() => {
-    const parent = $parent()
-    const k = $get(key)
-
-    $parent(setValue!(
-      parent,
-      k,
-      nextValue(parent[k], value)
-    ))
-  })
-
-  unsafeMarkWritable(getter)
-
-  return morph(getter, {
-    get: getter,
-    set: setter
-  })
+  // The mode is set in the literal rather than after the fact: the `onSignal`
+  // hook fires from inside `createSignal`, and it is what attaches `set` in
+  // the framework adapters
+  return createSignal(writable ? childOper : computedOper, {
+    value: undefined,
+    subs: undefined,
+    subsTail: undefined,
+    deps: undefined,
+    depsTail: undefined,
+    flags: NoneFlag,
+    modes: writable ? WritableMode : NoneFlag,
+    compute: childCompute,
+    p: $parent,
+    k: key,
+    sv: setValue
+  } as unknown as ChildNode)
 }

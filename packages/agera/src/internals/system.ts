@@ -14,7 +14,6 @@ import type {
   Destroy,
   Compute,
   NewValue,
-  Morph,
   DeferredScope
 } from './types.js'
 import {
@@ -431,12 +430,20 @@ export function onSignal(callback: ($signal: AnySignal) => void) {
     : callback
 }
 
-export function createSignal(
-  constructor: (value?: unknown) => unknown,
-  node: ComputedNode | SignalNode,
-  ctx: ComputedNode | SignalNode | Morph = node
+/**
+ * Create a signal function over a reactive node. The node is the operator's
+ * `this`, so whatever a call site needs at read or write time lives on the
+ * node and a signal costs one object and one bound function, nothing else.
+ * @private
+ * @param constructor - The operator: called with no arguments to read, with one to write.
+ * @param node - The node the signal is a face of.
+ * @returns A signal.
+ */
+export function createSignal<N extends ComputedNode | SignalNode>(
+  constructor: (this: N, ...value: any[]) => unknown,
+  node: N
 ) {
-  const $signal = constructor.bind(ctx) as AnySignal
+  const $signal = constructor.bind(node) as AnySignal
 
   $signal.node = node
 
@@ -713,7 +720,14 @@ function flush(): void {
   }
 }
 
-function computedOper<T>(this: ComputedNode<T>): T {
+/**
+ * The read operator of a computed node. Exported so that a call site can put
+ * its own operator in front of one: a writable computed is this one with a
+ * write branch before it.
+ * @private
+ * @returns The current value.
+ */
+export function computedOper<T>(this: ComputedNode<T>): T {
   const flags = this.flags
 
   if (

@@ -1,20 +1,14 @@
 import type {
   AnySignal,
   Destroy,
-  Morph,
   Mountable,
   MountedListener,
-  NewValue,
-  ReadableNode,
-  ReadableSignal,
-  SignalNode,
-  WritableSignal
+  ReadableNode
 } from './internals/types.js'
 import {
   signal,
   computed,
   batch,
-  createSignal,
   nextValue,
   signalNextValue,
   touchLifecycle,
@@ -86,36 +80,4 @@ export function onMounted(
  */
 export function isMounted($signal: AnySignal): boolean {
   return ($signal.node as ReadableNode).lcd === true
-}
-
-export function morph<T, C extends Partial<Morph<T>>>(
-  $signal: WritableSignal<T>,
-  context: C
-): WritableSignal<T>
-
-export function morph<T, C extends Partial<Morph<T>>>(
-  $signal: ReadableSignal<T>,
-  context: C
-): ReadableSignal<T>
-
-/* @__NO_SIDE_EFFECTS__ */
-export function morph<T, C extends Partial<Morph<T>>>(
-  $signal: ReadableSignal<T> | WritableSignal<T>,
-  context: C
-) {
-  const morph = context as unknown as Morph
-
-  morph.source ??= $signal as WritableSignal<unknown>
-  morph.get ??= $signal
-  morph.set ??= $signal as WritableSignal<unknown>
-
-  return createSignal(morphOper, $signal.node as SignalNode, morph)
-}
-
-function morphOper<T>(this: Morph<T>, ...value: [NewValue<T>]): T | void {
-  if (value.length) {
-    this.set(value[0])
-  } else {
-    return this.get()
-  }
 }

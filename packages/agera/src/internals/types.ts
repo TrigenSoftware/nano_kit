@@ -66,12 +66,6 @@ export interface ReadableSignal<T> extends Accessor<T> {
   node: ReadableNode
 }
 
-export interface Morph<T = unknown> {
-  source: WritableSignal<T>
-  get(): T
-  set(value: NewValue<T>): void
-}
-
 export interface WritableSignal<T> extends ReadableSignal<T> {
   node: SignalNode<T>
   (value: NewValue<T>): void
