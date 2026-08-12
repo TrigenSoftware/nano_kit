@@ -2,7 +2,7 @@
 import {
   type ValueOrAccessor,
   $get,
-  subscribe
+  effect
 } from 'kida'
 import {
   type FalsyValue,
@@ -32,11 +32,9 @@ function cx(parts: unknown[]) {
 export const classList$ = /* @__PURE__ */ createEffectAttribute<'classList$', HTMLElement, ClassList>(
   'classList$',
   (element, parts) => {
-    subscribe(
-      () => cx(parts.map($get)),
-      className => element.className = className,
-      true
-    )
+    effect(() => {
+      element.className = cx(parts.map($get))
+    }, true)
   }
 )
 

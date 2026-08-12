@@ -8,7 +8,6 @@ import type {
   ElementFactory,
   EmptyValue
 } from '../types/index.js'
-import { isEmpty } from '../utils.js'
 import {
   childToNode,
   lazyChild
@@ -57,7 +56,7 @@ export function elementChildren(
 
   if (len) {
     for (let i = 0, node: ChildNode | DocumentFragment | EmptyValue; i < len; i++) {
-      if (!isEmpty(node = childToNode(children[i]))) {
+      if (node = childToNode(children[i])) {
         this.appendChild(node)
       }
     }

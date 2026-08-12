@@ -3,12 +3,13 @@ import {
   type StoryObj,
   nanoStory
 } from '@nanoviews/storybook'
+import type { Primitive } from '../types/index.js'
 import {
   createTextNode,
   createTextNodeFromAccessor
 } from './text.js'
 
-const meta: Meta<{ value: string }> = {
+const meta: Meta<{ value: Primitive }> = {
   title: 'Internals/Elements/Text'
 }
 

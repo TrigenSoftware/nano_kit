@@ -103,12 +103,13 @@ export function morph<T, C extends Partial<Morph<T>>>(
   $signal: ReadableSignal<T> | WritableSignal<T>,
   context: C
 ) {
-  return createSignal(morphOper, $signal.node as SignalNode, {
-    source: $signal,
-    set: $signal,
-    get: $signal,
-    ...context
-  } as Morph)
+  const morph = context as unknown as Morph
+
+  morph.source ??= $signal as WritableSignal<unknown>
+  morph.get ??= $signal
+  morph.set ??= $signal as WritableSignal<unknown>
+
+  return createSignal(morphOper, $signal.node as SignalNode, morph)
 }
 
 function morphOper<T>(this: Morph<T>, ...value: [NewValue<T>]): T | void {

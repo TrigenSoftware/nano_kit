@@ -3,7 +3,7 @@ import type {
   EffectAttributeCallback
 } from '../types/index.js'
 
-const store = new Map<EffectAttributeId, EffectAttributeCallback>()
+export const effectAttributes = new Map<EffectAttributeId, EffectAttributeCallback>()
 
 /**
  * Create effect attribute
@@ -17,16 +17,7 @@ export function createEffectAttribute<
   TargetElement extends Element,
   Value
 >(id: ID, callback: EffectAttributeCallback<TargetElement, Value>) {
-  store.set(id, callback as EffectAttributeCallback)
+  effectAttributes.set(id, callback as EffectAttributeCallback)
 
   return id
-}
-
-/**
- * Get effect attribute by id
- * @param id - Effect attribute id
- * @returns Effect attribute function
- */
-export function getEffectAttribute(id: EffectAttributeId) {
-  return store.get(id)
 }

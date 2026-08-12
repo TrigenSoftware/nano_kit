@@ -174,8 +174,10 @@ function link(dep: ReactiveNode, sub: ReactiveNode, version: number): void {
     dep.subs = newLink
   }
 
-  if (dep.modes & MountableMode) {
-    lifecycleEdge?.(dep, sub)
+  // The slot is tested first so a bundle without the lifecycle layer drops
+  // the whole check, including the `modes` read
+  if (lifecycleEdge !== undefined && dep.modes & MountableMode) {
+    lifecycleEdge(dep, sub)
   }
 }
 
@@ -215,8 +217,8 @@ function unlink(link: Link, sub = link.sub): Link | undefined {
     unwatch = true
   }
 
-  if (dep.modes & MountableMode) {
-    lifecycleEdge?.(dep)
+  if (lifecycleEdge !== undefined && dep.modes & MountableMode) {
+    lifecycleEdge(dep)
   }
 
   if (unwatch) {

@@ -47,8 +47,6 @@ function createElementPropertySetter<E extends Element, V>(
     control: E,
     $value: WritableSignal<V>
   ): void => {
-    setValue(control, $value())
-
     effect(() => {
       setValue(control, $value())
     })

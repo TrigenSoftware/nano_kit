@@ -10,7 +10,8 @@ import {
   boundDeferScope,
   startScope,
   stopScope,
-  untracked,
+  pushActiveSub,
+  popActiveSub,
   noMount
 } from './internals/system.js'
 
@@ -21,21 +22,6 @@ export {
   deferScope,
   startScope,
   stopScope
-}
-
-function singleEffect<T>(
-  $accessor: Accessor<T>,
-  fn: ObserverCallback<T>,
-  skipWarmup: boolean,
-  noDefer?: boolean
-) {
-  return effect((warmup) => {
-    const value = $accessor()
-
-    if (!skipWarmup || !warmup) {
-      untracked(() => fn(value))
-    }
-  }, noDefer)
 }
 
 /**
@@ -52,7 +38,18 @@ export function subscribe<T>(
   fn: ObserverCallback<T>,
   noDefer?: boolean
 ) {
-  return singleEffect($accessor, fn, false, noDefer)
+  return effect(() => {
+    const value = $accessor()
+    // The observer callback is user code: run it untracked, without
+    // allocating a closure for it on every run
+    const prevSub = pushActiveSub(undefined)
+
+    try {
+      fn(value)
+    } finally {
+      popActiveSub(prevSub)
+    }
+  }, noDefer)
 }
 
 /**
@@ -69,7 +66,19 @@ export function listen<T>(
   fn: ObserverCallback<T>,
   noDefer?: boolean
 ) {
-  return singleEffect($accessor, fn, true, noDefer)
+  return effect((warmup) => {
+    const value = $accessor()
+
+    if (!warmup) {
+      const prevSub = pushActiveSub(undefined)
+
+      try {
+        fn(value)
+      } finally {
+        popActiveSub(prevSub)
+      }
+    }
+  }, noDefer)
 }
 
 /**
@@ -86,5 +95,5 @@ export function observe<T>(
   fn: ObserverCallback<T>,
   noDefer?: boolean
 ) {
-  return noMount($accessor, () => singleEffect($accessor, fn, true, noDefer))
+  return noMount($accessor, () => listen($accessor, fn, noDefer))
 }

@@ -1,58 +1,36 @@
 import {
+  isAccessor,
   isFunction,
-  subscribeAny
+  effect
 } from 'kida'
 import type {
   PrimitiveAttributeValue,
-  Primitive,
-  TargetEventHandler,
-  EffectAttributeCallback
+  TargetEventHandler
 } from '../types/index.js'
 import { isEmpty } from '../utils.js'
-import { getEffectAttribute } from './effectAttribute.js'
+import { effectAttributes } from './effectAttribute.js'
 import { delegateEvent } from './events.js'
 
 type AttributeValue = PrimitiveAttributeValue | TargetEventHandler
 
 type Attributes = Record<string, AttributeValue>
 
-function setunset(
-  set: (value: string) => void,
-  unset: () => void,
-  value: Primitive
-) {
-  if (isEmpty(value)) {
-    unset()
-  } else {
-    set(value as string)
-  }
-}
-
-/**
- * Create reactive property setter
- * @param set - Function to set property
- * @param unset - Function to unset property
- * @param $value - Reactive or static value
- */
-export function setProperty(
-  set: (value: string) => void,
-  unset: () => void,
-  $value: PrimitiveAttributeValue
-) {
-  subscribeAny(
-    $value,
-    value => setunset(set, unset, value)
-  )
-}
-
 function setAttribute(element: Element, name: string, $value: PrimitiveAttributeValue) {
-  const lowerCaseName = name.toLowerCase()
+  // A static attribute is the common case: apply it without building the
+  // setter closures a reactive binding needs
+  if (isAccessor($value)) {
+    effect(() => {
+      const value = $value()
 
-  setProperty(
-    value => element.setAttribute(lowerCaseName, value),
-    () => element.removeAttribute(lowerCaseName),
-    $value
-  )
+      if (isEmpty(value)) {
+        element.removeAttribute(name)
+      } else {
+        element.setAttribute(name, value as string)
+      }
+    }, true)
+  } else if (!isEmpty($value)) {
+    element.setAttribute(name, $value as string)
+  }
 }
 
 function isEventHandler(key: string, value: unknown): value is TargetEventHandler {
@@ -77,25 +55,16 @@ function setEventListener(element: Element, name: string, value: TargetEventHand
  * @param attributes - Target attributes
  */
 export function setAttributes<A extends object>(element: Element, attributes: A) {
-  const keys = Object.keys(attributes)
-  const len = keys.length
+  for (const key in attributes) {
+    const value = (attributes as Attributes)[key]
+    const tEffectAttr = effectAttributes.get(key)
 
-  if (len) {
-    for (
-      let i = 0, key: string, value: AttributeValue, tEffectAttr: EffectAttributeCallback | undefined;
-      i < len;
-      i++
-    ) {
-      key = keys[i]
-      value = (attributes as Attributes)[key]
-
-      if ((tEffectAttr = getEffectAttribute(key)) !== undefined) {
-        tEffectAttr(element, value, attributes as Attributes)
-      } else if (isEventHandler(key, value)) {
-        setEventListener(element, key, value)
-      } else {
-        setAttribute(element, key, value)
-      }
+    if (tEffectAttr !== undefined) {
+      tEffectAttr(element, value, attributes as Attributes)
+    } else if (isEventHandler(key, value)) {
+      setEventListener(element, key, value)
+    } else {
+      setAttribute(element, key, value)
     }
   }
 }

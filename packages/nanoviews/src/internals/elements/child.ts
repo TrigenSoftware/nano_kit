@@ -50,7 +50,7 @@ export function mountChild(
 ): MaybeDestroy {
   const node = childToNode(child)
 
-  if (!isEmpty(node)) {
+  if (node) {
     if (node.nodeType === 11) {
       const start = node.firstChild
       const end = node.lastChild
@@ -76,7 +76,7 @@ export function insertChildBeforeAnchor(
 ) {
   const node = childToNode(child)
 
-  if (!isEmpty(node)) {
+  if (node) {
     if (rangeContainer !== undefined) {
       if (node.nodeType === 11) {
         rangeContainer.f = node.firstChild!
@@ -96,14 +96,12 @@ export function remove(start: ChildNode, end: Node): void {
     return
   }
 
-  const endNextSibling = end.nextSibling
+  // One crossing into the DOM instead of one per node
+  const range = document.createRange()
 
-  while (start !== endNextSibling) {
-    const next = start.nextSibling!
-
-    start.remove()
-    start = next
-  }
+  range.setStartBefore(start)
+  range.setEndAfter(end)
+  range.deleteContents()
 }
 
 export function removeBetween(start: Node, end: Node): void {

@@ -1,7 +1,8 @@
 
 import {
   type ValueOrAccessor,
-  subscribeAny
+  isAccessor,
+  effect
 } from 'kida'
 
 /**
@@ -16,7 +17,13 @@ export function dangerouslySetInnerHtml<T extends Element>(
 ) {
   const element = factory()
 
-  subscribeAny($html, value => element.innerHTML = value)
+  if (isAccessor($html)) {
+    effect(() => {
+      element.innerHTML = $html()
+    }, true)
+  } else {
+    element.innerHTML = $html
+  }
 
   return element
 }

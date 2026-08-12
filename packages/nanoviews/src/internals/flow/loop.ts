@@ -22,7 +22,6 @@ import {
   deferScopeBindContext,
   effectScopeSwapper
 } from '../effects.js'
-import { isEmpty } from '../utils.js'
 import { createTextNode } from '../elements/text.js'
 import {
   insertChildBeforeAnchor,
@@ -43,6 +42,7 @@ interface LoopItem {
 interface LoopItemsList {
   f: LoopItem | undefined
   s: boolean
+  c: LoopItem[] | undefined
 }
 
 type LookupMap = Map<unknown, LoopItem>
@@ -83,7 +83,7 @@ function move(
   anchorItem: LoopItem | undefined,
   fallback: ChildNode
 ) {
-  if (!isEmpty(item.f)) {
+  if (item.f) {
     const anchor = getAnchor(anchorItem, fallback)
     const nextStart = item.l!.nextSibling!
     let node = item.f
@@ -127,6 +127,12 @@ function reconcile(
 
       lookupMap.set(key, item)
 
+      // Only a started loop has rows to start, and only the rows created
+      // right here need it - the surviving ones are already started
+      if (itemsList.s) {
+        (itemsList.c ??= []).push(item)
+      }
+
       link(
         itemsList,
         prev,
@@ -142,7 +148,9 @@ function reconcile(
       continue
     }
 
-    item.i(i)
+    if (item.i.node.pendingValue !== i) {
+      item.i(i)
+    }
 
     if (item !== current) {
       if (seen !== undefined && seen.has(item)) {
@@ -203,7 +211,12 @@ function reconcile(
       item = current
     }
 
-    matched.push(item)
+    // `matched` is only read from the `seen` branch, and every path that
+    // defines `seen` resets it first
+    if (seen !== undefined) {
+      matched.push(item)
+    }
+
     prev = item
     current = item.n
   }
@@ -224,7 +237,7 @@ function reconcile(
 function destroyLoopItem(itemsList: LoopItemsList, item: LoopItem, lookupMap: LookupMap) {
   stopScope(item.d)
 
-  if (!isEmpty(item.f)) {
+  if (item.f) {
     remove(item.f, item.l!)
   }
 
@@ -273,7 +286,8 @@ export function loop(
   const blocksMap: LookupMap = new Map()
   const itemsList: LoopItemsList = {
     f: undefined,
-    s: false
+    s: false,
+    c: undefined
   }
   // The loop owns its rows: they are started and stopped
   // in the itemsList order, which mirrors the visual order.
@@ -334,11 +348,15 @@ export function loop(
         items
       ))
 
-      if (itemsList.s) {
-        // Rows created by the reconcile start only now, after the removed
-        // rows were destroyed; startScope is a no-op on the started ones
-        for (let item = itemsList.f; item !== undefined; item = item.n) {
-          startScope(item.d)
+      const created = itemsList.c
+
+      // The rows the reconcile created start only now, after the removed
+      // ones were destroyed
+      if (created !== undefined) {
+        itemsList.c = undefined
+
+        for (let i = 0, len = created.length; i < len; i++) {
+          startScope(created[i].d)
         }
       }
 
