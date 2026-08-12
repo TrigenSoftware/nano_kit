@@ -10,7 +10,9 @@ import * as Stories from './style.stories.js'
 
 const {
   StaticValue,
-  ReactiveValue
+  ReactiveValue,
+  MultiWordValue,
+  CustomProperty
 } = composeStories(Stories)
 
 describe('nanoviews', () => {
@@ -33,6 +35,32 @@ describe('nanoviews', () => {
         color('red')
 
         expect(container.innerHTML).toBe('<div><div style="color: red;">Hello, world!</div></div>')
+      })
+
+      it('should render custom properties', () => {
+        const color = signal('green')
+        const { container } = render(CustomProperty({
+          color
+        }))
+
+        expect(container.innerHTML).toBe('<div><div style="--accent: green; --gap: 4px;">Hello, world!</div></div>')
+
+        color('red')
+
+        expect(container.innerHTML).toBe('<div><div style="--accent: red; --gap: 4px;">Hello, world!</div></div>')
+      })
+
+      it('should render multi-word properties', () => {
+        const color = signal('green')
+        const { container } = render(MultiWordValue({
+          color
+        }))
+
+        expect(container.innerHTML).toBe('<div><div style="background-color: green; font-size: 12px;">Hello, world!</div></div>')
+
+        color('red')
+
+        expect(container.innerHTML).toBe('<div><div style="background-color: red; font-size: 12px;">Hello, world!</div></div>')
       })
     })
   })

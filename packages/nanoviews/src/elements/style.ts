@@ -1,23 +1,55 @@
 import {
+  isAccessor,
+  effect
+} from 'kida'
+import {
   type CSSProperties,
   type AccessibleProps,
   type PrimitiveAttributeValue,
-  setProperty,
+  type Primitive,
   createEffectAttribute
 } from '../internals/index.js'
 
 export type StyleProps = AccessibleProps<CSSProperties>
+
+// Every camelCased CSS property is a real writable property of
+// `CSSStyleDeclaration`, but it declares no string index signature
+type StyleDeclaration = CSSStyleDeclaration & Record<string, string>
+
+// `CSSProperties` is camelCased, while `setProperty` matches its argument
+// against the hyphenated CSS property names only and silently drops
+// everything else, so the assignment is the writer that accepts the names this
+// attribute is typed with - except for custom properties, which the assignment
+// does not see at all. An empty value removes the property either way, so
+// there is nothing to branch on
+function setStyleValue(
+  style: StyleDeclaration,
+  name: string,
+  value: Primitive
+) {
+  const cssValue = value as string ?? ''
+
+  if (name.startsWith('--')) {
+    style.setProperty(name, cssValue)
+  } else {
+    style[name] = cssValue
+  }
+}
 
 function setStyle(
   element: HTMLElement | SVGAElement,
   name: string,
   $value: PrimitiveAttributeValue
 ) {
-  setProperty(
-    value => element.style.setProperty(name, value),
-    () => element.style.removeProperty(name),
-    $value
-  )
+  const style = element.style as StyleDeclaration
+
+  if (isAccessor($value)) {
+    effect(() => {
+      setStyleValue(style, name, $value())
+    }, true)
+  } else {
+    setStyleValue(style, name, $value)
+  }
 }
 
 /**

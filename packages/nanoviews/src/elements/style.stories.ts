@@ -34,3 +34,27 @@ export const ReactiveValue: Story = {
     }
   })('Hello, world!'))
 }
+
+export const CustomProperty: Story = {
+  args: {
+    color: 'green'
+  },
+  render: nanoStory(({ color }) => div({
+    [style$]: {
+      '--accent': color,
+      '--gap': '4px'
+    }
+  })('Hello, world!'))
+}
+
+export const MultiWordValue: Story = {
+  args: {
+    color: 'green'
+  },
+  render: nanoStory(({ color }) => div({
+    [style$]: {
+      backgroundColor: color,
+      fontSize: '12px'
+    }
+  })('Hello, world!'))
+}
