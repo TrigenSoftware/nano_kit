@@ -50,7 +50,7 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "clean-publish": "^5.0.0",
+    "clean-publish": "^7.0.0",
     "commitizen": "^4.2.4",
     "del-cli": "^7.0.0",
     "kida": "workspace:^",
