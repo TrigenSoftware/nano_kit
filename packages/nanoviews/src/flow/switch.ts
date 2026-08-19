@@ -2,10 +2,8 @@ import type {
   MaybeAccessorValue,
   ValueOrAccessor
 } from 'kida'
-import {
-  type Child,
-  decide
-} from '../internals/index.js'
+import type { Child } from '../internals/index.js'
+import { swap_ } from './swap.js'
 
 export type SwitchCase<T> = readonly [T | typeof default_, () => Child]
 
@@ -25,7 +23,7 @@ export function switch_<T>($value: ValueOrAccessor<T>) {
   return (...cases: SwitchCase<Value>[]) => {
     const casesMap = new Map<unknown, () => Child>(cases)
 
-    return decide($value, value => (
+    return swap_($value, value => (
       casesMap.has(value)
         ? casesMap.get(value)!()
         : casesMap.get(default_)?.()

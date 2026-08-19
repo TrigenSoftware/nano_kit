@@ -45,10 +45,9 @@
 
 - error boundaries: cleanup half-created scope on render throw (stopScope in catch) - rows/content are not parent-linked, teardown must be explicit
 - for loop array or empty check for else
-- for_ crashes on duplicate track keys (pre-existing, loop.ts reconcile matched/stashed)
+- for_ duplicate track keys: unsupported by design, must keep failing loudly - the crash lands a step away from the cause, so it needs a clear throw at the point of detection
 - rework return slot$ to look like element/component? fn.prop is faster than {f,p}
 - util to transform static props to signal props?
-- rename decide? export as public - as Dynamic in solidjs
 - typed effectattrs <T>
 - additional arg for record in for$? as$
 - controls addEventListener to events system

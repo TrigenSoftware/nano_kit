@@ -12,12 +12,12 @@ import {
   context,
   inject
 } from '../../component/context.js'
-import { decide } from './decide.js'
+import { swap } from './swap.js'
 
 describe('nanoviews', () => {
   describe('internals', () => {
-    describe('logic', () => {
-      describe('decide', () => {
+    describe('flow', () => {
+      describe('swap', () => {
         it('should save context', () => {
           const $value = signal(true)
           const ThemeContext = () => 'light'
@@ -26,7 +26,7 @@ describe('nanoviews', () => {
           const decider = vi.fn(value => (value ? ComponentA() : ComponentB()))
           const Swapper = () => context(
             [provide(ThemeContext, 'dark')],
-            () => decide($value, decider)
+            () => swap($value, decider)
           )
           const { container } = render(Swapper)
 

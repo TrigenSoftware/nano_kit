@@ -2,12 +2,12 @@ import {
   isAccessor,
   boolean
 } from 'kida'
-import {
-  type TruthyValueOrSignal,
-  type FalsyValueOrSignal,
-  type Child,
-  decide
+import type {
+  TruthyValueOrSignal,
+  FalsyValueOrSignal,
+  Child
 } from '../internals/index.js'
+import { swap_ } from './swap.js'
 
 /**
  * Decide which child to render based on condition
@@ -24,7 +24,7 @@ export function if_<T>($value: T) {
   return (
     then_: (value: TruthyValueOrSignal<T>) => Child,
     else_?: (value: FalsyValueOrSignal<T>) => Child
-  ) => decide(
+  ) => swap_(
     isAccessor($value) ? boolean($value) : $value as boolean,
     confition => (
       confition

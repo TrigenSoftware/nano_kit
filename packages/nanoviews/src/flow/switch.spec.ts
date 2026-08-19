@@ -14,7 +14,7 @@ const {
 } = composeStories(Stories)
 
 describe('nanoviews', () => {
-  describe('logic', () => {
+  describe('flow', () => {
     describe('switch', () => {
       it('should handle static value', () => {
         const { container } = render(StaticValue())

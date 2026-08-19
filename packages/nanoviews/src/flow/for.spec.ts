@@ -53,7 +53,7 @@ function createRandom(seed: number) {
 }
 
 describe('nanoviews', () => {
-  describe('logic', () => {
+  describe('flow', () => {
     describe('for', () => {
       it('should handle static array', () => {
         const { container } = render(StaticValue())
