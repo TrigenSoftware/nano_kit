@@ -2,7 +2,10 @@ import {
   type ReadableSignal,
   type Accessor,
   type WritableSignal,
+  type NewValue,
   type DeferredScope,
+  NoneFlag,
+  WritableMode,
   signal,
   effect,
   deferScope,
@@ -11,13 +14,12 @@ import {
   getContext,
   unsafeRun,
   untracked,
-  atIndex,
-  batch
+  createSignal,
+  isWritable,
+  nextValue,
+  assignIndex
 } from 'kida'
-import type {
-  Child,
-  EmptyValue
-} from '../types/index.js'
+import type { Child } from '../types/index.js'
 import {
   deferScopeBindContext,
   effectScopeSwapper
@@ -29,20 +31,60 @@ import {
   removeBetween
 } from '../elements/child.js'
 
-interface LoopItem {
-  k: unknown
-  i: WritableSignal<number>
-  f: ChildNode | EmptyValue
-  l: ChildNode | EmptyValue
+// The list is a chain of items in visual order headed by the list itself, so
+// a splice is always the same two writes with no head to special case
+interface LoopLink {
+  /**
+   * Next item.
+   */
   n: LoopItem | undefined
-  p: LoopItem | undefined
-  d: DeferredScope
 }
 
-interface LoopItemsList {
-  f: LoopItem | undefined
-  s: boolean
-  c: LoopItem[] | undefined
+// The item is the row: the face handed to `each_` is bound to it, so the
+// write back into the array finds its place with the key and the tracker
+// straight off the item and the value signal keeps the shape `signal` gave it
+interface LoopItem extends LoopLink {
+  /**
+   * Tracking key.
+   */
+  k: unknown
+  /**
+   * Index signal.
+   */
+  i: WritableSignal<number>
+  /**
+   * Value signal - what the reconcile writes.
+   */
+  v: WritableSignal<unknown>
+  /**
+   * The items array.
+   */
+  a: WritableSignal<unknown[]> | undefined
+  /**
+   * First and last DOM node of the row.
+   */
+  f: ChildNode
+  l: ChildNode
+  /**
+   * Previous item.
+   */
+  p: LoopLink
+  /**
+   * Deferred scope of the row.
+   */
+  d: DeferredScope
+  /**
+   * Writability of the face.
+   */
+  modes: number
+}
+
+interface LoopItemsList extends LoopLink {
+  /**
+   * First row a reconcile created that still has to be started. Everything
+   * it made is at or after this one, so the start walks from here.
+   */
+  c: LoopItem | undefined
 }
 
 type LookupMap = Map<unknown, LoopItem>
@@ -54,48 +96,53 @@ type AnyEach = (
 
 type UnknownTrack = (item: unknown, index: number) => unknown
 
-function getAnchor(
-  item: LoopItem | undefined,
-  fallback: ChildNode
-) {
-  return item?.f ?? fallback
+// The row owns its value: the reconcile pushes it in, so a write to the
+// items array wakes only the rows whose value actually changed. The face in
+// front of the item carries the write back to the array, and the raw signal
+// under `v` is what the reconcile writes
+function rowOper(this: LoopItem, ...value: [NewValue<unknown>]) {
+  if (value.length) {
+    const $items = this.a
+
+    // A destroyed row keeps no array to write into: its index means nothing
+    // any more, and the position it used to name may already belong to a row
+    // created after it died
+    if ($items !== undefined) {
+      let items!: unknown[]
+      let index!: number
+
+      untracked(() => {
+        items = $items()
+        index = this.i()
+      })
+
+      $items(assignIndex(items, index, nextValue(items[index], value[0])))
+    }
+  } else {
+    return this.v()
+  }
 }
 
-function link(
-  itemsList: LoopItemsList,
-  prev: LoopItem | undefined,
-  next: LoopItem | undefined,
-  insert?: LoopItem
-): void {
-  if (prev === undefined) {
-    itemsList.f = insert ?? next
-  } else {
-    prev.n = insert ?? next
-  }
+function link(prev: LoopLink, next: LoopItem | undefined): void {
+  prev.n = next
 
   if (next !== undefined) {
-    next.p = insert ?? prev
+    next.p = prev
   }
 }
 
-function move(
-  item: LoopItem,
-  anchorItem: LoopItem | undefined,
-  fallback: ChildNode
-) {
-  if (item.f) {
-    const anchor = getAnchor(anchorItem, fallback)
-    const nextStart = item.l!.nextSibling!
-    let node = item.f
+// Every row holds at least one node, so the range is never empty
+function move(item: LoopItem, anchor: ChildNode) {
+  const nextStart = item.l.nextSibling
+  let node: ChildNode = item.f
 
-    while (node !== nextStart) {
-      const next = node.nextSibling!
+  do {
+    const next = node.nextSibling!
 
-      anchor.before(node)
+    anchor.before(node)
 
-      node = next
-    }
-  }
+    node = next
+  } while (node !== nextStart)
 }
 
 // oxlint-disable-next-line eslint/max-params
@@ -109,11 +156,28 @@ function reconcile(
   nextItems: unknown[]
 ) {
   const { length } = nextItems
+  // The cursor stands at `prev.n` the whole way: an item is placed by
+  // splicing it in there, a skipped one is stashed and stepped over
+  let prev: LoopLink = itemsList
+  let current = itemsList.n
   let seen: Set<LoopItem> | undefined
-  let matched: LoopItem[] = []
-  let stashed: LoopItem[] = []
-  let prev: LoopItem | undefined
-  let current = itemsList.f
+  // The stash is the run of `stashed` items at `start`, the matched ones the
+  // run of `matched` items at `first` right behind it
+  let start!: LoopItem
+  let first!: LoopItem
+  let stashed = 0
+  let matched = 0
+  // Rewinding to the stash re-walks it, so the walks stay linear in total
+  // only while what they rewind over fits one pass over the list
+  let budget = length
+  // A read-only items array has nothing to write back to, so its rows are
+  // the bare value signal and cost no face - one question for the whole pass
+  const writable = isWritable($items)
+  // A write to a signal is a reducer when it is a function, so the value the
+  // reconcile pushes into a row travels through this slot: a row whose value
+  // is a function is stored, not called - and one slot serves the whole pass
+  let rawValue: unknown
+  const raw = () => rawValue
 
   for (let i = 0, value: unknown, key: unknown, item: LoopItem | undefined; i < length; i++) {
     value = nextItems[i]
@@ -121,30 +185,53 @@ function reconcile(
     item = lookupMap.get(key)
 
     if (item === undefined) {
-      item = createEachBlock($items, each_, key, i, getAnchor(current, anchor))
-      item.p = prev
-      item.n = prev === undefined ? itemsList.f : prev.n
+      // A row is born here whole: its two signals, the face over the item
+      // when the array can take writes back, and the deferred scope whose
+      // body renders it and lands its DOM range on the item itself
+      const $index = signal(i)
+      const $value = signal(value)
+      const insertAnchor = current !== undefined ? current.f : anchor
+      const row = item = {
+        k: key,
+        i: $index,
+        v: $value,
+        a: $items,
+        f: undefined,
+        l: undefined,
+        n: undefined,
+        p: undefined,
+        d: undefined,
+        modes: WritableMode
+      } as unknown as LoopItem
+      let $row: Accessor<unknown> = $value
 
-      lookupMap.set(key, item)
-
-      // Only a started loop has rows to start, and only the rows created
-      // right here need it - the surviving ones are already started
-      if (itemsList.s) {
-        (itemsList.c ??= []).push(item)
+      if (writable) {
+        $row = createSignal(rowOper, row as never) as Accessor<unknown>
+      } else {
+        // A read-only items array has nothing to write back to, so the row is
+        // the bare value signal - and it must not answer that it is writable,
+        // or a child of it would be handed a setter that writes nowhere
+        $value.node.modes = NoneFlag
       }
 
-      link(
-        itemsList,
-        prev,
-        item.n,
-        item
-      )
+      row.d = deferScope(() => {
+        insertChildBeforeAnchor(each_($row, $index), insertAnchor, row)
 
-      matched = []
-      stashed = []
+        // Every row holds a place in the DOM, so a row that rendered nothing
+        // still has one to be moved to, inserted before and removed with
+        if (!row.f) {
+          insertAnchor.before(row.f = row.l = createTextNode())
+        }
+      })
 
+      lookupMap.set(key, item)
+      itemsList.c ??= item
+
+      link(item, current)
+      link(prev, item)
+
+      matched = stashed = 0
       prev = item
-      current = item.n
       continue
     }
 
@@ -152,58 +239,64 @@ function reconcile(
       item.i(i)
     }
 
+    if (item.v.node.pendingValue !== value) {
+      rawValue = value
+      item.v(raw)
+    }
+
     if (item !== current) {
       if (seen !== undefined && seen.has(item)) {
-        if (matched.length < stashed.length) {
-          const [start] = stashed
-          let j
+        // Fewer items were matched than stashed, so carrying the matched run
+        // back in front of the stash beats carrying the stash out one by one
+        // - as long as re-walking the stash is still within budget
+        if (matched < stashed && (budget -= stashed) > 0) {
+          const last = prev as LoopItem
+          let node = first
 
-          prev = start.p
-
-          const [a] = matched
-          const b = matched[matched.length - 1]
-
-          for (j = 0; j < matched.length; j++) {
-            move(matched[j], start, anchor)
+          for (let j = stashed, s = start; j--; s = s.n!) {
+            seen.delete(s)
           }
 
-          for (j = 0; j < stashed.length; j++) {
-            seen.delete(stashed[j])
+          for (let j = matched; j--; node = node.n!) {
+            move(node, start.f)
           }
 
-          link(itemsList, a.p, b.n)
-          link(itemsList, prev, a)
-          link(itemsList, b, start)
+          link(first.p, last.n)
+          link(start.p, first)
+          link(last, start)
 
           current = start
-          prev = b
+          prev = last
           i -= 1
-
-          matched = []
-          stashed = []
-        } else {
-          seen.delete(item)
-          move(item, current, anchor)
-
-          link(itemsList, item.p, item.n)
-          link(itemsList, item, prev === undefined ? itemsList.f : prev.n)
-          link(itemsList, prev, item)
-
-          prev = item
+          matched = stashed = 0
+          continue
         }
 
+        seen.delete(item)
+        move(item, current !== undefined ? current.f : anchor)
+
+        link(item.p, item.n)
+        link(item, current)
+        link(prev, item)
+
+        prev = item
         continue
       }
 
-      matched = []
-      stashed = []
+      matched = stashed = 0
+      start = current!
 
       while (current !== undefined && current.k !== key) {
         (seen ??= new Set()).add(current)
-        stashed.push(current)
+        stashed++
         current = current.n
       }
 
+      // The key is neither ahead of the cursor nor stashed, so it was placed
+      // already: the same key twice in one list. The lookup holds one row per
+      // key and cannot place it twice, so the pass walks on with a stash it
+      // will not match and throws a step later - a loud failure, and not a
+      // list silently rendered one row short
       if (current === undefined) {
         continue
       }
@@ -211,65 +304,40 @@ function reconcile(
       item = current
     }
 
-    // `matched` is only read from the `seen` branch, and every path that
-    // defines `seen` resets it first
-    if (seen !== undefined) {
-      matched.push(item)
+    if (seen !== undefined && !matched++) {
+      first = item
     }
 
     prev = item
     current = item.n
   }
 
-  if (current !== undefined || seen !== undefined) {
-    if (seen !== undefined) {
-      seen.forEach(block => destroyLoopItem(itemsList, block, lookupMap))
+  if (seen !== undefined) {
+    for (const item of seen) {
+      item.a = undefined
+      stopScope(item.d)
+      remove(item.f, item.l)
+      lookupMap.delete(item.k)
+      link(item.p, item.n)
     }
+  }
 
-    while (current !== undefined) {
-      prev = current
+  // Whatever the cursor did not reach is a suffix of the list, and the list
+  // is the visual order: one splice cuts it off, one crossing deletes it
+  if (current !== undefined) {
+    const from = current.f
+
+    prev.n = undefined
+
+    do {
+      current.a = undefined
+      stopScope(current.d)
+      lookupMap.delete(current.k)
       current = current.n
-      destroyLoopItem(itemsList, prev, lookupMap)
-    }
+    } while (current !== undefined)
+
+    remove(from, anchor.previousSibling!)
   }
-}
-
-function destroyLoopItem(itemsList: LoopItemsList, item: LoopItem, lookupMap: LookupMap) {
-  stopScope(item.d)
-
-  if (item.f) {
-    remove(item.f, item.l!)
-  }
-
-  lookupMap.delete(item.k)
-  link(itemsList, item.p, item.n)
-}
-
-function createEachBlock(
-  $items: Accessor<unknown[]>,
-  each_: AnyEach,
-  key: unknown,
-  i: number,
-  anchor: ChildNode
-): LoopItem {
-  const $index = signal(i)
-  const item = {
-    k: key,
-    i: $index,
-    f: undefined,
-    l: undefined,
-    n: undefined,
-    p: undefined,
-    d: undefined as DeferredScope | undefined
-  }
-
-  item.d = deferScope(() => insertChildBeforeAnchor(
-    each_(atIndex($items, $index), $index),
-    anchor,
-    item
-  ))
-
-  return item as LoopItem
 }
 
 export function loop(
@@ -285,42 +353,35 @@ export function loop(
   const fragment = document.createDocumentFragment()
   const blocksMap: LookupMap = new Map()
   const itemsList: LoopItemsList = {
-    f: undefined,
-    s: false,
+    n: undefined,
     c: undefined
   }
-  // The loop owns its rows: they are started and stopped
-  // in the itemsList order, which mirrors the visual order.
-  // The start is deferred with the period (effect(ownRows)), the teardown
-  // is held by an eager effect (effect(holdRows, true)) so it exists even
-  // when the period is stopped before it ever started
+  // The loop owns its rows: they are started and stopped in the itemsList
+  // order, which mirrors the visual order. The start is an effect of its own
+  // over the same array the swap reads, and that second reader is what makes
+  // a row's write back into the array land: the write is made while the swap
+  // runs, and a running effect cannot be re-queued by its own propagation, so
+  // it takes an idle subscriber to settle the array and re-queue the parked
+  // swap. Starting from here also keeps the rows a reconcile made off the
+  // swap's own stack. The teardown is held by an eager effect in the period
+  // body, so it exists even when the period is stopped before it ever started
   const startRows = () => {
-    itemsList.s = true
-
-    for (let item = itemsList.f; item !== undefined; item = item.n) {
+    // Only a reconcile that made a row has anything to start, and never
+    // anything in front of the first row it made
+    for (let item = itemsList.c; item !== undefined; item = item.n) {
       startScope(item.d)
     }
+
+    itemsList.c = undefined
   }
   const stopRows = () => {
-    itemsList.s = false
-
-    for (let item = itemsList.f; item !== undefined; item = item.n) {
+    for (let item = itemsList.n; item !== undefined; item = item.n) {
+      item.a = undefined
       stopScope(item.d)
     }
 
     blocksMap.clear()
-    itemsList.f = undefined
-  }
-  const ownRows = () => {
-    untracked(startRows)
-  }
-  const holdRows = () => stopRows
-  // Clear the previous period DOM; its rows are already stopped -
-  // stopping the period destroyed holdRows, whose teardown ran stopRows
-  const resetPeriod = (destroyPrev?: DeferredScope) => {
-    if (destroyPrev !== undefined) {
-      removeBetween(start, end)
-    }
+    itemsList.n = itemsList.c = undefined
   }
   let isPlaceholder = false
 
@@ -334,9 +395,12 @@ export function loop(
 
     if (itemsCount && destroyPrev !== undefined && !isPlaceholder) {
       // [...m] -> [...n]
-      // reconcile within the persistent period under the loop context;
-      // the context is restored before the trailing flush of the batch
-      batch(() => unsafeRun(
+      // Reconcile within the persistent period under the loop context. The
+      // swap runs from the flush and from nowhere else, so the writes below
+      // are already deferred: a batch here would add nothing but its own
+      // trailing flush, and that flush would drain the queue onto the swap's
+      // own stack - the one place a write back into the array is lost
+      unsafeRun(
         context,
         reconcile,
         itemsList,
@@ -346,19 +410,7 @@ export function loop(
         track,
         end,
         items
-      ))
-
-      const created = itemsList.c
-
-      // The rows the reconcile created start only now, after the removed
-      // ones were destroyed
-      if (created !== undefined) {
-        itemsList.c = undefined
-
-        for (let i = 0, len = created.length; i < len; i++) {
-          startScope(created[i].d)
-        }
-      }
+      )
 
       return destroyPrev
     }
@@ -375,9 +427,14 @@ export function loop(
     return periodScope(
       itemsCount
         ? () => {
-          resetPeriod(destroyPrev)
-          effect(holdRows, true)
-          effect(ownRows)
+          // Clear the previous period DOM; its rows are already stopped -
+          // stopping the period destroyed holdRows, whose teardown ran
+          // stopRows
+          if (destroyPrev !== undefined) {
+            removeBetween(start, end)
+          }
+
+          effect(() => stopRows, true)
           reconcile(
             itemsList,
             blocksMap,
@@ -389,12 +446,25 @@ export function loop(
           )
         }
         : () => {
-          resetPeriod(destroyPrev)
+          if (destroyPrev !== undefined) {
+            removeBetween(start, end)
+          }
+
           insertChildBeforeAnchor(else_?.(), end)
         },
       destroyPrev
     )
   })
+
+  // The start effect keeps the loop's own position among the siblings, so
+  // the rows still come up before the effects of whatever holds them. It
+  // subscribes after the swap on purpose: the array notifies its readers in
+  // subscription order, and the rows have to be there before anything starts
+  // them
+  periodScope(() => effect(() => {
+    $items()
+    startRows()
+  }))
 
   return fragment
 }

@@ -9,8 +9,13 @@ import { render } from '@nanoviews/testing-library'
 import {
   type WritableSignal,
   type ReadableSignal,
-  signal
+  signal,
+  effect
 } from 'kida'
+import {
+  b,
+  i
+} from '../elements/elements.js'
 import * as Stories from './if.stories.js'
 import { if_ } from './if.js'
 
@@ -53,6 +58,100 @@ describe('nanoviews', () => {
         value(false)
 
         expect(container.innerHTML).toBe('<div></div>')
+      })
+
+      it('should render a write to the condition made by the branch it selected', () => {
+        const $open = signal(false)
+        const $allowed = signal(false)
+        const $text = signal('closed')
+        const { container } = render(() => if_($open)(
+          () => {
+            // the branch refuses to be shown, so the write reaches the
+            // condition from an effect the swap itself started
+            effect(() => {
+              if (!$allowed()) {
+                $open(false)
+              }
+            })
+
+            return b()('open')
+          },
+          () => i()($text)
+        ))
+
+        $open(true)
+
+        expect(container.innerHTML).toBe('<div><i>closed</i></div>')
+
+        // the branch the write brought back is live, not merely rendered
+        $text('shut')
+
+        expect(container.innerHTML).toBe('<div><i>shut</i></div>')
+      })
+
+      it('should render a write to the condition made while the branch renders', () => {
+        const $open = signal(false)
+        const $tick = signal(0)
+        const runs: number[] = []
+        const { container } = render(() => if_($open)(
+          () => {
+            $open(false)
+
+            return b()('open')
+          },
+          () => {
+            // an effect of the branch the write brought back: unlike a
+            // binding it runs only if that branch was started
+            effect(() => {
+              runs.push($tick())
+            })
+
+            return i()('closed')
+          }
+        ))
+
+        $open(true)
+
+        expect(container.innerHTML).toBe('<div><i>closed</i></div>')
+        expect(runs).toEqual([0, 0])
+
+        $tick(1)
+
+        expect(runs).toEqual([0, 0, 1])
+      })
+
+      it('should start the branch brought up by a write made on mount', () => {
+        const $open = signal(true)
+        const $allowed = signal(false)
+        const $tick = signal(0)
+        const runs: number[] = []
+        const { container } = render(() => if_($open)(
+          () => {
+            effect(() => {
+              if (!$allowed()) {
+                $open(false)
+              }
+            })
+
+            return b()('open')
+          },
+          () => {
+            // an effect of the branch the mount-time write brought up:
+            // unlike a binding it runs only if that branch was started
+            effect(() => {
+              runs.push($tick())
+            })
+
+            return i()('closed')
+          }
+        ))
+
+        expect(container.innerHTML).toBe('<div><i>closed</i></div>')
+        expect(runs).toEqual([0])
+
+        $tick(1)
+
+        expect(runs).toEqual([0, 1])
       })
 
       it('should keep signal type in branches', () => {
