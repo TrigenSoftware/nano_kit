@@ -2,10 +2,9 @@
 import {
   signal,
   record,
+  selector,
   deleteIndex,
   updateArray,
-  computed,
-  clearList,
   assignKey
 } from 'nanoviews/store'
 import {
@@ -104,11 +103,13 @@ function buildData(count = 1000) {
 export function App(ref = {}) {
   const $data = signal([])
   const $selected = signal()
+  const $isSelected = selector($selected)
+
   const add = () => {
     $data(data => [...data, ...buildData(1000)])
   }
   const clear = () => {
-    clearList($data)
+    $data([])
   }
   const partialUpdate = () => {
     updateArray($data, (data) => {
@@ -220,21 +221,24 @@ export function App(ref = {}) {
       tbody()(
         for_($data, item => item.id)(
           ($row, $index) => {
-            $row = record($row)
+            const {
+              $id,
+              $label
+            } = record($row)
 
             return tr({
-              class: computed(() => $selected() === $row.$id() ? 'danger' : '')
+              class: () => $isSelected($id()) ? 'danger' : ''
             })(
               td({ class: 'col-md-1' })(
-                $row.$id
+                $id
               ),
               td({ class: 'col-md-4' })(
                 a({
                   onClick() {
-                    $selected($row.$id())
+                    $selected($id())
                   }
                 })(
-                  $row.$label
+                  $label
                 )
               ),
               td({ class: 'col-md-1' })(

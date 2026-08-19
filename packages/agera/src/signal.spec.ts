@@ -2,17 +2,27 @@ import {
   vi,
   describe,
   it,
-  expect
+  expect,
+  expectTypeOf
 } from 'vitest'
 import {
   type SignalNode,
+  batch,
   computed,
-  signal,
-  effect,
-  untracked,
-  isSignal,
   createSignal,
-  trigger
+  deferScope,
+  effect,
+  effectScope,
+  isMounted,
+  isSignal,
+  mountable,
+  onMounted,
+  selector,
+  signal,
+  startScope,
+  stopScope,
+  trigger,
+  untracked
 } from './index.js'
 
 describe('agera', () => {
@@ -163,6 +173,500 @@ describe('agera', () => {
         src(0)
         c1()
         expect(times).toBe(1)
+      })
+    })
+
+    describe('selector', () => {
+      // One reader per key, stopped together: what a list of rows does to a
+      // selector, without a list of rows
+      const watchKeys = (
+        $selected: (key: number) => boolean,
+        keys: number[],
+        values: boolean[]
+      ) => {
+        const stops = keys.map(key => effect(() => {
+          values.push($selected(key))
+        }))
+
+        return () => stops.forEach(stop => stop())
+      }
+
+      it('should return a plain keyed accessor and answer untracked without subscribing', () => {
+        const source = mountable(signal(1))
+        const mounted = vi.fn()
+        const stopMounted = onMounted(source, mounted)
+        const $isSelected = selector(source)
+
+        expect('node' in $isSelected).toBe(false)
+        expect($isSelected(1)).toBe(true)
+        expect($isSelected(2)).toBe(false)
+        expect(isMounted(source)).toBe(false)
+        expect(mounted).not.toHaveBeenCalled()
+
+        stopMounted()
+      })
+
+      it('should attach on the first tracked key and detach on the last reader', () => {
+        const source = mountable(signal(1))
+        const mounted: boolean[] = []
+        const stopMounted = onMounted(source, value => mounted.push(value))
+        const $isSelected = selector(source)
+        const stopOne = effect(() => {
+          $isSelected(1)
+        })
+        const stopTwo = effect(() => {
+          $isSelected(2)
+        })
+
+        expect(mounted).toEqual([true])
+
+        stopOne()
+        expect(mounted).toEqual([true])
+
+        stopTwo()
+        expect(mounted).toEqual([true, false])
+
+        stopMounted()
+      })
+
+      it('should keep exactly one source link for any number of keys', () => {
+        const source = signal(0)
+        const $isSelected = selector(source)
+        const stops = Array.from(
+          {
+            length: 1000
+          },
+          (_, key) => effect(() => {
+            $isSelected(key)
+          })
+        )
+
+        expect(source.node.subs).toBe(source.node.subsTail)
+        expect(source.node.subs?.nextSub).toBeUndefined()
+
+        stops.forEach(stop => stop())
+
+        expect(source.node.subs).toBeUndefined()
+      })
+
+      it('should only notify keys whose values changed', () => {
+        const source = signal(1)
+        const $isSelected = selector(source)
+        const one = vi.fn()
+        const two = vi.fn()
+        const three = vi.fn()
+        const stops = [
+          effect(() => one($isSelected(1))),
+          effect(() => two($isSelected(2))),
+          effect(() => three($isSelected(3)))
+        ]
+
+        source(2)
+
+        expect(one).toHaveBeenCalledTimes(2)
+        expect(two).toHaveBeenCalledTimes(2)
+        expect(three).toHaveBeenCalledTimes(1)
+
+        stops.forEach(stop => stop())
+      })
+
+      it('should derive custom values and gate unchanged results', () => {
+        const source = signal(1)
+        const $isSelected = selector(source, (key: number, value) => Math.abs(key - value))
+        const zero = vi.fn()
+        const two = vi.fn()
+        const stopZero = effect(() => zero($isSelected(0)))
+        const stopTwo = effect(() => two($isSelected(2)))
+
+        source(3)
+
+        expect(zero).toHaveBeenLastCalledWith(3)
+        expect(zero).toHaveBeenCalledTimes(2)
+        expect(two).toHaveBeenLastCalledWith(1)
+        expect(two).toHaveBeenCalledTimes(1)
+
+        stopZero()
+        stopTwo()
+      })
+
+      it('should propagate through a computed caller', () => {
+        const source = signal(1)
+        const $isSelected = selector(source)
+        const selectedOne = computed(() => $isSelected(1))
+        const values: boolean[] = []
+        const stop = effect(() => {
+          values.push(selectedOne())
+        })
+
+        source(2)
+        source(3)
+        source(1)
+
+        expect(values).toEqual([true, false, true])
+
+        stop()
+      })
+
+      it('should support two callers of the same key', () => {
+        const source = signal(1)
+        const $isSelected = selector(source)
+        const first = vi.fn()
+        const second = vi.fn()
+        const stopFirst = effect(() => first($isSelected(1)))
+        const stopSecond = effect(() => second($isSelected(1)))
+
+        stopFirst()
+        source(2)
+
+        expect(first).toHaveBeenCalledTimes(1)
+        expect(second).toHaveBeenCalledTimes(2)
+
+        stopSecond()
+      })
+
+      it('should release churned keys and recreate a $isSelected key correctly', () => {
+        const source = mountable(signal(2))
+        const states: boolean[] = []
+        const $isSelected = selector(source)
+        const stop = watchKeys($isSelected, [1, 2, 3], states)
+
+        expect(states).toEqual([false, true, false])
+
+        stop()
+        expect(isMounted(source)).toBe(false)
+
+        const recreated: boolean[] = []
+        const stopRecreated = watchKeys($isSelected, [2, 4], recreated)
+
+        expect(recreated).toEqual([true, false])
+
+        stopRecreated()
+      })
+
+      it('should not retain destroyed keys across list replacement', () => {
+        const source = signal(0)
+        const derive = vi.fn((key: number, value: number) => key === value)
+        const $isSelected = selector(source, derive)
+        const first = Array.from(
+          {
+            length: 20
+          },
+          (_, key) => key
+        )
+        const second = Array.from(
+          {
+            length: 20
+          },
+          (_, key) => key + 20
+        )
+        const stopFirst = watchKeys($isSelected, first, [])
+
+        stopFirst()
+
+        const stopSecond = watchKeys($isSelected, second, [])
+
+        derive.mockClear()
+        source(1)
+
+        expect(derive).toHaveBeenCalledTimes(20)
+
+        stopSecond()
+      })
+
+      it('should move a caller between keys and release the old key', () => {
+        const source = signal(1)
+        const key = signal(1)
+        const $isSelected = selector(source)
+        const values: boolean[] = []
+        const stop = effect(() => {
+          values.push($isSelected(key()))
+        })
+
+        key(2)
+        source(2)
+        source(1)
+
+        expect(values).toEqual([true, false, true, false])
+
+        stop()
+      })
+
+      it('should answer a $isSelected key first requested inside a batch', () => {
+        const source = signal(1)
+        const $isSelected = selector(source)
+        const first: boolean[] = []
+        const stopFirst = effect(() => {
+          first.push($isSelected(1))
+        })
+        const second: boolean[] = []
+        let stopSecond: (() => void) | undefined
+
+        batch(() => {
+          source(2)
+          stopSecond = effect(() => {
+            second.push($isSelected(2))
+          })
+
+          // asked between the write and its flush: the answer is the one the
+          // source already has, and it is answered once
+          expect(second).toEqual([true])
+        })
+
+        expect(first).toEqual([true, false])
+        expect(second).toEqual([true])
+
+        stopFirst()
+        stopSecond!()
+      })
+
+      it('should not notify keys when the source settles on the same value', () => {
+        const source = signal(1)
+        const $isSelected = selector(source)
+        const seen: boolean[] = []
+        const stop = effect(() => {
+          seen.push($isSelected(1))
+        })
+
+        trigger(() => source())
+
+        expect(seen).toEqual([true])
+
+        stop()
+      })
+
+      it('should not mount the source from a reader a mount listener created', () => {
+        const source = mountable(signal(1))
+        const $isSelected = selector(source)
+        let inside: (() => void) | undefined
+
+        // the exemption is per subscriber and names the node that subscriber
+        // reads: a reader of a key is not exempt from the source behind it,
+        // exactly as a reader of a computed is not. So it does keep the
+        // source mounted - and a selector says the same thing a computed
+        // over the same signal says
+        onMounted(source, (mounted) => {
+          if (mounted) {
+            inside = effect(() => {
+              $isSelected(1)
+            })
+          }
+        })
+
+        const stop = effect(() => {
+          $isSelected(2)
+        })
+
+        expect(isMounted(source)).toBe(true)
+
+        stop()
+
+        expect(isMounted(source)).toBe(true)
+
+        inside?.()
+
+        expect(isMounted(source)).toBe(false)
+      })
+
+      it('should survive a derivation that drops the last reader of its key', () => {
+        const source = signal(1)
+        const seen: boolean[] = []
+        // oxlint-disable-next-line prefer-const
+        let stopOwn: (() => void) | undefined
+        // user code runs before the key is notified, and it is allowed to
+        // take the very reader the notification was meant for
+        const $isSelected = selector(source, (key: number, value) => {
+          if (key === 1 && value === 9) {
+            stopOwn!()
+          }
+
+          return key === value
+        })
+
+        stopOwn = effect(() => {
+          $isSelected(1)
+        })
+
+        const stop = effect(() => {
+          seen.push($isSelected(2))
+        })
+
+        source(9)
+
+        expect(seen).toEqual([false])
+
+        source(2)
+
+        expect(seen).toEqual([false, true])
+
+        stop()
+      })
+
+      it('should not attach for a read in a scope body', () => {
+        const source = mountable(signal(1))
+        const $isSelected = selector(source)
+        // a scope never re-runs, so a subscription taken for it could only
+        // be paid for and never used - and it must not mount the source,
+        // just as a plain signal read from the same place does not
+        const stopScope = effectScope(() => {
+          expect($isSelected(1)).toBe(true)
+          expect($isSelected(2)).toBe(false)
+        })
+
+        expect(isMounted(source)).toBe(false)
+        expect(source.node.subs).toBeUndefined()
+
+        stopScope()
+      })
+
+      it('should reject key and result types the runtime cannot honour', () => {
+        const $num = signal(1)
+
+        // @ts-expect-error a result type without a derivation: the runtime answers booleans
+        selector<number, number, string>($num)
+        // @ts-expect-error a key type unrelated to the source: nothing can ever match
+        selector<number, string>($num)
+
+        const $isSelected = selector($num)
+        const $derived = selector($num, (key: number, value) => `${key}:${value}`)
+
+        expectTypeOf($isSelected).toEqualTypeOf<(key: number) => boolean>()
+        expectTypeOf($derived).toEqualTypeOf<(key: number) => string>()
+        expect($isSelected(1)).toBe(true)
+      })
+
+      it('should infer the key from the source in a derivation', () => {
+        const $num = signal(1)
+        const $isSelected = selector($num, (key, value) => key === value)
+
+        expectTypeOf($isSelected).toEqualTypeOf<(key: number) => boolean>()
+        expect($isSelected(1)).toBe(true)
+      })
+
+      it('should allow a key narrower than the source', () => {
+        const $selected = signal<number | undefined>(undefined)
+        const $isSelected = selector<number | undefined, number>($selected)
+
+        expect($isSelected(1)).toBe(false)
+      })
+
+      it('should allow a caller to ask for a key while the selector is updating', () => {
+        const source = signal(1)
+        let stopNested: (() => void) | undefined
+        let nested: boolean | undefined
+        const $isSelected = selector(source, (key: number, value) => {
+          if (key === 1 && value === 2 && stopNested === undefined) {
+            stopNested = effect(() => {
+              nested = $isSelected(2)
+            })
+          }
+
+          return key === value
+        })
+        const outer: boolean[] = []
+        const stopOuter = effect(() => {
+          outer.push($isSelected(1))
+        })
+
+        source(2)
+
+        expect(outer).toEqual([true, false])
+        expect(nested).toBe(true)
+
+        stopOuter()
+        stopNested!()
+      })
+
+      it('should work in nested effects without attaching the tracker to the caller', () => {
+        const source = mountable(signal(1))
+        const outer = signal(true)
+        const $isSelected = selector(source)
+        let stopInner: (() => void) | undefined
+        const stopOuter = effect(() => {
+          outer()
+          stopInner?.()
+          stopInner = effect(() => {
+            $isSelected(1)
+          })
+        })
+
+        outer(false)
+        expect(isMounted(source)).toBe(true)
+
+        stopOuter()
+        expect(isMounted(source)).toBe(false)
+
+        stopInner!()
+        expect(isMounted(source)).toBe(false)
+      })
+
+      it('should attach and detach with a deferred scope only while it is started', () => {
+        const source = mountable(signal(1))
+        const $isSelected = selector(source)
+        const values: boolean[] = []
+        const scope = deferScope(() => {
+          effect(() => {
+            values.push($isSelected(1))
+          })
+        })
+
+        expect(values).toEqual([])
+        expect(isMounted(source)).toBe(false)
+
+        startScope(scope)
+        expect(values).toEqual([true])
+        expect(isMounted(source)).toBe(true)
+
+        stopScope(scope)
+        expect(isMounted(source)).toBe(false)
+      })
+
+      it('should not attach for a direct read in a deferred scope body', () => {
+        const source = mountable(signal(1))
+        const $isSelected = selector(source)
+        const scope = deferScope(() => {
+          $isSelected(1)
+        })
+
+        expect(isMounted(source)).toBe(false)
+        expect(source.node.subs).toBeUndefined()
+
+        startScope(scope)
+        expect(isMounted(source)).toBe(false)
+
+        stopScope(scope)
+      })
+
+      it('should not track custom derivation reads in a caller', () => {
+        const source = signal(1)
+        const other = signal('a')
+        const $isSelected = selector(source, (key: number, value) => `${key === value}:${other()}`)
+        const values: string[] = []
+        const stop = effect(() => {
+          values.push($isSelected(1))
+        })
+
+        other('b')
+        expect(values).toEqual(['true:a'])
+
+        source(2)
+        expect(values).toEqual(['true:a', 'false:b'])
+
+        stop()
+      })
+
+      it('should answer untracked from the current source during a batch', () => {
+        const source = signal(1)
+        const $isSelected = selector(source)
+        const stop = effect(() => {
+          $isSelected(1)
+        })
+
+        batch(() => {
+          source(2)
+          expect(untracked(() => $isSelected(2))).toBe(true)
+        })
+
+        stop()
       })
     })
 

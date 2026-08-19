@@ -133,6 +133,11 @@ export interface SignalNode<T = any> extends WritableNode {
   pendingValue: T
 }
 
+export interface SelectorNode<T = any> extends ReactiveNode {
+  value: T
+  destroy: MaybeDestroy
+}
+
 /**
  * Opaque deferred scope handle.
  * @internal

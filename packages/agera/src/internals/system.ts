@@ -1,6 +1,7 @@
 import { isFunction } from '../utils.js'
 import type {
   ReactiveNode,
+  SelectorNode,
   ReadableNode,
   SignalNode,
   ComputedNode,
@@ -12,6 +13,7 @@ import type {
   ReadableSignal,
   EffectCallback,
   Destroy,
+  Accessor,
   Compute,
   NewValue,
   DeferredScope
@@ -891,6 +893,181 @@ function purgeDeps(sub: ReactiveNode) {
 
 // #endregion
 
+// #region Selector
+//
+// A selector is a keyed derivation: one subscriber on the source, one node
+// per key, and a change delivered only to the keys whose answer moved. The
+// key node is the smallest thing the core can deliver to - a value and a
+// `destroy` - and it rides `propagate` and `unlink` untouched: it holds a
+// pushed value, so nothing ever recomputes it.
+// Nothing is attached until a real subscriber asks: the tracker is warmed up
+// by the first tracked call, and the last key to lose its readers stops it,
+// which is what releases the source.
+//
+
+// A key value is derived with the caller detached: the derivation is user
+// code that runs both from a caller's body and from the tracker's own run,
+// and its reads must become a dependency of neither
+function deriveSelector<T, U, R>(fn: ((key: U, value: T) => R) | undefined, key: U, value: T): R {
+  if (!fn) {
+    return (key === value as unknown as U) as R
+  }
+
+  const prevSub = pushActiveSub(undefined)
+
+  try {
+    return fn(key, value)
+  } finally {
+    popActiveSub(prevSub)
+  }
+}
+
+// A key node holds a pushed value, so a change is delivered like a settled
+// signal: `propagate` marks the readers, `shallowPropagate` turns their
+// pending into dirty - without it a reader would check its deps, find a node
+// that never claims to be recomputable, and go back to sleep.
+// `subs` is not empty on any path a consumer can reach: the accessor links
+// the node it has just created, and losing the last reader is what takes it
+// out of the map again. A custom derivation that tears down the last reader
+// of the very key it is asked about, from inside its own call, is the one
+// way out of that - and it is outside the contract, not a case to guard
+function setSelector<R>(node: SelectorNode<R> | undefined, value: R) {
+  if (node !== undefined && node.value !== value) {
+    node.value = value
+
+    const subs = node.subs
+
+    // A custom derivation runs before this: it is user code, and dropping
+    // the last reader of the key it is asked about leaves nobody to notify
+    if (subs !== undefined) {
+      propagate(subs)
+      shallowPropagate(subs)
+    }
+  }
+}
+
+/**
+ * Create a keyed derivation that only notifies readers of changed keys.
+ * @param $source - The source accessor.
+ * @returns A keyed accessor: calling it subscribes the caller to its key.
+ */
+export function selector<T, U extends T = T>($source: Accessor<T>): (key: U) => boolean
+
+/**
+ * Create a keyed derivation that only notifies readers of changed keys.
+ * @param $source - The source accessor.
+ * @param fn - Derives a key value from the key and source value.
+ * @returns A keyed accessor: calling it subscribes the caller to its key.
+ */
+export function selector<T, U = T, R = boolean>(
+  $source: Accessor<T>,
+  fn: (key: U, value: T) => R
+): (key: U) => R
+
+/* @__NO_SIDE_EFFECTS__ */
+export function selector<T, U = T, R = boolean>(
+  $source: Accessor<T>,
+  fn?: (key: U, value: T) => R
+): (key: U) => R {
+  const keys = new Map<U, SelectorNode<R>>()
+  let value: T
+  let tracker: EffectNode | undefined
+  // The single subscriber of the source. Default keys are answered by
+  // identity, so a change moves exactly two of them and the rest are never
+  // visited; a custom derivation has to be asked for every live key
+  const updateSelector = () => {
+    const prevValue = value
+    const nextValue = value = $source()
+
+    if (!fn) {
+      if (prevValue !== nextValue) {
+        setSelector(keys.get(prevValue as unknown as U), false as R)
+        setSelector(keys.get(nextValue as unknown as U), true as R)
+      }
+    } else {
+      for (const [key, node] of keys) {
+        setSelector(node, deriveSelector(fn, key, nextValue))
+      }
+    }
+  }
+
+  return (key) => {
+    // Nothing to attach to: answer from the source and subscribe nobody.
+    // A scope is such a position too, started or not: it never re-runs, so
+    // a key node and a source subscription taken for it could only be paid
+    // for and never used - and the tracker, being an effect, would mount a
+    // mountable source that the same read through a plain signal leaves
+    // alone
+    if (!activeSub || activeSub.modes & (LazyMode | ScopeMode)) {
+      return deriveSelector(fn, key, untracked($source))
+    }
+
+    const flags = tracker?.flags
+
+    // A stopped node is flagged NoneFlag, so one read answers both "is there
+    // a tracker" and "is it still alive" - the tracker is never cleared on
+    // the way out, and a reader created by a listener that runs inside the
+    // tear-down builds a new one instead of reviving the dead one
+    if (!flags) {
+      tracker = {
+        fn: updateSelector,
+        destroy: undefined,
+        subs: undefined,
+        subsTail: undefined,
+        deps: undefined,
+        depsTail: undefined,
+        flags: WatchingFlag | RecursedCheckFlag,
+        // Mountable: the tracker subscribes to the source on behalf of the
+        // keys, which subscribe to it in turn, so presence relays through it
+        // like through a computed instead of stopping at a watcher, and a
+        // key's level change cascades over the same two edges down to the
+        // source. A relay is not a subscriber, so it carries no exemption
+        modes: MountableMode
+      }
+
+      warmupEffect(tracker)
+    } else if (flags & (DirtyFlag | PendingFlag)) {
+      // Asked between a write and its flush: settle first, so the answer is
+      // the one the source already has
+      run(tracker!)
+    }
+
+    let node = keys.get(key)
+
+    if (!node) {
+      node = {
+        value: deriveSelector(fn, key, value),
+        subs: undefined,
+        subsTail: undefined,
+        deps: undefined,
+        depsTail: undefined,
+        flags: MutableFlag,
+        // Mountable so that liveness relays through a key: a computed that
+        // reads one is marked by the same contagion a mountable signal
+        // would give it
+        modes: MountableMode,
+        // Called by `unlink` when the key loses its last reader; `unwatched`
+        // then drops the key's own link to the tracker, and the last key to
+        // go empties the tracker's subs, which stops it and releases the
+        // source - the graph tears the chain down edge by edge
+        destroy: () => keys.delete(key)
+      }
+
+      keys.set(key, node)
+      // The edge that carries both halves of liveness: presence relays
+      // source -> tracker -> keys -> readers, and a key's level change walks
+      // key -> tracker -> source. Made once per key
+      link(tracker!, node, 0)
+    }
+
+    link(node, activeSub, cycle)
+
+    return node.value
+  }
+}
+
+// #endregion
+
 // #region Defer scopes
 //
 // A deferred scope is an ordinary effect scope whose effects are captured
@@ -1194,10 +1371,13 @@ function present(node: ReadableNode): boolean {
       if (
         sub.lcx !== node
         && (
-          // A live effect settles the question; anything else relays only
-          // if it is a mountable computed
-          sub.flags & WatchingFlag
-          || sub.modes & MountableMode && present(sub as ReadableNode)
+          // A relay never counts as a reader, whatever its flags say: the
+          // walk asks its subs instead - a mountable computed's readers, a
+          // tracker's keys. Anything else settles the question iff it is a
+          // live effect
+          sub.modes & MountableMode
+            ? present(sub as ReadableNode)
+            : sub.flags & WatchingFlag
         )
       ) {
         node.lcv = true

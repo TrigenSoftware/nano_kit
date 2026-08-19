@@ -8,6 +8,7 @@ import type {
 import {
   signal,
   computed,
+  selector,
   batch,
   nextValue,
   signalNextValue,
@@ -17,6 +18,7 @@ import {
 export {
   signal,
   computed,
+  selector,
   batch,
   nextValue,
   signalNextValue

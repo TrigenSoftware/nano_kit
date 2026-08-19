@@ -221,6 +221,40 @@ const $count = signal(1)
 const $total = computed((sum = 0) => sum + $count())
 ```
 
+### Using `selector`
+
+When many things ask the same question about one value — which row is selected, which tab is open, which item is being dragged — a `computed` per asker subscribes them all to that value, and every change wakes all of them so that all but one can conclude that nothing changed. `selector` inverts that: the source gets one subscriber, and a change reaches only the keys whose answer actually moved.
+
+```ts
+import { signal, selector, effect } from '@nano_kit/store'
+
+const $selected = signal<number>()
+const $isSelected = selector($selected)
+
+/* Each row asks about its own key and is woken only for its own key */
+const stop = effect(() => {
+  console.log('row 2 selected:', $isSelected(2))
+})
+
+$selected(1) /* row 2 is not woken */
+$selected(2) /* row 2 is woken, row 1 is woken to unselect */
+```
+
+`selector` returns a plain function, not a signal: it has no value of its own, and calling it inside a tracked context subscribes the caller to that key alone. Called outside one, it just answers.
+
+By default a key is selected when it is strictly equal to the source value. A second argument replaces that rule with any derivation of `(key, value)`:
+
+```ts
+const $range = signal(0)
+const $distance = selector($range, (key: number, value) => Math.abs(key - value))
+
+effect(() => {
+  console.log('distance from 5:', $distance(5))
+})
+```
+
+A custom derivation is asked for every live key on each change, while the default comparison moves exactly two — so keep the default where it fits.
+
 ## Mountable Stores
 
 Wrap a signal (or computed) with `mountable` to control its lifecycle using the `onMount` hook. This allows you to execute side effects—like subscribing to external data sources or fetching data—when the signal becomes active, and clean up resources when it's no longer in use. This pattern moves business logic from components to stores, making it framework-agnostic and easier to test.
