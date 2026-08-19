@@ -2,6 +2,7 @@ import {
   type Accessor,
   type ValueOrAccessor,
   type DeferredScope,
+  effect,
   isAccessor
 } from 'kida'
 import type { Child } from '../types/index.js'
@@ -38,6 +39,12 @@ export function reactiveDecide<T>(
 
     insertChildBeforeAnchor(decider(condition), end)
   }, destroyPrev))
+
+  // The echo: a branch that writes the condition back does it from inside
+  // the running swapper, which cannot be re-queued by its own propagation.
+  // This second subscriber is idle at that moment, so its read settles the
+  // condition and re-queues the parked swapper for the corrective swap
+  effect(() => void $condition(), true)
 
   return fragment
 }
