@@ -6,9 +6,11 @@ import {
 } from 'vitest'
 import {
   signal,
+  mountable,
   effect
 } from 'agera'
 import { assignKey } from './utils.js'
+import { onMount } from './lifecycle.js'
 import { child } from './child.js'
 
 describe('kida', () => {
@@ -151,6 +153,81 @@ describe('kida', () => {
         })
 
         off()
+      })
+
+      it('should not rerun an effect that writes the child it reads', () => {
+        const $map = signal({
+          a: 'clean'
+        })
+        const $a = child($map, 'a', assignKey)
+        let runs = 0
+        // an effect that normalises the child it reads settles: a writer is
+        // never woken by its own write
+        const stop = effect(() => {
+          const value = $a()
+
+          runs++
+
+          if (runs > 10) {
+            throw new Error('runaway')
+          }
+
+          if (value !== value.trim()) {
+            $a(value.trim())
+          }
+        })
+
+        runs = 0
+
+        $map({
+          a: '  dirty  '
+        })
+
+        expect(runs).toBe(1)
+        expect($map()).toEqual({
+          a: 'dirty'
+        })
+
+        stop()
+      })
+
+      it('should not fire mount listeners from inside an effect that writes a child', () => {
+        const log: string[] = []
+        const $map = signal({
+          a: 1
+        })
+        const $a = child($map, 'a', assignKey)
+        const $mountable = mountable(signal('x'))
+
+        onMount($mountable, () => {
+          log.push('mounted')
+        })
+
+        // reaches the mountable signal only once the write has landed, so
+        // the flush the write triggers is what makes it live
+        const stopReader = effect(() => {
+          if ($map().a === 2) {
+            $mountable()
+          }
+        })
+        const stopWriter = effect(() => {
+          log.push('start')
+
+          if ($a() === 1) {
+            $a(2)
+          }
+
+          log.push('end')
+        })
+
+        expect(log).toEqual([
+          'start',
+          'end',
+          'mounted'
+        ])
+
+        stopWriter()
+        stopReader()
       })
     })
   })

@@ -39,12 +39,18 @@ function childCompute(this: ChildNode) {
 
 function childOper(this: ChildNode, ...value: [NewValue<unknown>]) {
   if (value.length) {
-    untracked(() => {
-      const parent = this.p()
-      const key = $get(this.k)
+    // Only the reads are untracked: the write itself stays in the caller's
+    // context, so an effect that writes a child it reads is exempted from
+    // its own write instead of being re-run by it
+    let parent!: AnyObject
+    let key!: PropertyKey
 
-      this.p(this.sv(parent, key, nextValue(parent[key], value[0])))
+    untracked(() => {
+      parent = this.p()
+      key = $get(this.k)
     })
+
+    this.p(this.sv(parent, key, nextValue(parent[key], value[0])))
   } else {
     return computedOper.call(this)
   }

@@ -9,6 +9,7 @@ import {
   computed,
   signal,
   effect,
+  untracked,
   isSignal,
   createSignal,
   trigger
@@ -73,6 +74,50 @@ describe('agera', () => {
         'compute',
         'effect'
       ])
+
+      stop()
+    })
+
+    it('should not rerun an effect that writes its own dependency directly', () => {
+      const $tick = signal(0)
+      const $data = signal(0)
+      let runs = 0
+      const stop = effect(() => {
+        $tick()
+
+        const data = $data()
+
+        runs++
+
+        $data(data + 1)
+      })
+
+      $tick(1)
+
+      expect(runs).toBe(2)
+      expect($data()).toBe(2)
+
+      stop()
+    })
+
+    it('should settle an effect that feeds itself instead of running away', () => {
+      const $tick = signal(0)
+      const $data = signal(0)
+      let runs = 0
+      const stop = effect(() => {
+        $tick()
+
+        const data = $data()
+
+        runs++
+
+        untracked(() => $data(data + 1))
+      })
+
+      $tick(1)
+
+      expect(runs).toBe(2)
+      expect($data()).toBe(2)
 
       stop()
     })
