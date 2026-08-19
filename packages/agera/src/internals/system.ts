@@ -498,10 +498,24 @@ export function computed<T>(compute: Compute<T>): ReadableSignal<T> {
 /**
  * Run effect function and re-run it on dependency change.
  * @param fn - The effect function to run.
- * @param noDefer - Ignore effect deferring.
  * @returns A function to stop the effect.
  */
-export function effect(fn: EffectCallback, noDefer = false): Destroy {
+export function effect(fn: EffectCallback): Destroy
+
+/**
+ * Run effect function and re-run it on dependency change.
+ * The third argument is internal: it exists for `observe`, which must pair
+ * the exemption with its node before the warmup boundary fires.
+ * @internal
+ * @param fn - The effect function to run.
+ * @param noDefer - Ignore effect deferring.
+ * @param lcx - The node this watcher must not keep mounted.
+ * @returns A function to stop the effect.
+ */
+// oxlint-disable-next-line typescript/unified-signatures
+export function effect(fn: EffectCallback, noDefer?: boolean, lcx?: ReactiveNode): Destroy
+
+export function effect(fn: EffectCallback, noDefer?: boolean, lcx?: ReactiveNode): Destroy {
   const e: EffectNode = {
     fn,
     destroy: undefined,
@@ -510,7 +524,8 @@ export function effect(fn: EffectCallback, noDefer = false): Destroy {
     deps: undefined,
     depsTail: undefined,
     flags: WatchingFlag | RecursedCheckFlag,
-    modes: NoneFlag
+    modes: NoneFlag,
+    lcx
   }
 
   lifecycleEdge?.(e, e)
@@ -1146,7 +1161,6 @@ const pending: ReadableNode[] = []
 let pendingStart = 0
 let stamp = 0
 let draining = 0
-let exemptCtx: ReactiveNode | undefined
 let fireCtx: ReactiveNode | undefined
 
 // A node handed to itself is a freshly created effect, not an edge: the
@@ -1163,8 +1177,9 @@ function onEdge(dep: ReactiveNode, sub?: ReactiveNode): void {
     ;(dep as ReadableNode).lcq = pending.push(dep as ReadableNode)
   } else {
     // A queued effect re-run is not part of the listener's creation
-    // frame: what it builds is a genuine subscriber
-    dep.lcx = exemptCtx || !flushDepth && fireCtx
+    // frame: what it builds is a genuine subscriber. A node born with an
+    // exemption (`observe`) keeps it
+    dep.lcx ||= !flushDepth && fireCtx
   }
 }
 
@@ -1312,28 +1327,6 @@ export function touchLifecycle(node: ReactiveNode): void {
   lifecycleSettle = settle
   ;(node as ReadableNode).lcq = pending.push(node as ReadableNode)
   settle()
-}
-
-/**
- * Call a function where subscribers created inside will ignore mount of the specified signal.
- * @param $signal - The signal to ignore mount for.
- * @param fn - The function to call.
- * @returns The result of the function.
- */
-export function noMount<T>($signal: AnySignal, fn: () => T): T {
-  // No install: the exemption is read only by the edge hook, and a node
-  // that is mountable now has installed the plugin at its own marking.
-  // A node marked mountable AFTER this window is the documented
-  // non-retroactive case
-  const prevCtx = exemptCtx
-
-  exemptCtx = $signal.node
-
-  try {
-    return fn()
-  } finally {
-    exemptCtx = prevCtx
-  }
 }
 
 // #endregion

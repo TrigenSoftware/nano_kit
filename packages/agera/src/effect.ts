@@ -11,8 +11,7 @@ import {
   startScope,
   stopScope,
   pushActiveSub,
-  popActiveSub,
-  noMount
+  popActiveSub
 } from './internals/system.js'
 
 export {
@@ -95,5 +94,20 @@ export function observe<T>(
   fn: ObserverCallback<T>,
   noDefer?: boolean
 ) {
-  return noMount($accessor, () => listen($accessor, fn, noDefer))
+  // The exemption is the node the subscription links, preset on the
+  // subscriber itself: no context window is needed to pair them with the
+  // signal, and no derivation can be named in place of the direct dep
+  return effect((warmup) => {
+    const value = $accessor()
+
+    if (!warmup) {
+      const prevSub = pushActiveSub(undefined)
+
+      try {
+        fn(value)
+      } finally {
+        popActiveSub(prevSub)
+      }
+    }
+  }, noDefer, $accessor.node)
 }

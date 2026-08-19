@@ -11,8 +11,7 @@ import {
   batch,
   nextValue,
   signalNextValue,
-  touchLifecycle,
-  noMount
+  touchLifecycle
 } from './internals/system.js'
 
 export {
@@ -20,8 +19,7 @@ export {
   computed,
   batch,
   nextValue,
-  signalNextValue,
-  noMount
+  signalNextValue
 }
 
 /**

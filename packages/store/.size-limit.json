@@ -4,7 +4,7 @@
     "gzip": true,
     "path": "dist/index.js",
     "import": "*",
-    "limit": "6.15 kB"
+    "limit": "6.1 kB"
   },
   {
     "name": "All publics (Brotli)",
@@ -36,6 +36,6 @@
     "name": "Popular set (Brotli)",
     "path": "dist/index.js",
     "import": "{ signal, record, computed, effect, mountable, onMount }",
-    "limit": "2.3 kB"
+    "limit": "2.25 kB"
   }
 ]

@@ -61,26 +61,6 @@ stop()
 /* Logs: Mounted: false */
 ```
 
-## Preventing Mount Propagation
-
-**`noMount`** prevents subscribers created inside the function from triggering mount events on the specified signal. This is useful when you need to create effects that observe a mountable signal without activating its lifecycle.
-
-```ts
-import { signal, mountable, onMount, noMount, effect } from '@nano_kit/store'
-
-const $data = mountable(signal(0))
-
-onMount($data, () => {
-  console.log('Mounted')
-})
-
-/* Create effect that won't trigger $data mount */
-const stop = noMount($data, () => effect(() => {
-  console.log('Value:', $data())
-  /* $data is observed but not mounted */
-}))
-```
-
 ## Next Values
 
 **`nextValue`** resolves a signal setter value against the previous value. Use it when your low-level API accepts the same `value | updater` shape as writable signals.

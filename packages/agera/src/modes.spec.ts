@@ -9,6 +9,7 @@ import {
   signal,
   onMounted,
   effect,
+  observe,
   trigger,
   mountable,
   isMountable,
@@ -803,6 +804,70 @@ describe('agera', () => {
 
         expect(bListener.mock.calls).toEqual([[true]])
         expect(isMounted($b)).toBe(true)
+      })
+
+      it('should not count an observe subscriber as a live path', () => {
+        // What noMount pinned as "the exempt subscriber reads the mountable
+        // signal directly": the exemption is now born on the observe
+        // subscriber, paired with the very node it links
+        const $num = mountable(signal(0))
+        const seen: number[] = []
+        const stop = observe($num, value => seen.push(value))
+
+        expect(isMounted($num)).toBe(false)
+
+        $num(1)
+
+        expect(seen).toEqual([1])
+        expect(isMounted($num)).toBe(false)
+
+        stop()
+      })
+
+      it('should pair the observe exemption with the node it reads', () => {
+        // What noMount pinned as "the window names the very node the
+        // subscriber reads": observe can name nothing else
+        const $a = mountable(signal(1))
+        const $b = mountable(computed(() => $a() + 1))
+        const stop = observe($b, () => {})
+
+        expect(isMounted($b)).toBe(false)
+        expect(isMounted($a)).toBe(false)
+
+        stop()
+      })
+
+      it('should keep a derived source cold under observe', () => {
+        // The derivation case noMount could not survive: the exemption
+        // followed the named node, not the linked one. observe always
+        // exempts its direct dep, and `present` relays the silence
+        // through the mountable computed down to the source
+        const $a = mountable(signal(1))
+        const $b = mountable(computed(() => $a() + 1))
+        const seen: number[] = []
+        const stopObserve = observe($b, value => seen.push(value))
+
+        expect(isMounted($a)).toBe(false)
+
+        // an ordinary reader still mounts the chain, and its leave
+        // releases it: the silent subscriber never counts
+        const stopEffect = effect(() => {
+          $b()
+        })
+
+        expect(isMounted($a)).toBe(true)
+        expect(isMounted($b)).toBe(true)
+
+        stopEffect()
+
+        expect(isMounted($a)).toBe(false)
+        expect(isMounted($b)).toBe(false)
+
+        $a(2)
+
+        expect(seen).toEqual([3])
+
+        stopObserve()
       })
 
       it('should not dead lock signal mounted state', () => {
