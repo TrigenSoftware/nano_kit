@@ -39,7 +39,7 @@ export const classList$ = /* @__PURE__ */ createEffectAttribute<'classList$', HT
 )
 
 declare module 'nanoviews' {
-  interface EffectAttributeValues {
+  interface EffectAttributeValues<Target extends Element> {
     classList$: ClassList
   }
 

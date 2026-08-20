@@ -183,7 +183,7 @@ export const files$ = /* @__PURE__ */ createEffectAttribute<'files$', FileElemen
 )
 
 declare module 'nanoviews' {
-  interface EffectAttributeValues {
+  interface EffectAttributeValues<Target extends Element> {
     value$: Value
     checked$: Checked
     selected$: Selected

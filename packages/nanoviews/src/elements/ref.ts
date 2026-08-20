@@ -17,8 +17,14 @@ export const ref$ = /* @__PURE__ */ createEffectAttribute<'ref$', Element, Writa
 )
 
 declare module 'nanoviews' {
-  interface EffectAttributeValues {
-    ref$: WritableSignal<Element | null>
+  interface EffectAttributeValues<Target extends Element> {
+    // A signal is invariant, so every type a ref may be declared with has to
+    // be named: the element itself, the two branches of the tree it belongs
+    // to, and their root
+    ref$: WritableSignal<Target | null>
+      | WritableSignal<HTMLElement | null>
+      | WritableSignal<SVGElement | null>
+      | WritableSignal<Element | null>
   }
 
   interface EffectAttributeTargets {

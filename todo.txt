@@ -47,7 +47,6 @@
 - for_ duplicate track keys: unsupported by design, must keep failing loudly - the crash lands a step away from the cause, so it needs a clear throw at the point of detection
 - rework return slot$ to look like element/component? fn.prop is faster than {f,p}
 - util to transform static props to signal props?
-- typed effectattrs <T>
 - additional arg for record in for$? as$
 - static index for untracked loop?
 

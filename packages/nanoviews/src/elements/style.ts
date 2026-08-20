@@ -72,7 +72,7 @@ export const style$ = /* @__PURE__ */ createEffectAttribute<'style$', HTMLElemen
 )
 
 declare module 'nanoviews' {
-  interface EffectAttributeValues {
+  interface EffectAttributeValues<Target extends Element> {
     style$: StyleProps
   }
 

@@ -20,7 +20,7 @@ export const autoFocus$ = /* @__PURE__ */ createEffectAttribute<'autoFocus$', HT
 )
 
 declare module 'nanoviews' {
-  interface EffectAttributeValues {
+  interface EffectAttributeValues<Target extends Element> {
     autoFocus$: ValueOrAccessor<boolean>
   }
 
