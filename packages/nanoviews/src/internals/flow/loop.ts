@@ -19,7 +19,10 @@ import {
   nextValue,
   assignIndex
 } from 'kida'
-import type { Child } from '../types/index.js'
+import type {
+  Child,
+  EmptyValue
+} from '../types/index.js'
 import {
   deferScopeBindContext,
   effectScopeSwapper
@@ -341,7 +344,7 @@ function reconcile(
 }
 
 export function loop(
-  $items: Accessor<unknown[]>,
+  $items: Accessor<unknown[] | EmptyValue>,
   each_: AnyEach,
   else_?: () => Child,
   track: UnknownTrack = (_, i) => i
@@ -389,9 +392,11 @@ export function loop(
 
   effectScopeSwapper($items, (
     destroyPrev: DeferredScope | undefined,
-    items: unknown[]
+    items: unknown[] | EmptyValue
   ) => {
-    const itemsCount = items.length
+    // No array at all is the same emptiness as an empty one: the rows go and
+    // the placeholder comes, and nothing below ever reaches into it
+    const itemsCount = items?.length
 
     if (itemsCount && destroyPrev !== undefined && !isPlaceholder) {
       // [...m] -> [...n]
@@ -405,7 +410,7 @@ export function loop(
         reconcile,
         itemsList,
         blocksMap,
-        $items,
+        $items as Accessor<unknown[]>,
         each_,
         track,
         end,
@@ -438,7 +443,7 @@ export function loop(
           reconcile(
             itemsList,
             blocksMap,
-            $items,
+            $items as Accessor<unknown[]>,
             each_,
             track,
             end,

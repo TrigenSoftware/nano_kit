@@ -2,6 +2,7 @@ import {
   type Accessor,
   type ReadableSignal,
   type WritableSignal,
+  type EmptyValue,
   isAccessor
 } from 'kida'
 import {
@@ -51,8 +52,12 @@ type StaticEach<T> = (
 
 type UnknownTrack = (item: unknown, index: number) => unknown
 
+// A signal is invariant, so the nullable array is a separate arm rather than
+// a widening of the first: `WritableSignal<T[]>` does not fit
+// `WritableSignal<T[] | EmptyValue>`, and widening would take the rows of
+// every existing caller down to read-only
 export function for_<T>(
-  $items: WritableSignal<T[]>,
+  $items: WritableSignal<T[]> | WritableSignal<T[] | EmptyValue>,
   track?: (item: T, index: number) => unknown
 ): (
   each_: WritableEach<T>,
@@ -60,7 +65,7 @@ export function for_<T>(
 ) => Child
 
 export function for_<T>(
-  $items: Accessor<T[]>,
+  $items: Accessor<T[] | EmptyValue>,
   track?: (item: T, index: number) => unknown
 ): (
   each_: ReadableEach<T>,
@@ -68,7 +73,7 @@ export function for_<T>(
 ) => Child
 
 export function for_<T>(
-  $items: T[]
+  $items: T[] | EmptyValue
 ): (
   each_: StaticEach<T>,
   else_?: () => Child
@@ -81,7 +86,7 @@ export function for_<T>(
  * @returns Function to receive each_ and else_ functions
  */
 export function for_(
-  $items: unknown[] | Accessor<unknown[]>,
+  $items: unknown[] | EmptyValue | Accessor<unknown[] | EmptyValue>,
   track?: UnknownTrack
 ) {
   if (isAccessor($items)) {

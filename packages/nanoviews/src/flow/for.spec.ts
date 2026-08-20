@@ -1002,6 +1002,36 @@ describe('nanoviews', () => {
         expect(runs).toEqual([0])
       })
 
+      it('should render the placeholder for an absent array', () => {
+        const items = signal<Player[] | undefined>(undefined)
+        const { container } = render(() => ul()(
+          for_(items, trackById)(
+            item => li()(record(item).$name),
+            () => li()('nobody')
+          )
+        ))
+
+        expect(container.innerHTML).toBe('<div><ul><li>nobody</li></ul></div>')
+
+        items([
+          {
+            id: 1,
+            name: 'Yatoro'
+          }
+        ])
+
+        expect(container.innerHTML).toBe('<div><ul><li>Yatoro</li></ul></div>')
+
+        // no array is the same emptiness as an empty one
+        items(undefined)
+
+        expect(container.innerHTML).toBe('<div><ul><li>nobody</li></ul></div>')
+
+        items([])
+
+        expect(container.innerHTML).toBe('<div><ul><li>nobody</li></ul></div>')
+      })
+
       describe('fuzz', () => {
         // A named test pins a shape someone thought of; these walk sequences
         // nobody did. Both invariants are checked after every step: the rows
