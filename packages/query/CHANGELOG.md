@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0...v1.2.0) (2026-08-20)
+
+### Bug Fixes
+
+* run user reducers and event handlers untracked ([#193](https://github.com/TrigenSoftware/nano_kit/issues/193)) ([03c78db](https://github.com/TrigenSoftware/nano_kit/commit/03c78db4332524c25393098980731c222a938647))
+
 ## [1.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0-alpha.1...v1.0.0) (2026-07-22)
 
 ### Nano Kit 1.0 🎉
