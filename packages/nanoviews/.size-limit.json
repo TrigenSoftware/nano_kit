@@ -10,7 +10,7 @@
     "name": "All publics (Brotli)",
     "path": "dist/index.js",
     "import": "*",
-    "limit": "6.6 kB"
+    "limit": "6.65 kB"
   },
   {
     "name": "Average usage (Gzip)",

@@ -30,6 +30,20 @@ export function trackById(item: { id: unknown }) {
   return item.id
 }
 
+/**
+ * Hand the row through a transform before rendering it
+ * @param as - Function that transforms the row, eg `record`
+ * @param each_ - Function that renders the transformed row
+ * @returns Function to pass to `for_`
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function as_<Item, Index, Value>(
+  as: (item: Item) => Value,
+  each_: (value: Value, index: Index) => Child
+) {
+  return (item: Item, index: Index) => each_(as(item), index)
+}
+
 type AnyEach = (
   item: Accessor<unknown>,
   index: ReadableSignal<number>

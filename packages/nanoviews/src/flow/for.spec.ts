@@ -25,6 +25,7 @@ import {
 import { fragment } from '../elements/fragment.js'
 import {
   trackById,
+  as_,
   for_
 } from './for.js'
 import * as Stories from './for.stories.js'
@@ -1030,6 +1031,71 @@ describe('nanoviews', () => {
         items([])
 
         expect(container.innerHTML).toBe('<div><ul><li>nobody</li></ul></div>')
+      })
+
+      it('should hand the row through a transform with `as_`', () => {
+        const items = signal([
+          {
+            id: 1,
+            name: 'Yatoro'
+          },
+          {
+            id: 2,
+            name: 'Larl'
+          }
+        ])
+        const { container } = render(() => ul()(
+          for_(items, trackById)(
+            as_(record, ($player, $index) => li()($player.$name, ':', $index))
+          )
+        ))
+
+        expect(container.innerHTML).toBe('<div><ul><li>Yatoro:0</li><li>Larl:1</li></ul></div>')
+
+        // the transformed row is still the row: a write reaches the array
+        untracked(items)[0].name = 'x'
+        items([
+          {
+            id: 1,
+            name: 'Collapse'
+          },
+          {
+            id: 2,
+            name: 'Larl'
+          }
+        ])
+
+        expect(container.innerHTML).toBe('<div><ul><li>Collapse:0</li><li>Larl:1</li></ul></div>')
+      })
+
+      it('should keep a row written through `as_` writable', () => {
+        const items = signal([
+          {
+            id: 1,
+            name: '  Larl  '
+          }
+        ])
+
+        render(() => ul()(
+          for_(items, trackById)(
+            as_(record, ($player) => {
+              const name = untracked($player.$name)
+
+              if (name !== name.trim()) {
+                $player.$name(name.trim())
+              }
+
+              return li()($player.$name)
+            })
+          )
+        ))
+
+        expect(untracked(items)).toEqual([
+          {
+            id: 1,
+            name: 'Larl'
+          }
+        ])
       })
 
       describe('fuzz', () => {
