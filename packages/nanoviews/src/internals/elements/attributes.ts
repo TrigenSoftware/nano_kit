@@ -1,7 +1,8 @@
 import {
   isAccessor,
   isFunction,
-  effect
+  effect,
+  untracked
 } from 'kida'
 import type {
   PrimitiveAttributeValue,
@@ -9,7 +10,6 @@ import type {
 } from '../types/index.js'
 import { isEmpty } from '../utils.js'
 import { effectAttributes } from './effectAttribute.js'
-import { delegateEvent } from './events.js'
 
 type AttributeValue = PrimitiveAttributeValue | TargetEventHandler
 
@@ -37,13 +37,24 @@ function isEventHandler(key: string, value: unknown): value is TargetEventHandle
   return key.startsWith('on') && isFunction(value)
 }
 
+// Building the event name allocates a string the browser has to atomize on
+// every `addEventListener`; keyed by the prop name, the same string object is
+// handed over every time
+const eventNames: Record<string, string> = {}
+
 function setEventListener(element: Element, name: string, value: TargetEventHandler) {
-  const eventName = name.slice(2).toLowerCase()
+  // `onGotPointerCapture` and `onLostPointerCapture` end with `Capture`
+  // themselves, and are ordinary bubbling events
+  const capture = name.endsWith('Capture') && !name.endsWith('PointerCapture')
 
-  delegateEvent(eventName)
-
-  // @ts-expect-error Inject event listener into element
-  element[`__${eventName}`] = value
+  element.addEventListener(
+    eventNames[name] ??= name.slice(2, capture ? -7 : undefined).toLowerCase(),
+    // A handler is user code: it must not subscribe whatever effect happens to
+    // be running when the event is dispatched synchronously from inside one -
+    // `autoFocus$` calls `focus()` from an effect, and that is not exotic
+    event => untracked(() => (value as EventListener).call(element, event)),
+    capture
+  )
 }
 
 /**

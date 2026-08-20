@@ -11,6 +11,10 @@ import {
 } from '@nanoviews/testing-library'
 import { userEvent } from '@testing-library/user-event'
 import { signal } from 'kida'
+import {
+  input,
+  fragment
+} from '../index.js'
 import * as Stories from './controls.stories.js'
 import type { Indeterminate } from './controls.js'
 
@@ -73,6 +77,44 @@ describe('nanoviews', () => {
           })
 
           expect(textarea.value).toBe('user input')
+        })
+
+        it('should run alongside a handler for the same event, in either order', () => {
+          const seen: string[] = []
+          const $bound = signal('')
+          const $reversed = signal('')
+          const { container } = render(() => fragment(
+            input({
+              value$: $bound,
+              onInput: () => seen.push(`bound:${$bound()}`)
+            }),
+            input({
+              onInput: () => seen.push(`reversed:${$reversed()}`),
+              value$: $reversed
+            })
+          ))
+          const [bound, reversed] = Array.from(container.querySelectorAll('input'))
+
+          fireEvent.input(bound, {
+            target: {
+              value: 'a'
+            }
+          })
+          fireEvent.input(reversed, {
+            target: {
+              value: 'b'
+            }
+          })
+
+          // both listeners run whatever the key order was; only what the
+          // handler sees in the signal follows it, and the DOM value is
+          // current either way
+          expect($bound()).toBe('a')
+          expect($reversed()).toBe('b')
+          expect(seen).toEqual([
+            'bound:a',
+            'reversed:'
+          ])
         })
       })
 

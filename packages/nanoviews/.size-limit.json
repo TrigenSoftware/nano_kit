@@ -4,25 +4,25 @@
     "gzip": true,
     "path": "dist/index.js",
     "import": "*",
-    "limit": "7.6 kB"
+    "limit": "7.45 kB"
   },
   {
     "name": "All publics (Brotli)",
     "path": "dist/index.js",
     "import": "*",
-    "limit": "6.75 kB"
+    "limit": "6.6 kB"
   },
   {
     "name": "Average usage (Gzip)",
     "gzip": true,
     "path": "dist/index.js",
     "import": "{ fragment, div, form, input, button, label, classList$, if_, for_, value$, $$children, effect }",
-    "limit": "4.25 kB"
+    "limit": "3.8 kB"
   },
   {
     "name": "Average usage (Brotli)",
     "path": "dist/index.js",
     "import": "{ fragment, div, form, input, button, label, classList$, if_, for_, value$, $$children, effect }",
-    "limit": "3.95 kB"
+    "limit": "3.55 kB"
   }
 ]

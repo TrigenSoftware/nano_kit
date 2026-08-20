@@ -8,8 +8,7 @@ import {
 import {
   type Child,
   type MaybeDestroy,
-  mountChild,
-  defineProtoProp
+  mountChild
 } from './internals/index.js'
 
 /**
@@ -19,10 +18,6 @@ import {
  * @returns A function to unmount the app
  */
 export function mount(app: () => Child, target: ParentNode) {
-  defineProtoProp('__mp', false)
-  // @ts-expect-error Mark as mount point
-  target.__mp = true
-
   let unmount: MaybeDestroy
   let scope!: DeferredScope
 

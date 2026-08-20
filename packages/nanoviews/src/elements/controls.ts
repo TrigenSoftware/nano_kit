@@ -38,6 +38,7 @@ type ComboboxElement = HTMLSelectElement
 
 type FileElement = HTMLInputElement
 
+/* @__NO_SIDE_EFFECTS__ */
 function createElementPropertySetter<E extends Element, V>(
   eventName: string,
   getValue: (control: E) => V,
@@ -51,13 +52,11 @@ function createElementPropertySetter<E extends Element, V>(
       setValue(control, $value())
     })
 
-    effect(() => {
-      const eventListener = () => $value(getValue(control))
-
-      control.addEventListener(eventName, eventListener)
-
-      return () => control.removeEventListener(eventName, eventListener)
-    })
+    // The registration dies with the element, so the binding needs no
+    // teardown - and no effect node to carry one. It reads the DOM and writes
+    // a signal, and a write subscribes nobody, so it needs no tracking barrier
+    // either
+    control.addEventListener(eventName, () => $value(getValue(control)))
   }
 }
 
@@ -172,13 +171,7 @@ function filesEffectAttribute(
   control: FileElement,
   $value: Files
 ) {
-  effect(() => {
-    const eventListener = () => $value(Array.from(control.files!))
-
-    control.addEventListener(onChangeEvent, eventListener)
-
-    return () => control.removeEventListener(onChangeEvent, eventListener)
-  })
+  control.addEventListener(onChangeEvent, () => $value(Array.from(control.files!)))
 }
 
 /**
