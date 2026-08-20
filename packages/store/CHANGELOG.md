@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0...v1.2.0) (2026-08-20)
+
+### Performance Improvements
+
+* replace `morph` with the signal constructor protocol ([#197](https://github.com/TrigenSoftware/nano_kit/issues/197)) ([23b3370](https://github.com/TrigenSoftware/nano_kit/commit/23b337007b4898d5e0d2fc0e4e127a2df71d392e))
+
 ## [1.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0-alpha.1...v1.0.0) (2026-07-22)
 
 ### Nano Kit 1.0 🎉

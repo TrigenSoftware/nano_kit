@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0...v1.2.0) (2026-08-20)
+
+### Features
+
+* add `selector` to wake only the keys whose answer changed ([#200](https://github.com/TrigenSoftware/nano_kit/issues/200)) ([ac6b35f](https://github.com/TrigenSoftware/nano_kit/commit/ac6b35f8a18c1e6eb04541d7b8838fe3b712a12f))
+* bottom-up deferred effect scopes ([#189](https://github.com/TrigenSoftware/nano_kit/issues/189)) ([dd3169f](https://github.com/TrigenSoftware/nano_kit/commit/dd3169fbddcffbb3d8000f1f6127e40c37ec2386))
+* derive mounted state from the graph instead of counting subscribers ([#191](https://github.com/TrigenSoftware/nano_kit/issues/191)) ([9c43fce](https://github.com/TrigenSoftware/nano_kit/commit/9c43fcedac7b7a46ac3ce3106bb89ea00f2233f9))
+* keep the source cold when observing through a derivation ([#199](https://github.com/TrigenSoftware/nano_kit/issues/199)) ([ecc0434](https://github.com/TrigenSoftware/nano_kit/commit/ecc043449ed9d1ee3f5f5b91e6acb8ca95b1c39f))
+
+### Bug Fixes
+
+* run user reducers and event handlers untracked ([#193](https://github.com/TrigenSoftware/nano_kit/issues/193)) ([03c78db](https://github.com/TrigenSoftware/nano_kit/commit/03c78db4332524c25393098980731c222a938647))
+
+### Performance Improvements
+
+* cut allocations and graph work on the binding paths ([#196](https://github.com/TrigenSoftware/nano_kit/issues/196)) ([3d1c93b](https://github.com/TrigenSoftware/nano_kit/commit/3d1c93b987f5ee8e161c42005b07b9ab11a2a63f))
+* replace `morph` with the signal constructor protocol ([#197](https://github.com/TrigenSoftware/nano_kit/issues/197)) ([23b3370](https://github.com/TrigenSoftware/nano_kit/commit/23b337007b4898d5e0d2fc0e4e127a2df71d392e))
+
 ## [1.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0-alpha.1...v1.0.0) (2026-07-22)
 
 ### Nano Kit 1.0 🎉
