@@ -31,13 +31,13 @@ export type AccessibleProps<T> = {
   [K in keyof T]?: Signalish<T[K]>
 }
 
-export type TruthySignal<T> = T extends Accessor<infer U>
+export type TruthyAccessor<T> = T extends Accessor<infer U>
   ? U extends FalsyValue
     ? never
     : T
   : never
 
-export type TruthyValueOrSignal<T> = T extends Accessor<infer U>
+export type TruthySignalish<T> = T extends Accessor<infer U>
   ? U extends FalsyValue
     ? never
     : T
@@ -45,13 +45,13 @@ export type TruthyValueOrSignal<T> = T extends Accessor<infer U>
     ? never
     : T
 
-export type FalsySignal<T> = T extends Accessor<infer U>
+export type FalsyAccessor<T> = T extends Accessor<infer U>
   ? U extends FalsyValue
     ? T
     : never
   : never
 
-export type FalsyValueOrSignal<T> = T extends Accessor<infer U>
+export type FalsySignalish<T> = T extends Accessor<infer U>
   ? U extends FalsyValue
     ? T
     : never

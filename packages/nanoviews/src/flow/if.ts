@@ -3,8 +3,8 @@ import {
   boolean
 } from 'kida'
 import type {
-  TruthyValueOrSignal,
-  FalsyValueOrSignal,
+  TruthySignalish,
+  FalsySignalish,
   Child
 } from '../internals/index.js'
 import { swap_ } from './swap.js'
@@ -22,14 +22,14 @@ export function if_<T>($value: T) {
    * @returns Block that renders decided child
    */
   return (
-    then_: (value: TruthyValueOrSignal<T>) => Child,
-    else_?: (value: FalsyValueOrSignal<T>) => Child
+    then_: (value: TruthySignalish<T>) => Child,
+    else_?: (value: FalsySignalish<T>) => Child
   ) => swap_(
     isAccessor($value) ? boolean($value) : $value as boolean,
     confition => (
       confition
-        ? then_($value as TruthyValueOrSignal<T>)
-        : else_?.($value as FalsyValueOrSignal<T>)
+        ? then_($value as TruthySignalish<T>)
+        : else_?.($value as FalsySignalish<T>)
     )
   )
 }
