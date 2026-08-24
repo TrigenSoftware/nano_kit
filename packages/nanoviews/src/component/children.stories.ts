@@ -5,7 +5,7 @@ import {
 } from '@nanoviews/storybook'
 import { createElement } from '../elements/index.js'
 import {
-  $$slot,
+  slot$,
   getSlots
 } from './children.js'
 
@@ -17,7 +17,7 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
-const TestSlot = (text: string) => $$slot(TestSlot, text)
+const TestSlot = (text: string) => slot$(TestSlot, text)
 
 export const NoSlot: Story = {
   render: nanoStory(
@@ -39,8 +39,8 @@ export const Slot: Story = {
   )
 }
 
-const PreSlot = (text: string) => $$slot(PreSlot, text)
-const PostSlot = (text: string) => $$slot(PostSlot, text)
+const PreSlot = (text: string) => slot$(PreSlot, text)
+const PostSlot = (text: string) => slot$(PostSlot, text)
 
 export const Slots: Story = {
   render: nanoStory(

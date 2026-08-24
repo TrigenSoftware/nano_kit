@@ -17,7 +17,7 @@ import { lazyChild } from '../internals/index.js'
  * @param render - Function to render block with given children
  * @returns Function that accepts children
  */
-export function $$children<
+export function children$<
   T extends Child,
   C extends unknown[] = Children
 >(render: Renderer<T, C>) {
@@ -41,7 +41,7 @@ export function isSlot(value: unknown): value is Slot<unknown, AnyFn> {
  * @param content - Slot content
  * @returns Slot
  */
-export function $$slot<
+export function slot$<
   C,
   // oxlint-disable-next-line typescript/no-explicit-any
   F extends (...args: any[]) => Slot<C, F>
@@ -98,7 +98,7 @@ export function getSlots<
  * @param render - Function to render block with given slots and children
  * @returns Function that accepts children
  */
-export function $$slots<
+export function slots$<
   T extends Child,
   D extends AnySlotDef[]
 >(
