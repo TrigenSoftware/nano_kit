@@ -7,7 +7,7 @@ import type {
   MaybeDestroy,
   EffectCallback,
   Accessor,
-  ValueOrAccessor
+  Signalish
 } from 'kida'
 
 export type {
@@ -28,7 +28,7 @@ export type Primitive = string | number | boolean | EmptyValue
 export type NonEmptyValue<T> = T extends EmptyValue ? never : T
 
 export type AccessibleProps<T> = {
-  [K in keyof T]?: ValueOrAccessor<T[K]>
+  [K in keyof T]?: Signalish<T[K]>
 }
 
 export type TruthySignal<T> = T extends Accessor<infer U>

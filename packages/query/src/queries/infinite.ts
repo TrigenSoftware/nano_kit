@@ -17,7 +17,7 @@ import type {
 } from '../ClientContext.js'
 import type { QueryContext } from '../RequestContext.js'
 import {
-  type SignalsParams,
+  type SignalishParams,
   baseQuery
 } from './base.js'
 
@@ -42,7 +42,7 @@ export function infinite<
   R
 >(
   key: CacheKeyBuilder<P, InfinitePages<R, C>>,
-  params: SignalsParams<P>,
+  params: SignalishParams<P>,
   next: (lastPage: R) => C | undefined,
   fn: (...args: [...P, cursor: C | undefined, queryCtx: QueryContext<P, InfinitePages<R, C>>]) => Promise<R>,
   settings?: ClientSetting<QueryClientContext<InfinitePages<R, C>>>[]
@@ -69,7 +69,7 @@ export function infinite<
   R
 >(
   key: CacheKeyBuilder<P, InfinitePages<R, C>>,
-  params: SignalsParams<P>,
+  params: SignalishParams<P>,
   next: (lastPage: R) => C | undefined,
   fn: (...args: [...P, cursor: C | undefined]) => Promise<R>,
   settings?: ClientSetting<QueryClientContext<InfinitePages<R, C>>>[]
@@ -85,7 +85,7 @@ export function infinite<
 export function infinite<P extends unknown[], C, R>(
   this: ClientContext,
   key: CacheKeyBuilder<P, InfinitePages<R, C>>,
-  params: SignalsParams<P>,
+  params: SignalishParams<P>,
   next: (lastPage: R) => C | undefined,
   fn: (...args: [...P, cursor: C | undefined, queryCtx: QueryContext<P, InfinitePages<R, C>>]) => Promise<R>,
   settings?: ClientSetting<QueryClientContext<InfinitePages<R, C>>>[]

@@ -17,7 +17,7 @@ import {
   dedupe
 } from '../ClientContext.js'
 import {
-  type SignalsParams,
+  type SignalishParams,
   baseQuery
 } from './base.js'
 
@@ -35,7 +35,7 @@ export function operation<
   R
 >(
   key: ExtrasCacheKeyBuilder<P, E, R>,
-  params: SignalsParams<P>,
+  params: SignalishParams<P>,
   fn: (...args: [...P, ...E, queryCtx: QueryContext<P, R>]) => Promise<R>,
   settings?: ClientSetting<QueryClientContext<R>>[]
 ): readonly [
@@ -60,7 +60,7 @@ export function operation<
   R
 >(
   key: ExtrasCacheKeyBuilder<P, E, R>,
-  params: SignalsParams<P>,
+  params: SignalishParams<P>,
   fn: (...args: [...P, ...E]) => Promise<R>,
   settings?: ClientSetting<QueryClientContext<R>>[]
 ): readonly [
@@ -84,7 +84,7 @@ export function operation<
   R
 >(
   key: CacheKeyBuilder<P, R>,
-  params: SignalsParams<P>,
+  params: SignalishParams<P>,
   fn: (...args: [...P, queryCtx: QueryContext<P, R>]) => Promise<R>,
   settings?: ClientSetting<QueryClientContext<R>>[]
 ): readonly [
@@ -108,7 +108,7 @@ export function operation<
   R
 >(
   key: CacheKeyBuilder<P, R>,
-  params: SignalsParams<P>,
+  params: SignalishParams<P>,
   fn: (...args: P) => Promise<R>,
   settings?: ClientSetting<QueryClientContext<R>>[]
 ): readonly [
@@ -127,7 +127,7 @@ export function operation<
 >(
   this: ClientContext,
   key: CacheKeyBuilder<P, R>,
-  params: SignalsParams<P>,
+  params: SignalishParams<P>,
   fn: (...args: [...P, ...E, queryCtx: QueryContext<P, R>]) => Promise<R>,
   settings: ClientSetting<QueryClientContext<R>>[] = []
 ) {

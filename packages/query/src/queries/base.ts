@@ -1,5 +1,5 @@
 import {
-  type ValueOrAccessor,
+  type Signalish,
   action,
   computed,
   mountable,
@@ -18,8 +18,8 @@ import {
 } from '../ClientContext.js'
 import { QueryContext } from '../RequestContext.js'
 
-export type SignalsParams<T extends unknown[]> = T extends [infer First, ...infer Rest]
-  ? [ValueOrAccessor<First>, ...SignalsParams<Rest>]
+export type SignalishParams<T extends unknown[]> = T extends [infer First, ...infer Rest]
+  ? [Signalish<First>, ...SignalishParams<Rest>]
   : []
 
 /* @__NO_SIDE_EFFECTS__ */
@@ -30,7 +30,7 @@ export function baseQuery<
 >(
   rootCtx: ClientContext,
   key: CacheKeyBuilder<P, R>,
-  params: SignalsParams<P>,
+  params: SignalishParams<P>,
   fn: (...args: [...P, ...E, queryCtx: QueryContext<P, R>]) => Promise<R>,
   settings?: ClientSetting<QueryClientContext<R>>[]
 ) {

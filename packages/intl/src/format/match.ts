@@ -1,5 +1,5 @@
 import {
-  type ValueOrAccessor,
+  type Signalish,
   $get,
   identity,
   isFunction
@@ -20,15 +20,15 @@ export type MatchParams<
   K extends string,
   B extends Partial<Record<string, AnyFormat>>
 > = {
-  [P in K]: ValueOrAccessor<number | string>
+  [P in K]: Signalish<number | string>
 } & UnionToIntersection<CaseParams<B[keyof B]>>
 
-export type ArgMatchFn = FnWithParams<ValueOrAccessor<number | string>>
+export type ArgMatchFn = FnWithParams<Signalish<number | string>>
 
 export type MatchFn<
   K extends string,
   B extends Partial<Record<string, AnyFormat>>
-> = FnWithParams<MatchParams<K, B> | ValueOrAccessor<number | string>>
+> = FnWithParams<MatchParams<K, B> | Signalish<number | string>>
 
 export type CasesFn<
   K extends string,

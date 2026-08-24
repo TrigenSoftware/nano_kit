@@ -1,6 +1,6 @@
 import type {
-  MaybeAccessorValue,
-  ValueOrAccessor
+  SignalishValue,
+  Signalish
 } from 'kida'
 import type { Child } from '../internals/index.js'
 import { swap_ } from './swap.js'
@@ -12,8 +12,8 @@ export type SwitchCase<T> = readonly [T | typeof default_, () => Child]
  * @param $value - Static value or store
  * @returns Function that accepts cases and returns Block that renders decided child
  */
-export function switch_<T>($value: ValueOrAccessor<T>) {
-  type Value = MaybeAccessorValue<T>
+export function switch_<T>($value: Signalish<T>) {
+  type Value = SignalishValue<T>
 
   /**
    * Decide which child to render based on switch cases

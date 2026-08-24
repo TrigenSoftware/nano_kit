@@ -1,7 +1,7 @@
 import {
   type Accessor,
   type InjectionContext,
-  type AnyValueOrAccessor,
+  type AnySignalish,
   type EmptyValue,
   effect,
   inject,
@@ -113,7 +113,7 @@ export function dir($value: DirValue): DirPropertyDescriptor {
   }
 }
 
-function buildPredicate(tag: string, attributes: [string, AnyValueOrAccessor][]) {
+function buildPredicate(tag: string, attributes: [string, AnySignalish][]) {
   let selector = tag
   let count = 0
   let code: string | undefined

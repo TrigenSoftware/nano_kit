@@ -1,4 +1,4 @@
-import type { ValueOrAccessor } from 'kida'
+import type { Signalish } from 'kida'
 import type { Primitive } from './common.js'
 import type {
   ElementName,
@@ -7,7 +7,7 @@ import type {
 } from './dom/elements.js'
 import type { PickEffectAttributesByTarget } from './effectAttribute.js'
 
-export type PrimitiveAttributeValue = ValueOrAccessor<Primitive>
+export type PrimitiveAttributeValue = Signalish<Primitive>
 
 export type Attributes<Tag extends ElementName> =
   & PickEffectAttributesByTarget<PickElementType<Tag>>

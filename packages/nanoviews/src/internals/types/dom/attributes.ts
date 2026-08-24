@@ -1,5 +1,5 @@
 import type * as CSS from 'csstype'
-import type { ValueOrAccessor } from 'kida'
+import type { Signalish } from 'kida'
 import type { EmptyValue } from '../common.js'
 import type {
   Booleanish,
@@ -29,79 +29,79 @@ export interface CSSProperties extends CSS.Properties<string | number> {
 
 export interface HTMLAttributes<T extends Node = Node> extends AriaAttributes, DOMAttributes<T> {
   // React-specific Attributes
-  defaultChecked?: ValueOrAccessor<boolean | EmptyValue>
-  defaultValue?: ValueOrAccessor<string | number | readonly string[] | EmptyValue>
-  suppressContentEditableWarning?: ValueOrAccessor<boolean | EmptyValue>
-  suppressHydrationWarning?: ValueOrAccessor<boolean | EmptyValue>
+  defaultChecked?: Signalish<boolean | EmptyValue>
+  defaultValue?: Signalish<string | number | readonly string[] | EmptyValue>
+  suppressContentEditableWarning?: Signalish<boolean | EmptyValue>
+  suppressHydrationWarning?: Signalish<boolean | EmptyValue>
 
   // Standard HTML Attributes
-  accessKey?: ValueOrAccessor<string | EmptyValue>
-  autoFocus?: ValueOrAccessor<boolean | EmptyValue>
-  class?: ValueOrAccessor<string | EmptyValue>
-  contentEditable?: ValueOrAccessor<Booleanish | 'inherit' | 'plaintext-only' | EmptyValue>
-  contextMenu?: ValueOrAccessor<string | EmptyValue>
-  dir?: ValueOrAccessor<string | EmptyValue>
-  draggable?: ValueOrAccessor<Booleanish | EmptyValue>
-  hidden?: ValueOrAccessor<boolean | EmptyValue>
-  id?: ValueOrAccessor<string | EmptyValue>
-  lang?: ValueOrAccessor<string | EmptyValue>
-  nonce?: ValueOrAccessor<string | EmptyValue>
-  slot?: ValueOrAccessor<string | EmptyValue>
-  spellCheck?: ValueOrAccessor<Booleanish | EmptyValue>
-  style?: ValueOrAccessor<string | EmptyValue>
-  tabIndex?: ValueOrAccessor<number | EmptyValue>
-  title?: ValueOrAccessor<string | EmptyValue>
-  translate?: ValueOrAccessor<'yes' | 'no' | EmptyValue>
+  accessKey?: Signalish<string | EmptyValue>
+  autoFocus?: Signalish<boolean | EmptyValue>
+  class?: Signalish<string | EmptyValue>
+  contentEditable?: Signalish<Booleanish | 'inherit' | 'plaintext-only' | EmptyValue>
+  contextMenu?: Signalish<string | EmptyValue>
+  dir?: Signalish<string | EmptyValue>
+  draggable?: Signalish<Booleanish | EmptyValue>
+  hidden?: Signalish<boolean | EmptyValue>
+  id?: Signalish<string | EmptyValue>
+  lang?: Signalish<string | EmptyValue>
+  nonce?: Signalish<string | EmptyValue>
+  slot?: Signalish<string | EmptyValue>
+  spellCheck?: Signalish<Booleanish | EmptyValue>
+  style?: Signalish<string | EmptyValue>
+  tabIndex?: Signalish<number | EmptyValue>
+  title?: Signalish<string | EmptyValue>
+  translate?: Signalish<'yes' | 'no' | EmptyValue>
 
   // Unknown
-  radioGroup?: ValueOrAccessor<string | EmptyValue> // <command>, <menuitem>
+  radioGroup?: Signalish<string | EmptyValue> // <command>, <menuitem>
 
   // WAI-ARIA
-  role?: ValueOrAccessor<AriaRole | EmptyValue>
+  role?: Signalish<AriaRole | EmptyValue>
 
   // RDFa Attributes
-  about?: ValueOrAccessor<string | EmptyValue>
-  content?: ValueOrAccessor<string | EmptyValue>
-  datatype?: ValueOrAccessor<string | EmptyValue>
-  inlist?: ValueOrAccessor<any>
-  prefix?: ValueOrAccessor<string | EmptyValue>
-  property?: ValueOrAccessor<string | EmptyValue>
-  rel?: ValueOrAccessor<string | EmptyValue>
-  resource?: ValueOrAccessor<string | EmptyValue>
-  rev?: ValueOrAccessor<string | EmptyValue>
-  typeof?: ValueOrAccessor<string | EmptyValue>
-  vocab?: ValueOrAccessor<string | EmptyValue>
+  about?: Signalish<string | EmptyValue>
+  content?: Signalish<string | EmptyValue>
+  datatype?: Signalish<string | EmptyValue>
+  inlist?: Signalish<any>
+  prefix?: Signalish<string | EmptyValue>
+  property?: Signalish<string | EmptyValue>
+  rel?: Signalish<string | EmptyValue>
+  resource?: Signalish<string | EmptyValue>
+  rev?: Signalish<string | EmptyValue>
+  typeof?: Signalish<string | EmptyValue>
+  vocab?: Signalish<string | EmptyValue>
 
   // Non-standard Attributes
-  autoCapitalize?: ValueOrAccessor<string | EmptyValue>
-  autoCorrect?: ValueOrAccessor<string | EmptyValue>
-  autoSave?: ValueOrAccessor<string | EmptyValue>
-  color?: ValueOrAccessor<string | EmptyValue>
-  itemProp?: ValueOrAccessor<string | EmptyValue>
-  itemScope?: ValueOrAccessor<boolean | EmptyValue>
-  itemType?: ValueOrAccessor<string | EmptyValue>
-  itemID?: ValueOrAccessor<string | EmptyValue>
-  itemRef?: ValueOrAccessor<string | EmptyValue>
-  results?: ValueOrAccessor<number | EmptyValue>
-  security?: ValueOrAccessor<string | EmptyValue>
-  unselectable?: ValueOrAccessor<'on' | 'off' | EmptyValue>
+  autoCapitalize?: Signalish<string | EmptyValue>
+  autoCorrect?: Signalish<string | EmptyValue>
+  autoSave?: Signalish<string | EmptyValue>
+  color?: Signalish<string | EmptyValue>
+  itemProp?: Signalish<string | EmptyValue>
+  itemScope?: Signalish<boolean | EmptyValue>
+  itemType?: Signalish<string | EmptyValue>
+  itemID?: Signalish<string | EmptyValue>
+  itemRef?: Signalish<string | EmptyValue>
+  results?: Signalish<number | EmptyValue>
+  security?: Signalish<string | EmptyValue>
+  unselectable?: Signalish<'on' | 'off' | EmptyValue>
 
   // Living Standard
   /**
    * Hints at the type of data that might be entered by the user while editing the element or its contents
    * @see {@link https://html.spec.whatwg.org/multipage/interaction.html#input-modalities:-the-inputmode-attribute}
    */
-  inputMode?: ValueOrAccessor<'none' | 'text' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal' | 'search' | EmptyValue>
+  inputMode?: Signalish<'none' | 'text' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal' | 'search' | EmptyValue>
   /**
    * Specify that a standard HTML element should behave like a defined custom built-in element
    * @see {@link https://html.spec.whatwg.org/multipage/custom-elements.html#attr-is}
    */
-  is?: ValueOrAccessor<string | EmptyValue>
+  is?: Signalish<string | EmptyValue>
 
   /**
    * Data attributes
    */
-  [key: `data-${string}`]: ValueOrAccessor<unknown>
+  [key: `data-${string}`]: Signalish<unknown>
 }
 
 export type HTMLAttributeReferrerPolicy =
@@ -123,156 +123,156 @@ export type HTMLAttributeAnchorTarget =
   | string & {}
 
 export interface AnchorHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  download?: ValueOrAccessor<any>
-  href?: ValueOrAccessor<string | EmptyValue>
-  hrefLang?: ValueOrAccessor<string | EmptyValue>
-  media?: ValueOrAccessor<string | EmptyValue>
-  ping?: ValueOrAccessor<string | EmptyValue>
-  target?: ValueOrAccessor<HTMLAttributeAnchorTarget | EmptyValue>
-  type?: ValueOrAccessor<string | EmptyValue>
-  referrerPolicy?: ValueOrAccessor<HTMLAttributeReferrerPolicy | EmptyValue>
+  download?: Signalish<any>
+  href?: Signalish<string | EmptyValue>
+  hrefLang?: Signalish<string | EmptyValue>
+  media?: Signalish<string | EmptyValue>
+  ping?: Signalish<string | EmptyValue>
+  target?: Signalish<HTMLAttributeAnchorTarget | EmptyValue>
+  type?: Signalish<string | EmptyValue>
+  referrerPolicy?: Signalish<HTMLAttributeReferrerPolicy | EmptyValue>
 }
 
 export interface AudioHTMLAttributes<T extends HTMLElement> extends MediaHTMLAttributes<T> {}
 
 export interface AreaHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  alt?: ValueOrAccessor<string | EmptyValue>
-  coords?: ValueOrAccessor<string | EmptyValue>
-  download?: ValueOrAccessor<any>
-  href?: ValueOrAccessor<string | EmptyValue>
-  hrefLang?: ValueOrAccessor<string | EmptyValue>
-  media?: ValueOrAccessor<string | EmptyValue>
-  referrerPolicy?: ValueOrAccessor<HTMLAttributeReferrerPolicy | EmptyValue>
-  shape?: ValueOrAccessor<string | EmptyValue>
-  target?: ValueOrAccessor<string | EmptyValue>
+  alt?: Signalish<string | EmptyValue>
+  coords?: Signalish<string | EmptyValue>
+  download?: Signalish<any>
+  href?: Signalish<string | EmptyValue>
+  hrefLang?: Signalish<string | EmptyValue>
+  media?: Signalish<string | EmptyValue>
+  referrerPolicy?: Signalish<HTMLAttributeReferrerPolicy | EmptyValue>
+  shape?: Signalish<string | EmptyValue>
+  target?: Signalish<string | EmptyValue>
 }
 
 export interface BaseHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  href?: ValueOrAccessor<string | EmptyValue>
-  target?: ValueOrAccessor<string | EmptyValue>
+  href?: Signalish<string | EmptyValue>
+  target?: Signalish<string | EmptyValue>
 }
 
 export interface BlockquoteHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  cite?: ValueOrAccessor<string | EmptyValue>
+  cite?: Signalish<string | EmptyValue>
 }
 
 export interface ButtonHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  disabled?: ValueOrAccessor<boolean | EmptyValue>
-  form?: ValueOrAccessor<string | EmptyValue>
-  formAction?: ValueOrAccessor<string | EmptyValue>
-  formEncType?: ValueOrAccessor<string | EmptyValue>
-  formMethod?: ValueOrAccessor<string | EmptyValue>
-  formNoValidate?: ValueOrAccessor<boolean | EmptyValue>
-  formTarget?: ValueOrAccessor<string | EmptyValue>
-  name?: ValueOrAccessor<string | EmptyValue>
-  type?: ValueOrAccessor<'submit' | 'reset' | 'button' | EmptyValue>
-  value?: ValueOrAccessor<string | readonly string[] | number | EmptyValue>
+  disabled?: Signalish<boolean | EmptyValue>
+  form?: Signalish<string | EmptyValue>
+  formAction?: Signalish<string | EmptyValue>
+  formEncType?: Signalish<string | EmptyValue>
+  formMethod?: Signalish<string | EmptyValue>
+  formNoValidate?: Signalish<boolean | EmptyValue>
+  formTarget?: Signalish<string | EmptyValue>
+  name?: Signalish<string | EmptyValue>
+  type?: Signalish<'submit' | 'reset' | 'button' | EmptyValue>
+  value?: Signalish<string | readonly string[] | number | EmptyValue>
 }
 
 export interface CanvasHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  height?: ValueOrAccessor<number | string | EmptyValue>
-  width?: ValueOrAccessor<number | string | EmptyValue>
+  height?: Signalish<number | string | EmptyValue>
+  width?: Signalish<number | string | EmptyValue>
 }
 
 export interface ColHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  span?: ValueOrAccessor<number | EmptyValue>
-  width?: ValueOrAccessor<number | string | EmptyValue>
+  span?: Signalish<number | EmptyValue>
+  width?: Signalish<number | string | EmptyValue>
 }
 
 export interface ColgroupHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  span?: ValueOrAccessor<number | EmptyValue>
+  span?: Signalish<number | EmptyValue>
 }
 
 export interface DataHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  value?: ValueOrAccessor<string | readonly string[] | number | EmptyValue>
+  value?: Signalish<string | readonly string[] | number | EmptyValue>
 }
 
 export interface DetailsHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  open?: ValueOrAccessor<boolean | EmptyValue>
+  open?: Signalish<boolean | EmptyValue>
   onToggle?: TargetEventHandler<T> | EmptyValue
-  name?: ValueOrAccessor<string | EmptyValue>
+  name?: Signalish<string | EmptyValue>
 }
 
 export interface DelHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  cite?: ValueOrAccessor<string | EmptyValue>
-  dateTime?: ValueOrAccessor<string | EmptyValue>
+  cite?: Signalish<string | EmptyValue>
+  dateTime?: Signalish<string | EmptyValue>
 }
 
 export interface DialogHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
   onCancel?: TargetEventHandler<T> | EmptyValue
   onClose?: TargetEventHandler<T> | EmptyValue
-  open?: ValueOrAccessor<boolean | EmptyValue>
+  open?: Signalish<boolean | EmptyValue>
 }
 
 export interface EmbedHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  height?: ValueOrAccessor<number | string | EmptyValue>
-  src?: ValueOrAccessor<string | EmptyValue>
-  type?: ValueOrAccessor<string | EmptyValue>
-  width?: ValueOrAccessor<number | string | EmptyValue>
+  height?: Signalish<number | string | EmptyValue>
+  src?: Signalish<string | EmptyValue>
+  type?: Signalish<string | EmptyValue>
+  width?: Signalish<number | string | EmptyValue>
 }
 
 export interface FieldsetHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  disabled?: ValueOrAccessor<boolean | EmptyValue>
-  form?: ValueOrAccessor<string | EmptyValue>
-  name?: ValueOrAccessor<string | EmptyValue>
+  disabled?: Signalish<boolean | EmptyValue>
+  form?: Signalish<string | EmptyValue>
+  name?: Signalish<string | EmptyValue>
 }
 
 export interface FormHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  acceptCharset?: ValueOrAccessor<string | EmptyValue>
-  action?: ValueOrAccessor<string | EmptyValue>
-  autoComplete?: ValueOrAccessor<string | EmptyValue>
-  encType?: ValueOrAccessor<string | EmptyValue>
-  method?: ValueOrAccessor<string | EmptyValue>
-  name?: ValueOrAccessor<string | EmptyValue>
-  noValidate?: ValueOrAccessor<boolean | EmptyValue>
-  target?: ValueOrAccessor<string | EmptyValue>
+  acceptCharset?: Signalish<string | EmptyValue>
+  action?: Signalish<string | EmptyValue>
+  autoComplete?: Signalish<string | EmptyValue>
+  encType?: Signalish<string | EmptyValue>
+  method?: Signalish<string | EmptyValue>
+  name?: Signalish<string | EmptyValue>
+  noValidate?: Signalish<boolean | EmptyValue>
+  target?: Signalish<string | EmptyValue>
 }
 
 export interface HtmlHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  manifest?: ValueOrAccessor<string | EmptyValue>
+  manifest?: Signalish<string | EmptyValue>
 }
 
 export interface IframeHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  allow?: ValueOrAccessor<string | EmptyValue>
-  allowFullScreen?: ValueOrAccessor<boolean | EmptyValue>
-  allowTransparency?: ValueOrAccessor<boolean | EmptyValue>
+  allow?: Signalish<string | EmptyValue>
+  allowFullScreen?: Signalish<boolean | EmptyValue>
+  allowTransparency?: Signalish<boolean | EmptyValue>
   /** @deprecated */
-  frameBorder?: ValueOrAccessor<number | string | EmptyValue>
-  height?: ValueOrAccessor<number | string | EmptyValue>
-  loading?: ValueOrAccessor<'eager' | 'lazy' | EmptyValue>
+  frameBorder?: Signalish<number | string | EmptyValue>
+  height?: Signalish<number | string | EmptyValue>
+  loading?: Signalish<'eager' | 'lazy' | EmptyValue>
   /** @deprecated */
-  marginHeight?: ValueOrAccessor<number | EmptyValue>
+  marginHeight?: Signalish<number | EmptyValue>
   /** @deprecated */
-  marginWidth?: ValueOrAccessor<number | EmptyValue>
-  name?: ValueOrAccessor<string | EmptyValue>
-  referrerPolicy?: ValueOrAccessor<HTMLAttributeReferrerPolicy | EmptyValue>
-  sandbox?: ValueOrAccessor<string | EmptyValue>
+  marginWidth?: Signalish<number | EmptyValue>
+  name?: Signalish<string | EmptyValue>
+  referrerPolicy?: Signalish<HTMLAttributeReferrerPolicy | EmptyValue>
+  sandbox?: Signalish<string | EmptyValue>
   /** @deprecated */
-  scrolling?: ValueOrAccessor<string | EmptyValue>
-  seamless?: ValueOrAccessor<boolean | EmptyValue>
-  src?: ValueOrAccessor<string | EmptyValue>
-  srcDoc?: ValueOrAccessor<string | EmptyValue>
-  width?: ValueOrAccessor<number | string | EmptyValue>
+  scrolling?: Signalish<string | EmptyValue>
+  seamless?: Signalish<boolean | EmptyValue>
+  src?: Signalish<string | EmptyValue>
+  srcDoc?: Signalish<string | EmptyValue>
+  width?: Signalish<number | string | EmptyValue>
 }
 
 export interface ImgHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  alt?: ValueOrAccessor<string | EmptyValue>
-  crossOrigin?: ValueOrAccessor<CrossOrigin>
-  decoding?: ValueOrAccessor<'async' | 'auto' | 'sync' | EmptyValue>
-  fetchPriority?: ValueOrAccessor<'high' | 'low' | 'auto'>
-  height?: ValueOrAccessor<number | string | EmptyValue>
-  loading?: ValueOrAccessor<'eager' | 'lazy' | EmptyValue>
-  referrerPolicy?: ValueOrAccessor<HTMLAttributeReferrerPolicy | EmptyValue>
-  sizes?: ValueOrAccessor<string | EmptyValue>
-  src?: ValueOrAccessor<string | EmptyValue>
-  srcSet?: ValueOrAccessor<string | EmptyValue>
-  useMap?: ValueOrAccessor<string | EmptyValue>
-  width?: ValueOrAccessor<number | string | EmptyValue>
+  alt?: Signalish<string | EmptyValue>
+  crossOrigin?: Signalish<CrossOrigin>
+  decoding?: Signalish<'async' | 'auto' | 'sync' | EmptyValue>
+  fetchPriority?: Signalish<'high' | 'low' | 'auto'>
+  height?: Signalish<number | string | EmptyValue>
+  loading?: Signalish<'eager' | 'lazy' | EmptyValue>
+  referrerPolicy?: Signalish<HTMLAttributeReferrerPolicy | EmptyValue>
+  sizes?: Signalish<string | EmptyValue>
+  src?: Signalish<string | EmptyValue>
+  srcSet?: Signalish<string | EmptyValue>
+  useMap?: Signalish<string | EmptyValue>
+  width?: Signalish<number | string | EmptyValue>
 }
 
 export interface InsHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  cite?: ValueOrAccessor<string | EmptyValue>
-  dateTime?: ValueOrAccessor<string | EmptyValue>
+  cite?: Signalish<string | EmptyValue>
+  dateTime?: Signalish<string | EmptyValue>
 }
 
 export type HTMLInputTypeAttribute =
@@ -363,280 +363,280 @@ export type AutoFill =
 export type HTMLInputAutoCompleteAttribute = AutoFill | string & {}
 
 export interface InputHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  accept?: ValueOrAccessor<string | EmptyValue>
-  alt?: ValueOrAccessor<string | EmptyValue>
-  autoComplete?: ValueOrAccessor<HTMLInputAutoCompleteAttribute | EmptyValue>
-  capture?: ValueOrAccessor<boolean | 'user' | 'environment' | EmptyValue> // https://www.w3.org/TR/html-media-capture/#the-capture-attribute
-  checked?: ValueOrAccessor<boolean | EmptyValue>
-  disabled?: ValueOrAccessor<boolean | EmptyValue>
-  enterKeyHint?: ValueOrAccessor<'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send' | EmptyValue>
-  form?: ValueOrAccessor<string | EmptyValue>
-  formAction?: ValueOrAccessor<string | EmptyValue>
-  formEncType?: ValueOrAccessor<string | EmptyValue>
-  formMethod?: ValueOrAccessor<string | EmptyValue>
-  formNoValidate?: ValueOrAccessor<boolean | EmptyValue>
-  formTarget?: ValueOrAccessor<string | EmptyValue>
-  height?: ValueOrAccessor<number | string | EmptyValue>
-  list?: ValueOrAccessor<string | EmptyValue>
-  max?: ValueOrAccessor<number | string | EmptyValue>
-  maxLength?: ValueOrAccessor<number | EmptyValue>
-  min?: ValueOrAccessor<number | string | EmptyValue>
-  minLength?: ValueOrAccessor<number | EmptyValue>
-  multiple?: ValueOrAccessor<boolean | EmptyValue>
-  name?: ValueOrAccessor<string | EmptyValue>
-  pattern?: ValueOrAccessor<string | EmptyValue>
-  placeholder?: ValueOrAccessor<string | EmptyValue>
-  readOnly?: ValueOrAccessor<boolean | EmptyValue>
-  required?: ValueOrAccessor<boolean | EmptyValue>
-  size?: ValueOrAccessor<number | EmptyValue>
-  src?: ValueOrAccessor<string | EmptyValue>
-  step?: ValueOrAccessor<number | string | EmptyValue>
-  type?: ValueOrAccessor<HTMLInputTypeAttribute | EmptyValue>
-  value?: ValueOrAccessor<string | readonly string[] | number | EmptyValue>
-  width?: ValueOrAccessor<number | string | EmptyValue>
+  accept?: Signalish<string | EmptyValue>
+  alt?: Signalish<string | EmptyValue>
+  autoComplete?: Signalish<HTMLInputAutoCompleteAttribute | EmptyValue>
+  capture?: Signalish<boolean | 'user' | 'environment' | EmptyValue> // https://www.w3.org/TR/html-media-capture/#the-capture-attribute
+  checked?: Signalish<boolean | EmptyValue>
+  disabled?: Signalish<boolean | EmptyValue>
+  enterKeyHint?: Signalish<'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send' | EmptyValue>
+  form?: Signalish<string | EmptyValue>
+  formAction?: Signalish<string | EmptyValue>
+  formEncType?: Signalish<string | EmptyValue>
+  formMethod?: Signalish<string | EmptyValue>
+  formNoValidate?: Signalish<boolean | EmptyValue>
+  formTarget?: Signalish<string | EmptyValue>
+  height?: Signalish<number | string | EmptyValue>
+  list?: Signalish<string | EmptyValue>
+  max?: Signalish<number | string | EmptyValue>
+  maxLength?: Signalish<number | EmptyValue>
+  min?: Signalish<number | string | EmptyValue>
+  minLength?: Signalish<number | EmptyValue>
+  multiple?: Signalish<boolean | EmptyValue>
+  name?: Signalish<string | EmptyValue>
+  pattern?: Signalish<string | EmptyValue>
+  placeholder?: Signalish<string | EmptyValue>
+  readOnly?: Signalish<boolean | EmptyValue>
+  required?: Signalish<boolean | EmptyValue>
+  size?: Signalish<number | EmptyValue>
+  src?: Signalish<string | EmptyValue>
+  step?: Signalish<number | string | EmptyValue>
+  type?: Signalish<HTMLInputTypeAttribute | EmptyValue>
+  value?: Signalish<string | readonly string[] | number | EmptyValue>
+  width?: Signalish<number | string | EmptyValue>
 
   onChange?: ChangeEventHandler<T> | undefined
 }
 
 export interface KeygenHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  challenge?: ValueOrAccessor<string | EmptyValue>
-  disabled?: ValueOrAccessor<boolean | EmptyValue>
-  form?: ValueOrAccessor<string | EmptyValue>
-  keyType?: ValueOrAccessor<string | EmptyValue>
-  keyParams?: ValueOrAccessor<string | EmptyValue>
-  name?: ValueOrAccessor<string | EmptyValue>
+  challenge?: Signalish<string | EmptyValue>
+  disabled?: Signalish<boolean | EmptyValue>
+  form?: Signalish<string | EmptyValue>
+  keyType?: Signalish<string | EmptyValue>
+  keyParams?: Signalish<string | EmptyValue>
+  name?: Signalish<string | EmptyValue>
 }
 
 export interface LabelHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  form?: ValueOrAccessor<string | EmptyValue>
-  for?: ValueOrAccessor<string | EmptyValue>
+  form?: Signalish<string | EmptyValue>
+  for?: Signalish<string | EmptyValue>
 }
 
 export interface LiHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  value?: ValueOrAccessor<string | readonly string[] | number | EmptyValue>
+  value?: Signalish<string | readonly string[] | number | EmptyValue>
 }
 
 export interface LinkHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  as?: ValueOrAccessor<string | EmptyValue>
-  crossOrigin?: ValueOrAccessor<CrossOrigin>
-  fetchPriority?: ValueOrAccessor<'high' | 'low' | 'auto'>
-  href?: ValueOrAccessor<string | EmptyValue>
-  hrefLang?: ValueOrAccessor<string | EmptyValue>
-  integrity?: ValueOrAccessor<string | EmptyValue>
-  media?: ValueOrAccessor<string | EmptyValue>
-  imageSrcSet?: ValueOrAccessor<string | EmptyValue>
-  imageSizes?: ValueOrAccessor<string | EmptyValue>
-  referrerPolicy?: ValueOrAccessor<HTMLAttributeReferrerPolicy | EmptyValue>
-  sizes?: ValueOrAccessor<string | EmptyValue>
-  type?: ValueOrAccessor<string | EmptyValue>
-  charSet?: ValueOrAccessor<string | EmptyValue>
+  as?: Signalish<string | EmptyValue>
+  crossOrigin?: Signalish<CrossOrigin>
+  fetchPriority?: Signalish<'high' | 'low' | 'auto'>
+  href?: Signalish<string | EmptyValue>
+  hrefLang?: Signalish<string | EmptyValue>
+  integrity?: Signalish<string | EmptyValue>
+  media?: Signalish<string | EmptyValue>
+  imageSrcSet?: Signalish<string | EmptyValue>
+  imageSizes?: Signalish<string | EmptyValue>
+  referrerPolicy?: Signalish<HTMLAttributeReferrerPolicy | EmptyValue>
+  sizes?: Signalish<string | EmptyValue>
+  type?: Signalish<string | EmptyValue>
+  charSet?: Signalish<string | EmptyValue>
 }
 
 export interface MapHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  name?: ValueOrAccessor<string | EmptyValue>
+  name?: Signalish<string | EmptyValue>
 }
 
 export interface MenuHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  type?: ValueOrAccessor<string | EmptyValue>
+  type?: Signalish<string | EmptyValue>
 }
 
 export interface MediaHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  autoPlay?: ValueOrAccessor<boolean | EmptyValue>
-  controls?: ValueOrAccessor<boolean | EmptyValue>
-  controlsList?: ValueOrAccessor<string | EmptyValue>
-  crossOrigin?: ValueOrAccessor<CrossOrigin>
-  loop?: ValueOrAccessor<boolean | EmptyValue>
-  mediaGroup?: ValueOrAccessor<string | EmptyValue>
-  muted?: ValueOrAccessor<boolean | EmptyValue>
-  playsInline?: ValueOrAccessor<boolean | EmptyValue>
-  preload?: ValueOrAccessor<string | EmptyValue>
-  src?: ValueOrAccessor<string | EmptyValue>
+  autoPlay?: Signalish<boolean | EmptyValue>
+  controls?: Signalish<boolean | EmptyValue>
+  controlsList?: Signalish<string | EmptyValue>
+  crossOrigin?: Signalish<CrossOrigin>
+  loop?: Signalish<boolean | EmptyValue>
+  mediaGroup?: Signalish<string | EmptyValue>
+  muted?: Signalish<boolean | EmptyValue>
+  playsInline?: Signalish<boolean | EmptyValue>
+  preload?: Signalish<string | EmptyValue>
+  src?: Signalish<string | EmptyValue>
 }
 
 export interface MetaHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  charSet?: ValueOrAccessor<string | EmptyValue>
-  content?: ValueOrAccessor<string | EmptyValue>
-  httpEquiv?: ValueOrAccessor<string | EmptyValue>
-  media?: ValueOrAccessor<string | EmptyValue>
-  name?: ValueOrAccessor<string | EmptyValue>
+  charSet?: Signalish<string | EmptyValue>
+  content?: Signalish<string | EmptyValue>
+  httpEquiv?: Signalish<string | EmptyValue>
+  media?: Signalish<string | EmptyValue>
+  name?: Signalish<string | EmptyValue>
 }
 
 export interface MeterHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  form?: ValueOrAccessor<string | EmptyValue>
-  high?: ValueOrAccessor<number | EmptyValue>
-  low?: ValueOrAccessor<number | EmptyValue>
-  max?: ValueOrAccessor<number | string | EmptyValue>
-  min?: ValueOrAccessor<number | string | EmptyValue>
-  optimum?: ValueOrAccessor<number | EmptyValue>
-  value?: ValueOrAccessor<string | readonly string[] | number | EmptyValue>
+  form?: Signalish<string | EmptyValue>
+  high?: Signalish<number | EmptyValue>
+  low?: Signalish<number | EmptyValue>
+  max?: Signalish<number | string | EmptyValue>
+  min?: Signalish<number | string | EmptyValue>
+  optimum?: Signalish<number | EmptyValue>
+  value?: Signalish<string | readonly string[] | number | EmptyValue>
 }
 
 export interface QuoteHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  cite?: ValueOrAccessor<string | EmptyValue>
+  cite?: Signalish<string | EmptyValue>
 }
 
 export interface ObjectHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  classID?: ValueOrAccessor<string | EmptyValue>
-  data?: ValueOrAccessor<string | EmptyValue>
-  form?: ValueOrAccessor<string | EmptyValue>
-  height?: ValueOrAccessor<number | string | EmptyValue>
-  name?: ValueOrAccessor<string | EmptyValue>
-  type?: ValueOrAccessor<string | EmptyValue>
-  useMap?: ValueOrAccessor<string | EmptyValue>
-  width?: ValueOrAccessor<number | string | EmptyValue>
-  wmode?: ValueOrAccessor<string | EmptyValue>
+  classID?: Signalish<string | EmptyValue>
+  data?: Signalish<string | EmptyValue>
+  form?: Signalish<string | EmptyValue>
+  height?: Signalish<number | string | EmptyValue>
+  name?: Signalish<string | EmptyValue>
+  type?: Signalish<string | EmptyValue>
+  useMap?: Signalish<string | EmptyValue>
+  width?: Signalish<number | string | EmptyValue>
+  wmode?: Signalish<string | EmptyValue>
 }
 
 export interface OlHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  reversed?: ValueOrAccessor<boolean | EmptyValue>
-  start?: ValueOrAccessor<number | EmptyValue>
-  type?: ValueOrAccessor<'1' | 'a' | 'A' | 'i' | 'I' | EmptyValue>
+  reversed?: Signalish<boolean | EmptyValue>
+  start?: Signalish<number | EmptyValue>
+  type?: Signalish<'1' | 'a' | 'A' | 'i' | 'I' | EmptyValue>
 }
 
 export interface OptgroupHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  disabled?: ValueOrAccessor<boolean | EmptyValue>
-  label?: ValueOrAccessor<string | EmptyValue>
+  disabled?: Signalish<boolean | EmptyValue>
+  label?: Signalish<string | EmptyValue>
 }
 
 export interface OptionHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  disabled?: ValueOrAccessor<boolean | EmptyValue>
-  label?: ValueOrAccessor<string | EmptyValue>
-  selected?: ValueOrAccessor<boolean | EmptyValue>
-  value?: ValueOrAccessor<string | readonly string[] | number | EmptyValue>
+  disabled?: Signalish<boolean | EmptyValue>
+  label?: Signalish<string | EmptyValue>
+  selected?: Signalish<boolean | EmptyValue>
+  value?: Signalish<string | readonly string[] | number | EmptyValue>
 }
 
 export interface OutputHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  form?: ValueOrAccessor<string | EmptyValue>
-  for?: ValueOrAccessor<string | EmptyValue>
-  name?: ValueOrAccessor<string | EmptyValue>
+  form?: Signalish<string | EmptyValue>
+  for?: Signalish<string | EmptyValue>
+  name?: Signalish<string | EmptyValue>
 }
 
 export interface ParamHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  name?: ValueOrAccessor<string | EmptyValue>
-  value?: ValueOrAccessor<string | readonly string[] | number | EmptyValue>
+  name?: Signalish<string | EmptyValue>
+  value?: Signalish<string | readonly string[] | number | EmptyValue>
 }
 
 export interface ProgressHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  max?: ValueOrAccessor<number | string | EmptyValue>
-  value?: ValueOrAccessor<string | readonly string[] | number | EmptyValue>
+  max?: Signalish<number | string | EmptyValue>
+  value?: Signalish<string | readonly string[] | number | EmptyValue>
 }
 
 export interface SlotHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  name?: ValueOrAccessor<string | EmptyValue>
+  name?: Signalish<string | EmptyValue>
 }
 
 export interface ScriptHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  async?: ValueOrAccessor<boolean | EmptyValue>
+  async?: Signalish<boolean | EmptyValue>
   /** @deprecated */
-  charSet?: ValueOrAccessor<string | EmptyValue>
-  crossOrigin?: ValueOrAccessor<CrossOrigin>
-  defer?: ValueOrAccessor<boolean | EmptyValue>
-  integrity?: ValueOrAccessor<string | EmptyValue>
-  noModule?: ValueOrAccessor<boolean | EmptyValue>
-  referrerPolicy?: ValueOrAccessor<HTMLAttributeReferrerPolicy | EmptyValue>
-  src?: ValueOrAccessor<string | EmptyValue>
-  type?: ValueOrAccessor<string | EmptyValue>
+  charSet?: Signalish<string | EmptyValue>
+  crossOrigin?: Signalish<CrossOrigin>
+  defer?: Signalish<boolean | EmptyValue>
+  integrity?: Signalish<string | EmptyValue>
+  noModule?: Signalish<boolean | EmptyValue>
+  referrerPolicy?: Signalish<HTMLAttributeReferrerPolicy | EmptyValue>
+  src?: Signalish<string | EmptyValue>
+  type?: Signalish<string | EmptyValue>
 }
 
 export interface SelectHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  autoComplete?: ValueOrAccessor<string | EmptyValue>
-  disabled?: ValueOrAccessor<boolean | EmptyValue>
-  form?: ValueOrAccessor<string | EmptyValue>
-  multiple?: ValueOrAccessor<boolean | EmptyValue>
-  name?: ValueOrAccessor<string | EmptyValue>
-  required?: ValueOrAccessor<boolean | EmptyValue>
-  size?: ValueOrAccessor<number | EmptyValue>
-  value?: ValueOrAccessor<string | readonly string[] | number | EmptyValue>
+  autoComplete?: Signalish<string | EmptyValue>
+  disabled?: Signalish<boolean | EmptyValue>
+  form?: Signalish<string | EmptyValue>
+  multiple?: Signalish<boolean | EmptyValue>
+  name?: Signalish<string | EmptyValue>
+  required?: Signalish<boolean | EmptyValue>
+  size?: Signalish<number | EmptyValue>
+  value?: Signalish<string | readonly string[] | number | EmptyValue>
   onChange?: ChangeEventHandler<T> | undefined
 }
 
 export interface SourceHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  height?: ValueOrAccessor<number | string | EmptyValue>
-  media?: ValueOrAccessor<string | EmptyValue>
-  sizes?: ValueOrAccessor<string | EmptyValue>
-  src?: ValueOrAccessor<string | EmptyValue>
-  srcSet?: ValueOrAccessor<string | EmptyValue>
-  type?: ValueOrAccessor<string | EmptyValue>
-  width?: ValueOrAccessor<number | string | EmptyValue>
+  height?: Signalish<number | string | EmptyValue>
+  media?: Signalish<string | EmptyValue>
+  sizes?: Signalish<string | EmptyValue>
+  src?: Signalish<string | EmptyValue>
+  srcSet?: Signalish<string | EmptyValue>
+  type?: Signalish<string | EmptyValue>
+  width?: Signalish<number | string | EmptyValue>
 }
 
 export interface StyleHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  media?: ValueOrAccessor<string | EmptyValue>
-  scoped?: ValueOrAccessor<boolean | EmptyValue>
-  type?: ValueOrAccessor<string | EmptyValue>
+  media?: Signalish<string | EmptyValue>
+  scoped?: Signalish<boolean | EmptyValue>
+  type?: Signalish<string | EmptyValue>
 }
 
 export interface TableHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  align?: ValueOrAccessor<'left' | 'center' | 'right' | EmptyValue>
-  bgcolor?: ValueOrAccessor<string | EmptyValue>
-  border?: ValueOrAccessor<number | EmptyValue>
-  cellPadding?: ValueOrAccessor<number | string | EmptyValue>
-  cellSpacing?: ValueOrAccessor<number | string | EmptyValue>
-  frame?: ValueOrAccessor<boolean | EmptyValue>
-  rules?: ValueOrAccessor<'none' | 'groups' | 'rows' | 'columns' | 'all' | EmptyValue>
-  summary?: ValueOrAccessor<string | EmptyValue>
-  width?: ValueOrAccessor<number | string | EmptyValue>
+  align?: Signalish<'left' | 'center' | 'right' | EmptyValue>
+  bgcolor?: Signalish<string | EmptyValue>
+  border?: Signalish<number | EmptyValue>
+  cellPadding?: Signalish<number | string | EmptyValue>
+  cellSpacing?: Signalish<number | string | EmptyValue>
+  frame?: Signalish<boolean | EmptyValue>
+  rules?: Signalish<'none' | 'groups' | 'rows' | 'columns' | 'all' | EmptyValue>
+  summary?: Signalish<string | EmptyValue>
+  width?: Signalish<number | string | EmptyValue>
 }
 
 export interface TextareaHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  autoComplete?: ValueOrAccessor<string | EmptyValue>
-  cols?: ValueOrAccessor<number | EmptyValue>
-  dirName?: ValueOrAccessor<string | EmptyValue>
-  disabled?: ValueOrAccessor<boolean | EmptyValue>
-  form?: ValueOrAccessor<string | EmptyValue>
-  maxLength?: ValueOrAccessor<number | EmptyValue>
-  minLength?: ValueOrAccessor<number | EmptyValue>
-  name?: ValueOrAccessor<string | EmptyValue>
-  placeholder?: ValueOrAccessor<string | EmptyValue>
-  readOnly?: ValueOrAccessor<boolean | EmptyValue>
-  required?: ValueOrAccessor<boolean | EmptyValue>
-  rows?: ValueOrAccessor<number | EmptyValue>
-  value?: ValueOrAccessor<string | readonly string[] | number | EmptyValue>
-  wrap?: ValueOrAccessor<string | EmptyValue>
+  autoComplete?: Signalish<string | EmptyValue>
+  cols?: Signalish<number | EmptyValue>
+  dirName?: Signalish<string | EmptyValue>
+  disabled?: Signalish<boolean | EmptyValue>
+  form?: Signalish<string | EmptyValue>
+  maxLength?: Signalish<number | EmptyValue>
+  minLength?: Signalish<number | EmptyValue>
+  name?: Signalish<string | EmptyValue>
+  placeholder?: Signalish<string | EmptyValue>
+  readOnly?: Signalish<boolean | EmptyValue>
+  required?: Signalish<boolean | EmptyValue>
+  rows?: Signalish<number | EmptyValue>
+  value?: Signalish<string | readonly string[] | number | EmptyValue>
+  wrap?: Signalish<string | EmptyValue>
 
   onChange?: ChangeEventHandler<T> | undefined
 }
 
 export interface TdHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  align?: ValueOrAccessor<'left' | 'center' | 'right' | 'justify' | 'char' | EmptyValue>
-  colSpan?: ValueOrAccessor<number | EmptyValue>
-  headers?: ValueOrAccessor<string | EmptyValue>
-  rowSpan?: ValueOrAccessor<number | EmptyValue>
-  scope?: ValueOrAccessor<string | EmptyValue>
-  abbr?: ValueOrAccessor<string | EmptyValue>
-  height?: ValueOrAccessor<number | string | EmptyValue>
-  width?: ValueOrAccessor<number | string | EmptyValue>
-  valign?: ValueOrAccessor<'top' | 'middle' | 'bottom' | 'baseline' | EmptyValue>
+  align?: Signalish<'left' | 'center' | 'right' | 'justify' | 'char' | EmptyValue>
+  colSpan?: Signalish<number | EmptyValue>
+  headers?: Signalish<string | EmptyValue>
+  rowSpan?: Signalish<number | EmptyValue>
+  scope?: Signalish<string | EmptyValue>
+  abbr?: Signalish<string | EmptyValue>
+  height?: Signalish<number | string | EmptyValue>
+  width?: Signalish<number | string | EmptyValue>
+  valign?: Signalish<'top' | 'middle' | 'bottom' | 'baseline' | EmptyValue>
 }
 
 export interface ThHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  align?: ValueOrAccessor<'left' | 'center' | 'right' | 'justify' | 'char' | EmptyValue>
-  colSpan?: ValueOrAccessor<number | EmptyValue>
-  headers?: ValueOrAccessor<string | EmptyValue>
-  rowSpan?: ValueOrAccessor<number | EmptyValue>
-  scope?: ValueOrAccessor<string | EmptyValue>
-  abbr?: ValueOrAccessor<string | EmptyValue>
+  align?: Signalish<'left' | 'center' | 'right' | 'justify' | 'char' | EmptyValue>
+  colSpan?: Signalish<number | EmptyValue>
+  headers?: Signalish<string | EmptyValue>
+  rowSpan?: Signalish<number | EmptyValue>
+  scope?: Signalish<string | EmptyValue>
+  abbr?: Signalish<string | EmptyValue>
 }
 
 export interface TimeHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  dateTime?: ValueOrAccessor<string | EmptyValue>
+  dateTime?: Signalish<string | EmptyValue>
 }
 
 export interface TrackHTMLAttributes<T extends HTMLElement> extends HTMLAttributes<T> {
-  default?: ValueOrAccessor<boolean | EmptyValue>
-  kind?: ValueOrAccessor<string | EmptyValue>
-  label?: ValueOrAccessor<string | EmptyValue>
-  src?: ValueOrAccessor<string | EmptyValue>
-  srcLang?: ValueOrAccessor<string | EmptyValue>
+  default?: Signalish<boolean | EmptyValue>
+  kind?: Signalish<string | EmptyValue>
+  label?: Signalish<string | EmptyValue>
+  src?: Signalish<string | EmptyValue>
+  srcLang?: Signalish<string | EmptyValue>
 }
 
 export interface VideoHTMLAttributes<T extends HTMLElement> extends MediaHTMLAttributes<T> {
-  height?: ValueOrAccessor<number | string | EmptyValue>
-  playsInline?: ValueOrAccessor<boolean | EmptyValue>
-  poster?: ValueOrAccessor<string | EmptyValue>
-  width?: ValueOrAccessor<number | string | EmptyValue>
-  disablePictureInPicture?: ValueOrAccessor<boolean | EmptyValue>
-  disableRemotePlayback?: ValueOrAccessor<boolean | EmptyValue>
+  height?: Signalish<number | string | EmptyValue>
+  playsInline?: Signalish<boolean | EmptyValue>
+  poster?: Signalish<string | EmptyValue>
+  width?: Signalish<number | string | EmptyValue>
+  disablePictureInPicture?: Signalish<boolean | EmptyValue>
+  disableRemotePlayback?: Signalish<boolean | EmptyValue>
 }
 
 // The three broad type categories are (in order of restrictiveness):
@@ -646,31 +646,31 @@ export interface VideoHTMLAttributes<T extends HTMLElement> extends MediaHTMLAtt
 export interface SVGAttributes<T extends Element> extends AriaAttributes, DOMAttributes<T> {
   // Attributes which also defined in HTMLAttributes
   // See comment in SVGDOMPropertyConfig.js
-  class?: ValueOrAccessor<string | EmptyValue>
-  color?: ValueOrAccessor<string | EmptyValue>
-  height?: ValueOrAccessor<number | string | EmptyValue>
-  id?: ValueOrAccessor<string | EmptyValue>
-  lang?: ValueOrAccessor<string | EmptyValue>
-  max?: ValueOrAccessor<number | string | EmptyValue>
-  media?: ValueOrAccessor<string | EmptyValue>
-  method?: ValueOrAccessor<string | EmptyValue>
-  min?: ValueOrAccessor<number | string | EmptyValue>
-  name?: ValueOrAccessor<string | EmptyValue>
-  style?: ValueOrAccessor<string | EmptyValue>
-  target?: ValueOrAccessor<string | EmptyValue>
-  type?: ValueOrAccessor<string | EmptyValue>
-  width?: ValueOrAccessor<number | string | EmptyValue>
+  class?: Signalish<string | EmptyValue>
+  color?: Signalish<string | EmptyValue>
+  height?: Signalish<number | string | EmptyValue>
+  id?: Signalish<string | EmptyValue>
+  lang?: Signalish<string | EmptyValue>
+  max?: Signalish<number | string | EmptyValue>
+  media?: Signalish<string | EmptyValue>
+  method?: Signalish<string | EmptyValue>
+  min?: Signalish<number | string | EmptyValue>
+  name?: Signalish<string | EmptyValue>
+  style?: Signalish<string | EmptyValue>
+  target?: Signalish<string | EmptyValue>
+  type?: Signalish<string | EmptyValue>
+  width?: Signalish<number | string | EmptyValue>
 
   // Other HTML properties supported by SVG elements in browsers
-  role?: ValueOrAccessor<AriaRole | EmptyValue>
-  tabIndex?: ValueOrAccessor<number | EmptyValue>
-  crossOrigin?: ValueOrAccessor<CrossOrigin>
+  role?: Signalish<AriaRole | EmptyValue>
+  tabIndex?: Signalish<number | EmptyValue>
+  crossOrigin?: Signalish<CrossOrigin>
 
   // SVG Specific attributes
-  accentHeight?: ValueOrAccessor<number | string | EmptyValue>
-  accumulate?: ValueOrAccessor<'none' | 'sum' | EmptyValue>
-  additive?: ValueOrAccessor<'replace' | 'sum' | EmptyValue>
-  alignmentBaseline?: ValueOrAccessor<
+  accentHeight?: Signalish<number | string | EmptyValue>
+  accumulate?: Signalish<'none' | 'sum' | EmptyValue>
+  additive?: Signalish<'replace' | 'sum' | EmptyValue>
+  alignmentBaseline?: Signalish<
     | 'auto'
     | 'baseline'
     | 'before-edge'
@@ -686,242 +686,242 @@ export interface SVGAttributes<T extends Element> extends AriaAttributes, DOMAtt
     | 'inherit'
     | EmptyValue
   >
-  allowReorder?: ValueOrAccessor<'no' | 'yes' | EmptyValue>
-  alphabetic?: ValueOrAccessor<number | string | EmptyValue>
-  amplitude?: ValueOrAccessor<number | string | EmptyValue>
-  arabicForm?: ValueOrAccessor<'initial' | 'medial' | 'terminal' | 'isolated' | EmptyValue>
-  ascent?: ValueOrAccessor<number | string | EmptyValue>
-  attributeName?: ValueOrAccessor<string | EmptyValue>
-  attributeType?: ValueOrAccessor<string | EmptyValue>
-  autoReverse?: ValueOrAccessor<Booleanish | EmptyValue>
-  azimuth?: ValueOrAccessor<number | string | EmptyValue>
-  baseFrequency?: ValueOrAccessor<number | string | EmptyValue>
-  baselineShift?: ValueOrAccessor<number | string | EmptyValue>
-  baseProfile?: ValueOrAccessor<number | string | EmptyValue>
-  bbox?: ValueOrAccessor<number | string | EmptyValue>
-  begin?: ValueOrAccessor<number | string | EmptyValue>
-  bias?: ValueOrAccessor<number | string | EmptyValue>
-  by?: ValueOrAccessor<number | string | EmptyValue>
-  calcMode?: ValueOrAccessor<number | string | EmptyValue>
-  capHeight?: ValueOrAccessor<number | string | EmptyValue>
-  clip?: ValueOrAccessor<number | string | EmptyValue>
-  clipPath?: ValueOrAccessor<string | EmptyValue>
-  clipPathUnits?: ValueOrAccessor<number | string | EmptyValue>
-  clipRule?: ValueOrAccessor<number | string | EmptyValue>
-  colorInterpolation?: ValueOrAccessor<number | string | EmptyValue>
-  colorInterpolationFilters?: ValueOrAccessor<'auto' | 'sRGB' | 'linearRGB' | 'inherit' | EmptyValue>
-  colorProfile?: ValueOrAccessor<number | string | EmptyValue>
-  colorRendering?: ValueOrAccessor<number | string | EmptyValue>
-  contentScriptType?: ValueOrAccessor<number | string | EmptyValue>
-  contentStyleType?: ValueOrAccessor<number | string | EmptyValue>
-  cursor?: ValueOrAccessor<number | string | EmptyValue>
-  cx?: ValueOrAccessor<number | string | EmptyValue>
-  cy?: ValueOrAccessor<number | string | EmptyValue>
-  d?: ValueOrAccessor<string | EmptyValue>
-  decelerate?: ValueOrAccessor<number | string | EmptyValue>
-  descent?: ValueOrAccessor<number | string | EmptyValue>
-  diffuseConstant?: ValueOrAccessor<number | string | EmptyValue>
-  direction?: ValueOrAccessor<number | string | EmptyValue>
-  display?: ValueOrAccessor<number | string | EmptyValue>
-  divisor?: ValueOrAccessor<number | string | EmptyValue>
-  dominantBaseline?: ValueOrAccessor<number | string | EmptyValue>
-  dur?: ValueOrAccessor<number | string | EmptyValue>
-  dx?: ValueOrAccessor<number | string | EmptyValue>
-  dy?: ValueOrAccessor<number | string | EmptyValue>
-  edgeMode?: ValueOrAccessor<number | string | EmptyValue>
-  elevation?: ValueOrAccessor<number | string | EmptyValue>
-  enableBackground?: ValueOrAccessor<number | string | EmptyValue>
-  end?: ValueOrAccessor<number | string | EmptyValue>
-  exponent?: ValueOrAccessor<number | string | EmptyValue>
-  externalResourcesRequired?: ValueOrAccessor<Booleanish | EmptyValue>
-  fill?: ValueOrAccessor<string | EmptyValue>
-  fillOpacity?: ValueOrAccessor<number | string | EmptyValue>
-  fillRule?: ValueOrAccessor<'nonzero' | 'evenodd' | 'inherit' | EmptyValue>
-  filter?: ValueOrAccessor<string | EmptyValue>
-  filterRes?: ValueOrAccessor<number | string | EmptyValue>
-  filterUnits?: ValueOrAccessor<number | string | EmptyValue>
-  floodColor?: ValueOrAccessor<number | string | EmptyValue>
-  floodOpacity?: ValueOrAccessor<number | string | EmptyValue>
-  focusable?: ValueOrAccessor<Booleanish | 'auto' | EmptyValue>
-  fontFamily?: ValueOrAccessor<string | EmptyValue>
-  fontSize?: ValueOrAccessor<number | string | EmptyValue>
-  fontSizeAdjust?: ValueOrAccessor<number | string | EmptyValue>
-  fontStretch?: ValueOrAccessor<number | string | EmptyValue>
-  fontStyle?: ValueOrAccessor<number | string | EmptyValue>
-  fontVariant?: ValueOrAccessor<number | string | EmptyValue>
-  fontWeight?: ValueOrAccessor<number | string | EmptyValue>
-  format?: ValueOrAccessor<number | string | EmptyValue>
-  fr?: ValueOrAccessor<number | string | EmptyValue>
-  from?: ValueOrAccessor<number | string | EmptyValue>
-  fx?: ValueOrAccessor<number | string | EmptyValue>
-  fy?: ValueOrAccessor<number | string | EmptyValue>
-  g1?: ValueOrAccessor<number | string | EmptyValue>
-  g2?: ValueOrAccessor<number | string | EmptyValue>
-  glyphName?: ValueOrAccessor<number | string | EmptyValue>
-  glyphOrientationHorizontal?: ValueOrAccessor<number | string | EmptyValue>
-  glyphOrientationVertical?: ValueOrAccessor<number | string | EmptyValue>
-  glyphRef?: ValueOrAccessor<number | string | EmptyValue>
-  gradientTransform?: ValueOrAccessor<string | EmptyValue>
-  gradientUnits?: ValueOrAccessor<string | EmptyValue>
-  hanging?: ValueOrAccessor<number | string | EmptyValue>
-  horizAdvX?: ValueOrAccessor<number | string | EmptyValue>
-  horizOriginX?: ValueOrAccessor<number | string | EmptyValue>
-  href?: ValueOrAccessor<string | EmptyValue>
-  ideographic?: ValueOrAccessor<number | string | EmptyValue>
-  imageRendering?: ValueOrAccessor<number | string | EmptyValue>
-  in2?: ValueOrAccessor<number | string | EmptyValue>
-  in?: ValueOrAccessor<string | EmptyValue>
-  intercept?: ValueOrAccessor<number | string | EmptyValue>
-  k1?: ValueOrAccessor<number | string | EmptyValue>
-  k2?: ValueOrAccessor<number | string | EmptyValue>
-  k3?: ValueOrAccessor<number | string | EmptyValue>
-  k4?: ValueOrAccessor<number | string | EmptyValue>
-  k?: ValueOrAccessor<number | string | EmptyValue>
-  kernelMatrix?: ValueOrAccessor<number | string | EmptyValue>
-  kernelUnitLength?: ValueOrAccessor<number | string | EmptyValue>
-  kerning?: ValueOrAccessor<number | string | EmptyValue>
-  keyPoints?: ValueOrAccessor<number | string | EmptyValue>
-  keySplines?: ValueOrAccessor<number | string | EmptyValue>
-  keyTimes?: ValueOrAccessor<number | string | EmptyValue>
-  lengthAdjust?: ValueOrAccessor<number | string | EmptyValue>
-  letterSpacing?: ValueOrAccessor<number | string | EmptyValue>
-  lightingColor?: ValueOrAccessor<number | string | EmptyValue>
-  limitingConeAngle?: ValueOrAccessor<number | string | EmptyValue>
-  local?: ValueOrAccessor<number | string | EmptyValue>
-  markerEnd?: ValueOrAccessor<string | EmptyValue>
-  markerHeight?: ValueOrAccessor<number | string | EmptyValue>
-  markerMid?: ValueOrAccessor<string | EmptyValue>
-  markerStart?: ValueOrAccessor<string | EmptyValue>
-  markerUnits?: ValueOrAccessor<number | string | EmptyValue>
-  markerWidth?: ValueOrAccessor<number | string | EmptyValue>
-  mask?: ValueOrAccessor<string | EmptyValue>
-  maskContentUnits?: ValueOrAccessor<number | string | EmptyValue>
-  maskUnits?: ValueOrAccessor<number | string | EmptyValue>
-  mathematical?: ValueOrAccessor<number | string | EmptyValue>
-  mode?: ValueOrAccessor<number | string | EmptyValue>
-  numOctaves?: ValueOrAccessor<number | string | EmptyValue>
-  offset?: ValueOrAccessor<number | string | EmptyValue>
-  opacity?: ValueOrAccessor<number | string | EmptyValue>
-  operator?: ValueOrAccessor<number | string | EmptyValue>
-  order?: ValueOrAccessor<number | string | EmptyValue>
-  orient?: ValueOrAccessor<number | string | EmptyValue>
-  orientation?: ValueOrAccessor<number | string | EmptyValue>
-  origin?: ValueOrAccessor<number | string | EmptyValue>
-  overflow?: ValueOrAccessor<number | string | EmptyValue>
-  overlinePosition?: ValueOrAccessor<number | string | EmptyValue>
-  overlineThickness?: ValueOrAccessor<number | string | EmptyValue>
-  paintOrder?: ValueOrAccessor<number | string | EmptyValue>
-  panose1?: ValueOrAccessor<number | string | EmptyValue>
-  path?: ValueOrAccessor<string | EmptyValue>
-  pathLength?: ValueOrAccessor<number | string | EmptyValue>
-  patternContentUnits?: ValueOrAccessor<string | EmptyValue>
-  patternTransform?: ValueOrAccessor<number | string | EmptyValue>
-  patternUnits?: ValueOrAccessor<string | EmptyValue>
-  pointerEvents?: ValueOrAccessor<number | string | EmptyValue>
-  points?: ValueOrAccessor<string | EmptyValue>
-  pointsAtX?: ValueOrAccessor<number | string | EmptyValue>
-  pointsAtY?: ValueOrAccessor<number | string | EmptyValue>
-  pointsAtZ?: ValueOrAccessor<number | string | EmptyValue>
-  preserveAlpha?: ValueOrAccessor<Booleanish | EmptyValue>
-  preserveAspectRatio?: ValueOrAccessor<string | EmptyValue>
-  primitiveUnits?: ValueOrAccessor<number | string | EmptyValue>
-  r?: ValueOrAccessor<number | string | EmptyValue>
-  radius?: ValueOrAccessor<number | string | EmptyValue>
-  refX?: ValueOrAccessor<number | string | EmptyValue>
-  refY?: ValueOrAccessor<number | string | EmptyValue>
-  renderingIntent?: ValueOrAccessor<number | string | EmptyValue>
-  repeatCount?: ValueOrAccessor<number | string | EmptyValue>
-  repeatDur?: ValueOrAccessor<number | string | EmptyValue>
-  requiredExtensions?: ValueOrAccessor<number | string | EmptyValue>
-  requiredFeatures?: ValueOrAccessor<number | string | EmptyValue>
-  restart?: ValueOrAccessor<number | string | EmptyValue>
-  result?: ValueOrAccessor<string | EmptyValue>
-  rotate?: ValueOrAccessor<number | string | EmptyValue>
-  rx?: ValueOrAccessor<number | string | EmptyValue>
-  ry?: ValueOrAccessor<number | string | EmptyValue>
-  scale?: ValueOrAccessor<number | string | EmptyValue>
-  seed?: ValueOrAccessor<number | string | EmptyValue>
-  shapeRendering?: ValueOrAccessor<number | string | EmptyValue>
-  slope?: ValueOrAccessor<number | string | EmptyValue>
-  spacing?: ValueOrAccessor<number | string | EmptyValue>
-  specularConstant?: ValueOrAccessor<number | string | EmptyValue>
-  specularExponent?: ValueOrAccessor<number | string | EmptyValue>
-  speed?: ValueOrAccessor<number | string | EmptyValue>
-  spreadMethod?: ValueOrAccessor<string | EmptyValue>
-  startOffset?: ValueOrAccessor<number | string | EmptyValue>
-  stdDeviation?: ValueOrAccessor<number | string | EmptyValue>
-  stemh?: ValueOrAccessor<number | string | EmptyValue>
-  stemv?: ValueOrAccessor<number | string | EmptyValue>
-  stitchTiles?: ValueOrAccessor<number | string | EmptyValue>
-  stopColor?: ValueOrAccessor<string | EmptyValue>
-  stopOpacity?: ValueOrAccessor<number | string | EmptyValue>
-  strikethroughPosition?: ValueOrAccessor<number | string | EmptyValue>
-  strikethroughThickness?: ValueOrAccessor<number | string | EmptyValue>
-  string?: ValueOrAccessor<number | string | EmptyValue>
-  stroke?: ValueOrAccessor<string | EmptyValue>
-  strokeDasharray?: ValueOrAccessor<string | number | EmptyValue>
-  strokeDashoffset?: ValueOrAccessor<string | number | EmptyValue>
-  strokeLinecap?: ValueOrAccessor<'butt' | 'round' | 'square' | 'inherit' | EmptyValue>
-  strokeLinejoin?: ValueOrAccessor<'miter' | 'round' | 'bevel' | 'inherit' | EmptyValue>
-  strokeMiterlimit?: ValueOrAccessor<number | string | EmptyValue>
-  strokeOpacity?: ValueOrAccessor<number | string | EmptyValue>
-  strokeWidth?: ValueOrAccessor<number | string | EmptyValue>
-  surfaceScale?: ValueOrAccessor<number | string | EmptyValue>
-  systemLanguage?: ValueOrAccessor<number | string | EmptyValue>
-  tableValues?: ValueOrAccessor<number | string | EmptyValue>
-  targetX?: ValueOrAccessor<number | string | EmptyValue>
-  targetY?: ValueOrAccessor<number | string | EmptyValue>
-  textAnchor?: ValueOrAccessor<string | EmptyValue>
-  textDecoration?: ValueOrAccessor<number | string | EmptyValue>
-  textLength?: ValueOrAccessor<number | string | EmptyValue>
-  textRendering?: ValueOrAccessor<number | string | EmptyValue>
-  to?: ValueOrAccessor<number | string | EmptyValue>
-  transform?: ValueOrAccessor<string | EmptyValue>
-  u1?: ValueOrAccessor<number | string | EmptyValue>
-  u2?: ValueOrAccessor<number | string | EmptyValue>
-  underlinePosition?: ValueOrAccessor<number | string | EmptyValue>
-  underlineThickness?: ValueOrAccessor<number | string | EmptyValue>
-  unicode?: ValueOrAccessor<number | string | EmptyValue>
-  unicodeBidi?: ValueOrAccessor<number | string | EmptyValue>
-  unicodeRange?: ValueOrAccessor<number | string | EmptyValue>
-  unitsPerEm?: ValueOrAccessor<number | string | EmptyValue>
-  vAlphabetic?: ValueOrAccessor<number | string | EmptyValue>
-  values?: ValueOrAccessor<string | EmptyValue>
-  vectorEffect?: ValueOrAccessor<number | string | EmptyValue>
-  version?: ValueOrAccessor<string | EmptyValue>
-  vertAdvY?: ValueOrAccessor<number | string | EmptyValue>
-  vertOriginX?: ValueOrAccessor<number | string | EmptyValue>
-  vertOriginY?: ValueOrAccessor<number | string | EmptyValue>
-  vHanging?: ValueOrAccessor<number | string | EmptyValue>
-  vIdeographic?: ValueOrAccessor<number | string | EmptyValue>
-  viewBox?: ValueOrAccessor<string | EmptyValue>
-  viewTarget?: ValueOrAccessor<number | string | EmptyValue>
-  visibility?: ValueOrAccessor<number | string | EmptyValue>
-  vMathematical?: ValueOrAccessor<number | string | EmptyValue>
-  widths?: ValueOrAccessor<number | string | EmptyValue>
-  wordSpacing?: ValueOrAccessor<number | string | EmptyValue>
-  writingMode?: ValueOrAccessor<number | string | EmptyValue>
-  x1?: ValueOrAccessor<number | string | EmptyValue>
-  x2?: ValueOrAccessor<number | string | EmptyValue>
-  x?: ValueOrAccessor<number | string | EmptyValue>
-  xChannelSelector?: ValueOrAccessor<string | EmptyValue>
-  xHeight?: ValueOrAccessor<number | string | EmptyValue>
-  xlinkActuate?: ValueOrAccessor<string | EmptyValue>
-  xlinkArcrole?: ValueOrAccessor<string | EmptyValue>
-  xlinkHref?: ValueOrAccessor<string | EmptyValue>
-  xlinkRole?: ValueOrAccessor<string | EmptyValue>
-  xlinkShow?: ValueOrAccessor<string | EmptyValue>
-  xlinkTitle?: ValueOrAccessor<string | EmptyValue>
-  xlinkType?: ValueOrAccessor<string | EmptyValue>
-  xmlBase?: ValueOrAccessor<string | EmptyValue>
-  xmlLang?: ValueOrAccessor<string | EmptyValue>
-  xmlns?: ValueOrAccessor<string | EmptyValue>
-  xmlnsXlink?: ValueOrAccessor<string | EmptyValue>
-  xmlSpace?: ValueOrAccessor<string | EmptyValue>
-  y1?: ValueOrAccessor<number | string | EmptyValue>
-  y2?: ValueOrAccessor<number | string | EmptyValue>
-  y?: ValueOrAccessor<number | string | EmptyValue>
-  yChannelSelector?: ValueOrAccessor<string | EmptyValue>
-  z?: ValueOrAccessor<number | string | EmptyValue>
-  zoomAndPan?: ValueOrAccessor<string | EmptyValue>
+  allowReorder?: Signalish<'no' | 'yes' | EmptyValue>
+  alphabetic?: Signalish<number | string | EmptyValue>
+  amplitude?: Signalish<number | string | EmptyValue>
+  arabicForm?: Signalish<'initial' | 'medial' | 'terminal' | 'isolated' | EmptyValue>
+  ascent?: Signalish<number | string | EmptyValue>
+  attributeName?: Signalish<string | EmptyValue>
+  attributeType?: Signalish<string | EmptyValue>
+  autoReverse?: Signalish<Booleanish | EmptyValue>
+  azimuth?: Signalish<number | string | EmptyValue>
+  baseFrequency?: Signalish<number | string | EmptyValue>
+  baselineShift?: Signalish<number | string | EmptyValue>
+  baseProfile?: Signalish<number | string | EmptyValue>
+  bbox?: Signalish<number | string | EmptyValue>
+  begin?: Signalish<number | string | EmptyValue>
+  bias?: Signalish<number | string | EmptyValue>
+  by?: Signalish<number | string | EmptyValue>
+  calcMode?: Signalish<number | string | EmptyValue>
+  capHeight?: Signalish<number | string | EmptyValue>
+  clip?: Signalish<number | string | EmptyValue>
+  clipPath?: Signalish<string | EmptyValue>
+  clipPathUnits?: Signalish<number | string | EmptyValue>
+  clipRule?: Signalish<number | string | EmptyValue>
+  colorInterpolation?: Signalish<number | string | EmptyValue>
+  colorInterpolationFilters?: Signalish<'auto' | 'sRGB' | 'linearRGB' | 'inherit' | EmptyValue>
+  colorProfile?: Signalish<number | string | EmptyValue>
+  colorRendering?: Signalish<number | string | EmptyValue>
+  contentScriptType?: Signalish<number | string | EmptyValue>
+  contentStyleType?: Signalish<number | string | EmptyValue>
+  cursor?: Signalish<number | string | EmptyValue>
+  cx?: Signalish<number | string | EmptyValue>
+  cy?: Signalish<number | string | EmptyValue>
+  d?: Signalish<string | EmptyValue>
+  decelerate?: Signalish<number | string | EmptyValue>
+  descent?: Signalish<number | string | EmptyValue>
+  diffuseConstant?: Signalish<number | string | EmptyValue>
+  direction?: Signalish<number | string | EmptyValue>
+  display?: Signalish<number | string | EmptyValue>
+  divisor?: Signalish<number | string | EmptyValue>
+  dominantBaseline?: Signalish<number | string | EmptyValue>
+  dur?: Signalish<number | string | EmptyValue>
+  dx?: Signalish<number | string | EmptyValue>
+  dy?: Signalish<number | string | EmptyValue>
+  edgeMode?: Signalish<number | string | EmptyValue>
+  elevation?: Signalish<number | string | EmptyValue>
+  enableBackground?: Signalish<number | string | EmptyValue>
+  end?: Signalish<number | string | EmptyValue>
+  exponent?: Signalish<number | string | EmptyValue>
+  externalResourcesRequired?: Signalish<Booleanish | EmptyValue>
+  fill?: Signalish<string | EmptyValue>
+  fillOpacity?: Signalish<number | string | EmptyValue>
+  fillRule?: Signalish<'nonzero' | 'evenodd' | 'inherit' | EmptyValue>
+  filter?: Signalish<string | EmptyValue>
+  filterRes?: Signalish<number | string | EmptyValue>
+  filterUnits?: Signalish<number | string | EmptyValue>
+  floodColor?: Signalish<number | string | EmptyValue>
+  floodOpacity?: Signalish<number | string | EmptyValue>
+  focusable?: Signalish<Booleanish | 'auto' | EmptyValue>
+  fontFamily?: Signalish<string | EmptyValue>
+  fontSize?: Signalish<number | string | EmptyValue>
+  fontSizeAdjust?: Signalish<number | string | EmptyValue>
+  fontStretch?: Signalish<number | string | EmptyValue>
+  fontStyle?: Signalish<number | string | EmptyValue>
+  fontVariant?: Signalish<number | string | EmptyValue>
+  fontWeight?: Signalish<number | string | EmptyValue>
+  format?: Signalish<number | string | EmptyValue>
+  fr?: Signalish<number | string | EmptyValue>
+  from?: Signalish<number | string | EmptyValue>
+  fx?: Signalish<number | string | EmptyValue>
+  fy?: Signalish<number | string | EmptyValue>
+  g1?: Signalish<number | string | EmptyValue>
+  g2?: Signalish<number | string | EmptyValue>
+  glyphName?: Signalish<number | string | EmptyValue>
+  glyphOrientationHorizontal?: Signalish<number | string | EmptyValue>
+  glyphOrientationVertical?: Signalish<number | string | EmptyValue>
+  glyphRef?: Signalish<number | string | EmptyValue>
+  gradientTransform?: Signalish<string | EmptyValue>
+  gradientUnits?: Signalish<string | EmptyValue>
+  hanging?: Signalish<number | string | EmptyValue>
+  horizAdvX?: Signalish<number | string | EmptyValue>
+  horizOriginX?: Signalish<number | string | EmptyValue>
+  href?: Signalish<string | EmptyValue>
+  ideographic?: Signalish<number | string | EmptyValue>
+  imageRendering?: Signalish<number | string | EmptyValue>
+  in2?: Signalish<number | string | EmptyValue>
+  in?: Signalish<string | EmptyValue>
+  intercept?: Signalish<number | string | EmptyValue>
+  k1?: Signalish<number | string | EmptyValue>
+  k2?: Signalish<number | string | EmptyValue>
+  k3?: Signalish<number | string | EmptyValue>
+  k4?: Signalish<number | string | EmptyValue>
+  k?: Signalish<number | string | EmptyValue>
+  kernelMatrix?: Signalish<number | string | EmptyValue>
+  kernelUnitLength?: Signalish<number | string | EmptyValue>
+  kerning?: Signalish<number | string | EmptyValue>
+  keyPoints?: Signalish<number | string | EmptyValue>
+  keySplines?: Signalish<number | string | EmptyValue>
+  keyTimes?: Signalish<number | string | EmptyValue>
+  lengthAdjust?: Signalish<number | string | EmptyValue>
+  letterSpacing?: Signalish<number | string | EmptyValue>
+  lightingColor?: Signalish<number | string | EmptyValue>
+  limitingConeAngle?: Signalish<number | string | EmptyValue>
+  local?: Signalish<number | string | EmptyValue>
+  markerEnd?: Signalish<string | EmptyValue>
+  markerHeight?: Signalish<number | string | EmptyValue>
+  markerMid?: Signalish<string | EmptyValue>
+  markerStart?: Signalish<string | EmptyValue>
+  markerUnits?: Signalish<number | string | EmptyValue>
+  markerWidth?: Signalish<number | string | EmptyValue>
+  mask?: Signalish<string | EmptyValue>
+  maskContentUnits?: Signalish<number | string | EmptyValue>
+  maskUnits?: Signalish<number | string | EmptyValue>
+  mathematical?: Signalish<number | string | EmptyValue>
+  mode?: Signalish<number | string | EmptyValue>
+  numOctaves?: Signalish<number | string | EmptyValue>
+  offset?: Signalish<number | string | EmptyValue>
+  opacity?: Signalish<number | string | EmptyValue>
+  operator?: Signalish<number | string | EmptyValue>
+  order?: Signalish<number | string | EmptyValue>
+  orient?: Signalish<number | string | EmptyValue>
+  orientation?: Signalish<number | string | EmptyValue>
+  origin?: Signalish<number | string | EmptyValue>
+  overflow?: Signalish<number | string | EmptyValue>
+  overlinePosition?: Signalish<number | string | EmptyValue>
+  overlineThickness?: Signalish<number | string | EmptyValue>
+  paintOrder?: Signalish<number | string | EmptyValue>
+  panose1?: Signalish<number | string | EmptyValue>
+  path?: Signalish<string | EmptyValue>
+  pathLength?: Signalish<number | string | EmptyValue>
+  patternContentUnits?: Signalish<string | EmptyValue>
+  patternTransform?: Signalish<number | string | EmptyValue>
+  patternUnits?: Signalish<string | EmptyValue>
+  pointerEvents?: Signalish<number | string | EmptyValue>
+  points?: Signalish<string | EmptyValue>
+  pointsAtX?: Signalish<number | string | EmptyValue>
+  pointsAtY?: Signalish<number | string | EmptyValue>
+  pointsAtZ?: Signalish<number | string | EmptyValue>
+  preserveAlpha?: Signalish<Booleanish | EmptyValue>
+  preserveAspectRatio?: Signalish<string | EmptyValue>
+  primitiveUnits?: Signalish<number | string | EmptyValue>
+  r?: Signalish<number | string | EmptyValue>
+  radius?: Signalish<number | string | EmptyValue>
+  refX?: Signalish<number | string | EmptyValue>
+  refY?: Signalish<number | string | EmptyValue>
+  renderingIntent?: Signalish<number | string | EmptyValue>
+  repeatCount?: Signalish<number | string | EmptyValue>
+  repeatDur?: Signalish<number | string | EmptyValue>
+  requiredExtensions?: Signalish<number | string | EmptyValue>
+  requiredFeatures?: Signalish<number | string | EmptyValue>
+  restart?: Signalish<number | string | EmptyValue>
+  result?: Signalish<string | EmptyValue>
+  rotate?: Signalish<number | string | EmptyValue>
+  rx?: Signalish<number | string | EmptyValue>
+  ry?: Signalish<number | string | EmptyValue>
+  scale?: Signalish<number | string | EmptyValue>
+  seed?: Signalish<number | string | EmptyValue>
+  shapeRendering?: Signalish<number | string | EmptyValue>
+  slope?: Signalish<number | string | EmptyValue>
+  spacing?: Signalish<number | string | EmptyValue>
+  specularConstant?: Signalish<number | string | EmptyValue>
+  specularExponent?: Signalish<number | string | EmptyValue>
+  speed?: Signalish<number | string | EmptyValue>
+  spreadMethod?: Signalish<string | EmptyValue>
+  startOffset?: Signalish<number | string | EmptyValue>
+  stdDeviation?: Signalish<number | string | EmptyValue>
+  stemh?: Signalish<number | string | EmptyValue>
+  stemv?: Signalish<number | string | EmptyValue>
+  stitchTiles?: Signalish<number | string | EmptyValue>
+  stopColor?: Signalish<string | EmptyValue>
+  stopOpacity?: Signalish<number | string | EmptyValue>
+  strikethroughPosition?: Signalish<number | string | EmptyValue>
+  strikethroughThickness?: Signalish<number | string | EmptyValue>
+  string?: Signalish<number | string | EmptyValue>
+  stroke?: Signalish<string | EmptyValue>
+  strokeDasharray?: Signalish<string | number | EmptyValue>
+  strokeDashoffset?: Signalish<string | number | EmptyValue>
+  strokeLinecap?: Signalish<'butt' | 'round' | 'square' | 'inherit' | EmptyValue>
+  strokeLinejoin?: Signalish<'miter' | 'round' | 'bevel' | 'inherit' | EmptyValue>
+  strokeMiterlimit?: Signalish<number | string | EmptyValue>
+  strokeOpacity?: Signalish<number | string | EmptyValue>
+  strokeWidth?: Signalish<number | string | EmptyValue>
+  surfaceScale?: Signalish<number | string | EmptyValue>
+  systemLanguage?: Signalish<number | string | EmptyValue>
+  tableValues?: Signalish<number | string | EmptyValue>
+  targetX?: Signalish<number | string | EmptyValue>
+  targetY?: Signalish<number | string | EmptyValue>
+  textAnchor?: Signalish<string | EmptyValue>
+  textDecoration?: Signalish<number | string | EmptyValue>
+  textLength?: Signalish<number | string | EmptyValue>
+  textRendering?: Signalish<number | string | EmptyValue>
+  to?: Signalish<number | string | EmptyValue>
+  transform?: Signalish<string | EmptyValue>
+  u1?: Signalish<number | string | EmptyValue>
+  u2?: Signalish<number | string | EmptyValue>
+  underlinePosition?: Signalish<number | string | EmptyValue>
+  underlineThickness?: Signalish<number | string | EmptyValue>
+  unicode?: Signalish<number | string | EmptyValue>
+  unicodeBidi?: Signalish<number | string | EmptyValue>
+  unicodeRange?: Signalish<number | string | EmptyValue>
+  unitsPerEm?: Signalish<number | string | EmptyValue>
+  vAlphabetic?: Signalish<number | string | EmptyValue>
+  values?: Signalish<string | EmptyValue>
+  vectorEffect?: Signalish<number | string | EmptyValue>
+  version?: Signalish<string | EmptyValue>
+  vertAdvY?: Signalish<number | string | EmptyValue>
+  vertOriginX?: Signalish<number | string | EmptyValue>
+  vertOriginY?: Signalish<number | string | EmptyValue>
+  vHanging?: Signalish<number | string | EmptyValue>
+  vIdeographic?: Signalish<number | string | EmptyValue>
+  viewBox?: Signalish<string | EmptyValue>
+  viewTarget?: Signalish<number | string | EmptyValue>
+  visibility?: Signalish<number | string | EmptyValue>
+  vMathematical?: Signalish<number | string | EmptyValue>
+  widths?: Signalish<number | string | EmptyValue>
+  wordSpacing?: Signalish<number | string | EmptyValue>
+  writingMode?: Signalish<number | string | EmptyValue>
+  x1?: Signalish<number | string | EmptyValue>
+  x2?: Signalish<number | string | EmptyValue>
+  x?: Signalish<number | string | EmptyValue>
+  xChannelSelector?: Signalish<string | EmptyValue>
+  xHeight?: Signalish<number | string | EmptyValue>
+  xlinkActuate?: Signalish<string | EmptyValue>
+  xlinkArcrole?: Signalish<string | EmptyValue>
+  xlinkHref?: Signalish<string | EmptyValue>
+  xlinkRole?: Signalish<string | EmptyValue>
+  xlinkShow?: Signalish<string | EmptyValue>
+  xlinkTitle?: Signalish<string | EmptyValue>
+  xlinkType?: Signalish<string | EmptyValue>
+  xmlBase?: Signalish<string | EmptyValue>
+  xmlLang?: Signalish<string | EmptyValue>
+  xmlns?: Signalish<string | EmptyValue>
+  xmlnsXlink?: Signalish<string | EmptyValue>
+  xmlSpace?: Signalish<string | EmptyValue>
+  y1?: Signalish<number | string | EmptyValue>
+  y2?: Signalish<number | string | EmptyValue>
+  y?: Signalish<number | string | EmptyValue>
+  yChannelSelector?: Signalish<string | EmptyValue>
+  z?: Signalish<number | string | EmptyValue>
+  zoomAndPan?: Signalish<string | EmptyValue>
 }

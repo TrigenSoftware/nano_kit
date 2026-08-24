@@ -1,5 +1,5 @@
 import {
-  type ValueOrAccessor,
+  type Signalish,
   isAccessor
 } from 'kida'
 import {
@@ -15,7 +15,7 @@ import {
  * @returns Block that renders the child and swaps it on change
  */
 export function swap_<T>(
-  $value: ValueOrAccessor<T>,
+  $value: Signalish<T>,
   render: (value: T) => Child
 ) {
   if (isAccessor($value)) {

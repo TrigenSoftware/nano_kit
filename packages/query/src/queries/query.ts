@@ -16,7 +16,7 @@ import type {
 } from '../ClientContext.js'
 import type { QueryContext } from '../RequestContext.js'
 import {
-  type SignalsParams,
+  type SignalishParams,
   baseQuery
 } from './base.js'
 
@@ -33,7 +33,7 @@ export function query<
   R
 >(
   key: CacheKeyBuilder<P, R>,
-  params: SignalsParams<P>,
+  params: SignalishParams<P>,
   fn: (...args: [...P, queryCtx: QueryContext<P, R>]) => Promise<R>,
   settings?: ClientSetting<QueryClientContext<R>>[]
 ): readonly [
@@ -56,7 +56,7 @@ export function query<
   R
 >(
   key: CacheKeyBuilder<P, R>,
-  params: SignalsParams<P>,
+  params: SignalishParams<P>,
   fn: (...args: P) => Promise<R>,
   settings?: ClientSetting<QueryClientContext<R>>[]
 ): readonly [
@@ -70,7 +70,7 @@ export function query<
 export function query<P extends unknown[], R>(
   this: ClientContext,
   key: CacheKeyBuilder<P, R>,
-  params: SignalsParams<P>,
+  params: SignalishParams<P>,
   fn: (...args: [...P, queryCtx: QueryContext<P, R>]) => Promise<R>,
   settings?: ClientSetting<QueryClientContext<R>>[]
 ) {

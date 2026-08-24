@@ -1,6 +1,6 @@
 /* oxlint-disable typescript/no-redundant-type-constituents */
 import {
-  type ValueOrAccessor,
+  type Signalish,
   $get,
   effect
 } from 'kida'
@@ -9,7 +9,7 @@ import {
   createEffectAttribute
 } from '../internals/index.js'
 
-export type ClassList = ValueOrAccessor<string | boolean | FalsyValue>[]
+export type ClassList = Signalish<string | boolean | FalsyValue>[]
 
 function cx(parts: unknown[]) {
   const len = parts.length

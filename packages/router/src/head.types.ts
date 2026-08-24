@@ -1,7 +1,7 @@
 import type {
-  ValueOrAccessor,
+  Signalish,
   EmptyValue,
-  AnyValueOrAccessor
+  AnySignalish
 } from '@nano_kit/store'
 
 export type LinkRel =
@@ -59,10 +59,10 @@ export type ReferrerPolicy =
 export type FetchPriority = 'high' | 'low' | 'auto'
 
 export interface LinkTagProps {
-  href?: ValueOrAccessor<string | EmptyValue>
-  media?: ValueOrAccessor<string | EmptyValue>
-  disabled?: ValueOrAccessor<boolean | EmptyValue>
-  title?: ValueOrAccessor<string | EmptyValue>
+  href?: Signalish<string | EmptyValue>
+  media?: Signalish<string | EmptyValue>
+  disabled?: Signalish<boolean | EmptyValue>
+  title?: Signalish<string | EmptyValue>
   rel?: LinkRel | EmptyValue
   as?: LinkAs | EmptyValue
   type?: string | EmptyValue
@@ -99,8 +99,8 @@ export interface ScriptTagProps {
 }
 
 export interface MetaTagProps {
-  content?: ValueOrAccessor<string | EmptyValue>
-  media?: ValueOrAccessor<string | EmptyValue>
+  content?: Signalish<string | EmptyValue>
+  media?: Signalish<string | EmptyValue>
   charSet?: string | EmptyValue
   name?: string | EmptyValue
   httpEquiv?: string | EmptyValue
@@ -108,13 +108,13 @@ export interface MetaTagProps {
   scheme?: string | EmptyValue
 }
 
-export type LangValue = ValueOrAccessor<string | EmptyValue>
+export type LangValue = Signalish<string | EmptyValue>
 
 export type Dir = 'ltr' | 'rtl' | 'auto'
 
-export type DirValue = ValueOrAccessor<Dir | EmptyValue>
+export type DirValue = Signalish<Dir | EmptyValue>
 
-export type TitleValue = ValueOrAccessor<string | EmptyValue>
+export type TitleValue = Signalish<string | EmptyValue>
 
 export interface PseudoElement {
   matches(selector: string): boolean
@@ -123,7 +123,7 @@ export interface PseudoElement {
 
 export interface GenericHeadTagDescriptor {
   tag: string
-  props: Record<string, AnyValueOrAccessor>
+  props: Record<string, AnySignalish>
   start(
     head: PseudoElement[],
     prevHead?: PseudoElement[] | null
@@ -149,7 +149,7 @@ export type HeadTagDescriptor = LinkTagDescriptor | ScriptTagDescriptor | MetaTa
 
 export interface GenericHeadPropertyDescriptor<T extends string = string> {
   tag: T
-  value: ValueOrAccessor<string | EmptyValue>
+  value: Signalish<string | EmptyValue>
   target(): Record<T, string>
   start(
     head: PseudoElement[],

@@ -1,4 +1,4 @@
-import type { ValueOrAccessor } from 'kida'
+import type { Signalish } from 'kida'
 import type {
   Primitive,
   AnyFn
@@ -9,7 +9,7 @@ export type LazyChild<T extends () => Child = () => Child> = T & {
   c: true
 }
 
-export type Child = ChildNode | DocumentFragment | LazyChild<() => Child> | ValueOrAccessor<Primitive>
+export type Child = ChildNode | DocumentFragment | LazyChild<() => Child> | Signalish<Primitive>
 
 export type Children = Child[]
 

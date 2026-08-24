@@ -1,6 +1,6 @@
 
 import {
-  type ValueOrAccessor,
+  type Signalish,
   isAccessor,
   effect
 } from 'kida'
@@ -13,7 +13,7 @@ import {
  */
 export function dangerouslySetInnerHtml<T extends Element>(
   factory: () => T,
-  $html: ValueOrAccessor<string>
+  $html: Signalish<string>
 ) {
   const element = factory()
 

@@ -1,7 +1,7 @@
 import {
   type FalsyValue,
   type InjectionProvider,
-  type ValueOrAccessor,
+  type Signalish,
   Hydrator$,
   ActiveHydrator,
   provide,
@@ -16,12 +16,12 @@ export interface HydrationContextParams {
   /**
    * Create hydration context from an existing dehydration context reference.
    */
-  fromRef?: ValueOrAccessor<number>
+  fromRef?: Signalish<number>
   /**
    * Dehydrated data as an array of key-value pairs.
    * Pass a falsy value to skip hydration.
    */
-  dehydrated?: ValueOrAccessor<[string, unknown][] | FalsyValue>
+  dehydrated?: Signalish<[string, unknown][] | FalsyValue>
   /**
    * Additional injection providers to merge into the child context.
    */

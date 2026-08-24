@@ -12,7 +12,7 @@ import type {
   ToAccessor,
   ToSignal,
   ToAccessorOrSignal,
-  ValueOrAccessor
+  Signalish
 } from './types.js'
 
 /**
@@ -62,71 +62,71 @@ export function assignKey<
 
 /**
  * Get value from signal or return value with tracking
- * @param valueOr$signal - Value or signal
+ * @param source - Value or signal
  * @returns Value
  */
-export function $get<T>(valueOr$signal: ValueOrAccessor<T>): T {
-  return isAccessor(valueOr$signal) ? valueOr$signal() : valueOr$signal
+export function $get<T>(source: Signalish<T>): T {
+  return isAccessor(source) ? source() : source
 }
 
 /**
  * Get value from signal or return value without tracking
- * @param valueOr$signal - Value or signal
+ * @param source - Value or signal
  * @returns Value
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function get<T>(valueOrAccessor: ValueOrAccessor<T>): T {
-  return untracked(() => $get(valueOrAccessor))
+export function get<T>(source: Signalish<T>): T {
+  return untracked(() => $get(source))
 }
 
 /**
  * Create signal from value or return signal
- * @param valueOrSignal - Value or signal
+ * @param source - Value or signal
  * @returns Writable signal
  */
 export function toSignal<T>(
-  valueOrSignal: T
+  source: T
 ): ToSignal<T>
 
 /* @__NO_SIDE_EFFECTS__ */
-export function toSignal(valueOrSignal: unknown) {
-  return isSignal(valueOrSignal)
-    ? valueOrSignal
-    : isAccessor(valueOrSignal)
-      ? computed(valueOrSignal)
-      : signal(valueOrSignal)
+export function toSignal(source: unknown) {
+  return isSignal(source)
+    ? source
+    : isAccessor(source)
+      ? computed(source)
+      : signal(source)
 }
 
 /**
  * Create accessor from value or return accessor
- * @param valueOrAccessor - Value or accessor
+ * @param source - Value or accessor
  * @returns Accessor
  */
 export function toAccessor<T>(
-  valueOrAccessor: T
+  source: T
 ): ToAccessor<T>
 
 /* @__NO_SIDE_EFFECTS__ */
-export function toAccessor(valueOrReadable: unknown) {
-  return isAccessor(valueOrReadable)
-    ? valueOrReadable
-    : () => valueOrReadable
+export function toAccessor(source: unknown) {
+  return isAccessor(source)
+    ? source
+    : () => source
 }
 
 /**
  * Create signal from value or return accessor or signal
- * @param valueOrAccessor - Value or accessor or signal
+ * @param source - Value or accessor or signal
  * @returns Accessor or signal
  */
 export function toAccessorOrSignal<T>(
-  valueOrAccessor: T
+  source: T
 ): ToAccessorOrSignal<T>
 
 /* @__NO_SIDE_EFFECTS__ */
-export function toAccessorOrSignal(valueOrReadable: unknown) {
-  return isAccessor(valueOrReadable)
-    ? valueOrReadable
-    : signal(valueOrReadable)
+export function toAccessorOrSignal(source: unknown) {
+  return isAccessor(source)
+    ? source
+    : signal(source)
 }
 
 /**

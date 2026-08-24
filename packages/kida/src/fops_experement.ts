@@ -1,5 +1,5 @@
 import type { Accessor } from 'agera'
-import type { ValueOrAccessor } from './types.js'
+import type { Signalish } from './types.js'
 import { $get } from './utils.js'
 
 /**
@@ -10,8 +10,8 @@ import { $get } from './utils.js'
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function or<L, R>(
-  left: ValueOrAccessor<L>,
-  right: ValueOrAccessor<R>
+  left: Signalish<L>,
+  right: Signalish<R>
 ): Accessor<L | R> {
   return () => $get(left) || $get(right)
 }
@@ -22,7 +22,7 @@ export function or<L, R>(
  * @returns An accessor that returns the first truthy value
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function some<T>(...args: ValueOrAccessor<T>[]): Accessor<T> {
+export function some<T>(...args: Signalish<T>[]): Accessor<T> {
   return () => {
     let value: T
 
@@ -46,8 +46,8 @@ export function some<T>(...args: ValueOrAccessor<T>[]): Accessor<T> {
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function and<L, R>(
-  left: ValueOrAccessor<L>,
-  right: ValueOrAccessor<R>
+  left: Signalish<L>,
+  right: Signalish<R>
 ): Accessor<L | R> {
   return () => $get(left) && $get(right)
 }
@@ -58,7 +58,7 @@ export function and<L, R>(
  * @returns An accessor that returns the last value if all are truthy
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function every<T>(...args: ValueOrAccessor<T>[]): Accessor<T> {
+export function every<T>(...args: Signalish<T>[]): Accessor<T> {
   return () => {
     let value: T
 
@@ -80,7 +80,7 @@ export function every<T>(...args: ValueOrAccessor<T>[]): Accessor<T> {
  * @returns An accessor that returns the negated boolean result
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function not<T>(value: ValueOrAccessor<T>): Accessor<boolean> {
+export function not<T>(value: Signalish<T>): Accessor<boolean> {
   return () => !$get(value)
 }
 
@@ -92,8 +92,8 @@ export function not<T>(value: ValueOrAccessor<T>): Accessor<boolean> {
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function is(
-  left: ValueOrAccessor<unknown>,
-  right: ValueOrAccessor<unknown>
+  left: Signalish<unknown>,
+  right: Signalish<unknown>
 ): Accessor<boolean> {
   return () => $get(left) === $get(right)
 }
@@ -106,8 +106,8 @@ export function is(
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function isNot(
-  left: ValueOrAccessor<unknown>,
-  right: ValueOrAccessor<unknown>
+  left: Signalish<unknown>,
+  right: Signalish<unknown>
 ): Accessor<boolean> {
   return () => $get(left) !== $get(right)
 }
@@ -120,8 +120,8 @@ export function isNot(
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function gt(
-  left: ValueOrAccessor<number>,
-  right: ValueOrAccessor<number>
+  left: Signalish<number>,
+  right: Signalish<number>
 ): Accessor<boolean> {
   return () => $get(left) > $get(right)
 }
@@ -134,8 +134,8 @@ export function gt(
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function gte(
-  left: ValueOrAccessor<number>,
-  right: ValueOrAccessor<number>
+  left: Signalish<number>,
+  right: Signalish<number>
 ): Accessor<boolean> {
   return () => $get(left) >= $get(right)
 }
@@ -148,8 +148,8 @@ export function gte(
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function lt(
-  left: ValueOrAccessor<number>,
-  right: ValueOrAccessor<number>
+  left: Signalish<number>,
+  right: Signalish<number>
 ): Accessor<boolean> {
   return () => $get(left) < $get(right)
 }
@@ -162,8 +162,8 @@ export function lt(
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function lte(
-  left: ValueOrAccessor<number>,
-  right: ValueOrAccessor<number>
+  left: Signalish<number>,
+  right: Signalish<number>
 ): Accessor<boolean> {
   return () => $get(left) <= $get(right)
 }
@@ -177,9 +177,9 @@ export function lte(
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function when<T, U>(
-  condition: ValueOrAccessor<unknown>,
-  then: ValueOrAccessor<T>,
-  otherwise?: ValueOrAccessor<U>
+  condition: Signalish<unknown>,
+  then: Signalish<T>,
+  otherwise?: Signalish<U>
 ): Accessor<T | U | undefined> {
   return () => ($get(condition) ? $get(then) : otherwise && $get(otherwise))
 }

@@ -6,7 +6,7 @@ import {
 } from 'agera'
 import type {
   AnyFn,
-  ValueOrAccessor
+  Signalish
 } from './types.js'
 import { $get } from './internals/utils.js'
 
@@ -49,7 +49,7 @@ export function boolean<T>($signal: Accessor<T>) {
  * @returns A computed signal that returns the concatenated string.
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function concat(...parts: ValueOrAccessor<unknown>[]) {
+export function concat(...parts: Signalish<unknown>[]) {
   return computed(() => parts.map($get).join(''))
 }
 

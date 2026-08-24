@@ -1,5 +1,5 @@
 import {
-  type ValueOrAccessor,
+  type Signalish,
   $get,
   isFunction
 } from '@nano_kit/store'
@@ -25,9 +25,9 @@ export type RequiredParamKeys<P extends ParamsFormats> = {
 export type OptionalParamKeys<P extends ParamsFormats> = Exclude<keyof P, RequiredParamKeys<P>>
 
 export type ParamsValues<P extends ParamsFormats> = {
-  [K in RequiredParamKeys<P>]: ValueOrAccessor<FormatInput<P[K]>>
+  [K in RequiredParamKeys<P>]: Signalish<FormatInput<P[K]>>
 } & {
-  [K in OptionalParamKeys<P>]?: ValueOrAccessor<FormatInput<P[K]> | undefined>
+  [K in OptionalParamKeys<P>]?: Signalish<FormatInput<P[K]> | undefined>
 }
 
 export type ParamsFn<P extends ParamsFormats> = FnWithParams<ParamsValues<P>>
@@ -36,7 +36,7 @@ type PreformatOutput = string | undefined | FnWithAnyParams
 
 type ComposedParamsFn<P extends ParamsFormats, O> = FnWithParams<ParamsValues<P> & UnionToIntersection<ParamsOf<O>>>
 
-type Replace = (ctx: FormatContext, text: string, params: Record<string, ValueOrAccessor<ReplacementValue>>) => string
+type Replace = (ctx: FormatContext, text: string, params: Record<string, Signalish<ReplacementValue>>) => string
 
 /**
  * Creates a parameter interpolation formatter.
