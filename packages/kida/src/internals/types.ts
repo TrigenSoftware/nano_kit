@@ -5,7 +5,7 @@ import type {
   WritableSignal,
   ReadableSignal,
   Accessor,
-  AnyAccessor
+  AnyFn
 } from 'agera'
 
 export type { AnyFn } from 'agera'
@@ -40,10 +40,13 @@ export type ToSignal<T> = [T] extends [AnyWritableSignal]
       ? ReadableSignal<V>
       : WritableSignal<Exclude<T, AnyAccessorOrSignal>> | ToSignal<Extract<T, AnyAccessorOrSignal>>
 
-export type ToAccessor<T> = [T] extends [AnyAccessor]
+// Both of these test any function, not just a zero-argument one: the runtime
+// test behind them is `typeof value === 'function'`, so a callback is handed
+// back untouched exactly like an accessor is, and the type has to say the same
+export type ToAccessor<T> = [T] extends [AnyFn]
   ? T
-  : Accessor<Exclude<T, AnyAccessor>> | Extract<T, AnyAccessor>
+  : Accessor<Exclude<T, AnyFn>> | Extract<T, AnyFn>
 
-export type ToAccessorOrSignal<T> = [T] extends [AnyAccessor]
+export type ToAccessorOrSignal<T> = [T] extends [AnyFn]
   ? T
-  : WritableSignal<Exclude<T, AnyAccessor>> | Extract<T, AnyAccessor>
+  : WritableSignal<Exclude<T, AnyFn>> | Extract<T, AnyFn>
