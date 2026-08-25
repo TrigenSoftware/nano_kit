@@ -10,7 +10,7 @@
     "name": "All publics (Brotli)",
     "path": "dist/index.js",
     "import": "*",
-    "limit": "6.75 kB"
+    "limit": "6.8 kB"
   },
   {
     "name": "Average usage (Gzip)",
@@ -23,6 +23,6 @@
     "name": "Average usage (Brotli)",
     "path": "dist/index.js",
     "import": "{ fragment, div, form, input, button, label, classList$, if_, for_, value$, children$, effect }",
-    "limit": "3.55 kB"
+    "limit": "3.6 kB"
   }
 ]

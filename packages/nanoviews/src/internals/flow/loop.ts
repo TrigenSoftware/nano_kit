@@ -94,7 +94,8 @@ type LookupMap = Map<unknown, LoopItem>
 
 type AnyEach = (
   item: Accessor<unknown>,
-  index: ReadableSignal<number>
+  index: ReadableSignal<number>,
+  key: unknown
 ) => Child
 
 type UnknownTrack = (item: unknown, index: number) => unknown
@@ -218,7 +219,7 @@ function reconcile(
       }
 
       row.d = deferScope(() => {
-        insertChildBeforeAnchor(each_($row, $index), insertAnchor, row)
+        insertChildBeforeAnchor(each_($row, $index, key), insertAnchor, row)
 
         // Every row holds a place in the DOM, so a row that rendered nothing
         // still has one to be moved to, inserted before and removed with

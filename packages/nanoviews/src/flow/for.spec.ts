@@ -1033,6 +1033,82 @@ describe('nanoviews', () => {
         expect(container.innerHTML).toBe('<div><ul><li>nobody</li></ul></div>')
       })
 
+      it('should hand the tracking key to the row', () => {
+        const items = signal([
+          {
+            id: 'a',
+            name: 'Yatoro'
+          },
+          {
+            id: 'b',
+            name: 'Larl'
+          }
+        ])
+        const { container } = render(() => ul()(
+          for_(items, trackById)(
+            ($player, $index, key) => li()(key, ':', () => $player().name, ':', $index)
+          )
+        ))
+
+        expect(container.innerHTML).toBe('<div><ul><li>a:Yatoro:0</li><li>b:Larl:1</li></ul></div>')
+
+        // The key is the row's own: it stays with the row wherever the row
+        // goes, while the index follows the position
+        items([
+          {
+            id: 'b',
+            name: 'Larl'
+          },
+          {
+            id: 'a',
+            name: 'Yatoro'
+          }
+        ])
+
+        expect(container.innerHTML).toBe('<div><ul><li>b:Larl:0</li><li>a:Yatoro:1</li></ul></div>')
+      })
+
+      it('should hand the index as the key when there is no tracker', () => {
+        const items = signal(['Yatoro', 'Larl'])
+        const { container } = render(() => ul()(
+          for_(items)(
+            ($player, $index, key) => li()(key, ':', $player, ':', $index)
+          )
+        ))
+
+        expect(container.innerHTML).toBe('<div><ul><li>0:Yatoro:0</li><li>1:Larl:1</li></ul></div>')
+      })
+
+      it('should hand the index as the key of a static array row', () => {
+        const { container } = render(() => ul()(
+          for_(['Yatoro', 'Larl'])(
+            (player, index, key) => li()(key, ':', player, ':', index)
+          )
+        ))
+
+        expect(container.innerHTML).toBe('<div><ul><li>0:Yatoro:0</li><li>1:Larl:1</li></ul></div>')
+      })
+
+      it('should carry the tracking key through `as_`', () => {
+        const items = signal([
+          {
+            id: 'a',
+            name: 'Yatoro'
+          },
+          {
+            id: 'b',
+            name: 'Larl'
+          }
+        ])
+        const { container } = render(() => ul()(
+          for_(items, trackById)(
+            as_(record, ($player, $index, key) => li()(key, ':', $player.$name, ':', $index))
+          )
+        ))
+
+        expect(container.innerHTML).toBe('<div><ul><li>a:Yatoro:0</li><li>b:Larl:1</li></ul></div>')
+      })
+
       it('should hand the row through a transform with `as_`', () => {
         const items = signal([
           {

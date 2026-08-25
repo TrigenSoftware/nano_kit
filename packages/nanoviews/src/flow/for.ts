@@ -16,8 +16,8 @@ import {
  * @param key - The key to track the item by
  * @returns A function that returns the value of the key in the item
  */
-export function trackBy<T extends string>(key: T) {
-  return (item: { [K in T]: unknown }) => item[key]
+export function trackBy<K extends string>(key: K) {
+  return <T>(item: { [P in K]: T }) => item[key]
 }
 
 /**
@@ -26,7 +26,7 @@ export function trackBy<T extends string>(key: T) {
  * @param item.id - The id of the item
  * @returns The id of the item
  */
-export function trackById(item: { id: unknown }) {
+export function trackById<T>(item: { id: T }) {
   return item.id
 }
 
@@ -37,31 +37,39 @@ export function trackById(item: { id: unknown }) {
  * @returns Function to pass to `for_`
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function as_<Item, Index, Value>(
+export function as_<Item, Index, Key, Value>(
   as: (item: Item) => Value,
-  each_: (value: Value, index: Index) => Child
+  each_: (value: Value, index: Index, key: Key) => Child
 ) {
-  return (item: Item, index: Index) => each_(as(item), index)
+  return (item: Item, index: Index, key: Key) => each_(as(item), index, key)
 }
 
+// The key comes third because it is the one thing about a row that never
+// changes: the row is the row the tracker named, and a different key is a
+// different row. Without a tracker the key is the position, which is what
+// the row is identified by then, so it and the index signal never disagree
 type AnyEach = (
   item: Accessor<unknown>,
-  index: ReadableSignal<number>
+  index: ReadableSignal<number>,
+  key: unknown
 ) => Child
 
-type ReadableEach<T> = (
+type ReadableEach<T, K> = (
   item: Accessor<T>,
-  index: ReadableSignal<number>
+  index: ReadableSignal<number>,
+  key: K
 ) => Child
 
-type WritableEach<T> = (
+type WritableEach<T, K> = (
   item: WritableSignal<T>,
-  index: ReadableSignal<number>
+  index: ReadableSignal<number>,
+  key: K
 ) => Child
 
 type StaticEach<T> = (
   item: T,
-  index: number
+  index: number,
+  key: number
 ) => Child
 
 type UnknownTrack = (item: unknown, index: number) => unknown
@@ -70,19 +78,19 @@ type UnknownTrack = (item: unknown, index: number) => unknown
 // a widening of the first: `WritableSignal<T[]>` does not fit
 // `WritableSignal<T[] | EmptyValue>`, and widening would take the rows of
 // every existing caller down to read-only
-export function for_<T>(
+export function for_<T, K = number>(
   $items: WritableSignal<T[]> | WritableSignal<T[] | EmptyValue>,
-  track?: (item: T, index: number) => unknown
+  track?: (item: T, index: number) => K
 ): (
-  each_: WritableEach<T>,
+  each_: WritableEach<T, K>,
   else_?: () => Child
 ) => Child
 
-export function for_<T>(
+export function for_<T, K = number>(
   $items: Accessor<T[] | EmptyValue>,
-  track?: (item: T, index: number) => unknown
+  track?: (item: T, index: number) => K
 ): (
-  each_: ReadableEach<T>,
+  each_: ReadableEach<T, K>,
   else_?: () => Child
 ) => Child
 
@@ -94,7 +102,11 @@ export function for_<T>(
 ) => Child
 
 /**
- * Iterate over items and render each item
+ * Iterate over items and render each item.
+ *
+ * The render function is given the row, its index signal and the key the
+ * tracker named it by - a plain value, because a row keeps its key for as
+ * long as it lives.
  * @param $items - Target items
  * @param track - Tracker function to identify items
  * @returns Function to receive each_ and else_ functions
@@ -113,5 +125,9 @@ export function for_(
   return (
     each_: StaticEach<unknown>,
     else_?: () => Child
-  ) => ($items?.length ? fragment(...$items.map(each_)) : else_?.())
+  ) => (
+    $items?.length
+      ? fragment(...$items.map((item, index) => each_(item, index, index)))
+      : else_?.()
+  )
 }
