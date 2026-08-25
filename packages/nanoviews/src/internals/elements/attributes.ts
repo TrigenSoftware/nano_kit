@@ -68,7 +68,7 @@ function setEventListener(element: Element, name: string, value: TargetEventHand
 export function setAttributes<A extends object>(element: Element, attributes: A) {
   for (const key in attributes) {
     const value = (attributes as Attributes)[key]
-    const tEffectAttr = effectAttributes.get(key)
+    const tEffectAttr = effectAttributes?.get(key)
 
     if (tEffectAttr !== undefined) {
       tEffectAttr(element, value, attributes as Attributes)

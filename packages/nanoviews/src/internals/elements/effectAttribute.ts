@@ -3,7 +3,11 @@ import type {
   EffectAttributeCallback
 } from '../types/index.js'
 
-export const effectAttributes = new Map<EffectAttributeId, EffectAttributeCallback>()
+// The registry is born on the first effect attribute, so an app that creates
+// none leaves nothing behind: with `createEffectAttribute` shaken out, the
+// binding is a `let` nothing ever assigns, and the lookup below it folds away
+// oxlint-disable-next-line import/no-mutable-exports
+export let effectAttributes: Map<EffectAttributeId, EffectAttributeCallback> | undefined
 
 /**
  * Create effect attribute
@@ -17,7 +21,7 @@ export function createEffectAttribute<
   TargetElement extends Element,
   Value
 >(id: ID, callback: EffectAttributeCallback<TargetElement, Value>) {
-  effectAttributes.set(id, callback as EffectAttributeCallback)
+  (effectAttributes ??= new Map()).set(id, callback as EffectAttributeCallback)
 
   return id
 }
