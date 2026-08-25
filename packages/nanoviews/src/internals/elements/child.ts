@@ -105,5 +105,14 @@ export function remove(start: ChildNode, end: Node): void {
 }
 
 export function removeBetween(start: Node, end: Node): void {
-  remove(start.nextSibling!, end.previousSibling!)
+  const parent = start.parentNode!
+
+  // When the pair stands at the ends of its parent, everything between them
+  // is everything the parent holds: one call sets the parent back to the two
+  // markers, and the browser drops the rest without a range to walk
+  if (start === parent.firstChild && end === parent.lastChild) {
+    parent.replaceChildren(start as ChildNode, end as ChildNode)
+  } else {
+    remove(start.nextSibling!, end.previousSibling!)
+  }
 }

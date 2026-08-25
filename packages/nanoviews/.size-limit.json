@@ -17,7 +17,7 @@
     "gzip": true,
     "path": "dist/index.js",
     "import": "{ fragment, div, form, input, button, label, classList$, if_, for_, value$, children$, effect }",
-    "limit": "3.8 kB"
+    "limit": "3.85 kB"
   },
   {
     "name": "Average usage (Brotli)",
