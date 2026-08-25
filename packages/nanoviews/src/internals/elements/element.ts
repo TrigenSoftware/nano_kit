@@ -52,13 +52,9 @@ export function elementChildren(
   result: Element | DocumentFragment,
   ...children: Children
 ) {
-  const len = children.length
-
-  if (len) {
-    for (let i = 0, node: ChildNode | DocumentFragment | EmptyValue; i < len; i++) {
-      if (node = childToNode(children[i])) {
-        this.appendChild(node)
-      }
+  for (let i = 0, len = children.length, node: ChildNode | DocumentFragment | EmptyValue; i < len; i++) {
+    if (node = childToNode(children[i])) {
+      this.appendChild(node)
     }
   }
 
