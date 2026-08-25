@@ -1,7 +1,6 @@
 /* oxlint-disable */
 import {
   signal,
-  record,
   selector,
   deleteIndex,
   updateArray,
@@ -220,40 +219,33 @@ export function App(ref = {}) {
     })(
       tbody()(
         for_($data, item => item.id)(
-          ($row, $index) => {
-            const {
-              $id,
-              $label
-            } = record($row)
-
-            return tr({
-              class: () => $isSelected($id()) ? 'danger' : ''
-            })(
-              td({ class: 'col-md-1' })(
-                $id
-              ),
-              td({ class: 'col-md-4' })(
-                a({
-                  onClick() {
-                    $selected($id())
-                  }
-                })(
-                  $label
-                )
-              ),
-              td({ class: 'col-md-1' })(
-                a({
-                  onClick() {
-                    remove($index())
-                  }
-                })(
-                  'Delete'
-                  // span({ class: 'glyphicon glyphicon-remove', 'aria-hidden': true })
-                )
-              ),
-              td({ class: 'col-md-6' })
-            )
-          }
+          ($row, $index, id) => tr({
+            class: () => $isSelected(id) ? 'danger' : ''
+          })(
+            td({ class: 'col-md-1' })(
+              id
+            ),
+            td({ class: 'col-md-4' })(
+              a({
+                onClick() {
+                  $selected(id)
+                }
+              })(
+                () => $row().label
+              )
+            ),
+            td({ class: 'col-md-1' })(
+              a({
+                onClick() {
+                  remove($index())
+                }
+              })(
+                'Delete'
+                // span({ class: 'glyphicon glyphicon-remove', 'aria-hidden': true })
+              )
+            ),
+            td({ class: 'col-md-6' })
+          )
         )
       )
     ),
