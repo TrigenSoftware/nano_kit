@@ -9,7 +9,8 @@ export {
   trigger,
   onSignal,
   createSignal,
-  computedOper
+  computedOper,
+  setUnwatchedValue
 } from './internals/system.js'
 export * from './signal.js'
 export * from './modes.js'

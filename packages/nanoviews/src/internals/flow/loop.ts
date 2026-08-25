@@ -17,7 +17,8 @@ import {
   createSignal,
   isWritable,
   nextValue,
-  assignIndex
+  assignIndex,
+  setUnwatchedValue
 } from 'kida'
 import type {
   Child,
@@ -239,7 +240,14 @@ function reconcile(
     }
 
     if (item.i.node.pendingValue !== i) {
-      item.i(i)
+      // A row's index is written on every pass and read only by a row that
+      // put it on screen, so the write skips the signal whenever nothing is
+      // there to be told about it
+      if (item.i.node.subs === undefined) {
+        setUnwatchedValue(item.i.node, i)
+      } else {
+        item.i(i)
+      }
     }
 
     if (item.v.node.pendingValue !== value) {

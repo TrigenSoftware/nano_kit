@@ -18,6 +18,7 @@ import {
   mountable,
   onMounted,
   selector,
+  setUnwatchedValue,
   signal,
   startScope,
   stopScope,
@@ -696,6 +697,44 @@ describe('agera', () => {
         $double(10)
 
         expect($num()).toBe(5)
+      })
+    })
+
+    describe('setUnwatchedValue', () => {
+      it('should hand the value to the next read', () => {
+        const $num = signal(1)
+
+        setUnwatchedValue($num.node, 2)
+
+        expect($num()).toBe(2)
+      })
+
+      it('should store a function instead of running it as a reducer', () => {
+        const reducer = vi.fn((value: number) => value + 1)
+        const $fn = signal<unknown>(1)
+
+        setUnwatchedValue($fn.node, reducer)
+
+        expect($fn()).toBe(reducer)
+        expect(reducer).not.toHaveBeenCalled()
+      })
+
+      it('should leave a later write to the signal working', () => {
+        const $num = signal(1)
+        const effectFn = vi.fn()
+
+        setUnwatchedValue($num.node, 2)
+
+        const stop = effectScope(() => effect(() => effectFn($num())))
+
+        expect(effectFn).toHaveBeenCalledExactlyOnceWith(2)
+
+        $num(3)
+
+        expect(effectFn).toHaveBeenCalledTimes(2)
+        expect(effectFn).toHaveBeenLastCalledWith(3)
+
+        stop()
       })
     })
 

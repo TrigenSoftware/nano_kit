@@ -10,7 +10,7 @@
     "name": "All publics (Brotli)",
     "path": "dist/index.js",
     "import": "*",
-    "limit": "5.8 kB"
+    "limit": "5.85 kB"
   },
   {
     "name": "Signal (Gzip)",

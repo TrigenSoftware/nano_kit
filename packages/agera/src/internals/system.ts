@@ -433,6 +433,22 @@ export function onSignal(callback: ($signal: AnySignal) => void) {
 }
 
 /**
+ * Write a value into a signal nothing watches yet.
+ *
+ * Only for a node with no subscribers: nothing is notified. The value is
+ * stored as it is, so a function is kept and not run as a reducer.
+ * @private
+ * @param node - Node of the signal to write to
+ * @param value - Value to write
+ */
+export function setUnwatchedValue<T>(node: SignalNode<T>, value: T): void {
+  // With nobody to tell, a write is the two fields a later read looks at: the
+  // pending value it will pick up, and the flag that sends it to pick it up
+  node.pendingValue = value
+  node.flags = MutableFlag | DirtyFlag
+}
+
+/**
  * Create a signal function over a reactive node. The node is the operator's
  * `this`, so whatever a call site needs at read or write time lives on the
  * node and a signal costs one object and one bound function, nothing else.
