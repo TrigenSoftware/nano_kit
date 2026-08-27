@@ -2,7 +2,8 @@ import {
   type Accessor,
   type ReadableSignal,
   signal,
-  computed
+  computed,
+  untracked
 } from 'agera'
 import type { FalsyValue } from './types.js'
 import { toSignal } from './utils.js'
@@ -91,7 +92,9 @@ export function resolved<T>(
     return $state()
   }
 
-  resolve()
+  if (promise instanceof Promise) {
+    untracked(resolve)
+  }
 
   return [
     computed(() => resolve().data),

@@ -44,6 +44,30 @@ describe('kida', () => {
       expect(accessor).toHaveBeenCalledTimes(1)
     })
 
+    it('should resolve with the direct promise', async () => {
+      const promise = Promise.resolve(42)
+      const [$result, $error, $pending] = resolved(promise)
+
+      expect($result()).toBeUndefined()
+      expect($error()).toBeUndefined()
+      expect($pending()).toBe(true)
+
+      await promise
+
+      expect($result()).toBe(42)
+      expect($error()).toBeUndefined()
+      expect($pending()).toBe(false)
+    })
+
+    it('should not call the accessor until the first read', () => {
+      const accessor = vi.fn(() => Promise.resolve(42))
+      const [, , $pending] = resolved(accessor)
+
+      expect(accessor).not.toHaveBeenCalled()
+      expect($pending()).toBe(true)
+      expect(accessor).toHaveBeenCalledTimes(1)
+    })
+
     it('should resolve with the static value', () => {
       const [$result, $error, $pending] = resolved(42)
 
