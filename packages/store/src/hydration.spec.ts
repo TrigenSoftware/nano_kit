@@ -5,6 +5,7 @@ import {
 } from 'vitest'
 import {
   InjectionContext,
+  TasksRunner$,
   signal,
   mountable,
   run,
@@ -12,7 +13,6 @@ import {
   provide,
   onMount
 } from 'kida'
-import { TasksRunner$ } from './tasks.js'
 import { JsonCodec } from './codec.js'
 import {
   Hydrator$,

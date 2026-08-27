@@ -4,11 +4,19 @@ import {
   expect
 } from 'vitest'
 import {
+  InjectionContext,
+  run,
+  inject
+} from './di.js'
+import {
+  TasksPool$,
+  TasksRunner$,
   waitCurrentTasks,
+  waitTasks,
   tasksRunner
 } from './tasks.js'
 
-describe('store', () => {
+describe('kida', () => {
   describe('tasks', () => {
     describe('allTasks', () => {
       it('should wait resolved task', async () => {
@@ -55,6 +63,30 @@ describe('store', () => {
         await Promise.allSettled([waitTasks, promise])
 
         expect(stamp).toBe(' task  allTasks ')
+      })
+    })
+
+    describe('TasksRunner$', () => {
+      it('should run task within the pool from the injection context', async () => {
+        const context = new InjectionContext()
+        const [task, tasks] = run(context, () => [
+          inject(TasksRunner$),
+          inject(TasksPool$)
+        ] as const)
+        let done = false
+
+        void task(async () => {
+          await Promise.resolve()
+
+          done = true
+        })
+
+        expect(tasks.size).toBe(1)
+
+        await waitTasks(tasks)
+
+        expect(done).toBe(true)
+        expect(tasks.size).toBe(0)
       })
     })
   })

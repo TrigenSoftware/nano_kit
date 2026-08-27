@@ -5,18 +5,16 @@ import {
   type InjectionProvider,
   ExternalModesBase,
   InjectionContext,
+  TasksPool$,
   start,
   run,
   inject,
   observe,
   effect,
   signal,
-  trigger
-} from 'kida'
-import {
-  TasksPool$,
+  trigger,
   waitTasks
-} from './tasks.js'
+} from 'kida'
 import {
   type Codec,
   NoopCodec

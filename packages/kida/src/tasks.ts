@@ -1,7 +1,5 @@
-import {
-  isFunction,
-  inject
-} from 'kida'
+import { isFunction } from 'agera'
+import { inject } from './di.js'
 
 export type TasksPool = Set<Promise<unknown>>
 
