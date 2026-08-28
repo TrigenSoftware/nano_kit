@@ -6,20 +6,15 @@ import {
   beforeEach
 } from 'vitest'
 import {
-  type TasksPool,
   effect,
   signal,
-  tasksRunner,
   waitTasks
 } from '@nano_kit/store'
 import {
   operationKey,
   queryKey
 } from '../cache.js'
-import {
-  dedupe,
-  tasks
-} from '../ClientContext.js'
+import { dedupe } from '../ClientContext.js'
 import {
   client,
   operations
@@ -42,10 +37,7 @@ const PostKey = queryKey<[id: number], Post | null>('post')
 describe('query', () => {
   describe('settings', () => {
     describe('abortable', () => {
-      const tasksPool: TasksPool = new Set()
-
       beforeEach(() => {
-        tasksPool.clear()
         resetMockData()
       })
 
@@ -111,7 +103,7 @@ describe('query', () => {
 
       describe('abortable setting', () => {
         it('should abort previous request when new query starts', async () => {
-          const { query } = client(tasks(tasksRunner(tasksPool)))
+          const { query } = client()
           const $id = signal(1)
           const fetcher = vi.fn(async (id: number, ctx) => {
             abortPrevious(ctx)
@@ -138,7 +130,7 @@ describe('query', () => {
           expect(errorSpy).toHaveBeenCalledTimes(1)
           expect(errorSpy).toHaveBeenCalledWith(null)
 
-          await waitTasks(tasksPool)
+          await waitTasks($data)
 
           expect(fetcher).toHaveBeenCalledTimes(1)
           expect(dataSpy).toHaveBeenCalledTimes(2)
@@ -159,7 +151,7 @@ describe('query', () => {
           expect(errorSpy).toHaveBeenCalledTimes(3)
           expect(errorSpy).toHaveBeenCalledWith(null)
 
-          await waitTasks(tasksPool)
+          await waitTasks($data)
 
           expect(fetcher).toHaveBeenCalledTimes(3)
           expect(dataSpy).toHaveBeenCalledTimes(4)
@@ -178,8 +170,7 @@ describe('query', () => {
         it('should abort promise returned by fetcher', async () => {
           const { operation } = client(
             operations(),
-            dedupe(false),
-            tasks(tasksRunner(tasksPool))
+            dedupe(false)
           )
           const PostLazyKey = operationKey<[], [id: number], Post | null>('post')
           const fetcher = vi.fn(async (id: number, ctx) => {

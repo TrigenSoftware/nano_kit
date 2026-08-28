@@ -1,11 +1,11 @@
 import {
+  vi,
   describe,
   it,
   expect,
   beforeEach
 } from 'vitest'
 import {
-  type TasksPool,
   Hydrator$,
   Hydratables$,
   InjectionContext,
@@ -13,13 +13,11 @@ import {
   JsonCodec,
   effect,
   signal,
-  tasksRunner,
   waitTasks,
   run,
   provide
 } from '@nano_kit/store'
 import { queryKey } from '../cache.js'
-import { tasks } from '../ClientContext.js'
 import { client } from '../client.js'
 import {
   type Post,
@@ -34,17 +32,13 @@ const PostKey = queryKey<[id: number], Post | null>('post')
 describe('query', () => {
   describe('settings', () => {
     describe('hydratable', () => {
-      const tasksPool: TasksPool = new Set()
-
       beforeEach(() => {
-        tasksPool.clear()
         resetMockData()
       })
 
       it('should serialize cache to hydratables map', async () => {
         const hydratables = new Map()
         const { query } = client(
-          tasks(tasksRunner(tasksPool)),
           hydratable(null, hydratables)
         )
         const [$post] = query(PostKey, [signal(1)], getPost)
@@ -52,7 +46,7 @@ describe('query', () => {
           $post()
         })
 
-        await waitTasks(tasksPool)
+        await waitTasks($post)
 
         expect($post()).toEqual({
           id: 1,
@@ -87,7 +81,6 @@ describe('query', () => {
           provide(Hydratables$, new Map())
         ])
         const { query } = run(context, () => client(
-          tasks(tasksRunner(tasksPool)),
           hydratable()
         ))
         const [$post] = query(PostKey, [signal(1)], getPost)
@@ -95,7 +88,7 @@ describe('query', () => {
           $post()
         })
 
-        await waitTasks(tasksPool)
+        await waitTasks($post)
 
         expect($post()).toEqual({
           id: 1,
@@ -128,7 +121,6 @@ describe('query', () => {
       it('should serialize and deserialize cache with codec', async () => {
         const hydratables = new Map()
         const { query } = client(
-          tasks(tasksRunner(tasksPool)),
           codec(JsonCodec),
           hydratable(null, hydratables)
         )
@@ -137,7 +129,7 @@ describe('query', () => {
           $post()
         })
 
-        await waitTasks(tasksPool)
+        await waitTasks($post)
 
         const dehydrated = hydratables.get('@nano_kit/query')!()
 
@@ -161,10 +153,8 @@ describe('query', () => {
         ])
 
         off()
-        tasksPool.clear()
 
         const { query: hydratedQuery } = client(
-          tasks(tasksRunner(tasksPool)),
           codec(JsonCodec),
           hydratable(new StaticHydrator([
             [
@@ -173,12 +163,13 @@ describe('query', () => {
             ]
           ]))
         )
-        const [$hydratedPost] = hydratedQuery(PostKey, [signal(1)], getPost)
+        const hydratedFetcher = vi.fn(getPost)
+        const [$hydratedPost] = hydratedQuery(PostKey, [signal(1)], hydratedFetcher)
         const offHydrated = effect(() => {
           $hydratedPost()
         })
 
-        expect(tasksPool.size).toBe(0)
+        expect(hydratedFetcher).not.toHaveBeenCalled()
         expect($hydratedPost()).toEqual({
           id: 1,
           title: 'First Post',
@@ -213,15 +204,15 @@ describe('query', () => {
           ]
         ]
         const { query } = client(
-          tasks(tasksRunner(tasksPool)),
           hydratable(new StaticHydrator(dehydrated))
         )
-        const [$post] = query(PostKey, [signal(1)], getPost)
+        const fetcher = vi.fn(getPost)
+        const [$post] = query(PostKey, [signal(1)], fetcher)
         const off = effect(() => {
           $post()
         })
 
-        expect(tasksPool.size).toBe(0)
+        expect(fetcher).not.toHaveBeenCalled()
 
         expect($post()).toEqual({
           id: 1,
@@ -260,15 +251,15 @@ describe('query', () => {
           provide(Hydrator$, new StaticHydrator(dehydrated))
         ])
         const { query } = run(context, () => client(
-          tasks(tasksRunner(tasksPool)),
           hydratable()
         ))
-        const [$post] = query(PostKey, [signal(2)], getPost)
+        const fetcher = vi.fn(getPost)
+        const [$post] = query(PostKey, [signal(2)], fetcher)
         const off = effect(() => {
           $post()
         })
 
-        expect(tasksPool.size).toBe(0)
+        expect(fetcher).not.toHaveBeenCalled()
 
         expect($post()).toEqual({
           id: 2,

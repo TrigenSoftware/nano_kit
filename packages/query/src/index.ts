@@ -20,8 +20,7 @@ export {
   mapError,
   onEveryError,
   disabled,
-  dedupe,
-  tasks
+  dedupe
 } from './ClientContext.js'
 export * from './RequestContext.js'
 export * from './client.js'

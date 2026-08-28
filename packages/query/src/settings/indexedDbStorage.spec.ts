@@ -7,15 +7,12 @@ import {
 } from 'vitest'
 import 'fake-indexeddb/auto'
 import {
-  type TasksPool,
   JsonCodec,
   effect,
   signal,
-  tasksRunner,
   waitTasks
 } from '@nano_kit/store'
 import { queryKey } from '../cache.js'
-import { tasks } from '../ClientContext.js'
 import { client } from '../client.js'
 import {
   type Post,
@@ -53,19 +50,16 @@ async function clearStore(db: Promise<IDBDatabase | null>) {
 describe('query', () => {
   describe('settings', () => {
     describe('indexedDbStorage', () => {
-      const tasksPool: TasksPool = new Set()
       const db = connect()
 
       beforeEach(async () => {
         await clearStore(db)
-        tasksPool.clear()
         resetMockData()
       })
 
       it('should persist entry to IndexedDB', async () => {
         const { query } = client(
-          persistence(indexedDbStorage(), 60000),
-          tasks(tasksRunner(tasksPool))
+          persistence(indexedDbStorage(), 60000)
         )
         const $id = signal(1)
         const fetcher = vi.fn(getPost)
@@ -74,7 +68,7 @@ describe('query', () => {
           $data()
         })
 
-        await waitTasks(tasksPool)
+        await waitTasks($data)
 
         const key = PostKey(1)
         const storedEntry = await SELECT(db, key)
@@ -89,8 +83,7 @@ describe('query', () => {
 
       it('should load entry from IndexedDB on mount', async () => {
         const { query } = client(
-          persistence(indexedDbStorage(), 60000),
-          tasks(tasksRunner(tasksPool))
+          persistence(indexedDbStorage(), 60000)
         )
         const $id = signal(1)
         const fetcher = vi.fn(getPost)
@@ -99,7 +92,7 @@ describe('query', () => {
           $data()
         })
 
-        await waitTasks(tasksPool)
+        await waitTasks($data)
 
         expect(fetcher).toHaveBeenCalledTimes(1)
         expect($data()?.id).toBe(1)
@@ -107,8 +100,7 @@ describe('query', () => {
         off1()
 
         const { query: query2 } = client(
-          persistence(indexedDbStorage(), 60000),
-          tasks(tasksRunner(tasksPool))
+          persistence(indexedDbStorage(), 60000)
         )
         const $id2 = signal(1)
         const fetcher2 = vi.fn(getPost)
@@ -117,7 +109,7 @@ describe('query', () => {
           $data2()
         })
 
-        await waitTasks(tasksPool)
+        await waitTasks($data2)
 
         expect(fetcher2).not.toHaveBeenCalled()
         expect($data2()?.id).toBe(1)
@@ -128,8 +120,7 @@ describe('query', () => {
       it('should persist and load entry with codec', async () => {
         const { query } = client(
           codec(JsonCodec),
-          persistence(indexedDbStorage(), 60000),
-          tasks(tasksRunner(tasksPool))
+          persistence(indexedDbStorage(), 60000)
         )
         const $id = signal(1)
         const fetcher = vi.fn(getPost)
@@ -138,7 +129,7 @@ describe('query', () => {
           $data()
         })
 
-        await waitTasks(tasksPool)
+        await waitTasks($data)
 
         expect(fetcher).toHaveBeenCalledTimes(1)
 
@@ -151,12 +142,10 @@ describe('query', () => {
         }))
 
         off1()
-        tasksPool.clear()
 
         const { query: query2 } = client(
           codec(JsonCodec),
-          persistence(indexedDbStorage(), 60000),
-          tasks(tasksRunner(tasksPool))
+          persistence(indexedDbStorage(), 60000)
         )
         const fetcher2 = vi.fn(getPost)
         const [$data2] = query2(PostKey, [signal(1)], fetcher2)
@@ -164,7 +153,7 @@ describe('query', () => {
           $data2()
         })
 
-        await waitTasks(tasksPool)
+        await waitTasks($data2)
 
         expect(fetcher2).not.toHaveBeenCalled()
         expect($data2()).toEqual({
@@ -177,7 +166,7 @@ describe('query', () => {
       })
 
       it('should update entry in IndexedDB on data change', async () => {
-        const { query } = client(tasks(tasksRunner(tasksPool)), persistence(indexedDbStorage(), 60000))
+        const { query } = client(persistence(indexedDbStorage(), 60000))
         const $id = signal(1)
         const fetcher = vi.fn(getPost)
         const [$data] = query(PostKey, [$id], fetcher)
@@ -185,12 +174,12 @@ describe('query', () => {
           $data()
         })
 
-        await waitTasks(tasksPool)
+        await waitTasks($data)
 
         expect(((await SELECT(db, PostKey(1)))?.data as Post)?.id).toBe(1)
 
         $id(2)
-        await waitTasks(tasksPool)
+        await waitTasks($data)
 
         expect(((await SELECT(db, PostKey(2)))?.data as Post)?.id).toBe(2)
 
@@ -198,7 +187,7 @@ describe('query', () => {
       })
 
       it('should delete entry on invalidate', async () => {
-        const { query, invalidate } = client(tasks(tasksRunner(tasksPool)), persistence(indexedDbStorage(), 60000))
+        const { query, invalidate } = client(persistence(indexedDbStorage(), 60000))
         const $id1 = signal(1)
         const $id2 = signal(2)
         const fetcher = vi.fn(getPost)
@@ -211,14 +200,16 @@ describe('query', () => {
           $data2()
         })
 
-        await waitTasks(tasksPool)
+        await waitTasks($data1)
+        await waitTasks($data2)
 
         expect(await SELECT(db, PostKey(1))).not.toBe(null)
         expect(await SELECT(db, PostKey(2))).not.toBe(null)
 
         invalidate(PostKey(1))
 
-        await waitTasks(tasksPool)
+        await waitTasks($data1)
+        await waitTasks($data2)
 
         expect(await SELECT(db, PostKey(1))).toBe(null)
         expect(await SELECT(db, PostKey(2))).not.toBe(null)
@@ -229,8 +220,7 @@ describe('query', () => {
 
       it('should delete all entries in shard on invalidate with undefined key', async () => {
         const { query, invalidate } = client(
-          persistence(indexedDbStorage(), 60000),
-          tasks(tasksRunner(tasksPool))
+          persistence(indexedDbStorage(), 60000)
         )
         const $id1 = signal(1)
         const $id2 = signal(2)
@@ -244,14 +234,16 @@ describe('query', () => {
           $data2()
         })
 
-        await waitTasks(tasksPool)
+        await waitTasks($data1)
+        await waitTasks($data2)
 
         expect(await SELECT(db, PostKey(1))).not.toBe(null)
         expect(await SELECT(db, PostKey(2))).not.toBe(null)
 
         invalidate(PostKey)
 
-        await waitTasks(tasksPool)
+        await waitTasks($data1)
+        await waitTasks($data2)
 
         expect(await SELECT(db, PostKey(1))).toBe(null)
         expect(await SELECT(db, PostKey(2))).toBe(null)

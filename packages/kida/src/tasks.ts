@@ -1,83 +1,76 @@
-import { isFunction } from 'agera'
-import { inject } from './di.js'
-
-export type TasksPool = Set<Promise<unknown>>
+import {
+  type AnySignal,
+  type AnyReadableSignal,
+  type ReadableNode,
+  isFunction
+} from 'agera'
 
 export type Task<T = void> = Promise<T> | (() => Promise<T>)
 
-export type TasksRunner = <T>(fn: Task<T>) => Promise<T>
+export type TaskTarget = AnySignal | AnySignal[]
 
-/**
- * Wait for all currently running tasks to finish.
- * @param tasksPool - Tasks pool storage.
- * @returns Promise that resolves when all currently running tasks are finished.
- */
-/* @__NO_SIDE_EFFECTS__ */
-export function waitCurrentTasks(tasksPool: TasksPool) {
-  return Promise.allSettled(tasksPool)
+interface TasksNode extends ReadableNode {
+  tsk?: Set<Promise<unknown>>
 }
 
 /**
- * Wait for all tasks to finish.
- * @param tasksPool - Tasks pool storage.
- * @returns Promise that resolves when all tasks are finished.
- */
-/* @__NO_SIDE_EFFECTS__ */
-export async function waitTasks(tasksPool: TasksPool) {
-  while (tasksPool.size) {
-    await waitCurrentTasks(tasksPool)
-  }
-}
-
-export function taskPromise<T>(task: Task<T>): Promise<T> {
-  return isFunction(task) ? task() : task
-}
-
-/**
- * Add a task to the tasks pool.
- * @param tasksPool - Tasks pool storage.
+ * Attach a task to the signal it fills. Until the task settles it is
+ * awaited by `waitTasks` of any signal that depends on the target.
+ * @param $to - The signal or signals the task fills.
  * @param task - The task promise or function that returns a promise.
  * @returns The task promise.
  */
-export function addTask<T = void>(
-  tasksPool: TasksPool,
+export function task<T = void>(
+  $to: TaskTarget,
   task: Task<T>
-) {
-  const promise = taskPromise(task)
-  const done = (): boolean => tasksPool.delete(taskDone)
-  const taskDone = promise.then(done, done)
+): Promise<T> {
+  const promise = isFunction(task) ? task() : task
 
-  tasksPool.add(taskDone)
+  for (const $signal of isFunction($to) ? [$to] : $to) {
+    const pool = ($signal.node as TasksNode).tsk ??= new Set()
+    const done = (): boolean => pool.delete(taskDone)
+    // The pool holds the derived promise: its `then` is registered here,
+    // before `waitTasks` registers its own, so the pool is already clean
+    // when the wait wakes up. It never rejects - `pool.delete` cannot
+    // throw - which is what makes `Promise.all` in `waitTasks` safe
+    const taskDone = promise.then(done, done)
+
+    pool.add(taskDone)
+  }
 
   return promise
 }
 
 /**
- * Create a tasks runner.
- * @param tasksPool - Tasks pool storage.
- * @returns The function to run task within the pool.
+ * Wait for the tasks of the signal and of every signal it depends on,
+ * until none are left. The dependency graph is re-collected after every
+ * wave, so a task spawned by a task and a dependency linked by a settled
+ * value are awaited too.
+ * @param $of - The signal to wait for.
+ * @returns Promise that resolves when no tasks are left.
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function tasksRunner(
-  tasksPool: TasksPool = new Set()
-): TasksRunner {
-  return fn => addTask(tasksPool, fn)
-}
+export async function waitTasks($of: AnyReadableSignal): Promise<void> {
+  const tasks: Promise<unknown>[] = []
+  // Tasks of a signal are derived, never stored: a node holds only the
+  // tasks attached to it, and the full set is collected by walking the
+  // dependency graph on demand. The set doubles as the queue: nodes
+  // added while it is iterated are visited too, and `add` dedupes, so
+  // no separate visited set is needed
+  const nodes = new Set([$of.node as TasksNode])
 
-/**
- * Injectable factory for tasks pool.
- * @returns The tasks pool.
- */
-export function TasksPool$(): TasksPool {
-  return new Set<Promise<unknown>>()
-}
+  for (const node of nodes) {
+    if (node.tsk) {
+      tasks.push(...node.tsk)
+    }
 
-/**
- * Injectable factory for tasks runner.
- * @returns The function to run task within the pool.
- */
-export function TasksRunner$() {
-  const tasksPool = inject(TasksPool$)
+    for (let link = node.deps; link; link = link.nextDep) {
+      nodes.add(link.dep as TasksNode)
+    }
+  }
 
-  return tasksRunner(tasksPool)
+  if (tasks.length) {
+    await Promise.all(tasks)
+    await waitTasks($of)
+  }
 }

@@ -6,8 +6,8 @@ import {
   beforeEach
 } from 'vitest'
 import {
-  type TasksPool,
-  effect
+  effect,
+  waitTasks
 } from '@nano_kit/store'
 import {
   type MutationClientContext,
@@ -34,11 +34,32 @@ import {
 describe('query', () => {
   describe('queries', () => {
     describe('mutation', () => {
-      const tasksPool: TasksPool = new Set()
-
       beforeEach(() => {
-        tasksPool.clear()
         resetMockData()
+      })
+
+      it('should attach the mutation task to its signals', async () => {
+        const { mutation } = client(mutations())
+        const [mutate, $data, , $loading] = mutation(createPost)
+
+        void mutate({
+          title: 'New Post',
+          content: 'New content'
+        })
+
+        expect($loading()).toBe(true)
+
+        await waitTasks($data)
+
+        expect($data()).toEqual({
+          id: 4,
+          title: 'New Post',
+          content: 'New content'
+        })
+
+        await waitTasks($loading)
+
+        expect($loading()).toBe(false)
       })
 
       it('should mutate on demand', async () => {

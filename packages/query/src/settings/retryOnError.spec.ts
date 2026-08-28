@@ -7,14 +7,11 @@ import {
   afterEach
 } from 'vitest'
 import {
-  type TasksPool,
   effect,
   signal,
-  tasksRunner,
   waitTasks
 } from '@nano_kit/store'
 import { queryKey } from '../cache.js'
-import { tasks } from '../ClientContext.js'
 import { client } from '../client.js'
 import {
   type Post,
@@ -30,10 +27,7 @@ const PostKey = queryKey<[id: number], Post | null>('post')
 describe('query', () => {
   describe('settings', () => {
     describe('retryOnError', () => {
-      const tasksPool: TasksPool = new Set()
-
       beforeEach(() => {
-        tasksPool.clear()
         resetMockData()
         vi.useFakeTimers()
       })
@@ -69,7 +63,7 @@ describe('query', () => {
 
       describe('retryOnError', () => {
         it('should retry on error after delay', async () => {
-          const { query } = client(tasks(tasksRunner(tasksPool)))
+          const { query } = client()
           const $id = signal(1)
           const calcDelay = vi.fn().mockReturnValue(1000)
           const fetcher = vi.fn().mockRejectedValue(new Error('test error'))
@@ -78,7 +72,7 @@ describe('query', () => {
             $data()
           })
 
-          await waitTasks(tasksPool)
+          await waitTasks($data)
 
           expect(fetcher).toHaveBeenCalledTimes(1)
           expect(calcDelay).toHaveBeenCalledTimes(1)
@@ -86,7 +80,7 @@ describe('query', () => {
 
           vi.advanceTimersByTime(1000)
 
-          await waitTasks(tasksPool)
+          await waitTasks($data)
 
           expect(fetcher).toHaveBeenCalledTimes(2)
 
@@ -94,7 +88,7 @@ describe('query', () => {
         })
 
         it('should increment retry count on each error', async () => {
-          const { query } = client(tasks(tasksRunner(tasksPool)))
+          const { query } = client()
           const $id = signal(1)
           const calcDelay = vi.fn().mockReturnValue(1000)
           const fetcher = vi.fn().mockRejectedValue(new Error('error'))
@@ -103,17 +97,17 @@ describe('query', () => {
             $data()
           })
 
-          await waitTasks(tasksPool)
+          await waitTasks($data)
 
           expect(calcDelay).toHaveBeenLastCalledWith(1, expect.any(Error))
 
           vi.advanceTimersByTime(1000)
-          await waitTasks(tasksPool)
+          await waitTasks($data)
 
           expect(calcDelay).toHaveBeenLastCalledWith(2, expect.any(Error))
 
           vi.advanceTimersByTime(1000)
-          await waitTasks(tasksPool)
+          await waitTasks($data)
 
           expect(calcDelay).toHaveBeenLastCalledWith(3, expect.any(Error))
 
@@ -121,7 +115,7 @@ describe('query', () => {
         })
 
         it('should reset retry count on success', async () => {
-          const { query } = client(tasks(tasksRunner(tasksPool)))
+          const { query } = client()
           const $id = signal(1)
           const calcDelay = vi.fn().mockReturnValue(1000)
           const fetcher = vi.fn()
@@ -138,23 +132,23 @@ describe('query', () => {
             $data()
           })
 
-          await waitTasks(tasksPool)
+          await waitTasks($data)
 
           expect(calcDelay).toHaveBeenLastCalledWith(1, expect.any(Error))
 
           vi.advanceTimersByTime(1000)
-          await waitTasks(tasksPool)
+          await waitTasks($data)
 
           expect(calcDelay).toHaveBeenLastCalledWith(2, expect.any(Error))
 
           vi.advanceTimersByTime(1000)
-          await waitTasks(tasksPool)
+          await waitTasks($data)
 
           expect(fetcher).toHaveBeenCalledTimes(3)
 
           $id(2)
           $id(1)
-          await waitTasks(tasksPool)
+          await waitTasks($data)
 
           expect(calcDelay).toHaveBeenLastCalledWith(1, expect.any(Error))
 
@@ -162,7 +156,7 @@ describe('query', () => {
         })
 
         it('should cancel pending retry on new request', async () => {
-          const { query } = client(tasks(tasksRunner(tasksPool)))
+          const { query } = client()
           const $id = signal(1)
           const calcDelay = vi.fn().mockReturnValue(5000)
           const fetcher = vi.fn()
@@ -177,18 +171,18 @@ describe('query', () => {
             $data()
           })
 
-          await waitTasks(tasksPool)
+          await waitTasks($data)
 
           expect(fetcher).toHaveBeenCalledTimes(1)
 
           $id(2)
           $id(1)
-          await waitTasks(tasksPool)
+          await waitTasks($data)
 
           expect(fetcher).toHaveBeenCalledTimes(2)
 
           vi.advanceTimersByTime(5000)
-          await waitTasks(tasksPool)
+          await waitTasks($data)
 
           expect(fetcher).toHaveBeenCalledTimes(2)
 
@@ -196,7 +190,7 @@ describe('query', () => {
         })
 
         it('should use default calcRetryDelay if not provided', async () => {
-          const { query } = client(tasks(tasksRunner(tasksPool)))
+          const { query } = client()
           const $id = signal(1)
           const fetcher = vi.fn().mockRejectedValue(new Error('test error'))
           const [$data] = query(PostKey, [$id], fetcher, [retryOnError()])
@@ -206,12 +200,12 @@ describe('query', () => {
 
           vi.spyOn(Math, 'random').mockReturnValue(0.5)
 
-          await waitTasks(tasksPool)
+          await waitTasks($data)
 
           expect(fetcher).toHaveBeenCalledTimes(1)
 
           vi.advanceTimersByTime(4000)
-          await waitTasks(tasksPool)
+          await waitTasks($data)
 
           expect(fetcher).toHaveBeenCalledTimes(2)
 

@@ -3,7 +3,8 @@ import {
   action,
   computed,
   mountable,
-  $get
+  $get,
+  task
 } from '@nano_kit/store'
 import type { ClientSetting } from '../client.types.js'
 import type {
@@ -79,6 +80,8 @@ export function baseQuery<
       (data, error) => clientCtx.settled(key, data, error, rev)
     )
   })
+
+  clientCtx.task = promise => task($data, promise)
 
   return {
     clientCtx,
