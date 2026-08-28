@@ -8,6 +8,7 @@ import {
   signal,
   computed
 } from 'agera'
+import { waitTasks } from './tasks.js'
 import { resolved } from './resolved.js'
 
 describe('kida', () => {
@@ -68,10 +69,28 @@ describe('kida', () => {
       expect(accessor).toHaveBeenCalledTimes(1)
     })
 
+    it('should attach the promise as a task to the state', async () => {
+      const [$result] = resolved(() => Promise.resolve(42))
+
+      expect($result()).toBeUndefined()
+
+      await waitTasks($result)
+
+      expect($result()).toBe(42)
+    })
+
     it('should resolve with the static value', () => {
       const [$result, $error, $pending] = resolved(42)
 
       expect($result()).toBe(42)
+      expect($error()).toBeUndefined()
+      expect($pending()).toBe(false)
+    })
+
+    it('should resolve with the static falsy value', () => {
+      const [$result, $error, $pending] = resolved(0)
+
+      expect($result()).toBe(0)
       expect($error()).toBeUndefined()
       expect($pending()).toBe(false)
     })
@@ -107,13 +126,13 @@ describe('kida', () => {
       const $promise = signal<number | Promise<number> | null>(promise)
       const [$result, , $pending] = resolved($promise)
 
-      expect($result()).toBeUndefined()
+      expect($result()).toBeNull()
       expect($pending()).toBe(false)
 
       promise = Promise.resolve(1)
       $promise(promise)
 
-      expect($result()).toBeUndefined()
+      expect($result()).toBeNull()
       expect($pending()).toBe(true)
 
       await promise
@@ -134,7 +153,7 @@ describe('kida', () => {
 
       $promise(null)
 
-      expect($result()).toBeUndefined()
+      expect($result()).toBeNull()
       expect($pending()).toBe(false)
 
       $promise(42)
