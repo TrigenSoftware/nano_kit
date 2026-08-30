@@ -10,5 +10,8 @@
   },
   "publish": {
     "access": "public"
+  },
+  "maintenanceBranch": {
+    "enabled": true
   }
 }
