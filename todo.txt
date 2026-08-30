@@ -1,6 +1,4 @@
 - no-magic-numbers pain
-- inspect object copies
-- check === / !== undefined ? perf
 
 ## Agera/Kida/Store
 
@@ -8,6 +6,7 @@
 
 ## 🔥🔥🔥 Query 🔥🔥🔥
 
+- optimize using ai
 - map data / default data
 - synced cache between tabs
 
@@ -38,52 +37,3 @@
 ## intl
 
 ## rpc
-
-## Nanoviews
-
-- hooks/effects naming convention
-
-- error boundaries: cleanup half-created scope on render throw (stopScope in catch) - rows/content are not parent-linked, teardown must be explicit
-- for_ duplicate track keys: unsupported by design, must keep failing loudly - the crash lands a step away from the cause, so it needs a clear throw at the point of detection
-- rework return slot$ to look like element/component? fn.prop is faster than {f,p}
-- static index for untracked loop?
-
-## Perf
-
-- !== undefined is faster
-- prop: undefined is faster
-- for let i faster than array methods
-- push(...arr) is slow
-- noop faster than check
-- getter setter are slow (not in class)
-- Reflect.get is slow
-- arr.length = 0 is slower than arr = []
-
-## Long distance plans
-
-- html + head components
-- universal dom
-- ssr
-- hydration
-- svg ?
-- error boundaries
-- hmr
-- COMPILER to compete with svelte and solid
-
-### Nanoviews SSR
-
-- setAttribute
-- removeAttribute
-- on*
-- createElement
-- insertBefore
-- removeChild
-- createTextNode
-- data
-- attachShadow
-- *prop
-- style
-  - setProperty
-  - removeProperty
-- portals
-- innerHTML

@@ -32,7 +32,7 @@
 
 A small push-pull based signal library based on [alien-signals](https://github.com/stackblitz/alien-signals) algorithm.
 
-Was created as reactivity system for [nanoviews](https://github.com/TrigenSoftware/nano_kit/tree/main/packages/nanoviews) and [Kida](https://github.com/TrigenSoftware/nano_kit/tree/main/packages/kida).
+Was created as reactivity system for [Nanoviews](https://github.com/TrigenSoftware/nanoviews) and [Nano Kit](https://github.com/TrigenSoftware/nano_kit).
 
 - **Small**. Around 1.8 kB for basic methods (minified and brotlied). Zero dependencies.
 - **Super fast** as [alien-signals](https://github.com/stackblitz/alien-signals).

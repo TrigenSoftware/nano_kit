@@ -1,8 +1,0 @@
-export const valueProperty = 'value'
-export const checkedProperty = 'checked'
-export const indeterminateProperty = 'indeterminate'
-export const optionsProperty = 'options'
-export const selectedProperty = 'selected'
-export const multipleProperty = 'multiple'
-export const onChangeEvent = 'change'
-export const onInputEvent = 'input'
