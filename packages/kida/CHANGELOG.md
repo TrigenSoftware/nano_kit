@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0...v1.2.0) (2026-08-30)
+
+### Features
+
+* bottom-up deferred effect scopes ([#189](https://github.com/TrigenSoftware/nano_kit/issues/189)) ([dd3169f](https://github.com/TrigenSoftware/nano_kit/commit/dd3169fbddcffbb3d8000f1f6127e40c37ec2386))
+* move tasks from `@nano_kit/store` to `kida` ([#220](https://github.com/TrigenSoftware/nano_kit/issues/220)) ([2e5c07c](https://github.com/TrigenSoftware/nano_kit/commit/2e5c07c9ed377856699f33b1ce1deb23d30beba5))
+* rename `ValueOrAccessor` to `Signalish` ([#210](https://github.com/TrigenSoftware/nano_kit/issues/210)) ([c42723a](https://github.com/TrigenSoftware/nano_kit/commit/c42723a56944cea0f3935b1456a45b607924f0a9))
+
+### Bug Fixes
+
+* keep a `resolved` factory unstarted until the first read ([#221](https://github.com/TrigenSoftware/nano_kit/issues/221)) ([bc13a53](https://github.com/TrigenSoftware/nano_kit/commit/bc13a53dc9652b27606a3a0acae5aa319a34d27a))
+* keep a child write in the caller's context ([#198](https://github.com/TrigenSoftware/nano_kit/issues/198)) ([0816533](https://github.com/TrigenSoftware/nano_kit/commit/0816533769ca523e64fcca760546b22716c89847))
+* run user reducers and event handlers untracked ([#193](https://github.com/TrigenSoftware/nano_kit/issues/193)) ([03c78db](https://github.com/TrigenSoftware/nano_kit/commit/03c78db4332524c25393098980731c222a938647))
+* type `toAccessor` by what it actually returns ([#208](https://github.com/TrigenSoftware/nano_kit/issues/208)) ([024e812](https://github.com/TrigenSoftware/nano_kit/commit/024e81231b894245199c1a8962eb709b36513b86))
+
+### Performance Improvements
+
+* replace `morph` with the signal constructor protocol ([#197](https://github.com/TrigenSoftware/nano_kit/issues/197)) ([23b3370](https://github.com/TrigenSoftware/nano_kit/commit/23b337007b4898d5e0d2fc0e4e127a2df71d392e))
+
 ## [1.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0-alpha.1...v1.0.0) (2026-07-22)
 
 ### Nano Kit 1.0 🎉

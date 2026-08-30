@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.1.0...v1.2.0) (2026-08-30)
+
+### Features
+
+* rename `ValueOrAccessor` to `Signalish` ([#210](https://github.com/TrigenSoftware/nano_kit/issues/210)) ([c42723a](https://github.com/TrigenSoftware/nano_kit/commit/c42723a56944cea0f3935b1456a45b607924f0a9))
+
 ## [1.1.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0...v1.1.0) (2026-08-03)
 
 ### ✨ Highlights
