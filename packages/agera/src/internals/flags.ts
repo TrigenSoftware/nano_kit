@@ -22,4 +22,8 @@ export const WritableMode = 1 << 2
 
 export const MountableMode = 1 << 3
 
-export const ExternalModesBase = 4
+export const PausedMode = 1 << 4
+
+export const DeferredMode = 1 << 5
+
+export const ExternalModesBase = 6

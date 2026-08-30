@@ -29,7 +29,9 @@ import {
   ScopeMode,
   WritableMode,
   MountableMode,
-  LazyMode
+  LazyMode,
+  PausedMode,
+  DeferredMode
 } from './flags.js'
 
 // #region Lifecycle sockets
@@ -536,7 +538,10 @@ export function effect(fn: EffectCallback, noDefer?: boolean, lcx?: ReactiveNode
     link(e, activeSub, 0)
 
     if (!noDefer && activeSub.modes & LazyMode) {
-      e.modes |= LazyMode
+      // The deferral mark outlives the token: a pause walk takes what was
+      // deferred and leaves everything else - `noDefer` effects among it -
+      // running, so a hidden subtree stays reachable through them
+      e.modes = LazyMode | DeferredMode
       return effectOper.bind(e)
     }
   }
@@ -1072,11 +1077,14 @@ export function selector<T, U = T, R = boolean>(
 //
 // A deferred scope is an ordinary effect scope whose effects are captured
 // but not warmed up: `deferScope` runs the body, `startScope` releases it,
-// `stopScope` discards it. The layer introduces no node kind and no new
-// field - the whole state machine is one mode bit on a scope node:
+// `pauseScope` puts it down keeping the nodes, `resumeScope` warms them
+// back up, `stopScope` discards it. The layer introduces no node kind and
+// no new field - the whole state machine is two mode bits on a scope node:
 //
 //   LazyMode set     LAZY      body ran, nothing was warmed up yet
+//   + PausedMode     HELD      stays lazy across the parent start
 //   LazyMode clear   STARTED   effects are live      (flags & MutableFlag)
+//   + PausedMode     PAUSED    effects hold pause tokens
 //   LazyMode clear   STOPPED   effects are gone      (flags === NoneFlag)
 //
 // LAW 1 - LazyMode is a one-shot token.
@@ -1181,28 +1189,31 @@ function startDeferred(e: ReactiveNode): void {
     let own: Link | undefined = deps
 
     // Nested scopes claim their token and release their own capture list
-    // first, so an effect body below observes a subtree that is already live
+    // first, so an effect body below observes a subtree that is already
+    // live. A paused scope keeps its token: it starts only by its own
+    // explicit `startScope`
     do {
       const dep = nested.dep
 
       nested = nested.nextDep
 
-      if ((dep.modes & (LazyMode | ScopeMode)) === (LazyMode | ScopeMode)) {
+      if ((dep.modes & (LazyMode | ScopeMode | PausedMode)) === (LazyMode | ScopeMode)) {
         dep.modes &= ~LazyMode
         startDeferred(dep)
       }
     } while (nested !== undefined)
 
-    // Then the effects captured directly here. Whatever still holds a token
-    // is an effect: nested scopes were spent by the pass above, and anything
-    // stopped meanwhile - by a sibling warmed up in this very walk - was
-    // spent by the stop and is stepped over instead of being resurrected
+    // Then the effects captured directly here. Whatever still holds a bare
+    // token is an effect: nested scopes were spent by the pass above or
+    // skipped with their pause mark on, and anything stopped meanwhile - by
+    // a sibling warmed up in this very walk - was spent by the stop and is
+    // stepped over instead of being resurrected
     do {
       const dep = own.dep
 
       own = own.nextDep
 
-      if (dep.modes & LazyMode) {
+      if ((dep.modes & (LazyMode | PausedMode)) === LazyMode) {
         dep.modes &= ~LazyMode
         warmupEffect(dep as EffectNode)
       }
@@ -1231,7 +1242,7 @@ export function startScope(scope: DeferredScope): DeferredScope {
       || !(parent.modes & LazyMode) && parent.flags & MutableFlag
     )
   ) {
-    e.modes &= ~LazyMode
+    e.modes &= ~(LazyMode | PausedMode)
 
     // What the lazy body left pending belongs to this moment - the scope
     // became live now, before any of its deferred effects add more
@@ -1268,6 +1279,135 @@ export function stopScope(scope: DeferredScope): void {
   // The other half - destroying the effects captured directly here - is the
   // `purgeDeps` of the shared STOPPED transition
   effectScopeOper.call(e)
+}
+
+// Pausing is partial where stopping is total: the effect keeps its node and
+// its place under the scope, runs its cleanup, loses its subscriptions and
+// takes a pause token. `startScope` warms the token holders back up, and the
+// re-run of every body is also what syncs work the subtree slept through
+function pauseDeferred(e: ReactiveNode): void {
+  const deps = e.deps
+
+  if (deps !== undefined) {
+    let nested: Link | undefined = deps
+    let own: Link | undefined = deps
+
+    // Nested scopes go first, mirroring the stop walk: a cleanup below runs
+    // over a subtree that is already parked. A self-paused scope already
+    // holds its subtree, a lazy one never started it
+    do {
+      const dep = nested.dep
+
+      nested = nested.nextDep
+
+      if ((dep.modes & (ScopeMode | PausedMode | LazyMode)) === ScopeMode) {
+        pauseDeferred(dep)
+      }
+    } while (nested !== undefined)
+
+    // Then the effects captured directly here: exactly the ones that were
+    // deferred at creation take the pause token, so signals and computeds
+    // captured by a read in the scope body, `noDefer` effects - a hidden
+    // subtree is kept reachable through them - and anything stopped
+    // meanwhile stay untouched
+    do {
+      const dep = own.dep
+
+      own = own.nextDep
+
+      if (
+        (dep.modes & (PausedMode | LazyMode | DeferredMode)) === DeferredMode
+        && dep.flags
+      ) {
+        destroyEffect(dep)
+        dep.depsTail = undefined
+        dep.flags = WatchingFlag | RecursedCheckFlag
+        dep.modes |= PausedMode
+        purgeDeps(dep)
+      }
+    } while (own !== undefined)
+  }
+}
+
+function resumeDeferred(e: ReactiveNode): void {
+  const deps = e.deps
+
+  if (deps !== undefined) {
+    let nested: Link | undefined = deps
+    let own: Link | undefined = deps
+
+    // The mirror image of the start walk: own effects warm up FIRST. An
+    // effect that controls a sibling scope re-checks its world stale from
+    // the sleep and pauses the scope before the pass below could wake it -
+    // this is what keeps a subtree hidden during the sleep from a single
+    // transient run. An effect stopped meanwhile - by a sibling warmed up
+    // in this very walk - keeps its spent token and is stepped over
+    do {
+      const dep = own.dep
+
+      own = own.nextDep
+
+      if ((dep.modes & (ScopeMode | PausedMode)) === PausedMode && dep.flags) {
+        dep.modes &= ~PausedMode
+        // A body that paused its own effect mid-run left a fresh cleanup
+        // behind - consume it before the warmup makes a new one
+        destroyEffect(dep)
+        warmupEffect(dep as EffectNode)
+      }
+    } while (own !== undefined)
+
+    // Then the nested scopes. A scope holding its own pause token stays
+    // down, a lazy one stays unstarted
+    do {
+      const dep = nested.dep
+
+      nested = nested.nextDep
+
+      if ((dep.modes & (ScopeMode | PausedMode | LazyMode)) === ScopeMode) {
+        resumeDeferred(dep)
+      }
+    } while (nested !== undefined)
+  }
+}
+
+/**
+ * Pause the scope: destroy nothing, run effect cleanups, drop their
+ * subscriptions and keep the nodes for `resumeScope` to warm back up.
+ * `noDefer` effects keep running. A nested scope paused on its own stays
+ * paused across an outer pause and resume, and a lazy scope paused before
+ * its first start does not start with its parent.
+ * @internal
+ * @param scope - Deferred scope handle.
+ */
+export function pauseScope(scope: DeferredScope): void {
+  const e = scope as unknown as ReactiveNode
+
+  // A lazy scope has nothing running yet, and a paused one is already
+  // down: for them the mark alone holds the position
+  if (!(e.modes & (PausedMode | LazyMode))) {
+    pauseDeferred(e)
+    lifecycleSettle?.()
+  }
+
+  e.modes |= PausedMode
+}
+
+/**
+ * Warm the paused effects of the scope back up. The re-run of every body is
+ * also what syncs the work the subtree slept through. The caller resumes
+ * from a live position: a scope paused before its first start is started
+ * with `startScope` instead.
+ * @internal
+ * @param scope - Deferred scope handle.
+ */
+export function resumeScope(scope: DeferredScope): void {
+  const e = scope as unknown as ReactiveNode
+
+  if (e.modes & PausedMode) {
+    e.modes &= ~PausedMode
+    lifecycleSettle?.()
+    resumeDeferred(e)
+  }
 }
 
 /**

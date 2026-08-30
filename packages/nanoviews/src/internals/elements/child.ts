@@ -104,6 +104,15 @@ export function remove(start: ChildNode, end: Node): void {
   range.deleteContents()
 }
 
+export function extractBetween(start: Node, end: Node): DocumentFragment {
+  const range = document.createRange()
+
+  range.setStartAfter(start)
+  range.setEndBefore(end)
+
+  return range.extractContents()
+}
+
 export function removeBetween(start: Node, end: Node): void {
   const parent = start.parentNode!
 

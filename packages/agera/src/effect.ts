@@ -10,6 +10,8 @@ import {
   boundDeferScope,
   startScope,
   stopScope,
+  pauseScope,
+  resumeScope,
   pushActiveSub,
   popActiveSub
 } from './internals/system.js'
@@ -20,7 +22,9 @@ export {
   effectScope,
   deferScope,
   startScope,
-  stopScope
+  stopScope,
+  pauseScope,
+  resumeScope
 }
 
 /**

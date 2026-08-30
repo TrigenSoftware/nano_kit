@@ -4,18 +4,28 @@ import {
   expect,
   vi
 } from 'vitest'
+import { composeStories } from '@nanoviews/storybook'
 import { render } from '@nanoviews/testing-library'
 import { signal } from 'kida'
-import {
-  b,
-  i
-} from '../elements/elements.js'
+import { b } from '../elements/elements.js'
+import * as Stories from './swap.stories.js'
 import { swap_ } from './swap.js'
+
+const {
+  StaticValue,
+  ReactiveValue
+} = composeStories(Stories)
 
 describe('nanoviews', () => {
   describe('flow', () => {
     describe('swap', () => {
-      it('should render a static value without subscribing', () => {
+      it('should render a static value', () => {
+        const { container } = render(StaticValue())
+
+        expect(container.innerHTML).toBe('<div><b>static</b></div>')
+      })
+
+      it('should call the render once for a static value without subscribing', () => {
         const render_ = vi.fn((value: string) => b()(value))
         const { container } = render(() => swap_('static', render_))
 
@@ -24,22 +34,21 @@ describe('nanoviews', () => {
       })
 
       it('should build the child anew on every change', () => {
-        const $tab = signal('list')
-        const { container } = render(() => swap_(
-          $tab,
-          tab => (tab === 'list' ? b()(tab) : i()(tab))
-        ))
+        const tab = signal('list')
+        const { container } = render(ReactiveValue({
+          tab
+        }))
         const [first] = container.getElementsByTagName('b')
 
         expect(container.innerHTML).toBe('<div><b>list</b></div>')
 
-        $tab('grid')
+        tab('grid')
 
         expect(container.innerHTML).toBe('<div><i>grid</i></div>')
 
         // the child is rebuilt, not updated: the node the first value made
         // is gone rather than reused
-        $tab('list')
+        tab('list')
 
         expect(container.innerHTML).toBe('<div><b>list</b></div>')
         expect(container.getElementsByTagName('b')[0]).not.toBe(first)

@@ -19,6 +19,8 @@ import {
   boundDeferScope,
   startScope,
   stopScope,
+  pauseScope,
+  resumeScope,
   observe,
   isMounted
 } from './index.js'
@@ -2231,6 +2233,303 @@ describe('agera', () => {
 
       src(1)
       expect(c()).toBe(0)
+    })
+  })
+
+  describe('pauseScope', () => {
+    it('should pause effects and warm them back up on resume', () => {
+      const $value = signal(1)
+      const log: string[] = []
+      const scope = deferScope(() => {
+        effect(() => {
+          log.push(`value ${$value()}`)
+
+          return () => log.push('cleanup')
+        })
+      })
+
+      startScope(scope)
+
+      expect(log).toEqual(['value 1'])
+
+      $value(2)
+
+      expect(log).toEqual(['value 1', 'cleanup', 'value 2'])
+      log.length = 0
+
+      pauseScope(scope)
+
+      expect(log).toEqual(['cleanup'])
+      log.length = 0
+
+      $value(3)
+
+      expect(log).toEqual([])
+
+      resumeScope(scope)
+
+      expect(log).toEqual(['value 3'])
+      log.length = 0
+
+      $value(4)
+
+      expect(log).toEqual(['cleanup', 'value 4'])
+
+      stopScope(scope)
+    })
+
+    it('should keep `noDefer` effects running while paused', () => {
+      const $value = signal(1)
+      const log: string[] = []
+      const scope = deferScope(() => {
+        effect(() => {
+          log.push(`deferred ${$value()}`)
+        })
+        effect(() => {
+          log.push(`live ${$value()}`)
+        }, true)
+      })
+
+      startScope(scope)
+      log.length = 0
+      pauseScope(scope)
+
+      $value(2)
+
+      expect(log).toEqual(['live 2'])
+
+      resumeScope(scope)
+
+      expect(log).toEqual(['live 2', 'deferred 2'])
+
+      stopScope(scope)
+    })
+
+    it('should hold a scope paused before its first start back from the parent start', () => {
+      const log: string[] = []
+      let inner!: DeferredScope
+      const scope = deferScope(() => {
+        effect(() => {
+          log.push('outer')
+        })
+
+        inner = boundDeferScope()(() => {
+          effect(() => {
+            log.push('inner')
+          })
+        })
+
+        pauseScope(inner)
+      })
+
+      startScope(scope)
+
+      expect(log).toEqual(['outer'])
+
+      startScope(inner)
+
+      expect(log).toEqual(['outer', 'inner'])
+
+      stopScope(scope)
+    })
+
+    it('should keep a self-paused nested scope down across an outer pause and resume', () => {
+      const $value = signal(1)
+      const log: string[] = []
+      let inner!: DeferredScope
+      const scope = deferScope(() => {
+        effect(() => {
+          log.push(`outer ${$value()}`)
+        })
+
+        inner = boundDeferScope()(() => {
+          effect(() => {
+            log.push(`inner ${$value()}`)
+          })
+        })
+      })
+
+      startScope(scope)
+
+      expect(log).toEqual(['inner 1', 'outer 1'])
+
+      pauseScope(inner)
+      pauseScope(scope)
+      log.length = 0
+      $value(2)
+      resumeScope(scope)
+
+      expect(log).toEqual(['outer 2'])
+
+      resumeScope(inner)
+
+      expect(log).toEqual(['outer 2', 'inner 2'])
+
+      stopScope(scope)
+    })
+
+    it('should stop a paused scope without doubling cleanups', () => {
+      const log: string[] = []
+      const scope = deferScope(() => {
+        effect(() => {
+          log.push('run')
+
+          return () => log.push('cleanup')
+        })
+      })
+
+      startScope(scope)
+      pauseScope(scope)
+
+      expect(log).toEqual(['run', 'cleanup'])
+
+      stopScope(scope)
+      startScope(scope)
+
+      expect(log).toEqual(['run', 'cleanup'])
+    })
+
+    it('should leave signals and computeds captured by the scope body untouched', () => {
+      const $value = signal(1)
+      const $double = computed(() => $value() * 2)
+      const log: (string | number)[] = []
+      const scope = deferScope(() => {
+        log.push($value(), $double())
+
+        effect(() => {
+          log.push(`effect ${$value()}`)
+        })
+      })
+
+      startScope(scope)
+      pauseScope(scope)
+      resumeScope(scope)
+
+      expect(log).toEqual([1, 2, 'effect 1', 'effect 1'])
+
+      $value(2)
+
+      expect($double()).toBe(4)
+      expect(log).toEqual([1, 2, 'effect 1', 'effect 1', 'effect 2'])
+
+      stopScope(scope)
+    })
+
+    it('should consume the cleanup of an effect that paused its own scope mid-run', () => {
+      const $value = signal(0)
+      const log: string[] = []
+      let hide = true
+      // oxlint-disable-next-line no-use-before-define
+      const scope = deferScope(() => {
+        effect(() => {
+          log.push(`run ${$value()}`)
+
+          if (hide && $value() === 1) {
+            hide = false
+            pauseScope(scope)
+          }
+
+          return () => log.push('cleanup')
+        })
+      })
+
+      startScope(scope)
+
+      expect(log).toEqual(['run 0'])
+      log.length = 0
+
+      $value(1)
+
+      expect(log).toEqual(['cleanup', 'run 1'])
+      log.length = 0
+
+      $value(2)
+
+      expect(log).toEqual([])
+
+      resumeScope(scope)
+
+      expect(log).toEqual(['cleanup', 'run 2'])
+
+      stopScope(scope)
+    })
+
+    it('should step over an effect stopped by a sibling warmed up in the resume walk', () => {
+      const log: string[] = []
+      let kill = false
+      let stopSecond!: () => void
+      const scope = deferScope(() => {
+        effect(() => {
+          log.push('first')
+
+          if (kill) {
+            stopSecond()
+          }
+        })
+
+        stopSecond = effect(() => {
+          log.push('second')
+        })
+      })
+
+      startScope(scope)
+
+      expect(log).toEqual(['first', 'second'])
+
+      pauseScope(scope)
+      kill = true
+      log.length = 0
+      resumeScope(scope)
+
+      expect(log).toEqual(['first'])
+
+      stopScope(scope)
+    })
+
+    it('should drop a queued re-run on pause and sync once on resume', () => {
+      const $value = signal(0)
+      const log: number[] = []
+      const scope = deferScope(() => {
+        effect(() => {
+          log.push($value())
+        })
+      })
+
+      startScope(scope)
+      log.length = 0
+
+      batch(() => {
+        $value(1)
+        pauseScope(scope)
+      })
+
+      expect(log).toEqual([])
+
+      $value(2)
+
+      expect(log).toEqual([])
+
+      resumeScope(scope)
+
+      expect(log).toEqual([2])
+
+      stopScope(scope)
+    })
+
+    it('should ignore pause of a stopped scope', () => {
+      const log: string[] = []
+      const scope = deferScope(() => {
+        effect(() => {
+          log.push('run')
+        })
+      })
+
+      startScope(scope)
+      stopScope(scope)
+      pauseScope(scope)
+      startScope(scope)
+
+      expect(log).toEqual(['run'])
     })
   })
 })

@@ -1,4 +1,5 @@
 export * from './swap.js'
+export * from './show.js'
 export * from './if.js'
 export * from './switch.js'
 export * from './match.js'
