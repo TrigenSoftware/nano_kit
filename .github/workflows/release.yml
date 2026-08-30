@@ -17,15 +17,20 @@ on:
       prerelease:
         description: Pre-release identifier (e.g. alpha, beta)
         type: string
+      snapshot:
+        description: Snapshot tag — publish a snapshot under this npm dist-tag instead of a release (leave other inputs empty)
+        type: string
   issue_comment:
     types: [created, deleted]
   push:
     branches:
       - main
+      - 'v*'
 jobs:
   check:
     runs-on: ubuntu-latest
     name: Context check
+    if: inputs.snapshot == ''
     outputs:
       continue: ${{ steps.check.outputs.continue }}
       workflow: ${{ steps.check.outputs.workflow }}
@@ -59,6 +64,9 @@ jobs:
     name: Release
     needs: check
     if: needs.check.outputs.workflow == 'release'
+    permissions:
+      contents: write
+      id-token: write
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v7
@@ -71,7 +79,6 @@ jobs:
         with:
           node-version: 24
           cache: 'pnpm'
-          registry-url: 'https://registry.npmjs.org'
       - name: Install dependencies
         run: pnpm install
       - name: Release
@@ -79,4 +86,30 @@ jobs:
         with:
           workflow: release
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          npm-token: ${{ secrets.NPM_TOKEN }}
+  snapshot:
+    runs-on: ubuntu-latest
+    name: Snapshot
+    if: inputs.snapshot != ''
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v7
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10
+      - name: Install Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Publish snapshot
+        uses: trigensoftware/simple-release-action@latest
+        with:
+          workflow: snapshot
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          bump-snapshot: ${{ inputs.snapshot }}
