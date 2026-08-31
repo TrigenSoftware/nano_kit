@@ -94,6 +94,8 @@ const { messages, $loading, $error } = intl(
 
 With a full-data loader, `$loading` and `$error` describe the current locale data load.
 
+Since `resolved` keeps its factory unstarted until the first read, translation loading does not begin at `intl(...)` creation. It starts on the first read of `$t`, `$loading` or `$error`.
+
 ## Namespace Loader
 
 A namespace loader loads only the namespace requested by `messages()`. This is useful for code splitting translations by route or feature.

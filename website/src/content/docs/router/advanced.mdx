@@ -33,12 +33,14 @@ export const $page = router($location, [
 
 Forces the loading of a specific page's code by its route name. This is useful for preloading the next likely page (e.g., on link hover).
 
+It takes the pages tree: the same array of `page()` / `layout()` refs you pass to `router()`:
+
 ```ts
 import { loadPage } from '@nano_kit/router'
-import { routes } from './routes.js'
+import { pages } from './pages.js'
 
 /* Preload user page code */
-await loadPage(routes, 'user')
+await loadPage(pages, 'user')
 ```
 
 ### `loadPages`
@@ -47,10 +49,10 @@ Loads the code for all defined pages in the route tree. This is commonly used in
 
 ```ts
 import { loadPages } from '@nano_kit/router'
-import { routes } from './routes.js'
+import { pages } from './pages.js'
 
 /* Preload all pages */
-await loadPages(routes)
+await loadPages(pages)
 ```
 
 ## Head Management
@@ -271,7 +273,7 @@ const routes = basePath('/admin', {
 })
 
 /* Resulting patterns: */
-/* dashboard -> /admin/ */
+/* dashboard -> /admin */
 /* users     -> /admin/users */
 ```
 
@@ -306,7 +308,7 @@ removeTrailingSlash('/path')  // '/path'
 
 ### `onLinkClick`
 
-A helper function to handle click events on anchor tags (`<a>`) in a Single Page Application (SPA) way. It intercepts the click, prevents the default browser navigation, and instead calls `navigation.push()` or `navigation.replace()`.
+A helper function to handle click events on anchor tags (`<a>`) in a Single Page Application (SPA) way. It intercepts the click, prevents the default browser navigation, and instead calls `navigation.push()`.
 
 Use this if you need to build a custom `Link` component for your framework.
 

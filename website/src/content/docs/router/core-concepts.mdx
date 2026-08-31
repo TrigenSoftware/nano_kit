@@ -269,7 +269,7 @@ const [$location, navigation] = browserNavigation({
 const HomePage = () => 'Welcome Home!'
 const UserPage = () => `User ID: ${$location().params.id}`
 const UserPostsPage = () => `Posts for User: ${$location().params.id}`
-const AdminLayout = ($page) => `Admin Layout: ${$page()}`
+const AdminLayout = ($outlet) => `Admin Layout: ${$outlet()?.()}`
 const AdminPage = () => `Admin Page: ${$location().params.splat || 'dashboard'}`
 const NotFoundPage = () => 'Page Not Found'
 
@@ -312,14 +312,14 @@ navigation.back()
 
 The `compose` function is **framework-specific** and determines how layouts wrap nested content. It receives:
 
-- **`$nested`** — signal containing the nested component
+- **`$outlet`** — signal containing the nested component
 - **`layout`** — the layout component
 
 Here is a simple implementation for the example above:
 
 ```ts
-function compose($nested, layout) {
-  return () => layout($nested)
+function compose($outlet, layout) {
+  return () => layout($outlet)
 }
 ```
 
@@ -379,11 +379,11 @@ paths.post({ id: '42' })                      // '/posts/42' (optional slug omit
 paths.files({ splat: 'docs/readme.md' })  // '/files/docs/readme.md'
 ```
 
-**Parameter encoding:** Values are automatically URL-encoded:
+**Parameter encoding:** Named parameter values are automatically URL-encoded; splat values are inserted as-is, so encode them yourself when needed:
 
 ```ts
 paths.user({ id: 'hello world' })           // '/users/hello%20world'
-paths.files({ splat: 'a/b c/d+e.pdf' })     // '/files/a%2Fb%20c%2Fd%2Be.pdf'
+paths.files({ splat: 'a/b c/d+e.pdf' })     // '/files/a/b c/d+e.pdf'
 ```
 
 ### listenLinks

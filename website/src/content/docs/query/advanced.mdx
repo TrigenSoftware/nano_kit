@@ -469,7 +469,7 @@ const [$post] = query(PostKey, [$postId], fetchPost, [
 ])
 ```
 
-By default it uses a jittered exponential backoff (starts around 2s, increases up to ~30s). You can provide a custom delay calculator:
+By default it uses a jittered exponential backoff. You can provide a custom delay calculator:
 
 ```ts
 retryOnError((count, error) => {

@@ -316,37 +316,3 @@ isWritable($signal) /* true */
 isWritable($computed) /* false */
 isWritable($readonly) /* false */
 ```
-
-## Deferred Scopes
-
-**`deferScope`** defers effect creation until explicitly started. This allows you to prepare a scope of effects without running them immediately, giving you control over when the reactive logic begins execution.
-
-```ts
-import { deferScope, effect, signal } from '@nano_kit/store'
-
-const $count = signal(0)
-
-/* Create deferred scope - effects not started yet */
-const start = deferScope(() => {
-  effect(() => {
-    console.log('Count:', $count())
-  })
-
-  effect(() => {
-    console.log('Double:', $count() * 2)
-  })
-})
-
-/* Effects won't run until start() is called */
-$count(5)
-
-/* Now start all effects in the scope */
-const stop = start()
-/* Logs: Count: 5, Double: 10 */
-
-$count(10)
-/* Logs: Count: 10, Double: 20 */
-
-stop()
-/* All effects stopped */
-```
