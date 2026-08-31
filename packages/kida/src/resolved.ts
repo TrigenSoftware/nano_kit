@@ -5,7 +5,7 @@ import {
   computed,
   untracked
 } from 'agera'
-import type { FalsyValue } from './types.js'
+import { task } from './tasks.js'
 import { toSignal } from './utils.js'
 
 export type Resolved<T> = readonly [
@@ -16,18 +16,6 @@ export type Resolved<T> = readonly [
 
 export type ResolvedLike<T> = readonly [...Resolved<T>, ...unknown[]]
 
-interface ResolvedState<T> {
-  data: T | undefined
-  error: unknown
-  pending: boolean
-}
-
-const INITIAL_STATE = {
-  data: undefined,
-  error: undefined,
-  pending: false
-}
-
 /**
  * Resolve a promise accessor into result, error, and pending signals.
  * When the source promise changes, stale data is preserved while the new
@@ -37,56 +25,46 @@ const INITIAL_STATE = {
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function resolved<T>(
-  promise: Accessor<T | Promise<T> | FalsyValue> | T | Promise<T> | FalsyValue
+  promise: Accessor<T | Promise<T>> | T | Promise<T>
 ): Resolved<T> {
-  let currentPromise: T | Promise<T> | FalsyValue = null
+  let currentPromise: T | Promise<T> | undefined
+  let data: T | undefined
+  let error: unknown
   const $promise = toSignal(promise)
-  const $state = signal<ResolvedState<T>>(INITIAL_STATE)
+  // The pending flag doubles as the task target and the only notifier:
+  // `data` and `error` live in the closure and may only change together
+  // with a `$state` write or a `$promise` change
+  const $state = signal(false)
   const resolve = () => {
-    const promise = $promise() as T | Promise<T> | FalsyValue
+    const value = $promise() as T | Promise<T>
 
-    if (currentPromise === promise) {
-      return $state()
-    }
+    if (currentPromise !== value) {
+      currentPromise = value
+      error = undefined
 
-    currentPromise = promise
+      if (value instanceof Promise) {
+        $state(true)
 
-    if (!promise) {
-      $state(INITIAL_STATE)
-      return $state()
-    }
-
-    if (promise instanceof Promise) {
-      $state(state => ({
-        ...state,
-        error: undefined,
-        pending: true
-      }))
-
-      promise.then(
-        (data) => {
-          if (currentPromise === promise) {
-            $state({
-              ...INITIAL_STATE,
-              data
-            })
+        // The pool holds the writer chain, so a wait wakes up strictly
+        // after the state is written
+        void task($state, value.then(
+          (nextData) => {
+            if (currentPromise === value) {
+              data = nextData
+              $state(false)
+            }
+          },
+          (nextError) => {
+            if (currentPromise === value) {
+              error = nextError
+              $state(false)
+            }
           }
-        },
-        (error) => {
-          if (currentPromise === promise) {
-            $state(state => ({
-              ...state,
-              error,
-              pending: false
-            }))
-          }
-        }
-      )
-    } else {
-      $state({
-        ...INITIAL_STATE,
-        data: promise
-      })
+        ))
+      } else {
+        data = value
+        $state(false)
+      }
     }
 
     return $state()
@@ -97,8 +75,8 @@ export function resolved<T>(
   }
 
   return [
-    computed(() => resolve().data),
-    computed(() => resolve().error),
-    computed(() => resolve().pending)
+    computed(() => (resolve(), data)),
+    computed(() => (resolve(), error)),
+    computed(resolve)
   ] as const
 }
