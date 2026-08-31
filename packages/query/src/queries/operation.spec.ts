@@ -6,7 +6,6 @@ import {
   beforeEach
 } from 'vitest'
 import {
-  type TasksPool,
   effect,
   signal
 } from '@nano_kit/store'
@@ -33,10 +32,7 @@ const UpdatePostKey = operationKey<[id: number], [params: UpdatePostParams], Pos
 describe('query', () => {
   describe('queries', () => {
     describe('operation', () => {
-      const tasksPool: TasksPool = new Set()
-
       beforeEach(() => {
-        tasksPool.clear()
         resetMockData()
       })
 

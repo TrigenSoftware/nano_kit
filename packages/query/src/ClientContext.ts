@@ -2,12 +2,7 @@ import {
   type AnyCodec,
   type ReadableSignal,
   type Accessor,
-  type TasksRunner,
-  type Task,
-  TasksRunner$,
-  NoopCodec,
-  taskPromise,
-  inject
+  NoopCodec
 } from '@nano_kit/store'
 import type { ClientSetting } from './client.types.js'
 import type { RequestContext } from './RequestContext.js'
@@ -31,8 +26,8 @@ export class ClientContext<T = unknown> extends CacheStorage {
   onEveryError: OnEveryError | undefined = undefined
   codec: AnyCodec = NoopCodec
 
-  task<T>(task: Task<T>): Promise<T> {
-    return taskPromise(task)
+  task<T>(promise: Promise<T>): Promise<T> {
+    return promise
   }
 
   mapData(data: T): T {
@@ -206,15 +201,4 @@ export function dedupe(loading: boolean, time = loading): ClientSetting {
     ctx.loadingDedupe = loading
     ctx.timeDedupe = time
   }
-}
-
-/**
- * Set task runner for handling tasks.
- * Without arguments, it will try to resolve a tasks runner from the current injection context.
- * @param runner - The tasks runner function.
- * @returns The client setting function.
- */
-/* @__NO_SIDE_EFFECTS__ */
-export function tasks(runner: TasksRunner = inject(TasksRunner$)): ClientSetting {
-  return ctx => ctx.task = runner
 }

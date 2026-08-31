@@ -5,13 +5,13 @@ import {
   type InjectionProvider,
   ExternalModesBase,
   InjectionContext,
-  TasksPool$,
   start,
   run,
   inject,
   observe,
   effect,
   signal,
+  computed,
   trigger,
   waitTasks
 } from 'kida'
@@ -178,10 +178,10 @@ export async function dehydrate(
   finalContext.set(Hydratables$, hydratables)
 
   const stores = run(finalContext, runner)
-  const tasks = finalContext.get(TasksPool$)
-  const stop = start(() => stores.forEach(store => store() as void))
+  const $root = computed(() => stores.forEach(store => store() as void))
+  const stop = start($root)
 
-  await waitTasks(tasks)
+  await waitTasks($root)
 
   const dehydrated: [string, unknown][] = []
 

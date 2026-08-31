@@ -5,13 +5,13 @@ import {
 } from 'vitest'
 import {
   InjectionContext,
-  TasksRunner$,
   signal,
   mountable,
   run,
   inject,
   provide,
-  onMount
+  onMount,
+  task
 } from 'kida'
 import { JsonCodec } from './codec.js'
 import {
@@ -28,11 +28,10 @@ interface User {
 }
 
 function User$() {
-  const userTask = inject(TasksRunner$)
   const $user = hydratable('user', mountable(signal<User | null>(null)))
 
   onMount($user, () => {
-    userTask(async () => {
+    void task($user, async () => {
       await Promise.resolve()
 
       $user({

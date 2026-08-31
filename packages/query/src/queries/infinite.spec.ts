@@ -6,14 +6,11 @@ import {
   beforeEach
 } from 'vitest'
 import {
-  type TasksPool,
   effect,
   signal,
-  tasksRunner,
   waitTasks
 } from '@nano_kit/store'
 import { queryKey } from '../cache.js'
-import { tasks } from '../ClientContext.js'
 import {
   client,
   infinites
@@ -30,15 +27,12 @@ const PostsKey = queryKey<[], InfinitePages<PostsPage, number | undefined>>('pos
 describe('query', () => {
   describe('queries', () => {
     describe('infinite', () => {
-      const tasksPool: TasksPool = new Set()
-
       beforeEach(() => {
-        tasksPool.clear()
         resetMockData()
       })
 
       it('should fetch initial page on mount', async () => {
-        const { infinite } = client(infinites(), tasks(tasksRunner(tasksPool)))
+        const { infinite } = client(infinites())
         const dataSpy = vi.fn()
         const [, $data, $error, $loading] = infinite(
           PostsKey,
@@ -57,7 +51,7 @@ describe('query', () => {
         expect(dataSpy).toHaveBeenCalledWith(null)
         expect($loading()).toBe(true)
 
-        await waitTasks(tasksPool)
+        await waitTasks($data)
 
         expect(dataSpy).toHaveBeenCalledTimes(2)
         expect($data()).toEqual({
@@ -88,7 +82,7 @@ describe('query', () => {
       })
 
       it('should fetch next page with fetchNext', async () => {
-        const { infinite } = client(infinites(), tasks(tasksRunner(tasksPool)))
+        const { infinite } = client(infinites())
         const dataSpy = vi.fn()
         const [fetchNext, $data, , $loading] = infinite(
           PostsKey,
@@ -100,7 +94,7 @@ describe('query', () => {
           dataSpy($data())
         })
 
-        await waitTasks(tasksPool)
+        await waitTasks($data)
 
         expect($data()?.pages).toHaveLength(1)
         expect($data()?.more).toBe(true)
@@ -109,7 +103,7 @@ describe('query', () => {
 
         expect($loading()).toBe(true)
 
-        await waitTasks(tasksPool)
+        await waitTasks($data)
 
         expect(dataSpy).toHaveBeenCalledTimes(3)
         expect($data()?.pages).toHaveLength(2)
@@ -150,7 +144,7 @@ describe('query', () => {
       })
 
       it('should not fetch when more is false', async () => {
-        const { infinite } = client(infinites(), tasks(tasksRunner(tasksPool)))
+        const { infinite } = client(infinites())
         const fetcher = vi.fn(getPosts)
         const [fetchNext, $data] = infinite(
           PostsKey,
@@ -162,13 +156,13 @@ describe('query', () => {
           $data()
         })
 
-        await waitTasks(tasksPool)
+        await waitTasks($data)
 
         expect(fetcher).toHaveBeenCalledTimes(1)
 
         fetchNext()
 
-        await waitTasks(tasksPool)
+        await waitTasks($data)
 
         expect(fetcher).toHaveBeenCalledTimes(2)
         expect($data()?.more).toBe(false)
@@ -182,7 +176,7 @@ describe('query', () => {
       })
 
       it('should handle errors', async () => {
-        const { infinite } = client(infinites(), tasks(tasksRunner(tasksPool)))
+        const { infinite } = client(infinites())
         const dataSpy = vi.fn()
         const errorSpy = vi.fn()
         const failingFetcher = vi.fn().mockRejectedValue(new Error('Network error'))
@@ -201,7 +195,7 @@ describe('query', () => {
         expect(dataSpy).toHaveBeenCalledWith(null)
         expect($loading()).toBe(true)
 
-        await waitTasks(tasksPool)
+        await waitTasks($data)
 
         expect(dataSpy).toHaveBeenCalledTimes(2)
         expect(dataSpy).toHaveBeenLastCalledWith(null)
@@ -215,7 +209,7 @@ describe('query', () => {
 
       it('should refetch when params change', async () => {
         const PostsWithCategoryKey = queryKey<[category: string], InfinitePages<PostsPage, number>>('posts-category')
-        const { infinite } = client(infinites(), tasks(tasksRunner(tasksPool)))
+        const { infinite } = client(infinites())
         const $category = signal('tech')
         const dataSpy = vi.fn()
         const fetcher = vi.fn(getPosts)
@@ -229,7 +223,7 @@ describe('query', () => {
           dataSpy($data())
         })
 
-        await waitTasks(tasksPool)
+        await waitTasks($data)
 
         expect(dataSpy).toHaveBeenCalledTimes(2)
         expect($data()?.pages).toHaveLength(1)
@@ -238,7 +232,7 @@ describe('query', () => {
 
         expect($loading()).toBe(true)
 
-        await waitTasks(tasksPool)
+        await waitTasks($data)
 
         expect(dataSpy).toHaveBeenCalledTimes(4)
         expect(fetcher).toHaveBeenCalledTimes(2)
@@ -249,7 +243,7 @@ describe('query', () => {
 
       it('should reset pages on params change', async () => {
         const PostsWithCategoryKey = queryKey<[category: string], InfinitePages<PostsPage, number>>('posts-category')
-        const { infinite } = client(infinites(), tasks(tasksRunner(tasksPool)))
+        const { infinite } = client(infinites())
         const $category = signal('tech')
         const [fetchNext, $data] = infinite(
           PostsWithCategoryKey,
@@ -261,19 +255,19 @@ describe('query', () => {
           $data()
         })
 
-        await waitTasks(tasksPool)
+        await waitTasks($data)
 
         expect($data()?.pages).toHaveLength(1)
 
         fetchNext()
 
-        await waitTasks(tasksPool)
+        await waitTasks($data)
 
         expect($data()?.pages).toHaveLength(2)
 
         $category('sports')
 
-        await waitTasks(tasksPool)
+        await waitTasks($data)
 
         expect($data()?.pages).toHaveLength(1)
 
@@ -284,7 +278,7 @@ describe('query', () => {
         const {
           infinite,
           revalidate
-        } = client(infinites(), tasks(tasksRunner(tasksPool)))
+        } = client(infinites())
         const [fetchNext, $data] = infinite(
           PostsKey,
           [],
@@ -295,19 +289,19 @@ describe('query', () => {
           $data()
         })
 
-        await waitTasks(tasksPool)
+        await waitTasks($data)
 
         expect($data()?.pages).toHaveLength(1)
 
         fetchNext()
 
-        await waitTasks(tasksPool)
+        await waitTasks($data)
 
         expect($data()?.pages).toHaveLength(2)
 
         revalidate(PostsKey())
 
-        await waitTasks(tasksPool)
+        await waitTasks($data)
 
         expect($data()?.pages).toHaveLength(1)
         expect($data()?.pages[0]?.posts.map(post => post.id)).toEqual([1, 2])

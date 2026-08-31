@@ -5,10 +5,8 @@ import {
   beforeEach
 } from 'vitest'
 import {
-  type TasksPool,
   effect,
   signal,
-  tasksRunner,
   waitTasks
 } from '@nano_kit/store'
 import {
@@ -19,7 +17,6 @@ import {
   getPosts,
   updatePost
 } from '../client.mock.js'
-import { tasks } from '../ClientContext.js'
 import { onError } from '../RequestContext.js'
 import {
   client,
@@ -39,10 +36,7 @@ const PostsKey = queryKey<[], PostsPage>('posts')
 describe('query', () => {
   describe('settings', () => {
     describe('entities', () => {
-      const tasksPool: TasksPool = new Set()
-
       beforeEach(() => {
-        tasksPool.clear()
         resetMockData()
       })
 
@@ -50,9 +44,7 @@ describe('query', () => {
         const {
           query,
           $data
-        } = client(
-          tasks(tasksRunner(tasksPool))
-        )
+        } = client()
         const firstPostKey = PostEntity(1)
         const $postId = signal(1)
         const [$post] = query(PostKey, [$postId], getPost, [
@@ -73,7 +65,7 @@ describe('query', () => {
           content: 'Hello World!'
         }
 
-        await waitTasks(tasksPool)
+        await waitTasks($post)
 
         expect($post()).toEqual(firstPostData)
         expect($data(firstPostKey)).toEqual(firstPostData)
@@ -96,7 +88,7 @@ describe('query', () => {
           $posts()
         })
 
-        await waitTasks(tasksPool)
+        await waitTasks($posts)
 
         expect($posts()!.posts[0]).toEqual(updatedFirstPostData)
         expect($data(firstPostKey)).toEqual(updatedFirstPostData)
@@ -126,10 +118,7 @@ describe('query', () => {
           query,
           mutation,
           $data
-        } = client(
-          mutations(),
-          tasks(tasksRunner(tasksPool))
-        )
+        } = client(mutations())
         const firstPostKey = PostEntity(1)
         const $postId = signal(1)
         const [$post] = query(PostKey, [$postId], getPost, [
@@ -151,7 +140,7 @@ describe('query', () => {
           content: 'Hello World!'
         }
 
-        await waitTasks(tasksPool)
+        await waitTasks($post)
 
         expect($post()).toEqual(firstPostData)
         expect($data(firstPostKey)).toEqual(firstPostData)
@@ -176,10 +165,7 @@ describe('query', () => {
           query,
           mutation,
           $data
-        } = client(
-          mutations(),
-          tasks(tasksRunner(tasksPool))
-        )
+        } = client(mutations())
         const firstPostKey = PostEntity(1)
         const [$posts] = query(PostsKey, [], getPosts, [
           entities((capture, postsPage) => ({
@@ -218,7 +204,7 @@ describe('query', () => {
           content: 'Hello World!'
         }
 
-        await waitTasks(tasksPool)
+        await waitTasks($posts)
 
         expect($posts()!.posts[0]).toEqual(firstPostData)
         expect($data(firstPostKey)).toEqual(firstPostData)
@@ -245,10 +231,7 @@ describe('query', () => {
         const {
           query,
           $data
-        } = client(
-          mutations(),
-          tasks(tasksRunner(tasksPool))
-        )
+        } = client(mutations())
         const [$posts] = query(PostsKey, [], getPosts, [
           entities((capture, postsPage) => ({
             ...postsPage,
@@ -259,7 +242,7 @@ describe('query', () => {
           $posts()
         })
 
-        await waitTasks(tasksPool)
+        await waitTasks($posts)
 
         expect($posts()?.posts.length).toBe(2)
 

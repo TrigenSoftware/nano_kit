@@ -4,7 +4,8 @@ import {
   batch,
   computed,
   readonly,
-  signal
+  signal,
+  task
 } from '@nano_kit/store'
 import type { ClientSetting } from '../client.types.js'
 import {
@@ -71,6 +72,7 @@ export function mutation<
   const $data = computed(() => mapComputedData($result()))
   const $error = signal<string | null>(null)
   const $loading = signal(false)
+  const taskTarget = [$data, $error, $loading]
   let prevRequestCtx: RequestContext<R> | undefined
   const fetch = action((...params: P) => {
     if (
@@ -103,6 +105,8 @@ export function mutation<
       }
     )
   })
+
+  clientCtx.task = promise => task(taskTarget, promise)
 
   return [
     fetch,

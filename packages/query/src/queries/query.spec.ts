@@ -6,10 +6,8 @@ import {
   beforeEach
 } from 'vitest'
 import {
-  type TasksPool,
   effect,
   signal,
-  tasksRunner,
   waitTasks
 } from '@nano_kit/store'
 import {
@@ -20,8 +18,7 @@ import {
   dedupe,
   disabled,
   mapError,
-  onEveryError,
-  tasks
+  onEveryError
 } from '../ClientContext.js'
 import { client } from '../client.js'
 import {
@@ -37,15 +34,12 @@ const PostKey = queryKey<[id: number], Post | null>('post')
 describe('query', () => {
   describe('queries', () => {
     describe('query', () => {
-      const tasksPool: TasksPool = new Set()
-
       beforeEach(() => {
-        tasksPool.clear()
         resetMockData()
       })
 
       it('should fetch data on mount', async () => {
-        const { query } = client(tasks(tasksRunner(tasksPool)))
+        const { query } = client()
         const $postId = signal(1)
         const dataSpy = vi.fn()
         const [$data, $error, $loading] = query(PostKey, [$postId], getPost)
@@ -60,7 +54,7 @@ describe('query', () => {
         expect(dataSpy).toHaveBeenCalledWith(null)
         expect($loading()).toBe(true)
 
-        await waitTasks(tasksPool)
+        await waitTasks($data)
 
         expect(dataSpy).toHaveBeenCalledTimes(2)
         expect(dataSpy).toHaveBeenCalledWith({
@@ -80,7 +74,7 @@ describe('query', () => {
       })
 
       it('should refetch when params change', async () => {
-        const { query } = client(tasks(tasksRunner(tasksPool)))
+        const { query } = client()
         const $postId = signal(1)
         const dataSpy = vi.fn()
         const [$data, , $loading] = query(PostKey, [$postId], getPost)
@@ -88,7 +82,7 @@ describe('query', () => {
           dataSpy($data())
         })
 
-        await waitTasks(tasksPool)
+        await waitTasks($data)
 
         expect(dataSpy).toHaveBeenCalledTimes(2)
         expect($data()?.title).toBe('First Post')
@@ -97,7 +91,7 @@ describe('query', () => {
 
         expect($loading()).toBe(true)
 
-        await waitTasks(tasksPool)
+        await waitTasks($data)
 
         expect(dataSpy).toHaveBeenCalledTimes(4)
         expect($data()?.title).toBe('Second Post')
@@ -106,7 +100,7 @@ describe('query', () => {
       })
 
       it('should revalidate query', async () => {
-        const { query, revalidate } = client(tasks(tasksRunner(tasksPool)))
+        const { query, revalidate } = client()
         const $id = signal(1)
         const fetcher = vi.fn(getPost)
         const [$data] = query(PostKey, [$id], fetcher)
@@ -114,13 +108,13 @@ describe('query', () => {
           $data()
         })
 
-        await waitTasks(tasksPool)
+        await waitTasks($data)
 
         expect(fetcher).toHaveBeenCalledTimes(1)
 
         revalidate(PostKey($id()))
 
-        await waitTasks(tasksPool)
+        await waitTasks($data)
 
         expect(fetcher).toHaveBeenCalledTimes(2)
 
@@ -128,7 +122,7 @@ describe('query', () => {
       })
 
       it('should revalidate queries with registered key builders', async () => {
-        const { query, revalidate } = client(tasks(tasksRunner(tasksPool)))
+        const { query, revalidate } = client()
         const UserPostKey = queryKey<[id: number], Post | null>('user-post')
         const EditorPostKey = queryKey<[id: number], Post | null>('editor-post')
         const $userPostId = signal(1)
@@ -144,14 +138,16 @@ describe('query', () => {
           $editorPost()
         })
 
-        await waitTasks(tasksPool)
+        await waitTasks($userPost)
+        await waitTasks($editorPost)
 
         expect(userFetcher).toHaveBeenCalledTimes(1)
         expect(editorFetcher).toHaveBeenCalledTimes(1)
 
         keys(revalidate)
 
-        await waitTasks(tasksPool)
+        await waitTasks($userPost)
+        await waitTasks($editorPost)
 
         expect(userFetcher).toHaveBeenCalledTimes(2)
         expect(editorFetcher).toHaveBeenCalledTimes(2)
@@ -161,7 +157,7 @@ describe('query', () => {
       })
 
       it('should handle errors', async () => {
-        const { query } = client(tasks(tasksRunner(tasksPool)))
+        const { query } = client()
         const $postId = signal(1)
         const dataSpy = vi.fn()
         const errorSpy = vi.fn()
@@ -176,7 +172,7 @@ describe('query', () => {
         expect(dataSpy).toHaveBeenCalledWith(null)
         expect($loading()).toBe(true)
 
-        await waitTasks(tasksPool)
+        await waitTasks($data)
 
         expect(dataSpy).toHaveBeenCalledTimes(2)
         expect(dataSpy).toHaveBeenLastCalledWith(null)
@@ -190,7 +186,6 @@ describe('query', () => {
 
       it('should use custom error mapper', async () => {
         const { query } = client(
-          tasks(tasksRunner(tasksPool)),
           mapError(err => `Failed: ${(err as Error).message}`)
         )
         const $postId = signal(1)
@@ -205,7 +200,7 @@ describe('query', () => {
         expect(errorSpy).toHaveBeenCalledTimes(1)
         expect(errorSpy).toHaveBeenCalledWith(null)
 
-        await waitTasks(tasksPool)
+        await waitTasks($data)
 
         expect(errorSpy).toHaveBeenCalledTimes(2)
         expect(errorSpy).toHaveBeenLastCalledWith('Failed: Connection refused')
@@ -216,9 +211,7 @@ describe('query', () => {
 
       it('should not fetch when disabled', async () => {
         const $disabled = signal(true)
-        const { query } = client(
-          tasks(tasksRunner(tasksPool))
-        )
+        const { query } = client()
         const $postId = signal(1)
         const dataSpy = vi.fn()
         const fetcher = vi.fn(getPost)
@@ -232,7 +225,7 @@ describe('query', () => {
         expect(dataSpy).toHaveBeenCalledTimes(1)
         expect(dataSpy).toHaveBeenCalledWith(null)
 
-        await waitTasks(tasksPool)
+        await waitTasks($data)
 
         expect(dataSpy).toHaveBeenCalledTimes(1)
         expect($loading()).toBe(false)
@@ -240,7 +233,7 @@ describe('query', () => {
 
         $disabled(false)
 
-        await waitTasks(tasksPool)
+        await waitTasks($data)
 
         expect(dataSpy).toHaveBeenCalledTimes(2)
         expect(fetcher).toHaveBeenCalledTimes(1)
@@ -250,7 +243,7 @@ describe('query', () => {
       })
 
       it('should dedupe concurrent requests', async () => {
-        const { query } = client(tasks(tasksRunner(tasksPool)))
+        const { query } = client()
         const $postId = signal(1)
         const dataSpy = vi.fn()
         const fetcher = vi.fn(getPost)
@@ -275,7 +268,7 @@ describe('query', () => {
         expect(dataSpy).toHaveBeenCalledWith(null)
         expect(fetcher).toHaveBeenCalledTimes(2)
 
-        await waitTasks(tasksPool)
+        await waitTasks($data)
 
         expect(dataSpy).toHaveBeenCalledTimes(2)
         expect(dataSpy).toHaveBeenLastCalledWith({
@@ -292,7 +285,6 @@ describe('query', () => {
       it('should call onEveryError on error', async () => {
         const errorHandler = vi.fn()
         const { query } = client(
-          tasks(tasksRunner(tasksPool)),
           onEveryError(errorHandler)
         )
         const $postId = signal(1)
@@ -307,7 +299,7 @@ describe('query', () => {
         expect(dataSpy).toHaveBeenCalledTimes(1)
         expect(errorHandler).not.toHaveBeenCalled()
 
-        await waitTasks(tasksPool)
+        await waitTasks($data)
 
         expect(dataSpy).toHaveBeenCalledTimes(1)
         expect(errorHandler).toHaveBeenCalledTimes(1)
@@ -320,7 +312,7 @@ describe('query', () => {
         const {
           query,
           $data
-        } = client(tasks(tasksRunner(tasksPool)))
+        } = client()
         const PostsKey = queryKey<[cursor: number | undefined], PostsPage>('posts', () => [])
         const $cursor = signal<number | undefined>(undefined)
         const dataSpy = vi.fn()
@@ -341,7 +333,7 @@ describe('query', () => {
         expect(dataSpy).toHaveBeenCalledWith(null)
         expect($loading()).toBe(true)
 
-        await waitTasks(tasksPool)
+        await waitTasks($posts)
 
         expect(dataSpy).toHaveBeenCalledTimes(2)
         expect(dataSpy).toHaveBeenCalledWith({
@@ -365,7 +357,7 @@ describe('query', () => {
         expect(dataSpy).toHaveBeenCalledTimes(2)
         expect($loading()).toBe(true)
 
-        await waitTasks(tasksPool)
+        await waitTasks($posts)
 
         expect(dataSpy).toHaveBeenCalledTimes(3)
         expect(dataSpy).toHaveBeenCalledWith({
