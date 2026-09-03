@@ -54,6 +54,39 @@ export function concat(...parts: Signalish<unknown>[]) {
 }
 
 /**
+ * Create a signal with the value of the source that changed last.
+ * A change is a change of value: writing a value equal to the current one
+ * changes nothing. The last source wins on the first read and whenever
+ * several sources changed since the previous read, which is what reading
+ * without a subscription or writing inside a `batch` amounts to.
+ * @param sources - Sources to merge.
+ * @returns A signal with the value of the most recently changed source.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function latest<T>(...sources: Accessor<T>[]) {
+  const prev: T[] = []
+  let value: T
+
+  return computed(() => {
+    // The first run has nothing to compare against, so every source counts as
+    // changed and the last one wins
+    const init = !prev.length
+
+    // Every source is read on every run: skipping one drops its subscription
+    for (let i = 0, len = sources.length; i < len; i++) {
+      const next = sources[i]()
+
+      if (init || next !== prev[i]) {
+        prev[i] = next
+        value = next
+      }
+    }
+
+    return value
+  })
+}
+
+/**
  * Compose multiple destroy functions into a single destroy function.
  * @param destroys - Destroy functions to compose.
  * @returns A single destroy function that calls all provided destroy functions.
