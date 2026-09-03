@@ -63,22 +63,23 @@ export function onMount(
   $signal: Mountable<AnySignal>,
   listener: () => MaybeDestroy
 ) {
-  let active = false
   let destroy: MaybeDestroy
+  let timer: ReturnType<typeof setTimeout> | undefined
 
   return onMounted($signal, (mounted) => {
     if (mounted) {
-      if (!active) {
+      // A pending teardown is the listener still being alive: cancel it
+      // instead of starting a second one. Levels alternate per listener, so
+      // no timer means it was torn down and has to be started anew
+      if (timer) {
+        clearTimeout(timer)
+      } else {
         destroy = listener()
-        active = true
       }
     } else {
-      setTimeout(() => {
-        if (active) {
-          destroy?.()
-          destroy = undefined
-          active = false
-        }
+      timer = setTimeout(() => {
+        destroy?.()
+        destroy = timer = undefined
       }, STORE_UNMOUNT_DELAY)
     }
   })

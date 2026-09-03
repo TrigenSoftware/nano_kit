@@ -206,6 +206,36 @@ describe('kida', () => {
           expect(unmount).toHaveBeenCalledTimes(2)
         })
 
+        it('should cancel scheduled unmount on remount', () => {
+          const $signal = mountable(signal(1))
+          const unmount = vi.fn()
+          const mount = vi.fn(() => unmount)
+
+          onMount($signal, mount)
+
+          const off1 = effect(() => {
+            $signal()
+          })
+
+          off1()
+          vi.advanceTimersByTime(100)
+
+          const off2 = effect(() => {
+            $signal()
+          })
+
+          vi.advanceTimersByTime(STORE_UNMOUNT_DELAY + 1)
+
+          expect(mount).toHaveBeenCalledTimes(1)
+          expect(unmount).not.toHaveBeenCalled()
+
+          off2()
+          vi.advanceTimersByTime(STORE_UNMOUNT_DELAY + 1)
+
+          expect(mount).toHaveBeenCalledTimes(1)
+          expect(unmount).toHaveBeenCalledTimes(1)
+        })
+
         it('should call listener while set value in onMount', () => {
           const $signal = mountable(signal(1))
           const listener = vi.fn()
