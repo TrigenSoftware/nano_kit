@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.2.0...v2.0.0) (2026-09-04)
+
+### ⚠ BREAKING CHANGES
+
+* the tasks pool is gone — `TasksPool$`, `TasksRunner$`, `tasksRunner`, `addTask`,
+  `waitCurrentTasks` and `taskPromise` are removed, `waitTasks` takes a signal instead of a pool, and
+  the `tasks()` and `ssr()` query settings are removed: `hydratable()` is the whole SSR setting.
+
+### Features
+
+* attach tasks to the signals they fill ([#222](https://github.com/TrigenSoftware/nano_kit/issues/222)) ([841acd1](https://github.com/TrigenSoftware/nano_kit/commit/841acd12fcb3c2bd6c494f9ff47dfe998c962457))
+
 ## [1.2.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0...v1.2.0) (2026-08-30)
 
 ### Features
