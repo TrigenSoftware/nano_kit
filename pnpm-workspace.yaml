@@ -20,7 +20,7 @@ catalog:
   '@types/node': ^24.0.14
   '@vitejs/plugin-react': ^6.0.3
   '@sveltejs/vite-plugin-svelte': ^7.2.0
-  '@vitest/coverage-v8': ^4.1.10
+  '@vitest/coverage-v8': ^5.0.0
   '@size-limit/preset-small-lib': ^13.0.0
   happy-dom: ^20.0.0
   preact: ^10.27.1
@@ -33,7 +33,7 @@ catalog:
   svelte-check: ^4.7.3
   typescript: ^7.0.2
   vite: ^8.2.1
-  vitest: ^4.1.10
+  vitest: ^5.0.0
 overrides:
   '@nano_kit/intl@*': workspace:^
   '@nano_kit/next-router@*': workspace:^
