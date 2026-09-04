@@ -2,8 +2,6 @@
 
 ## Agera/Kida/Store
 
-- latest util? computed(latest($searchQuery, $searchParam))
-
 ## 🔥🔥🔥 Query 🔥🔥🔥
 
 - optimize using ai
@@ -12,8 +10,6 @@
 
 ## Router
 
-- preload Stores$ on hover/focus?
-- preload Stores$ in loadable pages?
 - onBeforeLeave / blocker https://reactrouter.com/api/hooks/useBlocker
 - scroll restoration ssr
 
