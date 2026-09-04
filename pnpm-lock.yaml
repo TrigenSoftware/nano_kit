@@ -1358,8 +1358,8 @@ importers:
         specifier: ^2.20.2
         version: 2.20.2(@babel/core@7.29.0(supports-color@7.2.0))(@babel/template@7.28.6)(@types/react@19.2.17)(react@19.2.8)
       mobx:
-        specifier: ^6.16.1
-        version: 6.16.1
+        specifier: ^7.0.0
+        version: 7.0.3
       nanostores:
         specifier: ^1.4.1
         version: 1.4.1
@@ -6506,8 +6506,8 @@ packages:
   minimist@1.2.7:
     resolution: {integrity: sha512-bzfL1YUZsP41gmu/qjrEk0Q6i2ix/cVeAhbCbqH9u3zYutS1cLg00qhrD0M2MVdCcx4Sc0UpP2eBWo9rotpq6g==}
 
-  mobx@6.16.1:
-    resolution: {integrity: sha512-syNcDdX3KT+Jq3je6eGjBhuc24Z68td2VG0zNFqRswaE433D9SNH5VRy/xrGbJsUixfppLLccXhAW9JSf6n+SQ==}
+  mobx@7.0.3:
+    resolution: {integrity: sha512-KopyyzqZ8xT1fqxFNl8ItKKMpGifRe2ySaNAHs80/cx0mL1bpJtJ46S+FSyzXKRjW0TODWj5zwq/Y9hUdJUy4w==}
 
   modern-normalize@3.0.1:
     resolution: {integrity: sha512-VqlMdYi59Uch6fnUPxnpijWUQe+TW6zeWCvyr6Mb7JibheHzSuAAoJi2c71ZwIaWKpECpGpYHoaaBp6rBRr+/g==}
@@ -12756,7 +12756,7 @@ snapshots:
 
   minimist@1.2.7: {}
 
-  mobx@6.16.1: {}
+  mobx@7.0.3: {}
 
   modern-normalize@3.0.1: {}
 
