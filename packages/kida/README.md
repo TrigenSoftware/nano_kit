@@ -626,6 +626,6 @@ Nano Stores is a great library with wonderful idea of stores with lifecycles. Bu
 
 | Benchmark<br>Throughput avg (ops/s) | Kida / Agera | Alien Signals | Nano Stores |
 | ------- | --------- | ------- | ------ |
-| [signal](../benchmarks/atom.js) | 25 541 296 ± 0.00% | 25 692 493 ± 0.00% | 4 501 870 ± 0.01% |
-| [computed](../benchmarks/computed.js) | 3 747 576 ± 0.01% | 3 979 152 ± 0.01% | 611 026 ± 0.04% |
-| [effect](../benchmarks/effect.js) | 3 977 679 ± 0.01% | 4 165 849 ± 0.01% | 1 992 654 ± 0.01% |
+| [signal](../benchmarks/atom.js) | 17 670 321 ± 0.01% | 19 160 348 ± 0.00% | 1 364 731 ± 0.03% |
+| [computed](../benchmarks/computed.js) | 1 193 380 ± 0.02% | 1 307 870 ± 0.02% | 229 406 ± 0.14% |
+| [effect](../benchmarks/effect.js) | 3 309 252 ± 0.01% | 3 441 332 ± 0.01% | 922 683 ± 0.04% |

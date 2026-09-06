@@ -141,18 +141,20 @@ The [benchmark results below](https://github.com/TrigenSoftware/nano_kit/tree/ma
 
 | Library | Latency avg&nbsp;(ns) | Latency med&nbsp;(ns) | Throughput avg&nbsp;(ops/s) | Throughput med&nbsp;(ops/s) | Samples |
 |---------|------------------|------------------|------------------------|------------------------|---------|
-| alien-signals | 294.00<br/>±&nbsp;2.24% | 270.00<br/>±&nbsp;0.00 | 3559763<br/>±&nbsp;0.01% | 3703704<br/>±&nbsp;0 | 3401312 |
-| **@nano_kit/store** | **303.55<br/>±&nbsp;0.75%** | **290.00<br/>±&nbsp;0.00** | **3365816<br/>±&nbsp;0.01%** | **3448276<br/>±&nbsp;0** | **3294342** |
-| svelte/store | 428.58<br/>±&nbsp;0.61% | 380.00<br/>±&nbsp;10.00 | 2479118<br/>±&nbsp;0.02% | 2631579<br/>±&nbsp;67476 | 2333274 |
-| rxjs | 454.74<br/>±&nbsp;0.07% | 430.00<br/>±&nbsp;0.00 | 2250397<br/>±&nbsp;0.01% | 2325581<br/>±&nbsp;0 | 2199049 |
-| nanostores | 1373.2<br/>±&nbsp;5.96% | 980.00<br/>±&nbsp;10.00 | 952399<br/>±&nbsp;0.04% | 1020408<br/>±&nbsp;10520 | 728224 |
-| mobx | 3474.7<br/>±&nbsp;1.86% | 3180.0<br/>±&nbsp;30.00 | 306094<br/>±&nbsp;0.03% | 314465<br/>±&nbsp;2995 | 287796 |
-| valtio | 5041.3<br/>±&nbsp;11.46% | 3820.0<br/>±&nbsp;160.00 | 254109<br/>±&nbsp;0.05% | 261780<br/>±&nbsp;10699 | 198361 |
-| jotai | 9454.6<br/>±&nbsp;16.45% | 6180.0<br/>±&nbsp;110.00 | 157853<br/>±&nbsp;0.05% | 161812<br/>±&nbsp;2932 | 105769 |
-| effector | 24885<br/>±&nbsp;11.78% | 15160<br/>±&nbsp;410.00 | 62744<br/>±&nbsp;0.15% | 65963<br/>±&nbsp;1834 | 40186 |
-| @reatom/core | 59430<br/>±&nbsp;15.61% | 41890<br/>±&nbsp;2429.0 | 22741<br/>±&nbsp;0.20% | 23872<br/>±&nbsp;1438 | 16827 |
+| alien-signals | 308.59<br/>±&nbsp;1.78% | 280.00<br/>±&nbsp;0.00 | 3441332<br/>±&nbsp;0.01% | 3571429<br/>±&nbsp;0 | 3240532 |
+| **@nano_kit/store** | **320.68<br/>±&nbsp;1.94%** | **290.00<br/>±&nbsp;10.00** | **3309252<br/>±&nbsp;0.01%** | **3448276<br/>±&nbsp;107527** | **3118402** |
+| @preact/signals-core | 338.61<br/>±&nbsp;1.72% | 310.00<br/>±&nbsp;0.00 | 3199314<br/>±&nbsp;0.01% | 3225806<br/>±&nbsp;0 | 2953273 |
+| svelte/store | 465.27<br/>±&nbsp;1.90% | 390.00<br/>±&nbsp;10.00 | 2407386<br/>±&nbsp;0.02% | 2564103<br/>±&nbsp;67476 | 2149277 |
+| rxjs | 494.07<br/>±&nbsp;1.64% | 440.00<br/>±&nbsp;10.00 | 2171288<br/>±&nbsp;0.02% | 2272727<br/>±&nbsp;52854 | 2023990 |
+| zustand, subscribeWithSelector | 949.00<br/>±&nbsp;11.36% | 540.00<br/>±&nbsp;10.00 | 1759331<br/>±&nbsp;0.03% | 1851852<br/>±&nbsp;34941 | 1061940 |
+| nanostores | 1301.5<br/>±&nbsp;3.82% | 1010.0<br/>±&nbsp;30.00 | 922683<br/>±&nbsp;0.04% | 990099<br/>±&nbsp;26959 | 768344 |
+| mobx | 3523.9<br/>±&nbsp;1.97% | 3170.0<br/>±&nbsp;40.00 | 308802<br/>±&nbsp;0.03% | 315457<br/>±&nbsp;3858 | 283777 |
+| valtio | 8159.3<br/>±&nbsp;42.88% | 4160.0<br/>±&nbsp;270.00 | 224079<br/>±&nbsp;0.10% | 240385<br/>±&nbsp;16186 | 136709 |
+| jotai | 12324<br/>±&nbsp;18.25% | 6780.0<br/>±&nbsp;260.00 | 140186<br/>±&nbsp;0.11% | 147493<br/>±&nbsp;5760 | 81699 |
+| effector | 26075<br/>±&nbsp;12.65% | 15950<br/>±&nbsp;310.00 | 60217<br/>±&nbsp;0.16% | 62696<br/>±&nbsp;1495 | 38808 |
+| @reatom/core | 76343<br/>±&nbsp;18.57% | 50400<br/>±&nbsp;7410.0 | 19224<br/>±&nbsp;0.38% | 19841<br/>±&nbsp;2952 | 13108 |
 
-*Benchmark was run on AMD Ryzen 5 PRO 3400G with Node.js v24.14.1*
+*Median of 11 rounds, each library measured in a fresh Node.js process in shuffled order. Run on AMD Ryzen 5 PRO 3400G with Node.js v24.14.1.*
 
 ## Bundle Sizes
 
