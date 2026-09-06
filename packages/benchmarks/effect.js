@@ -10,6 +10,9 @@ import * as valtio from 'valtio'
 import * as svelteStore from 'svelte/store'
 import * as jotai from 'jotai'
 import * as reatom from '@reatom/core'
+import * as zustand from 'zustand/vanilla'
+import { subscribeWithSelector } from 'zustand/middleware'
+import * as preactSignals from '@preact/signals-core'
 import * as agera from '../agera/dist/index.js' // 'agera'
 
 const bench = new Bench({
@@ -158,6 +161,38 @@ bench
 
     $store.update(n => n + 1)
     $store.update(n => n + 1)
+
+    unsub()
+    assert.equal(logs.length, 3)
+  })
+  .add('zustand / subscribeWithSelector (effect)', () => {
+    const store = zustand.createStore(subscribeWithSelector(() => ({
+      v: 0
+    })))
+    const logs = []
+    const unsub = store.subscribe(state => state.v, v => logs.push(v), {
+      fireImmediately: true
+    })
+
+    store.setState(state => ({
+      v: state.v + 1
+    }))
+    store.setState(state => ({
+      v: state.v + 1
+    }))
+
+    unsub()
+    assert.equal(logs.length, 3)
+  })
+  .add('@preact/signals-core / effect', () => {
+    const $store = preactSignals.signal(0)
+    const logs = []
+    const unsub = preactSignals.effect(() => {
+      logs.push($store.value)
+    })
+
+    $store.value += 1
+    $store.value += 1
 
     unsub()
     assert.equal(logs.length, 3)

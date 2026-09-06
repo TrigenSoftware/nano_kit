@@ -70,7 +70,6 @@ bench
     destroy()
   })
 
-await bench.warmup()
 await bench.run()
 
 console.table(bench.table())
