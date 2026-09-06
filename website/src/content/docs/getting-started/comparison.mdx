@@ -1,0 +1,200 @@
+---
+title: Comparison
+description: "How Nano Kit compares with Nano Stores, Zustand, Jotai, TanStack Query, TanStack Router and the @nanostores packages, with measured sizes and what you get for every trade-off."
+sidebar:
+  order: 2
+next:
+  label: Store
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+This page puts Nano Kit next to the libraries it is usually weighed against, one per approach: atoms with lifecycles (Nano Stores), a single store with selectors (Zustand) and atoms (Jotai) for the store layer, and the same-family option plus the standard for data fetching and routing (`@nanostores/*`, TanStack). Every number is measured, every feature claim comes from the other library's documentation.
+
+<Aside>Sizes on this page were measured on 2026-09-05 with Vite 8.2.1 and rolldown 1.2.7, the same toolchain as the examples: an app build of a single entry that imports the listed names, default minifier, ES2022 target, gzip level 9. Versions: `@nano_kit/*` 1.2.0, `nanostores` 1.5.3, `zustand` 5.0.15, `jotai` 2.20.3, `@tanstack/query-core` 5.102.8, `@nanostores/query` 0.3.4, `@nanostores/router` 1.1.0, `@tanstack/router-core` 1.171.27, `@tanstack/history` 1.162.1.</Aside>
+
+## Store Layer
+
+| | Nano Kit | Nano Stores | Zustand | Jotai |
+|---|---|---|---|---|
+| Model | [Signals](/store/core-concepts/#signals-and-effects) with a push-pull dependency graph | Atoms with listeners | One store, slices through selectors | Atoms with a dependency graph |
+| Framework-agnostic core | Yes | Yes | Yes, `zustand/vanilla` | Yes, `jotai/vanilla`; the API is React-first |
+| Frameworks | [React](/store-integrations/react/), [Preact](/store-integrations/preact/), [Svelte](/store-integrations/svelte/), [SvelteKit](/frameworks/svelte-kit/), [Next.js](/frameworks/next/) | React, Preact, Vue, Svelte, Solid, Lit, Angular, Alpine | React, vanilla store elsewhere | React, vanilla store elsewhere |
+| Derived state | [`computed`](/store/core-concepts/#using-computed): lazy and cached | `computed`, `batched` | Selectors, re-run on every store change | Derived atoms |
+| Effects | [`effect`](/store/core-concepts/#basic-usage) | `effect` | `subscribe`, with a selector through `subscribeWithSelector` | `store.sub` |
+| Store lifecycle | [`onMount`](/store/core-concepts/#mountable-stores) with a [delayed unmount](/store/core-concepts/#debounced-unmounting) | `onMount` with a delayed unmount | No | `atom.onMount` |
+| Dependency injection | Built in: [`inject`](/store/core-concepts/#dependency-injection), [`provide`](/store/core-concepts/#providing-custom-values), [`InjectionContext`](/store/core-concepts/#dependency-injection) | No | Manual, a store passed through React context | `Provider` scoping |
+| Per-request isolation for SSR | One [`InjectionContext`](/store/core-concepts/#dependency-injection) per request | Manual | Manual, one store per request | One `Provider` per request |
+| Hydration helpers | [`hydratable`](/store/ssr/#marking-signals-for-hydration), dehydration and hydration in [store](/store/ssr/), [query](/query/ssr/), [router](/router/ssr/) and the [SSR adapters](/ssr/) | Manual | Manual | `useHydrateAtoms` |
+| Data fetching | [`@nano_kit/query`](/query/), same reactive core | `@nanostores/query` | Bring your own | `jotai-tanstack-query` |
+| Router | [`@nano_kit/router`](/router/), same reactive core | `@nanostores/router` | No | No |
+| i18n | [`@nano_kit/intl`](/intl/), same reactive core | `@nanostores/i18n` | No | No |
+| DevTools | Not yet, planned for an upcoming release | Logger, Vue Devtools plugin | Redux DevTools middleware | `jotai-devtools` |
+
+### Size
+
+| Import set | Minified | Minified + gzip |
+|---|---|---|
+| [`@nano_kit/store`](/store/): [`signal`](/store/core-concepts/#basic-usage), [`computed`](/store/core-concepts/#using-computed), [`effect`](/store/core-concepts/#basic-usage), [`mountable`](/store/core-concepts/#mountable-stores), [`onMount`](/store/core-concepts/#mountable-stores) | 5.64 kB | 2.13 kB |
+| `nanostores`: `atom`, `computed`, `effect`, `onMount` | 1.87 kB | 0.91 kB |
+| `zustand/vanilla`: `createStore` plus `subscribeWithSelector` | 0.55 kB | 0.34 kB |
+| `jotai/vanilla`: `atom`, `createStore` | 6.05 kB | 2.61 kB |
+
+### Nano Kit vs Nano Stores
+
+Nano Kit started from the ideas of Nano Stores and keeps them: atomic stores, [`onMount`](/store/core-concepts/#mountable-stores) with its delayed unmount, logic moved out of components, a tree-shakeable API. If Nano Stores works for you, there is no reason to switch. Nano Kit exists because a real application on Nano Stores kept needing things the atom does not provide, and we kept writing them next to it:
+
+- **DX.** An application needs more than an atom, and Nano Stores leaves the rest to you. Nano Kit ships it: [records](/store/advanced/#record) with [array](/store/advanced/#array-operations) and [object](/store/advanced/#object-operations) operations, [`resolved`](/store/advanced/#async-state) for async state, [rate limiting](/store/advanced/#rate-limiting), [codecs](/store/advanced/#codecs) for anything stored as a string, [`localStored`, `cookieStored`](/platform/web/) and the other browser bindings, typed [route params](/router/core-concepts/#route-parameters) and [cache keys](/query/core-concepts/#cache-keys). The API itself is built for daily use too: signals are [callables](/store/core-concepts/#basic-usage), `$count()` reads and `$count(1)` writes.
+- **SSR.** Nano Stores keeps stores at module level and documents SSR as "use standard strategies". On a real server that does not hold: every request handled at the same time shares the same module-level atoms, so state has to be isolated per request, and Nano Stores neither does it nor offers a recipe for it in the docs. Nano Kit builds the store graph inside an [`InjectionContext`](/store/core-concepts/#dependency-injection), so two concurrent requests never share a signal, and dehydration and hydration are part of the store, query and router packages.
+- **Designed together.** `@nanostores/router` and `@nanostores/query` are built on Nano Stores atoms too; what Nano Kit adds is the layer above the atom: a [URL param signal](/router/core-concepts/#route-parameters) is a query parameter with no glue code in between, one `InjectionContext` isolates the router, the query cache and the stores per request, and hydration covers all three in one flow.
+- **Throughput.** The reactive core is [Agera](https://github.com/TrigenSoftware/nano_kit/tree/main/packages/agera), a fork of alien-signals. Values are pulled lazily through a dependency graph instead of pushed through listener chains. In the [effect benchmark](/getting-started/#performance) that is 3.3M subscription updates per second against 0.92M for Nano Stores, within 4% of alien-signals itself.
+
+Nano Stores stays lighter by about 1.2 kB, and that is fair: an atom with a listener list is less code than a dependency graph. Those bytes are the dependency graph that makes computeds lazy and updates granular, and nothing else: DI, SSR helpers, query, router and intl are separate imports that cost nothing until used.
+
+### Nano Kit vs Zustand
+
+Zustand keeps one store object and lets components pick slices with selectors. It is small, needs no providers, and for a React-only app with one store it is hard to beat. The differences show up when logic has to live outside components.
+
+Nano Kit has many small signals instead of one object, so an update wakes only the effects that read the changed value. [`computed`](/store/core-concepts/#using-computed) caches its result and recalculates only when an input changes. A store can own resources: [`onMount`](/store/core-concepts/#mountable-stores) starts a timer, a socket or a request with the first subscriber and stops it after the last one leaves.
+
+```tsx
+/* Zustand: the component owns the resource */
+const useTemperature = create<{ value: number }>(() => ({ value: 20 }))
+
+function Thermometer() {
+  const value = useTemperature(state => state.value)
+
+  useEffect(() => {
+    /* readSensor() is whatever produces the next value */
+    const id = setInterval(() => useTemperature.setState({ value: readSensor() }), 1000)
+
+    return () => clearInterval(id)
+  }, [])
+
+  return <span>{value}</span>
+}
+```
+
+```tsx
+/* Nano Kit: the store owns the resource */
+const $temperature = mountable(signal(20))
+
+onMount($temperature, () => {
+  const id = setInterval(() => $temperature(readSensor()), 1000)
+
+  return () => clearInterval(id)
+})
+
+function Thermometer() {
+  const value = useSignal($temperature)
+
+  return <span>{value}</span>
+}
+```
+
+The second version works the same in Preact and Svelte, in a Node test without any UI framework, and on the server inside a per-request [injection context](/store/core-concepts/#dependency-injection). This is the point of Nano Kit's [architecture](/getting-started/#unified-architecture): business logic lives in the store layer and components do one thing, render. The store owns its data and its resources, the view subscribes and draws, and neither needs to know how the other works. That is the trade: about 2 kB more than Zustand's vanilla store, spent on the dependency graph and the lifecycle, and the graph is what delivers 3.3M subscription updates per second against 1.8M for `subscribeWithSelector` in the [effect benchmark](/getting-started/#performance).
+
+### Nano Kit vs Jotai
+
+Jotai is the closest model in the table: atoms, derived atoms, `atom.onMount` for lifecycles, `Provider` for scoping. The difference is where values live. A Jotai atom is a key, and the value sits in a store you read through `store.get`, `useAtom` or a `get` callback. A Nano Kit signal carries its own value and is a callable: `$count()` reads, `$count(1)` writes, and an [`effect`](/store/core-concepts/#basic-usage) tracks whatever it reads.
+
+```ts
+/* Jotai: atoms are keys, the store holds the values */
+const countAtom = atom(0)
+const doubleAtom = atom(get => get(countAtom) * 2)
+const store = createStore()
+
+store.sub(doubleAtom, () => console.log(store.get(doubleAtom)))
+store.set(countAtom, 1)
+```
+
+```ts
+/* Nano Kit: signals hold their values, effects track reads */
+const $count = signal(0)
+const $double = computed(() => $count() * 2)
+
+effect(() => console.log($double()))
+$count(1)
+```
+
+The numbers follow: the [effect benchmark](/getting-started/#performance) puts Jotai at about 0.14M updates per second against 3.3M for `@nano_kit/store`, and its vanilla core is also the larger of the two at 2.61 kB against 2.13 kB. Jotai gives you async atoms with Suspense, a large utils collection and DevTools. Nano Kit gives you the same atomic model with a faster and smaller core, [`onMount`](/store/core-concepts/#mountable-stores) with a delayed unmount, [dependency injection](/store/core-concepts/#dependency-injection) instead of a `Provider`, adapters for Preact and Svelte next to React, and [query](/query/), [router](/router/) and [intl](/intl/) built on the same signals.
+
+## Query Layer
+
+| | `@nano_kit/query` | `@nanostores/query` | TanStack Query |
+|---|---|---|---|
+| Framework-agnostic core | Yes | Yes | Yes, `@tanstack/query-core` |
+| Cache keys | [`queryKey`](/query/core-concepts/#creating-cache-keys) with typed params and data: `queryKey<[id: number], Post>` | Strings, or arrays of strings and stores | Arrays; the data type is attached through `queryOptions` and data tags |
+| Reactive parameters | [Signals](/query/core-concepts/#automatic-fetching-and-reactivity): a change refetches | Stores as key parts | A new key on re-render |
+| Dedupe and stale-while-revalidate | Yes, [`dedupeTime`](/query/core-concepts/#dedupetime) and [`cacheTime`](/query/core-concepts/#cachetime) | Yes | Yes |
+| Mutations | [`mutations()`](/query/core-concepts/#mutation) extension | `createMutatorStore` | `MutationObserver`, `useMutation` |
+| Optimistic updates | [`$data(key, value)`](/query/core-concepts/#reading-and-writing-data) returns a [revert function](/query/core-concepts/#optimistic-updates) | `getCacheUpdater` | `onMutate` with a manual rollback |
+| Normalized entities | [`entities()`](/query/advanced/#entities): one entity shared by every query that references it | Not built in | Not built in |
+| Infinite queries | [`infinites()`](/query/advanced/#infinite) extension | Pagination recipe | `InfiniteQueryObserver` |
+| Persistence | [`persistence()`](/query/advanced/#persistence) with [`indexedDbStorage()`](/query/advanced/#indexeddbstorage) | Not built in | `@tanstack/query-persist-client-core` |
+| SSR hydration | [`ssr()`](/query/ssr/#ssr) setting: tracked, awaited, dehydrated | Manual | `dehydrate` and `hydrate` |
+| Retry, abort, revalidate on focus or reconnect | [`retryOnError()`](/query/advanced/#retryonerror), [`abortable()`](/query/advanced/#abortable), [`revalidateOn()`](/query/advanced/#revalidateon) | Built in | Built in |
+| DevTools | No | No | Yes |
+
+### Size
+
+| Import set | Minified | Minified + gzip |
+|---|---|---|
+| [`@nano_kit/query`](/query/): [`client`](/query/core-concepts/#client), [`queryKey`](/query/core-concepts/#cache-keys), includes the store core | 10.17 kB | 3.86 kB |
+| [`@nano_kit/query`](/query/): plus [`mutations`](/query/core-concepts/#mutation), [`entities`](/query/advanced/#entities), includes the store core | 11.19 kB | 4.24 kB |
+| `@nanostores/query`: `nanoquery`, includes `nanostores` | 6.51 kB | 2.91 kB |
+| `@tanstack/query-core`: `QueryClient`, `QueryObserver` | 30.69 kB | 8.85 kB |
+| `@tanstack/query-core`: plus `MutationObserver` | 32.47 kB | 9.19 kB |
+
+### Nano Kit vs @nanostores/query
+
+`@nanostores/query` is the same idea one generation earlier: a fetcher store with stale-while-revalidate, dedupe, revalidation on focus, reconnect and interval, and a mutator store with `getCacheUpdater` for optimistic changes. Keys are strings or arrays of strings and stores, so the type of the cached data is not attached to the key. Nano Kit keeps the shape and adds what the atom API could not carry: [typed keys](/query/core-concepts/#cache-keys), [`entities()`](/query/advanced/#entities), [`persistence()`](/query/advanced/#persistence), an [`ssr()`](/query/ssr/#ssr) setting that tracks, awaits and dehydrates queries on the server, and a router whose [URL params](/router/core-concepts/#route-parameters) are signals a query can take directly. `@nanostores/query` measures 2.91 kB against 3.86 kB, and the gap is the reactive core underneath, not the features: everything past `client` and `queryKey` is tree-shaken until imported, and the query layer itself weighs about the same on both cores.
+
+### Nano Kit vs TanStack Query
+
+TanStack Query is the standard for server state, and its model is built around components: a query observer per hook, a key array rebuilt on every render, and a re-render when the key changes. `@nano_kit/query` builds the same cache on signals, so a parameter is a signal and the query follows it without any wiring in the component.
+
+```ts
+/* TanStack Query: the key is rebuilt on every render */
+const { data } = useQuery({
+  queryKey: ['post', id],
+  queryFn: () => fetchPost(id)
+})
+```
+
+```ts
+/* Nano Kit: the parameter is a signal, the query follows it */
+const [$post] = query(PostKey, [$postId], fetchPost)
+```
+
+Keys are typed at the source: [`queryKey<[id: number], Post>`](/query/core-concepts/#creating-cache-keys) fixes both the parameters and the data, so [`$data(PostKey(1))`](/query/core-concepts/#reading-and-writing-data) reads and writes a `Post` with no casts, and the write returns a revert function for [optimistic updates](/query/core-concepts/#optimistic-updates). [`entities()`](/query/advanced/#entities) keeps one copy of a record shared by every query that mentions it, which TanStack leaves to manual `setQueryData` calls. TanStack Query gives you DevTools and the largest ecosystem in the category. Nano Kit gives you a core less than half the size, 3.86 kB against 8.85 kB gzipped with the store included, and at the application level the gap holds: the [Rick and Morty](/examples/rick-and-morty) app bundled with Vite 8 is 74.48 kB gzipped with `@nano_kit/query` and `@nano_kit/router`, and 103.44 kB with TanStack Query and TanStack Router.
+
+## Router Layer
+
+`@nano_kit/router` and `@nanostores/router` share the idea that a router is a store, not a component. TanStack Router is the type-safe heavyweight of the category. The first `@nano_kit/router` row matches the `@nanostores/router` import set, the second imports everything TanStack Router core covers, and the third adds the query client in the role of loaders.
+
+| Import set | Minified | Minified + gzip |
+|---|---|---|
+| [`@nano_kit/router`](/router/): [`browserNavigation`](/router/core-concepts/#browser-navigation), [`param`](/router/core-concepts/#route-parameters), includes the store core | 8.16 kB | 3.21 kB |
+| `@nanostores/router`: `createRouter`, includes `nanostores` | 3.04 kB | 1.49 kB |
+| [`@nano_kit/router`](/router/), the feature set of TanStack Router core: navigation, [params](/router/core-concepts/#route-parameters) and [search params](/router/core-concepts/#query-parameters), [`router`](/router/core-concepts/#router) with `page`, `layout` and `notFound`, [links](/router/core-concepts/#links), [`loadable`](/router/advanced/#loadable), [head](/router/advanced/#head-management) and [scroll](/router/advanced/#scroll-management) management, includes the store core | 13.15 kB | 5.15 kB |
+| The same plus [`client`](/query/core-concepts/#client) and [`queryKey`](/query/core-concepts/#cache-keys) from `@nano_kit/query` as the loader layer | 17.66 kB | 6.80 kB |
+| `@tanstack/router-core`: `RouterCore`, `BaseRootRoute`, `BaseRoute`, plus `createBrowserHistory` from `@tanstack/history` | 55.95 kB | 19.23 kB |
+
+### Nano Kit vs @nanostores/router
+
+`@nanostores/router` is one store that holds the current route: typed params, parsed search params, link click tracking, URL generation through `getPagePath` and `openPage`, and navigation prevention through `onSet`, all in 1.49 kB, and that is the whole feature list. `@nano_kit/router` starts from the same place with [`browserNavigation`](/router/core-concepts/#browser-navigation) and [`param`](/router/core-concepts/#route-parameters), then adds everything that one store with the current route cannot cover: [search params as individual signals](/router/core-concepts/#query-parameters) that feed queries directly, a [`router`](/router/core-concepts/#router) that composes `page`, `layout` and `notFound` into a page tree, [`loadable`](/router/advanced/#loadable) for code splitting, [head](/router/advanced/#head-management) and [scroll](/router/advanced/#scroll-management) management, [`Stores$` and `Head$`](/router/ssr/) page hooks that dehydrate data and document head for SSR, [`virtualNavigation`](/router/core-concepts/#virtual-navigation) with its own history stack for tests and the server, and typed route names through [`AppContext`](/router/advanced/#appcontext). None of that is in your bundle until you import it: past `browserNavigation` and `param` every feature is tree-shaken, which is why the full set costs 5.15 kB only when you use all of it. Most of the 1.7 kB gap in the first row is the reactive core underneath, `@nano_kit/store` against `nanostores`, not routing code.
+
+### Nano Kit vs TanStack Router
+
+TanStack Router is the most complete router in the ecosystem: type-safe file-based routes, loaders with caching, search param validation with schemas, preloading and DevTools, with adapters for React and Solid. Its framework-agnostic core with history weighs 19.23 kB gzipped. `@nano_kit/router` covers routing, params, search params, code splitting, head and scroll in 5.15 kB, and with `@nano_kit/query` in the role of loaders the whole stack is 6.80 kB, about 2.8 times smaller than the TanStack core alone. What you trade is schema validation of search params and file-based route generation. What you get is one signal graph shared by the router, the query cache and the stores, the same code in React, Preact, Svelte and SvelteKit, and SSR through [`Stores$` and `Head$`](/router/ssr/) without a meta-framework. The [Rick and Morty](/examples/rick-and-morty) app shows the difference end to end: 74.48 kB against 103.44 kB gzipped.
+
+## Trade-offs
+
+No library wins every row. Here is what Nano Kit gives up today, and what it gives back.
+
+- **The ecosystem is younger and smaller than Zustand's or TanStack's.** In return, it is designed as one piece: [store](/store/), [query](/query/), [router](/router/) and [intl](/intl/) share a core and a mental model, so there is no glue code between them and no version matrix to reconcile.
+- **The store is not the smallest one you can install.** In return, the bytes above Nano Stores buy the dependency graph and the throughput that comes with it, everything else is a separate import that costs nothing until used, and the [example apps](/getting-started/#bundle-sizes) come out smaller than the same apps on mainstream stacks.
+- **Data fetching is client-first, not React Server Components first.** In return, the same store code runs in React, Preact and Svelte, in tests, and on the server [without a meta-framework](/ssr/); [Next.js](/frameworks/next/) is supported through hydration.
+
+Start with the [Introduction](/getting-started/), then build an app from the first store to SSR and tests in the [tutorial](/tutorial/).
