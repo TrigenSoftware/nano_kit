@@ -2,6 +2,8 @@
 
 ## Agera/Kida/Store
 
+- devtools: promised as "planned for an upcoming release" on the comparison page
+
 ## 🔥🔥🔥 Query 🔥🔥🔥
 
 - optimize using ai
@@ -9,6 +11,8 @@
 - synced cache between tabs
 
 ## Router
+
+- loader() to set default loader for inner loadables
 
 - onBeforeLeave / blocker https://reactrouter.com/api/hooks/useBlocker
 - scroll restoration ssr
