@@ -6,9 +6,9 @@ import {
 import type { FormatContext } from '../types.js'
 import { list } from './list.js'
 
-const ctx = {
+const ctx: FormatContext = {
   $locale: () => 'en-US'
-} as unknown as FormatContext
+}
 const value = ['red', 'green', 'blue']
 
 describe('intl', () => {

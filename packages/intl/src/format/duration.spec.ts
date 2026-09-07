@@ -6,9 +6,9 @@ import {
 import type { FormatContext } from '../types.js'
 import { duration } from './duration.js'
 
-const ctx = {
+const ctx: FormatContext = {
   $locale: () => 'en-US'
-} as unknown as FormatContext
+}
 const value = {
   hours: 1,
   minutes: 30
