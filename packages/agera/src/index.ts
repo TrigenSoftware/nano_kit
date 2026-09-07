@@ -2,12 +2,20 @@ export type * from './internals/types.js'
 export {
   NoneFlag,
   WritableMode,
-  ExternalModesBase
+  ExternalModesBase,
+  LinkEvent,
+  UnlinkEvent,
+  UpdateEvent,
+  RunEvent,
+  StopEvent,
+  LifecycleEvent,
+  FlushEvent
 } from './internals/flags.js'
 export {
   untracked,
   trigger,
   onSignal,
+  inspect,
   createSignal,
   computedOper
 } from './internals/system.js'

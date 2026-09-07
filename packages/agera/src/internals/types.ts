@@ -22,6 +22,8 @@ export type NewValue<T, A = void> = T | ((prevValue: T, arg: A) => T)
 
 export type MountedListener = (mounted: boolean) => void
 
+export type InspectListener = (kind: number, target?: ReactiveNode | Link) => void
+
 export interface ReadableNode extends ReactiveNode, DefineVirtualFlags<'writable' | 'mountable'> {
   /**
    * Lifecycle: mount listeners.

@@ -16,7 +16,8 @@ import type {
   Accessor,
   Compute,
   NewValue,
-  DeferredScope
+  DeferredScope,
+  InspectListener
 } from './types.js'
 import {
   NoneFlag,
@@ -31,7 +32,14 @@ import {
   MountableMode,
   LazyMode,
   PausedMode,
-  DeferredMode
+  DeferredMode,
+  LinkEvent,
+  UnlinkEvent,
+  UpdateEvent,
+  RunEvent,
+  StopEvent,
+  LifecycleEvent,
+  FlushEvent
 } from './flags.js'
 
 // #region Lifecycle sockets
@@ -43,6 +51,7 @@ import {
 // slot must exist before the first core path that checks it
 let lifecycleEdge: ((dep: ReactiveNode, sub?: ReactiveNode) => void) | undefined
 let lifecycleSettle: (() => void) | undefined
+let inspectListener: InspectListener | undefined
 // #endregion
 // #region Core
 let cycle = 0
@@ -177,6 +186,10 @@ function link(dep: ReactiveNode, sub: ReactiveNode, version: number): void {
     dep.subs = newLink
   }
 
+  if (import.meta.env.DEV) {
+    inspectListener?.(LinkEvent, newLink)
+  }
+
   // The slot is tested first so a bundle without the lifecycle layer drops
   // the whole check, including the `modes` read
   if (lifecycleEdge !== undefined && dep.modes & MountableMode) {
@@ -185,6 +198,10 @@ function link(dep: ReactiveNode, sub: ReactiveNode, version: number): void {
 }
 
 function unlink(link: Link, sub = link.sub): Link | undefined {
+  if (import.meta.env.DEV) {
+    inspectListener?.(UnlinkEvent, link)
+  }
+
   const {
     dep,
     prevDep,
@@ -435,6 +452,24 @@ export function onSignal(callback: ($signal: AnySignal) => void) {
 }
 
 /**
+ * Register an inspect listener. It is called with an event kind from the
+ * event constants and the node or link the event is about; `FlushEvent`
+ * carries no target. The contract exists for the devtools package alone
+ * and may change in minor versions. The development build is the only one
+ * that reports events, in production this is a no-op.
+ * @param listener - The listener, composed with any previous one.
+ */
+export function inspect(listener: InspectListener) {
+  if (import.meta.env.DEV) {
+    const prevListener = inspectListener
+
+    inspectListener = prevListener
+      ? (kind, target) => (prevListener(kind, target), listener(kind, target))
+      : listener
+  }
+}
+
+/**
  * Create a signal function over a reactive node. The node is the operator's
  * `this`, so whatever a call site needs at read or write time lives on the
  * node and a signal costs one object and one bound function, nothing else.
@@ -644,10 +679,19 @@ function updateComputed(c: ComputedNode): boolean {
 
   const prevSub = pushActiveSub(c)
 
+  if (import.meta.env.DEV) {
+    inspectListener?.(RunEvent, c)
+  }
+
   try {
     const oldValue = c.value
+    const changed = oldValue !== (c.value = c.compute(oldValue))
 
-    return oldValue !== (c.value = c.compute(oldValue))
+    if (import.meta.env.DEV && changed) {
+      inspectListener?.(UpdateEvent, c)
+    }
+
+    return changed
   } finally {
     popActiveSub(prevSub)
     c.flags &= ~RecursedCheckFlag
@@ -658,7 +702,14 @@ function updateComputed(c: ComputedNode): boolean {
 
 function updateSignal(s: SignalNode): boolean {
   s.flags = MutableFlag
-  return s.value !== (s.value = s.pendingValue)
+
+  const changed = s.value !== (s.value = s.pendingValue)
+
+  if (import.meta.env.DEV && changed) {
+    inspectListener?.(UpdateEvent, s)
+  }
+
+  return changed
 }
 
 function warmupEffect(e: EffectNode): void {
@@ -685,6 +736,10 @@ function warmupEffect(e: EffectNode): void {
 
 function runEffect(e: EffectNode): void {
   const prevSub = pushActiveSub(e)
+
+  if (import.meta.env.DEV) {
+    inspectListener?.(RunEvent, e)
+  }
 
   try {
     e.destroy = e.fn() || undefined
@@ -748,6 +803,10 @@ function flush(): void {
     --flushDepth
 
     lifecycleSettle?.()
+
+    if (import.meta.env.DEV && !flushDepth) {
+      inspectListener?.(FlushEvent)
+    }
   }
 }
 
@@ -783,8 +842,16 @@ export function computedOper<T>(this: ComputedNode<T>): T {
 
     const prevSub = pushActiveSub(this)
 
+    if (import.meta.env.DEV) {
+      inspectListener?.(RunEvent, this)
+    }
+
     try {
       this.value = this.compute()
+
+      if (import.meta.env.DEV) {
+        inspectListener?.(UpdateEvent, this)
+      }
     } finally {
       popActiveSub(prevSub)
       this.flags &= ~RecursedCheckFlag
@@ -874,6 +941,10 @@ function effectOper(this: EffectNode): void {
 // The STOPPED transition, shared by effect and scope disposal: make the node
 // terminal, destroy what it owns, detach it from its position
 function effectScopeOper(this: ReactiveNode): void {
+  if (import.meta.env.DEV) {
+    inspectListener?.(StopEvent, this)
+  }
+
   this.depsTail = undefined
   this.flags = NoneFlag
   // Spend the deferral token. This single line is what turns every stale
@@ -1564,6 +1635,10 @@ function evaluate(node: ReadableNode): void {
   const to = listeners?.length as number
 
   node.lcd = mounted
+
+  if (import.meta.env.DEV && changed) {
+    inspectListener?.(LifecycleEvent, node)
+  }
 
   // Sources mount before their dependents and unmount after them
   if (changed && mounted) {
