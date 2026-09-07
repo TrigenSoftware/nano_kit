@@ -5,6 +5,7 @@ import type {
   MountedListener,
   ReadableNode
 } from './internals/types.js'
+import { MountableMode } from './internals/flags.js'
 import {
   signal,
   computed,
@@ -37,6 +38,11 @@ export function onMounted(
   listener: MountedListener
 ): Destroy {
   const node = $signal.node as ReadableNode
+
+  if (import.meta.env.DEV && !(node.modes & MountableMode)) {
+    console.warn('[agera] A lifecycle listener was attached to a signal that is not mountable: wrap it with mountable()')
+  }
+
   const listeners = node.lcl ??= []
 
   listeners.push(listener)

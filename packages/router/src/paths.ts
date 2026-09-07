@@ -14,7 +14,7 @@ function execPattern(
     .join('')
 }
 
-function partToFunction(part: string, i: number) {
+function partToFunction(this: string, part: string, i: number) {
   return (
     i % 2 === 0
       ? part
@@ -27,7 +27,7 @@ function partToFunction(part: string, i: number) {
         : (params: Record<string, string | number> = {}) => (
           part in params
             ? `/${encodeURIComponent(params[part])}`
-            : ''
+            : (import.meta.env.DEV && !this.includes(`:${part}?`) && console.warn(`[nano_kit/router] Route parameter "${part}" is missing: the path is built without it`), '')
         )
   )
 }
@@ -35,7 +35,7 @@ function partToFunction(part: string, i: number) {
 function patternToFunction(pattern: string) {
   const parts = pattern
     .split(/\/(?::(\w+)\??|\*)/g)
-    .map(partToFunction)
+    .map(partToFunction, pattern)
 
   return execPattern.bind(parts)
 }

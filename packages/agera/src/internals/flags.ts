@@ -1,4 +1,4 @@
-// Reactive flags
+// #region Reactive flags
 export const NoneFlag = 0
 
 export const MutableFlag = 1 << 0
@@ -13,7 +13,9 @@ export const DirtyFlag = 1 << 4
 
 export const PendingFlag = 1 << 5
 
-// Mode flags
+// #endregion
+
+// #region Mode flags
 export const ScopeMode = 1 << 0
 
 export const LazyMode = 1 << 1
@@ -27,3 +29,5 @@ export const PausedMode = 1 << 4
 export const DeferredMode = 1 << 5
 
 export const ExternalModesBase = 6
+
+// #endregion

@@ -13,7 +13,7 @@ import * as reatom from '@reatom/core'
 import * as zustand from 'zustand/vanilla'
 import { subscribeWithSelector } from 'zustand/middleware'
 import * as preactSignals from '@preact/signals-core'
-import * as agera from '../agera/dist/index.js' // 'agera'
+import * as agera from '../agera/dist/index.production.js' // 'agera'
 
 const bench = new Bench({
   warmup: true,

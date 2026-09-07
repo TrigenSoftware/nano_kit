@@ -73,9 +73,23 @@ export function params<
 ): Format<F, ComposedParamsFn<P, O>> {
   let replaceAll: Replace | undefined
 
-  for (const [key, format] of Object.entries(params)) {
+  for (let [key, format] of Object.entries(params)) {
+    if (import.meta.env.DEV) {
+      const originalFormat = format
+
+      format = (ctx, value) => {
+        const formatted = originalFormat(ctx, value)
+
+        if (formatted === undefined) {
+          console.warn(`[nano_kit/intl] Parameter "${key}" has no value: the message renders "undefined" in its place`)
+        }
+
+        return formatted
+      }
+    }
+
     const re = new RegExp(`{${key}}`, 'g')
-    const replace: Replace = (ctx, text, params) => text.replace(re, format(ctx, $get(params[key])) as string)
+    const replace: Replace = (ctx, text, params) => text.replace(re, () => format(ctx, $get(params[key])) as string)
 
     if (replaceAll) {
       const prevReplace = replaceAll

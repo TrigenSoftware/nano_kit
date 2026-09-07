@@ -1,4 +1,5 @@
 import {
+  vi,
   describe,
   it,
   expect
@@ -241,6 +242,38 @@ describe('router', () => {
         b: '2',
         c: '3'
       })).toBe('/path/1/2/3')
+    })
+
+    it('should warn when a required parameter is missing', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const routes = {
+        post: '/posts/:id/:slug?'
+      } as const
+      const paths = buildPaths(routes)
+
+      // @ts-expect-error the required `id` is left out: the runtime slip the warning is for
+      expect(paths.post({
+        slug: 'hello'
+      })).toBe('/posts/hello')
+      expect(warn).toHaveBeenCalledTimes(1)
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('"id" is missing'))
+
+      warn.mockRestore()
+    })
+
+    it('should not warn when an optional parameter is missing', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const routes = {
+        post: '/posts/:id/:slug?'
+      } as const
+      const paths = buildPaths(routes)
+
+      expect(paths.post({
+        id: '42'
+      })).toBe('/posts/42')
+      expect(warn).not.toHaveBeenCalled()
+
+      warn.mockRestore()
     })
 
     it('should preserve path structure for partial parameters', () => {

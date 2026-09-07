@@ -14,5 +14,15 @@ export default defineConfig({
   },
   env: {
     browser: true
-  }
+  },
+  overrides: [
+    {
+      files: ['**/.size-limit.js'],
+      plugins: ['import'],
+      rules: {
+        'import/no-default-export': 'off',
+        'import/no-anonymous-default-export': 'off'
+      }
+    }
+  ]
 })

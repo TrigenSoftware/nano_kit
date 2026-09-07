@@ -2,7 +2,7 @@ import { Bench } from 'tinybench'
 import * as nanostores from 'nanostores'
 import * as signals from 'alien-signals-1'
 import * as signals3 from 'alien-signals-3'
-import * as agera from '../agera/dist/index.js' // 'agera'
+import * as agera from '../agera/dist/index.production.js' // 'agera'
 
 const bench = new Bench({
   warmup: true,

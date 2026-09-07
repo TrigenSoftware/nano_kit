@@ -532,6 +532,10 @@ export function effect(fn: EffectCallback, noDefer?: boolean, lcx?: ReactiveNode
     lcx
   }
 
+  if (import.meta.env.DEV && activeSub !== undefined && 'compute' in activeSub) {
+    console.warn('[agera] An effect was created while a computed was evaluating: keep computeds pure, move the effect to an action, an effect or the store setup')
+  }
+
   lifecycleEdge?.(e, e)
 
   if (activeSub !== undefined) {
@@ -565,6 +569,11 @@ export function effectScope(fn: () => void): Destroy {
     flags: MutableFlag,
     modes: ScopeMode
   }
+
+  if (import.meta.env.DEV && activeSub !== undefined && 'compute' in activeSub) {
+    console.warn('[agera] An effect scope was created while a computed was evaluating: keep computeds pure, move the scope to an action, an effect or the store setup')
+  }
+
   const prevSub = pushActiveSub(e)
 
   if (prevSub !== undefined) {
@@ -819,6 +828,10 @@ export function signalNextValue<T>($signal: WritableSignal<T>, newValue: NewValu
 
 function signalOper<T>(this: SignalNode<T>, ...value: [NewValue<T>]): T | void {
   if (value.length) {
+    if (import.meta.env.DEV && activeSub !== undefined && 'compute' in activeSub) {
+      console.warn('[agera] A signal was written while a computed was evaluating: keep computeds pure, write from an effect or an action')
+    }
+
     const prevValue = this.pendingValue
 
     if (prevValue !== (this.pendingValue = nextValue(prevValue, value[0]))) {

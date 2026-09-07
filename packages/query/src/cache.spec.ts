@@ -81,6 +81,28 @@ describe('query', () => {
           ]
         })
       })
+
+      it('should warn about a cache key parameter that serializes to null', () => {
+        const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        const CallbackKey = queryKey<[callback: () => void], unknown>('callbacks')
+
+        CallbackKey(() => {})
+
+        expect(warn).toHaveBeenCalledTimes(1)
+        expect(warn).toHaveBeenCalledWith(expect.stringContaining('function'))
+        warn.mockRestore()
+      })
+
+      it('should warn about a shard registered twice', () => {
+        const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+        queryKey('twice')
+        queryKey('twice')
+
+        expect(warn).toHaveBeenCalledTimes(1)
+        expect(warn).toHaveBeenCalledWith(expect.stringContaining('"twice"'))
+        warn.mockRestore()
+      })
     })
 
     describe('keys', () => {

@@ -24,6 +24,7 @@ export default defineConfig({
     'eslint/no-empty-function': 'off',
     'eslint/no-use-before-define': 'off',
     'typescript/no-empty-object-type': 'off',
-    'typescript/unified-signatures': 'off'
+    'typescript/unified-signatures': 'off',
+    'eslint/no-param-reassign': 'off'
   }
 })
