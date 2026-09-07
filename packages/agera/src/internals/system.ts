@@ -1575,7 +1575,7 @@ function onEdge(dep: ReactiveNode, sub?: ReactiveNode): void {
 
     // The presence memo goes stale exactly when an edge changes
     ++stamp
-    ;(dep as ReadableNode).lcq = pending.push(dep as ReadableNode)
+    ;(dep as ReadableNode).lcq = pending.push(dep)
   } else {
     // A queued effect re-run is not part of the listener's creation
     // frame: what it builds is a genuine subscriber. A node born with an
@@ -1600,7 +1600,7 @@ function present(node: ReadableNode): boolean {
           // tracker's keys. Anything else settles the question iff it is a
           // live effect
           sub.modes & MountableMode
-            ? present(sub as ReadableNode)
+            ? present(sub)
             : sub.flags & WatchingFlag
         )
       ) {
@@ -1616,7 +1616,7 @@ function present(node: ReadableNode): boolean {
 function walkDeps(node: ReadableNode): void {
   for (let link = (node as ComputedNode).deps; link; link = link.nextDep) {
     if (link.dep.modes & MountableMode) {
-      evaluate(link.dep as ReadableNode)
+      evaluate(link.dep)
     }
   }
 }
@@ -1733,7 +1733,7 @@ function settle(): void {
 export function touchLifecycle(node: ReactiveNode): void {
   lifecycleEdge = onEdge
   lifecycleSettle = settle
-  ;(node as ReadableNode).lcq = pending.push(node as ReadableNode)
+  ;(node as ReadableNode).lcq = pending.push(node)
   settle()
 }
 

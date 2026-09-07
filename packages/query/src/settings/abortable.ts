@@ -73,7 +73,7 @@ export function abortable(): ClientSetting {
         }
 
         return promise
-      } as typeof superRun
+      }
     }
 
     ctx.abortable = true

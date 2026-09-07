@@ -13,9 +13,9 @@ import {
 import { text } from './text.js'
 import { params } from './params.js'
 
-const ctx = {
+const ctx: FormatContext = {
   $locale: () => 'en-US'
-} as unknown as FormatContext
+}
 
 describe('intl', () => {
   describe('format', () => {

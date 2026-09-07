@@ -33,10 +33,11 @@ export type * from './client.types.js'
 export function client<S extends (AnyClientSetting | AnyClientExtension)[]>(...settings: S) {
   const ctx = new ClientContext()
   const client = {
-    // oxlint-disable-next-line typescript/no-unnecessary-type-assertion
+    /* oxlint-disable typescript/no-unnecessary-type-assertion */
     query: query.bind(ctx) as typeof query,
     invalidate: (key => ctx.invalidate(key)) as typeof ctx.invalidate,
     revalidate: (key => ctx.revalidate(key)) as typeof ctx.revalidate,
+    /* oxlint-enable typescript/no-unnecessary-type-assertion */
     $data: dataCacheFacade(ctx),
     $error: errorCacheFacade(ctx),
     $loading: loadingCacheFacade(ctx)

@@ -14,9 +14,9 @@ import {
   forms
 } from './plural.js'
 
-const ctx = {
+const ctx: FormatContext = {
   $locale: () => 'en-US'
-} as unknown as FormatContext
+}
 
 describe('intl', () => {
   describe('format', () => {

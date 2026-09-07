@@ -43,7 +43,7 @@ describe('ssr', () => {
         build: {
           outDir,
           minify: false,
-          rollupOptions: {
+          rolldownOptions: {
             input
           }
         },
@@ -70,7 +70,7 @@ describe('ssr', () => {
           ssr: true,
           outDir,
           minify: false,
-          rollupOptions: {
+          rolldownOptions: {
             input
           }
         },

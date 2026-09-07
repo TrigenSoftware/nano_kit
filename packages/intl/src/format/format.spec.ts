@@ -9,9 +9,9 @@ import { format } from './format.js'
 import { number } from './number.js'
 import { text } from './text.js'
 
-const ctx = {
+const ctx: FormatContext = {
   $locale: () => 'en-US'
-} as unknown as FormatContext
+}
 
 describe('intl', () => {
   describe('format', () => {
@@ -27,9 +27,9 @@ describe('intl', () => {
 
       it('should bind formatter values to current context', () => {
         const $locale = signal('en-US')
-        const ctx = {
+        const ctx: FormatContext = {
           $locale
-        } as unknown as FormatContext
+        }
         const formatNumber = format(number())
         const formatter = formatNumber(ctx)
 

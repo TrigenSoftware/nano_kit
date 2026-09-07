@@ -6,9 +6,9 @@ import {
 import type { FormatContext } from '../types.js'
 import { datetime } from './datetime.js'
 
-const ctx = {
+const ctx: FormatContext = {
   $locale: () => 'en-US'
-} as unknown as FormatContext
+}
 const date = new Date('2024-01-02T00:00:00.000Z')
 
 describe('intl', () => {

@@ -65,7 +65,7 @@ export async function waitTasks($of: AnyReadableSignal): Promise<void> {
     }
 
     for (let link = node.deps; link; link = link.nextDep) {
-      nodes.add(link.dep as TasksNode)
+      nodes.add(link.dep)
     }
   }
 

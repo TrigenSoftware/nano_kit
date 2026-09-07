@@ -78,7 +78,7 @@ export function retryOnError(
         ))
 
         return promise
-      } as typeof superRun
+      }
     }
 
     ctx.calcRetryDelay = calcRetryDelay

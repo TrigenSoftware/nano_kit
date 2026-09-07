@@ -8,9 +8,9 @@ import { datetime } from './datetime.js'
 import { number } from './number.js'
 import { range } from './range.js'
 
-const ctx = {
+const ctx: FormatContext = {
   $locale: () => 'en-US'
-} as unknown as FormatContext
+}
 const from = new Date('2024-01-02T00:00:00.000Z')
 const to = new Date('2024-01-05T00:00:00.000Z')
 const value = [from, to] as const
