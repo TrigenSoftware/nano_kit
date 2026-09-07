@@ -124,16 +124,16 @@ export function provide<T>(injectable: Injectable<T>, value: T): InjectionProvid
  * @returns The dependency.
  */
 export function inject<T>(injectable: Injectable<T>, context = currentContext): T {
-  if (!context) {
+  if (import.meta.env.DEV && !context) {
     throw new Error('Cannot inject dependency outside of injection context')
   }
 
-  return context.get(injectable)
+  return context!.get(injectable)
 }
 
 export class DependencyNotFound extends Error {
   constructor(caller: string) {
-    super(`${caller} dependency not found in context.`)
+    super(import.meta.env.DEV ? `${caller} dependency not found in context.` : caller)
   }
 }
 

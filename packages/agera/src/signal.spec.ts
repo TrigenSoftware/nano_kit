@@ -1165,5 +1165,18 @@ describe('agera', () => {
         expect(src1()).toBe(2)
       })
     })
+
+    describe('onMounted', () => {
+      it('should warn about a listener on a signal that is not mountable', () => {
+        const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        const $count = signal(0)
+        const stop = onMounted($count as never, () => {})
+
+        stop()
+
+        expect(warn).toHaveBeenCalledWith(expect.stringContaining('mountable'))
+        warn.mockRestore()
+      })
+    })
   })
 })

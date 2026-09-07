@@ -1,4 +1,5 @@
 import {
+  vi,
   describe,
   it,
   expect
@@ -137,6 +138,16 @@ describe('store', () => {
       })
 
       expect(isHydrated($user)).toBe(false)
+    })
+
+    it('should warn about a missing dehydrated value', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const hydrator = new StaticHydrator([])
+
+      hydrator.pull('user', () => {})
+
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining('"user"'))
+      warn.mockRestore()
     })
 
     it('should re-hydrate when snapshot signal changes with activeHydrator', () => {

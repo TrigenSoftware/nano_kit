@@ -8,6 +8,9 @@ export default defineConfig({
       formats: ['es'],
       entry: {
         index: './src/index.ts'
+      },
+      fileName(_, entryName) {
+        return `${entryName}.${process.env.NODE_ENV}.js`
       }
     },
     sourcemap: true,

@@ -5,7 +5,8 @@ import {
   type AnySignal,
   isFunction,
   signal,
-  computed
+  computed,
+  untracked
 } from '@nano_kit/store'
 import type {
   TranslationData,
@@ -122,6 +123,10 @@ export class IntlContext<
         }
 
         for (const [key, format] of entries) {
+          if (import.meta.env.DEV && data && !(key in data)) {
+            console.warn(`[nano_kit/intl] Missing message "${String(namespace)}.${key}" for locale "${untracked(this.$locale)}"`)
+          }
+
           result[key] = format(this, data?.[key])
         }
       }

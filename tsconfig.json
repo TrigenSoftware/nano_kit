@@ -31,5 +31,8 @@
     "target": "ESNext",
     /* Completeness */
     "skipLibCheck": true
-  }
+  },
+  "files": [
+    "vite-env.d.ts"
+  ]
 }

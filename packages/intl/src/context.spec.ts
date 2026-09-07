@@ -1,4 +1,5 @@
 import {
+  vi,
   describe,
   expect,
   it
@@ -208,6 +209,21 @@ describe('intl', () => {
         expect($error()).toBeUndefined()
         expect($t().title).toBe('Settings')
         expect($t().missing).toBe('Missing')
+      })
+
+      it('should warn about a missing message', () => {
+        const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        const ctx = new IntlContext(
+          () => 'en-US',
+          resolved(staticTranslations)
+        )
+        const [$t] = ctx.messages('settings', {
+          missing: text('Missing')
+        })
+
+        expect($t().missing).toBe('Missing')
+        expect(warn).toHaveBeenCalledWith(expect.stringContaining('"settings.missing"'))
+        warn.mockRestore()
       })
 
       it('should expose raw messages from partial scheme', () => {

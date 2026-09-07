@@ -1,4 +1,5 @@
 import {
+  vi,
   describe,
   expect,
   it
@@ -116,6 +117,32 @@ describe('intl', () => {
           name: 'Ada',
           count: 2
         })).toBe('Ada has 2 messages')
+      })
+
+      it('should warn about a param without a value', () => {
+        const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        const format = params({
+          name: text()
+        })
+
+        expect(format(ctx, 'Hello {name}')({
+          name: undefined
+        })).toBe('Hello undefined')
+        expect(warn).toHaveBeenCalledWith(expect.stringContaining('"name"'))
+        warn.mockRestore()
+      })
+
+      it('should not warn about a param without a placeholder', () => {
+        const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        const format = params({
+          name: text()
+        })
+
+        expect(format(ctx, 'Hello')({
+          name: undefined
+        })).toBe('Hello')
+        expect(warn).not.toHaveBeenCalled()
+        warn.mockRestore()
       })
     })
   })

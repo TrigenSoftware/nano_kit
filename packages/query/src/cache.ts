@@ -32,11 +32,38 @@ export function queryKey<P extends unknown[], R>(
   name: string,
   filter: (params: Partial<P>) => unknown[] = params => params
 ) {
+  if (import.meta.env.DEV) {
+    const originalFilter = filter
+
+    filter = (params) => {
+      const filtered = originalFilter(params)
+
+      for (const param of filtered) {
+        const type = typeof param
+
+        if (type === 'function' || type === 'symbol') {
+          console.warn(`[nano_kit/query] A "${name}" cache key parameter is a ${type}: it serializes to null in the key, filter it out or map it to a serializable value`)
+        }
+      }
+
+      return filtered
+    }
+  }
+
   const key = ((...params: Partial<P>) => ({
     shard: name,
     key: JSON.stringify(filter(params)),
     params
   })) as CacheKeyBuilder<P, R>
+
+  if (import.meta.env.DEV) {
+    for (const registered of keysSet) {
+      if (registered.shard === name) {
+        console.warn(`[nano_kit/query] Cache key shard "${name}" is already registered: two builders with one name share one cache`)
+        break
+      }
+    }
+  }
 
   key.shard = name
   key.key = undefined

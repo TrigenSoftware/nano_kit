@@ -57,6 +57,8 @@ export class StaticHydrator implements Hydrator {
     if (map.has(key)) {
       receiver(map.get(key))
       map.delete(key)
+    } else if (import.meta.env.DEV) {
+      console.warn(`[nano_kit/store] No dehydrated value for "${key}": it was not dehydrated on the server or the id is hydrated twice`)
     }
   }
 }

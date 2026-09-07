@@ -8,7 +8,7 @@ import * as mobx from 'mobx'
 import * as valtio from 'valtio'
 import * as svelteStore from 'svelte/store'
 import * as jotai from 'jotai'
-import * as agera from '../agera/dist/index.js' // 'agera'
+import * as agera from '../agera/dist/index.production.js' // 'agera'
 
 const bench = new Bench({
   warmup: true,
