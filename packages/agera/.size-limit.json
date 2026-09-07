@@ -4,13 +4,13 @@
     "gzip": true,
     "path": "dist/index.production.js",
     "import": "*",
-    "limit": "3.3 kB"
+    "limit": "3.4 kB"
   },
   {
     "name": "All publics (Brotli)",
     "path": "dist/index.production.js",
     "import": "*",
-    "limit": "3.05 kB"
+    "limit": "3.1 kB"
   },
   {
     "name": "Signal (Gzip)",

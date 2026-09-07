@@ -13,14 +13,14 @@ export default [
     gzip: true,
     path: 'dist/index.production.js',
     import: '*',
-    limit: '6.4 kB',
+    limit: '6.5 kB',
     modifyEsbuildConfig
   },
   {
     name: 'All publics (Brotli)',
     path: 'dist/index.production.js',
     import: '*',
-    limit: '5.9 kB',
+    limit: '5.95 kB',
     modifyEsbuildConfig
   },
   {
@@ -35,7 +35,7 @@ export default [
     name: 'Signal (Brotli)',
     path: 'dist/index.production.js',
     import: '{ signal }',
-    limit: '1.35 kB',
+    limit: '1.4 kB',
     modifyEsbuildConfig
   },
   {

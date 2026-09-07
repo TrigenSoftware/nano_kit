@@ -31,3 +31,20 @@ export const DeferredMode = 1 << 5
 export const ExternalModesBase = 6
 
 // #endregion
+
+// #region Event kinds, passed to the `inspect` listener
+export const LinkEvent = 0
+
+export const UnlinkEvent = 1
+
+export const UpdateEvent = 2
+
+export const RunEvent = 3
+
+export const StopEvent = 4
+
+export const LifecycleEvent = 5
+
+export const FlushEvent = 6
+
+// #endregion
