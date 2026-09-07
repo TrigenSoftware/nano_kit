@@ -186,8 +186,8 @@ function link(dep: ReactiveNode, sub: ReactiveNode, version: number): void {
     dep.subs = newLink
   }
 
-  if (import.meta.env.DEV) {
-    inspectListener?.(LinkEvent, newLink)
+  if (import.meta.env.DEV && inspectListener) {
+    inspectListener(LinkEvent, newLink)
   }
 
   // The slot is tested first so a bundle without the lifecycle layer drops
@@ -198,8 +198,8 @@ function link(dep: ReactiveNode, sub: ReactiveNode, version: number): void {
 }
 
 function unlink(link: Link, sub = link.sub): Link | undefined {
-  if (import.meta.env.DEV) {
-    inspectListener?.(UnlinkEvent, link)
+  if (import.meta.env.DEV && inspectListener) {
+    inspectListener(UnlinkEvent, link)
   }
 
   const {
@@ -679,16 +679,16 @@ function updateComputed(c: ComputedNode): boolean {
 
   const prevSub = pushActiveSub(c)
 
-  if (import.meta.env.DEV) {
-    inspectListener?.(RunEvent, c)
+  if (import.meta.env.DEV && inspectListener) {
+    inspectListener(RunEvent, c)
   }
 
   try {
     const oldValue = c.value
     const changed = oldValue !== (c.value = c.compute(oldValue))
 
-    if (import.meta.env.DEV && changed) {
-      inspectListener?.(UpdateEvent, c)
+    if (import.meta.env.DEV && inspectListener && changed) {
+      inspectListener(UpdateEvent, c)
     }
 
     return changed
@@ -705,8 +705,8 @@ function updateSignal(s: SignalNode): boolean {
 
   const changed = s.value !== (s.value = s.pendingValue)
 
-  if (import.meta.env.DEV && changed) {
-    inspectListener?.(UpdateEvent, s)
+  if (import.meta.env.DEV && inspectListener && changed) {
+    inspectListener(UpdateEvent, s)
   }
 
   return changed
@@ -737,8 +737,8 @@ function warmupEffect(e: EffectNode): void {
 function runEffect(e: EffectNode): void {
   const prevSub = pushActiveSub(e)
 
-  if (import.meta.env.DEV) {
-    inspectListener?.(RunEvent, e)
+  if (import.meta.env.DEV && inspectListener) {
+    inspectListener(RunEvent, e)
   }
 
   try {
@@ -804,8 +804,8 @@ function flush(): void {
 
     lifecycleSettle?.()
 
-    if (import.meta.env.DEV && !flushDepth) {
-      inspectListener?.(FlushEvent)
+    if (import.meta.env.DEV && inspectListener && !flushDepth) {
+      inspectListener(FlushEvent)
     }
   }
 }
@@ -842,15 +842,15 @@ export function computedOper<T>(this: ComputedNode<T>): T {
 
     const prevSub = pushActiveSub(this)
 
-    if (import.meta.env.DEV) {
-      inspectListener?.(RunEvent, this)
+    if (import.meta.env.DEV && inspectListener) {
+      inspectListener(RunEvent, this)
     }
 
     try {
       this.value = this.compute()
 
-      if (import.meta.env.DEV) {
-        inspectListener?.(UpdateEvent, this)
+      if (import.meta.env.DEV && inspectListener) {
+        inspectListener(UpdateEvent, this)
       }
     } finally {
       popActiveSub(prevSub)
@@ -941,8 +941,8 @@ function effectOper(this: EffectNode): void {
 // The STOPPED transition, shared by effect and scope disposal: make the node
 // terminal, destroy what it owns, detach it from its position
 function effectScopeOper(this: ReactiveNode): void {
-  if (import.meta.env.DEV) {
-    inspectListener?.(StopEvent, this)
+  if (import.meta.env.DEV && inspectListener) {
+    inspectListener(StopEvent, this)
   }
 
   this.depsTail = undefined
@@ -1636,8 +1636,8 @@ function evaluate(node: ReadableNode): void {
 
   node.lcd = mounted
 
-  if (import.meta.env.DEV && changed) {
-    inspectListener?.(LifecycleEvent, node)
+  if (import.meta.env.DEV && inspectListener && changed) {
+    inspectListener(LifecycleEvent, node)
   }
 
   // Sources mount before their dependents and unmount after them

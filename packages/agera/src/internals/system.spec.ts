@@ -226,6 +226,20 @@ describe('agera', () => {
           expect(of(UpdateEvent, $positive.node)).toHaveLength(0)
         })
 
+        it('should report an update when a computed changes its value', () => {
+          const $count = signal(1)
+          const $double = computed(() => $count() * 2)
+
+          effect(() => {
+            $double()
+          })
+          events.length = 0
+          $count(2)
+
+          expect(of(RunEvent, $double.node)).toHaveLength(1)
+          expect(of(UpdateEvent, $double.node)).toHaveLength(1)
+        })
+
         it('should report effect re-runs but not the warmup run', () => {
           const $count = signal(0)
 
