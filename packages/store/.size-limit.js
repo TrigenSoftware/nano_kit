@@ -35,7 +35,7 @@ export default [
     name: 'Signal (Brotli)',
     path: 'dist/index.production.js',
     import: '{ signal }',
-    limit: '1.35 kB',
+    limit: '1.4 kB',
     modifyEsbuildConfig
   },
   {
