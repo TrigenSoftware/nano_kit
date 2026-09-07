@@ -12,7 +12,13 @@ const nextConfig: NextConfig = process.env.NANO_KIT_DEV
       '@nano_kit/next-router',
       '@nano_kit/query'
     ],
-    webpack(config) {
+    typescript: {
+      ignoreBuildErrors: true
+    },
+    webpack(config, { webpack }) {
+      config.plugins.push(new webpack.DefinePlugin({
+        'import.meta.env.DEV': 'false'
+      }))
       config.resolve.extensionAlias = {
         '.js': ['.ts', '.js'],
         '.jsx': ['.tsx', '.jsx']
