@@ -23,7 +23,7 @@ import {
   type RouteLocation,
   type Navigation,
   type Location,
-  Location$,
+  LocationNavigation$,
   PushHistoryAction,
   ReplaceHistoryAction,
   createCachedMatcher,
@@ -31,7 +31,7 @@ import {
   updateLocation
 } from '@nano_kit/router'
 
-const SEARCH_PARAMS_FALLBACK = '?__searchParamsFallback__=true'
+const SEARCH_PARAMS_FALLBACK = '__searchParamsFallback__=true'
 
 export function useShouldProvideNextNavigation() {
   const context = useInjectionContext()
@@ -43,9 +43,9 @@ export function useShouldProvideNextNavigation() {
     isSearchParamsAvailable = false
   }
 
-  const location = context?.get(Location$, true)
+  const location = context?.get(LocationNavigation$, true)?.[0]
 
-  return !location || location.$search() === SEARCH_PARAMS_FALLBACK && isSearchParamsAvailable
+  return !location || location.$search() === `?${SEARCH_PARAMS_FALLBACK}` && isSearchParamsAvailable
 }
 
 function useRouteLocation<const R extends Routes = Routes>(

@@ -10,6 +10,7 @@ export const mockNavigation = {
   forward: vi.fn() as MockInstance,
   pathname: '/',
   search: '',
+  searchParamsAvailable: true,
   reset() {
     this.push.mockReset()
     this.replace.mockReset()
@@ -17,6 +18,7 @@ export const mockNavigation = {
     this.forward.mockReset()
     this.pathname = '/'
     this.search = ''
+    this.searchParamsAvailable = true
   }
 }
 
@@ -28,7 +30,13 @@ export const RedirectType = {
 export const mockNavigationModule = {
   useRouter: () => mockNavigation,
   usePathname: () => mockNavigation.pathname,
-  useSearchParams: () => new URLSearchParams(mockNavigation.search),
+  useSearchParams: () => {
+    if (!mockNavigation.searchParamsAvailable) {
+      throw new Error('Bail out to client-side rendering')
+    }
+
+    return new URLSearchParams(mockNavigation.search)
+  },
   redirect: vi.fn() as MockInstance,
   RedirectType
 }
