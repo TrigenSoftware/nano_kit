@@ -19,6 +19,7 @@ export default defineConfig({
     'typescript/unified-signatures': 'off',
     'eslint/no-sequences': 'off',
     'eslint/no-return-assign': 'off',
-    'eslint/no-multi-assign': 'off'
+    'eslint/no-multi-assign': 'off',
+    'eslint/no-param-reassign': 'off'
   }
 })

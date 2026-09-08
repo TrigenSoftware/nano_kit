@@ -65,11 +65,11 @@ export function browserLocale(
 
 /**
  * Creates a browser-like locale container from an `Accept-Language` header value.
- * @param acceptLanguage - Raw `Accept-Language` request header value.
+ * @param acceptLanguage - Raw `Accept-Language` request header value, or `null` when the header is missing.
  * @returns Locale container ordered by header quality and declaration order.
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function parseLocales(acceptLanguage = ''): LocalesContainer {
+export function parseLocales(acceptLanguage?: string | null): LocalesContainer {
   const entries: {
     index: number
     language: string
@@ -109,6 +109,8 @@ export function parseLocales(acceptLanguage = ''): LocalesContainer {
     value = ''
     mode = 0
   }
+
+  acceptLanguage ||= ''
 
   for (let i = 0, len = acceptLanguage.length; i < len; i++) {
     const char = acceptLanguage[i]
