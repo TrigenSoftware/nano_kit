@@ -54,10 +54,10 @@ class CookieStorage implements Storage<string> {
       ...options,
       name: key,
       value,
-      expires: maxAge
+      expires: maxAge === undefined
+        ? expires
         // oxlint-disable-next-line eslint/no-magic-numbers
-        ? Date.now() + maxAge * 1000
-        : expires
+        : Date.now() + maxAge * 1000
     })
   }
 

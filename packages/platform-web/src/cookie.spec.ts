@@ -83,6 +83,41 @@ describe('platform-web', () => {
       })
     })
 
+    it('should apply max age in seconds', async () => {
+      const $language = cookieStored(cookieStore, {
+        name: 'language',
+        maxAge: 60
+      })
+
+      $language('ru')
+
+      await waitFor(async () => {
+        const cookie = await cookieStore.get('language') as {
+          expires?: number | null
+        } | null
+
+        expect(cookie?.expires).toBeGreaterThan(Date.now())
+        expect(cookie?.expires).toBeLessThanOrEqual(Date.now() + 60000)
+      })
+    })
+
+    it('should expire the cookie immediately with zero max age', async () => {
+      await cookieStore.set('language', 'en')
+
+      const $language = cookieStored(cookieStore, {
+        name: 'language',
+        maxAge: 0
+      })
+
+      expect($language()).toBe('en')
+
+      $language('ru')
+
+      await waitFor(async () => {
+        await expect(cookieStore.get('language')).resolves.toBe(null)
+      })
+    })
+
     it('should support codecs', async () => {
       await cookieStore.set('dark', '1')
 
