@@ -10,20 +10,26 @@ import {
 class BroadcastChannelStorage<T> implements SyncedStorage<T> {
   #channel: BroadcastChannel | null = null
 
+  #open(key: string) {
+    return this.#channel ??= typeof BroadcastChannel === 'undefined'
+      ? null
+      : new BroadcastChannel(key)
+  }
+
   get() {
     return null
   }
 
-  set(_key: string, value: T) {
-    this.#channel?.postMessage(value)
+  set(key: string, value: T | null) {
+    this.#open(key)?.postMessage(value)
   }
 
   sub(key: string, callback: (value: T | null) => void) {
-    if (typeof BroadcastChannel === 'undefined') {
+    const channel = this.#open(key)
+
+    if (!channel) {
       return noop
     }
-
-    const channel = this.#channel = new BroadcastChannel(key)
 
     channel.onmessage = event => callback(event.data as T)
 
@@ -33,7 +39,9 @@ class BroadcastChannelStorage<T> implements SyncedStorage<T> {
     }
   }
 
-  del() { /* no-op */ }
+  del(key: string) {
+    this.set(key, null)
+  }
 }
 
 /**
