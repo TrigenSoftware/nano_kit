@@ -249,7 +249,7 @@ With dynamic keys:
 import { signal, child, assignKey } from '@nano_kit/store'
 
 const $obj = signal({ a: 1, b: 2 })
-const $key = signal('a')
+const $key = signal<'a' | 'b'>('a')
 const $value = child($obj, $key, assignKey)
 
 console.log($value()) /* 1 */
