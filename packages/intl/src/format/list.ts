@@ -36,12 +36,12 @@ export function list(
 /**
  * Creates a locale-aware list formatter with a fallback value.
  * @param fallback - Value used when the input is `undefined` or `null`.
- * @param options - `Intl.ListFormat` options.
+ * @param options - `Intl.ListFormat` options, or `{}` for the defaults.
  * @returns Formatter that returns a formatted string or `undefined`.
  */
 export function list(
   fallback: Iterable<string>,
-  options?: Intl.ListFormatOptions
+  options: Intl.ListFormatOptions
 ): Format<Iterable<string> | undefined, string | undefined>
 
 /* @__NO_SIDE_EFFECTS__ */

@@ -152,6 +152,8 @@ This is useful for dates, numbers, and other UI values that come from app state.
 
 Intl formats can be used inside `params(...)` for translated templates, or wrapped with `format(...)` when the value comes from runtime state, API data, or a database.
 
+A fallback is always passed together with options, for example `number(0, {})` or `datetime(fallback, false)`: a lone argument is always read as options.
+
 ### `number(fallback?, options?)`
 
 Formats numbers with `Intl.NumberFormat`.

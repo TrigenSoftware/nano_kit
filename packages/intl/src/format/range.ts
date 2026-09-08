@@ -7,9 +7,9 @@ import type {
 type RangeInput<I> = readonly [from: I, to: I]
 
 type RangeFrom<F extends IntlFormatRange<I>, I, O, R> = (
-  optionsOrFallback?: O | false | I,
-  maybeOptions?: O | false,
-  format?: IntlFormatFn<F, I, O>
+  optionsOrFallback: O | false | I | undefined,
+  maybeOptions: O | false | undefined,
+  format: IntlFormatFn<F, I, O>
 ) => Format<I | undefined, R | undefined>
 
 function rangeFormat(
@@ -58,13 +58,13 @@ export function range<F extends IntlFormatRange<I>, I, O, R>(
  * Creates a locale-aware range formatter with a fallback range.
  * @param format - Formatter factory that supports a custom range formatting function.
  * @param fallback - Range used when the input is `undefined` or `null`.
- * @param options - Formatter options.
+ * @param options - Formatter options, or `{}` for the defaults.
  * @returns Formatter that returns a formatted range string or `undefined`.
  */
 export function range<F extends IntlFormatRange<I>, I, O, R>(
   format: RangeFrom<F, I, O, R>,
   fallback: RangeInput<I>,
-  options?: O
+  options: O
 ): Format<RangeInput<I> | undefined, string | undefined>
 
 /* @__NO_SIDE_EFFECTS__ */
