@@ -1,7 +1,5 @@
-import {
-  inject,
-  toSignal
-} from '@nano_kit/store'
+import { toSignal } from '@nano_kit/store'
+import { getInject } from '@nano_kit/svelte'
 import {
   CanGoBack$,
   Location$,
@@ -14,7 +12,7 @@ import {
  * @returns Current route location signal.
  */
 export function getLocation() {
-  return inject(Location$)
+  return getInject(Location$)
 }
 
 /**
@@ -22,7 +20,7 @@ export function getLocation() {
  * @returns Navigation API.
  */
 export function getNavigation() {
-  return inject(Navigation$)
+  return getInject(Navigation$)
 }
 
 /**
@@ -30,7 +28,7 @@ export function getNavigation() {
  * @returns Object with path generators for each route.
  */
 export function getPaths() {
-  return inject(Paths$)
+  return getInject(Paths$)
 }
 
 /**
@@ -38,5 +36,5 @@ export function getPaths() {
  * @returns Signal that returns true if back navigation is possible, false otherwise.
  */
 export function getCanGoBack() {
-  return toSignal(inject(CanGoBack$))
+  return toSignal(getInject(CanGoBack$))
 }
