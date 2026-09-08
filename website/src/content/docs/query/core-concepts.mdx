@@ -165,7 +165,7 @@ Settings control the behavior of queries and mutations. They can be applied glob
 
 ### `cacheTime`
 
-Specifies how long (in milliseconds) data remains in the cache before being marked as stale.
+Specifies how long (in milliseconds) fetched data stays valid, counted from the moment the request settles. Valid data survives the next fetch and stays visible while it loads. Once the cache time has passed, the data is cleared to `null` the moment the next fetch starts.
 
 Default: `Infinity` (data never expires).
 
@@ -183,7 +183,7 @@ const [$post] = query(PostKey, [$postId], fetchPost, [
 ])
 ```
 
-After the cache time expires, data is marked as stale but remains in cache.
+Expiration by itself does not schedule a fetch. Fetches are triggered by observation, parameter changes and `revalidate()`, and they are throttled by [`dedupeTime`](#dedupetime), so unexpired data is refetched as soon as the dedupe window closes, and expired data only disappears when such a fetch begins.
 
 ### `dedupeTime`
 

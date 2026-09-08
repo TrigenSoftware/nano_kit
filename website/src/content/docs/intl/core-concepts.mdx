@@ -225,7 +225,7 @@ const [$t] = messages('event', {
 })
 ```
 
-Formats are checked against the translation value type when translation data is typed. For example, `datetime()` expects a `Date | number`, so using it directly for a string translation field is a type error.
+Formats are checked against the translation value type when translation data is typed. For example, `duration()` expects a `Duration` object, so using it directly for a string translation field is a type error, while `datetime()` accepts a `Date`, a timestamp or a date string.
 
 ## Formats
 
