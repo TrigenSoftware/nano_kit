@@ -38,12 +38,12 @@ export function duration(
 /**
  * Creates a locale-aware duration formatter with a fallback value.
  * @param fallback - Value used when the input is `undefined` or `null`.
- * @param options - `Intl.DurationFormat` options.
+ * @param options - `Intl.DurationFormat` options, or `{}` for the defaults.
  * @returns Formatter that returns a formatted string or `undefined`.
  */
 export function duration(
   fallback: Duration,
-  options?: Intl.DurationFormatOptions
+  options: Intl.DurationFormatOptions
 ): Format<Duration | undefined, string | undefined>
 
 /* @__NO_SIDE_EFFECTS__ */

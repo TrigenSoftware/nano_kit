@@ -43,12 +43,12 @@ export function datetime(
 /**
  * Creates a locale-aware date/time formatter with a fallback value.
  * @param fallback - Value used when the input is `undefined` or `null`.
- * @param options - `Intl.DateTimeFormat` options.
+ * @param options - `Intl.DateTimeFormat` options, or `{}` for the defaults.
  * @returns Formatter that returns a formatted string or `undefined`.
  */
 export function datetime(
   fallback: Date | number | string,
-  options?: Intl.DateTimeFormatOptions
+  options: Intl.DateTimeFormatOptions
 ): Format<Date | number | string | undefined, string | undefined>
 
 /**
@@ -59,9 +59,9 @@ export function datetime(
  * @returns Formatter that returns a formatted string or `undefined`.
  */
 export function datetime<I = Date | number | string>(
-  optionsOrFallback?: Intl.DateTimeFormatOptions | false | I,
-  maybeOptions?: Intl.DateTimeFormatOptions | false,
-  format?: IntlFormatFn<Intl.DateTimeFormat, I, Intl.DateTimeFormatOptions>
+  optionsOrFallback: Intl.DateTimeFormatOptions | false | I | undefined,
+  maybeOptions: Intl.DateTimeFormatOptions | false | undefined,
+  format: IntlFormatFn<Intl.DateTimeFormat, I, Intl.DateTimeFormatOptions>
 ): Format<I | undefined, string | undefined>
 
 /* @__NO_SIDE_EFFECTS__ */

@@ -37,12 +37,12 @@ export function number(
 /**
  * Creates a locale-aware number formatter with a fallback value.
  * @param fallback - Value used when the input is `undefined` or `null`.
- * @param options - `Intl.NumberFormat` options.
+ * @param options - `Intl.NumberFormat` options, or `{}` for the defaults.
  * @returns Formatter that returns a formatted string or `undefined`.
  */
 export function number(
   fallback: number | bigint | string,
-  options?: Intl.NumberFormatOptions
+  options: Intl.NumberFormatOptions
 ): Format<number | bigint | string | undefined, string | undefined>
 
 /**
@@ -53,9 +53,9 @@ export function number(
  * @returns Formatter that returns a formatted string or `undefined`.
  */
 export function number(
-  optionsOrFallback?: Intl.NumberFormatOptions | false | number | bigint | string,
-  maybeOptions?: Intl.NumberFormatOptions | false,
-  format?: IntlFormatFn<Intl.NumberFormat, number | bigint | string, Intl.NumberFormatOptions>
+  optionsOrFallback: Intl.NumberFormatOptions | false | number | bigint | string | undefined,
+  maybeOptions: Intl.NumberFormatOptions | false | undefined,
+  format: IntlFormatFn<Intl.NumberFormat, number | bigint | string, Intl.NumberFormatOptions>
 ): Format<number | bigint | string | undefined, string | undefined>
 
 /* @__NO_SIDE_EFFECTS__ */

@@ -28,7 +28,7 @@ export function relativetime(
  * @returns Formatter that returns a formatted string or `undefined`.
  */
 export function relativetime(
-  options?: RelativeTimeOptions
+  options: RelativeTimeOptions
 ): Format<number | undefined, string | undefined>
 
 /**
@@ -50,7 +50,7 @@ export function relativetime(
  */
 export function relativetime(
   fallback: number,
-  options?: RelativeTimeOptions
+  options: RelativeTimeOptions
 ): Format<number | undefined, string | undefined>
 
 /* @__NO_SIDE_EFFECTS__ */
