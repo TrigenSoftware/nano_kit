@@ -52,6 +52,46 @@ describe('platform-web', () => {
       offTarget()
     })
 
+    it('should post messages while the signal is not observed', async () => {
+      const name = channelName()
+      const $source = broadcasted<string>(name)
+      const $target = broadcasted(name, 'idle')
+      const offTarget = effect(() => {
+        $target()
+      })
+
+      $source('ready')
+
+      await waitFor(() => {
+        expect($target()).toBe('ready')
+      })
+
+      offTarget()
+    })
+
+    it('should broadcast a reset', async () => {
+      const name = channelName()
+      const $source = broadcasted<string>(name)
+      const $target = broadcasted(name, 'idle')
+      const offTarget = effect(() => {
+        $target()
+      })
+
+      $source('ready')
+
+      await waitFor(() => {
+        expect($target()).toBe('ready')
+      })
+
+      $source(undefined)
+
+      await waitFor(() => {
+        expect($target()).toBe('idle')
+      })
+
+      offTarget()
+    })
+
     it('should support codecs', async () => {
       const name = channelName()
       const $source = broadcasted(name, [] as number[], JsonCodec)
