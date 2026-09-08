@@ -53,6 +53,13 @@ describe('platform-web', () => {
         })
       })
 
+      it('should fallback to english when header is null', () => {
+        expect(parseLocales(null)).toEqual({
+          language: 'en',
+          languages: ['en']
+        })
+      })
+
       it('should create a container compatible with browserLocale', () => {
         expect(browserLocale(
           parseLocales('en;q=0.5,ru;q=1'),
