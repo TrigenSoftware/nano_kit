@@ -5,15 +5,26 @@ import {
   vi,
   beforeEach
 } from 'vitest'
+import type { PropsWithChildren } from 'react'
 import {
   renderHook,
   act
 } from '@testing-library/react'
+import { provide } from '@nano_kit/store'
+import { InjectionContextProvider } from '@nano_kit/react'
+import {
+  type Routes,
+  LocationNavigation$,
+  virtualNavigation
+} from '@nano_kit/router'
 import {
   mockNavigation,
   mockNavigationModule
 } from '../test/navigation.mock.js'
-import { useNextNavigation } from './hooks.js'
+import {
+  useNextNavigation,
+  useShouldProvideNextNavigation
+} from './hooks.js'
 
 vi.mock('next/navigation.js', () => mockNavigationModule)
 
@@ -91,6 +102,70 @@ describe('next-router', () => {
         })
 
         expect(mockNavigation.push).toHaveBeenCalledWith('/user/42')
+      })
+    })
+
+    describe('useShouldProvideNextNavigation', () => {
+      beforeEach(() => {
+        mockNavigation.reset()
+      })
+
+      it('should provide navigation when there is no location in the injection context', () => {
+        const { result } = renderHook(() => useShouldProvideNextNavigation())
+
+        expect(result.current).toBe(true)
+      })
+
+      it('should not provide navigation when the location above already has search params', () => {
+        mockNavigation.search = 'page=2'
+
+        const locationNavigation = virtualNavigation<Routes>('/?page=2', routes)
+        const wrapper = ({ children }: PropsWithChildren) => (
+          <InjectionContextProvider context={[provide(LocationNavigation$, locationNavigation)]}>
+            {children}
+          </InjectionContextProvider>
+        )
+        const { result } = renderHook(() => useShouldProvideNextNavigation(), {
+          wrapper
+        })
+
+        expect(result.current).toBe(false)
+      })
+
+      it('should provide navigation when the location above was created without search params and they are available now', () => {
+        mockNavigation.searchParamsAvailable = false
+
+        const { result: outer } = renderHook(() => useNextNavigation(routes))
+
+        mockNavigation.searchParamsAvailable = true
+        mockNavigation.search = 'page=2'
+
+        const wrapper = ({ children }: PropsWithChildren) => (
+          <InjectionContextProvider context={[provide(LocationNavigation$, outer.current as unknown)]}>
+            {children}
+          </InjectionContextProvider>
+        )
+        const { result } = renderHook(() => useShouldProvideNextNavigation(), {
+          wrapper
+        })
+
+        expect(result.current).toBe(true)
+      })
+
+      it('should not provide navigation while search params stay unavailable', () => {
+        mockNavigation.searchParamsAvailable = false
+
+        const { result: outer } = renderHook(() => useNextNavigation(routes))
+        const wrapper = ({ children }: PropsWithChildren) => (
+          <InjectionContextProvider context={[provide(LocationNavigation$, outer.current as unknown)]}>
+            {children}
+          </InjectionContextProvider>
+        )
+        const { result } = renderHook(() => useShouldProvideNextNavigation(), {
+          wrapper
+        })
+
+        expect(result.current).toBe(false)
       })
     })
   })
