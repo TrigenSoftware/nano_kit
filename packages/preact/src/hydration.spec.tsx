@@ -8,11 +8,13 @@ import {
   act
 } from '@testing-library/preact'
 import {
+  type InjectionContext,
   signal,
   hydratable
 } from '@nano_kit/store'
 import {
   InjectionContextProvider,
+  useInjectionContext,
   useInject,
   useSignal
 } from './core.js'
@@ -34,6 +36,12 @@ function Test() {
       {value ?? 'empty'}
     </div>
   )
+}
+
+function Context({ contexts }: { contexts: (InjectionContext | undefined)[] }) {
+  contexts.push(useInjectionContext())
+
+  return null
 }
 
 describe('preact', () => {
@@ -85,6 +93,40 @@ describe('preact', () => {
         )
 
         expect(container.innerHTML).toBe('<div>empty</div>')
+      })
+
+      it('should reuse the parent hydration context by default', () => {
+        const contexts: (InjectionContext | undefined)[] = []
+
+        render(
+          <InjectionContextProvider>
+            <HydrationProvider>
+              <Context contexts={contexts}/>
+              <HydrationProvider>
+                <Context contexts={contexts}/>
+              </HydrationProvider>
+            </HydrationProvider>
+          </InjectionContextProvider>
+        )
+
+        expect(contexts[1]).toBe(contexts[0])
+      })
+
+      it('should create a child context when reuse is disabled', () => {
+        const contexts: (InjectionContext | undefined)[] = []
+
+        render(
+          <InjectionContextProvider>
+            <HydrationProvider>
+              <Context contexts={contexts}/>
+              <HydrationProvider reuse={false}>
+                <Context contexts={contexts}/>
+              </HydrationProvider>
+            </HydrationProvider>
+          </InjectionContextProvider>
+        )
+
+        expect(contexts[1]).not.toBe(contexts[0])
       })
     })
 
