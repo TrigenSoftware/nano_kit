@@ -34,7 +34,7 @@ export default defineConfig({
       '$app/server': new URL('./test/app-server.ts', import.meta.url).pathname
     },
     environment: 'happy-dom',
-    exclude: [...configDefaults.exclude, './package'],
+    exclude: [...configDefaults.exclude, './package', './dist'],
     coverage: {
       reporter: ['lcovonly', 'text'],
       include: ['src/**/*']
