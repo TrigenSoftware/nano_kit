@@ -254,7 +254,7 @@ $t().formatAmount([1, 5])
 
 ### `plural(param, forms?)`
 
-Matches an LDML plural form with `Intl.PluralRules`. If `forms(...)` is omitted, `plural` reads forms directly from the translation input.
+Matches an LDML plural form with `Intl.PluralRules`. If `forms(...)` is omitted, `plural` reads forms directly from the translation input. A plain string translation serves every form, which suits locales without plural distinctions.
 
 ```ts
 const [$t] = messages('home', {
@@ -306,7 +306,7 @@ $t().guests({
 
 ### `match(param, cases?)`
 
-Matches a case by parameter value. If `cases(...)` is omitted, `match` reads cases directly from the translation input.
+Matches a case by parameter value. If `cases(...)` is omitted, `match` reads cases directly from the translation input. A plain string translation serves every case.
 
 ```ts
 const [$t] = messages('invite', {

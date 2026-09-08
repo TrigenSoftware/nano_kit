@@ -94,7 +94,7 @@ export function match<
   param: K,
   getKey?: GetKey
 ): Format<
-  FormatsInput<B>,
+  FormatsInput<B> | string,
   MatchFn<K, B>
 >
 
@@ -113,7 +113,7 @@ export function match<
   cases?: CasesFn<K, B>,
   getKey?: GetKey
 ): Format<
-  FormatsInput<B>,
+  FormatsInput<B> | string,
   MatchFn<K, B>
 >
 
@@ -135,7 +135,7 @@ export function match<
   },
   maybeGetKey?: GetKey
 ): Format<
-  FormatsInput<B>,
+  FormatsInput<B> | string,
   MatchFn<K, B>
 > {
   const valuePattern = new RegExp(`{${param}}`, 'g')
@@ -149,11 +149,13 @@ export function match<
     getKey = maybeGetKey ?? casesOrGetKey ?? identity
   }
 
-  return (ctx, input: FormatsInput<B> | undefined) => {
+  return (ctx, input: FormatsInput<B> | string | undefined) => {
     const locale = ctx.$locale()
-    let resolvedCases: Record<string, string | undefined | MatchFn<K, B>> = input ?? {}
+    const isString = typeof input === 'string'
+    // A string never reaches the lookups below, so it is stored as is.
+    let resolvedCases = (input ?? {}) as Record<string, string | undefined | MatchFn<K, B>>
 
-    if (cases) {
+    if (cases && !isString) {
       resolvedCases = {
         ...resolvedCases
       }
@@ -163,8 +165,7 @@ export function match<
 
     return (params) => {
       const value = $get(typeof params === 'object' ? params[param] : params)
-      const key = getKey(value, locale, resolvedCases)
-      const resolvedCase = resolvedCases[key]
+      const resolvedCase = isString ? input : resolvedCases[getKey(value, locale, resolvedCases)]
       const message = isFunction(resolvedCase) ? resolvedCase(params) : resolvedCase
 
       return message?.replace(valuePattern, value as string)
