@@ -25,7 +25,7 @@ export default defineConfig({
   test: {
     environment: 'happy-dom',
     setupFiles: ['@testing-library/jest-dom/vitest'],
-    exclude: [...configDefaults.exclude, './package'],
+    exclude: [...configDefaults.exclude, './package', './dist'],
     coverage: {
       reporter: ['lcovonly', 'text'],
       include: ['src/**/*']

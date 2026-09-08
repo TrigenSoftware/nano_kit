@@ -12,7 +12,7 @@ export default defineConfig({
     }
   },
   test: {
-    exclude: [...configDefaults.exclude, './package'],
+    exclude: [...configDefaults.exclude, './package', './dist'],
     coverage: {
       reporter: ['lcovonly', 'text'],
       include: ['src/**/*']
