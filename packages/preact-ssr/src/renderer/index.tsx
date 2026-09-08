@@ -10,6 +10,7 @@ import {
   type RenderData,
   ROOT_ID,
   Renderer,
+  escapeHtml,
   headDescriptorToHtml
 } from '@nano_kit/ssr/renderer'
 
@@ -49,7 +50,7 @@ export class PreactRenderer extends Renderer {
     })
 
     if (title) {
-      head = `<title>${title}</title>${head}`
+      head = `<title>${escapeHtml(title)}</title>${head}`
     }
 
     return render(

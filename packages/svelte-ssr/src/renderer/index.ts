@@ -14,6 +14,7 @@ import {
   type RenderData,
   ROOT_ID,
   Renderer,
+  escapeHtml,
   headDescriptorToHtml
 } from '@nano_kit/ssr/renderer'
 
@@ -53,7 +54,7 @@ export class SvelteRenderer extends Renderer {
     })
 
     if (title) {
-      head = `<title>${title}</title>${head}`
+      head = `<title>${escapeHtml(title)}</title>${head}`
     }
 
     const result = await render(((
@@ -65,6 +66,6 @@ export class SvelteRenderer extends Renderer {
       return App(internals, props)
     }) as Component)
 
-    return `<html${lang ? ` lang="${lang}"` : ''}${dir ? ` dir="${dir}"` : ''}><head>${head}${result.head}</head><body><div id="${ROOT_ID}">${result.body}</div><script>${this.dehydratedScript(data.dehydrated)}</script></body></html>`
+    return `<html${lang ? ` lang="${escapeHtml(lang)}"` : ''}${dir ? ` dir="${escapeHtml(dir)}"` : ''}><head>${head}${result.head}</head><body><div id="${ROOT_ID}">${result.body}</div><script>${this.dehydratedScript(data.dehydrated)}</script></body></html>`
   }
 }

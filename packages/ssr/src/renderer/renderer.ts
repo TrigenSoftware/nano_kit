@@ -59,11 +59,12 @@ export abstract class Renderer extends Manifest {
 
   /**
    * Generates a script to set the dehydrated state on the client.
+   * `<` is escaped so that a value containing `</script>` cannot close the tag.
    * @param dehydrated - The dehydrated state to be sent to the client.
    * @returns A string containing the script to set the dehydrated state on the client.
    */
   dehydratedScript(dehydrated: [string, unknown][]) {
-    return `window.__DEHYDRATED__=${JSON.stringify(dehydrated)}`
+    return `window.__DEHYDRATED__=${JSON.stringify(dehydrated).replace(/</g, '\\u003c')}`
   }
 
   /**

@@ -56,5 +56,11 @@ describe('ssr', () => {
         '<!doctype html><title>About Page</title><meta charset="utf-8" /><script type="module" src="/assets/client-Dfg_FsOr.js" /></script><script>window.__DEHYDRATED__=[["data",{"info":"Miguel loves cheese"}]]</script>Layout > About Miguel loves cheese'
       )
     })
+
+    it('should escape closing script tags in the dehydrated script', () => {
+      expect(renderer.dehydratedScript([
+        ['html', '</script><script>alert(1)</script>']
+      ])).toBe('window.__DEHYDRATED__=[["html","\\u003c/script>\\u003cscript>alert(1)\\u003c/script>"]]')
+    })
   })
 })
