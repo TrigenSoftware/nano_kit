@@ -218,6 +218,35 @@ describe('intl', () => {
           count: 3
         })).toBe('She has 3 tasks')
       })
+
+      it('should use a string translation for every case', () => {
+        const format = match('gender')
+
+        expect(format(ctx, 'Invited {gender}.')({
+          gender: 'female'
+        })).toBe('Invited female.')
+
+        expect(format(ctx, 'Invited {gender}.')('male')).toBe('Invited male.')
+      })
+
+      it('should use a string translation for every case with cases resolver', () => {
+        const format = match('status', cases({
+          active: text('Active {status}'),
+          disabled: text('Disabled {status}')
+        }))
+
+        expect(format(ctx, 'Status {status}')({
+          status: 'active'
+        })).toBe('Status active')
+      })
+
+      it('should use a string translation for every case with default key resolver', () => {
+        const format = match('role', other('user'))
+
+        expect(format(ctx, 'Area of {role}')({
+          role: 'guest'
+        })).toBe('Area of guest')
+      })
     })
   })
 })

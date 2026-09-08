@@ -203,6 +203,27 @@ describe('intl', () => {
           count: 3
         })).toBe('She has 3 tasks')
       })
+
+      it('should use a string translation for every form', () => {
+        const format = plural('count')
+
+        expect(format(ctx, '{count} going')({
+          count: 1
+        })).toBe('1 going')
+
+        expect(format(ctx, '{count} going')(3)).toBe('3 going')
+      })
+
+      it('should use a string translation for every form with forms resolver', () => {
+        const format = plural('count', forms({
+          one: text(),
+          other: text()
+        }))
+
+        expect(format(ctx, '{count} going')({
+          count: 1
+        })).toBe('1 going')
+      })
     })
   })
 })

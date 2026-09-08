@@ -31,7 +31,7 @@ export function plural<
   param: K,
   forms?: CasesFn<K, B>
 ): Format<
-  FormatsInput<B>,
+  FormatsInput<B> | string,
   MatchFn<K, B>
 >
 
@@ -50,7 +50,7 @@ export function plural<
   options: Intl.PluralRulesOptions,
   forms?: CasesFn<K, B>
 ): Format<
-  FormatsInput<B>,
+  FormatsInput<B> | string,
   MatchFn<K, B>
 >
 
@@ -63,7 +63,7 @@ export function plural<
   optionsOrForms?: Intl.PluralRulesOptions | CasesFn<K, B>,
   maybeForms?: CasesFn<K, B>
 ): Format<
-  FormatsInput<B>,
+  FormatsInput<B> | string,
   MatchFn<K, B>
 > {
   let options: Intl.PluralRulesOptions | undefined
