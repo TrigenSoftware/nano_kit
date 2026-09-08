@@ -113,6 +113,16 @@ export function dir($value: DirValue): DirPropertyDescriptor {
   }
 }
 
+/**
+ * Converts a head descriptor prop name to its HTML attribute name.
+ * @param prop - Prop name, such as `httpEquiv` or `crossOrigin`.
+ * @returns The attribute name, such as `http-equiv` or `crossorigin`.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function toHtmlAttribute(prop: string) {
+  return prop === 'httpEquiv' ? 'http-equiv' : prop.toLowerCase()
+}
+
 function buildPredicate(tag: string, attributes: [string, AnySignalish][]) {
   let selector = tag
   let count = 0
@@ -126,7 +136,7 @@ function buildPredicate(tag: string, attributes: [string, AnySignalish][]) {
         code = String(resolvedValue)
       } else {
         count++
-        selector += `[${key}="${String(resolvedValue).replace(/"/g, '\\"')}"]`
+        selector += `[${toHtmlAttribute(key)}="${String(resolvedValue).replace(/"/g, '\\"')}"]`
       }
     }
   }
@@ -188,7 +198,7 @@ function startElement(
         if (key === 'code') {
           element.textContent = stringValue
         } else {
-          element.setAttribute(key, stringValue)
+          element.setAttribute(toHtmlAttribute(key), stringValue)
         }
       }
     }

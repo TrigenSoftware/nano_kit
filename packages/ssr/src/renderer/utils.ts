@@ -2,7 +2,8 @@ import {
   type HeadDescriptor,
   type Location,
   type PageRef,
-  PermanentReplaceHistoryAction
+  PermanentReplaceHistoryAction,
+  toHtmlAttribute
 } from '@nano_kit/router'
 import {
   type EmptyValue,
@@ -84,7 +85,7 @@ export function headDescriptorToHtml(descriptor: HeadDescriptor): string {
         if (key === 'code') {
           code = String(resolvedValue)
         } else {
-          html += ` ${key.toLowerCase()}="${escapeHtml(String(resolvedValue))}"`
+          html += ` ${toHtmlAttribute(key)}="${escapeHtml(String(resolvedValue))}"`
         }
       }
     })

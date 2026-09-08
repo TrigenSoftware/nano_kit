@@ -48,6 +48,13 @@ describe('ssr', () => {
           }))).toBe('<meta name="description" />')
         })
 
+        it('should render httpEquiv as the http-equiv attribute', () => {
+          expect(headDescriptorToHtml(meta({
+            httpEquiv: 'refresh',
+            content: '0; url=/next'
+          }))).toBe('<meta http-equiv="refresh" content="0; url=/next" />')
+        })
+
         it('should insert script code as is', () => {
           expect(headDescriptorToHtml(script({
             type: 'application/ld+json',

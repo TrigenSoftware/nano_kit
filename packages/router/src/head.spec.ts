@@ -16,11 +16,23 @@ import {
   dir,
   link,
   meta,
-  script
+  script,
+  toHtmlAttribute
 } from './head.js'
 
 describe('router', () => {
   describe('head', () => {
+    describe('toHtmlAttribute', () => {
+      it('should map httpEquiv to http-equiv', () => {
+        expect(toHtmlAttribute('httpEquiv')).toBe('http-equiv')
+      })
+
+      it('should lowercase other prop names', () => {
+        expect(toHtmlAttribute('crossOrigin')).toBe('crossorigin')
+        expect(toHtmlAttribute('content')).toBe('content')
+      })
+    })
+
     describe('syncHead', () => {
       describe('title', () => {
         beforeEach(() => {
@@ -585,6 +597,36 @@ describe('router', () => {
           })
 
           expect(document.head.innerHTML).toBe('<meta name="keywords" content="foo, bar">')
+
+          stop()
+        })
+
+        it('should render httpEquiv as the http-equiv attribute', () => {
+          const stop = syncHead(() => ({
+            default: null,
+            Head$: () => [meta({
+              httpEquiv: 'refresh',
+              content: '0; url=/next'
+            })]
+          }))
+
+          expect(document.head.innerHTML).toBe('<meta http-equiv="refresh" content="0; url=/next">')
+
+          stop()
+        })
+
+        it('should hydrate existing http-equiv meta tag', () => {
+          document.head.innerHTML = '<meta http-equiv="refresh" content="0; url=/next">'
+
+          const stop = syncHead(() => ({
+            default: null,
+            Head$: () => [meta({
+              httpEquiv: 'refresh',
+              content: '0; url=/next'
+            })]
+          }))
+
+          expect(document.head.innerHTML).toBe('<meta http-equiv="refresh" content="0; url=/next">')
 
           stop()
         })
