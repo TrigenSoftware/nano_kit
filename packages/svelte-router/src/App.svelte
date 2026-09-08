@@ -2,7 +2,7 @@
   import { getPage } from './core.js'
 
   const page = getPage()
-  const Page = $page
+  const Page = $derived($page)
 </script>
 
 {#if Page}
