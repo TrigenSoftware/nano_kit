@@ -209,6 +209,8 @@ $theme('dark')
 $theme(null) /* Calls cookieStore.delete({ name: 'theme', path: '/' }) */
 ```
 
+`maxAge` is given in seconds and takes precedence over `expires`, so `maxAge: 0` expires the cookie immediately.
+
 Use `cookieStored` when you only need reads and writes. Use `syncedCookieStored` when the cookie store supports change events and you want the signal to react to external cookie changes.
 
 Assigning `null` or `undefined` deletes the underlying cookie through the provided [`CookieStore`](https://developer.mozilla.org/en-US/docs/Web/API/Cookie_Store_API)-compatible object. When `cookieStored` was created from options, deletion reuses the matching `path`, `domain`, and `partitioned` attributes so the browser removes the same cookie scope. If a default value was provided, the signal falls back to it after deletion.
