@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0...v2.0.0) (2026-09-09)
+
+### Bug Fixes
+
+* escape head values and the dehydrated snapshot in the rendered html ([#239](https://github.com/TrigenSoftware/nano_kit/issues/239)) ([60eefe2](https://github.com/TrigenSoftware/nano_kit/commit/60eefe2cb6e80d54306d15fcc63dab26cc878396))
+
 ## [1.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0-alpha.1...v1.0.0) (2026-07-22)
 
 ### Nano Kit 1.0 🎉

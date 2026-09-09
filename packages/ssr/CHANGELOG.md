@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0...v2.0.0) (2026-09-09)
+
+### Bug Fixes
+
+* escape head values and the dehydrated snapshot in the rendered html ([#239](https://github.com/TrigenSoftware/nano_kit/issues/239)) ([60eefe2](https://github.com/TrigenSoftware/nano_kit/commit/60eefe2cb6e80d54306d15fcc63dab26cc878396))
+* render the `httpEquiv` meta prop as the `http-equiv` attribute ([#253](https://github.com/TrigenSoftware/nano_kit/issues/253)) ([568df71](https://github.com/TrigenSoftware/nano_kit/commit/568df7139c2138e0a20f75d397ed6d9a6f4cdc9c))
+
 ## [1.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0-alpha.1...v1.0.0) (2026-07-22)
 
 ### Nano Kit 1.0 🎉

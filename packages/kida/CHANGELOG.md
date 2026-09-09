@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.2.0...v2.0.0) (2026-09-09)
+
+### ⚠ BREAKING CHANGES
+
+* `resolved` hands values through verbatim - a falsy source value is data, not a
+  reset to `undefined`: emptiness is expressed by `T` itself (e.g. `T | null`), and the input type
+  drops the falsy arm.
+* the tasks pool is gone — `TasksPool$`, `TasksRunner$`, `tasksRunner`, `addTask`,
+  `waitCurrentTasks` and `taskPromise` are removed, `waitTasks` takes a signal instead of a pool, and
+  the `tasks()` and `ssr()` query settings are removed: `hydratable()` is the whole SSR setting.
+
+### Features
+
+* add `latest` for the value of the source that changed last ([#231](https://github.com/TrigenSoftware/nano_kit/issues/231)) ([84efaed](https://github.com/TrigenSoftware/nano_kit/commit/84efaed2453ab10542afad83958fdea2f709c899))
+* add development diagnostics with separate development and production builds ([#236](https://github.com/TrigenSoftware/nano_kit/issues/236)) ([39be996](https://github.com/TrigenSoftware/nano_kit/commit/39be99600aa5c5066b8eb5205431740986df3dee))
+* attach tasks to the signals they fill ([#222](https://github.com/TrigenSoftware/nano_kit/issues/222)) ([841acd1](https://github.com/TrigenSoftware/nano_kit/commit/841acd12fcb3c2bd6c494f9ff47dfe998c962457))
+* attach the `resolved` promise as a task and hand values through verbatim ([#223](https://github.com/TrigenSoftware/nano_kit/issues/223)) ([8fabbeb](https://github.com/TrigenSoftware/nano_kit/commit/8fabbeb80f6462ac32c90a8b1ac523c8086971e7))
+* export `child` to build custom child signals ([#250](https://github.com/TrigenSoftware/nano_kit/issues/250)) ([8794697](https://github.com/TrigenSoftware/nano_kit/commit/8794697145e338684cf90e91fc6ceb81eb4e9adb))
+
+### Bug Fixes
+
+* keep `onMount` subscribed when a signal remounts within the unmount delay ([#229](https://github.com/TrigenSoftware/nano_kit/issues/229)) ([b911d4c](https://github.com/TrigenSoftware/nano_kit/commit/b911d4ce7657e67e47427f4863e0ab4b90212949))
+
 ## [1.2.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0...v1.2.0) (2026-08-30)
 
 ### Features
