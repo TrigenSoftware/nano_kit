@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0...v2.0.0) (2026-09-09)
+
+### Bug Fixes
+
+* reuse the parent context by default in `HydrationProvider`, as React does ([#249](https://github.com/TrigenSoftware/nano_kit/issues/249)) ([cb2d9e2](https://github.com/TrigenSoftware/nano_kit/commit/cb2d9e2dccd01f78fce30746f4d8696400a7f374))
+
 ## [1.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0-alpha.1...v1.0.0) (2026-07-22)
 
 ### Nano Kit 1.0 🎉

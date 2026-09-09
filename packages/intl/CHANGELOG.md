@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.2.0...v2.0.0) (2026-09-09)
+
+### Features
+
+* add development diagnostics with separate development and production builds ([#236](https://github.com/TrigenSoftware/nano_kit/issues/236)) ([39be996](https://github.com/TrigenSoftware/nano_kit/commit/39be99600aa5c5066b8eb5205431740986df3dee))
+* use a plain string translation for every plural form and match case ([#246](https://github.com/TrigenSoftware/nano_kit/issues/246)) ([82d45cf](https://github.com/TrigenSoftware/nano_kit/commit/82d45cfaf2c9008a6a1bc23841343eb25982c301))
+
+### Bug Fixes
+
+* require explicit options next to a fallback in the Intl formatters ([#245](https://github.com/TrigenSoftware/nano_kit/issues/245)) ([6b3d44e](https://github.com/TrigenSoftware/nano_kit/commit/6b3d44e26df8d26e455912c43ad6f47835b3ea0e))
+
 ## [1.2.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.1.0...v1.2.0) (2026-08-30)
 
 ### Features

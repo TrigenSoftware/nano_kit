@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0...v2.0.0) (2026-09-09)
+
+### Bug Fixes
+
+* accept `null` in `parseLocales` for a missing `Accept-Language` header ([#244](https://github.com/TrigenSoftware/nano_kit/issues/244)) ([1e29516](https://github.com/TrigenSoftware/nano_kit/commit/1e295161c9c2cb38c40601c849a91cc790324a55))
+* broadcast `broadcasted` writes and resets while the signal is not observed ([#247](https://github.com/TrigenSoftware/nano_kit/issues/247)) ([2696386](https://github.com/TrigenSoftware/nano_kit/commit/26963862b0bb73136d31acabff82df2713ea0d6e))
+* expire a cookie immediately with `maxAge: 0` ([#248](https://github.com/TrigenSoftware/nano_kit/issues/248)) ([bae248e](https://github.com/TrigenSoftware/nano_kit/commit/bae248e0ab35d34025ec8c1d64b1454ebd79b672))
+
 ## [1.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0-alpha.1...v1.0.0) (2026-07-22)
 
 ### Nano Kit 1.0 🎉

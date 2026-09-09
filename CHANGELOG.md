@@ -3,6 +3,43 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.2.0...v2.0.0) (2026-09-09)
+
+### ⚠ BREAKING CHANGES
+
+* **kida:** `resolved` hands values through verbatim - a falsy source value is data, not a
+  reset to `undefined`: emptiness is expressed by `T` itself (e.g. `T | null`), and the input type
+  drops the falsy arm.
+* **kida,store,query:** the tasks pool is gone — `TasksPool$`, `TasksRunner$`, `tasksRunner`, `addTask`,
+  `waitCurrentTasks` and `taskPromise` are removed, `waitTasks` takes a signal instead of a pool, and
+  the `tasks()` and `ssr()` query settings are removed: `hydratable()` is the whole SSR setting.
+
+### Features
+
+* add development diagnostics with separate development and production builds ([#236](https://github.com/TrigenSoftware/nano_kit/issues/236)) ([39be996](https://github.com/TrigenSoftware/nano_kit/commit/39be99600aa5c5066b8eb5205431740986df3dee))
+* **agera:** add `inspect` to report graph events in the development build ([#237](https://github.com/TrigenSoftware/nano_kit/issues/237)) ([07e4290](https://github.com/TrigenSoftware/nano_kit/commit/07e4290790f7c2b75864fa0e82e2fa7acd0ed76c))
+* **intl:** use a plain string translation for every plural form and match case ([#246](https://github.com/TrigenSoftware/nano_kit/issues/246)) ([82d45cf](https://github.com/TrigenSoftware/nano_kit/commit/82d45cfaf2c9008a6a1bc23841343eb25982c301))
+* **kida,store,query:** attach tasks to the signals they fill ([#222](https://github.com/TrigenSoftware/nano_kit/issues/222)) ([841acd1](https://github.com/TrigenSoftware/nano_kit/commit/841acd12fcb3c2bd6c494f9ff47dfe998c962457))
+* **kida:** add `latest` for the value of the source that changed last ([#231](https://github.com/TrigenSoftware/nano_kit/issues/231)) ([84efaed](https://github.com/TrigenSoftware/nano_kit/commit/84efaed2453ab10542afad83958fdea2f709c899))
+* **kida:** attach the `resolved` promise as a task and hand values through verbatim ([#223](https://github.com/TrigenSoftware/nano_kit/issues/223)) ([8fabbeb](https://github.com/TrigenSoftware/nano_kit/commit/8fabbeb80f6462ac32c90a8b1ac523c8086971e7))
+* **kida:** export `child` to build custom child signals ([#250](https://github.com/TrigenSoftware/nano_kit/issues/250)) ([8794697](https://github.com/TrigenSoftware/nano_kit/commit/8794697145e338684cf90e91fc6ceb81eb4e9adb))
+
+### Bug Fixes
+
+* **deps:** update dependency @astrojs/starlight to ^0.42.0 ([#228](https://github.com/TrigenSoftware/nano_kit/issues/228)) ([bb5a65c](https://github.com/TrigenSoftware/nano_kit/commit/bb5a65c147f669f393df3cce0418b5c3d53dea00))
+* **deps:** update dependency starlight-sidebar-topics to ^0.9.0 ([#232](https://github.com/TrigenSoftware/nano_kit/issues/232)) ([65da70d](https://github.com/TrigenSoftware/nano_kit/commit/65da70d2e54f82470146309d0a6aadb9aad798c9))
+* **intl:** require explicit options next to a fallback in the Intl formatters ([#245](https://github.com/TrigenSoftware/nano_kit/issues/245)) ([6b3d44e](https://github.com/TrigenSoftware/nano_kit/commit/6b3d44e26df8d26e455912c43ad6f47835b3ea0e))
+* **kida:** keep `onMount` subscribed when a signal remounts within the unmount delay ([#229](https://github.com/TrigenSoftware/nano_kit/issues/229)) ([b911d4c](https://github.com/TrigenSoftware/nano_kit/commit/b911d4ce7657e67e47427f4863e0ab4b90212949))
+* **next-router:** let a nested `NextNavigationProvider` pick up search params below a prerenderable layout ([#242](https://github.com/TrigenSoftware/nano_kit/issues/242)) ([13a2eb3](https://github.com/TrigenSoftware/nano_kit/commit/13a2eb3f5b5f5f5e619952a3bf052573c705a99c))
+* **platform-web:** accept `null` in `parseLocales` for a missing `Accept-Language` header ([#244](https://github.com/TrigenSoftware/nano_kit/issues/244)) ([1e29516](https://github.com/TrigenSoftware/nano_kit/commit/1e295161c9c2cb38c40601c849a91cc790324a55))
+* **platform-web:** broadcast `broadcasted` writes and resets while the signal is not observed ([#247](https://github.com/TrigenSoftware/nano_kit/issues/247)) ([2696386](https://github.com/TrigenSoftware/nano_kit/commit/26963862b0bb73136d31acabff82df2713ea0d6e))
+* **platform-web:** expire a cookie immediately with `maxAge: 0` ([#248](https://github.com/TrigenSoftware/nano_kit/issues/248)) ([bae248e](https://github.com/TrigenSoftware/nano_kit/commit/bae248e0ab35d34025ec8c1d64b1454ebd79b672))
+* **preact:** reuse the parent context by default in `HydrationProvider`, as React does ([#249](https://github.com/TrigenSoftware/nano_kit/issues/249)) ([cb2d9e2](https://github.com/TrigenSoftware/nano_kit/commit/cb2d9e2dccd01f78fce30746f4d8696400a7f374))
+* **router,ssr:** render the `httpEquiv` meta prop as the `http-equiv` attribute ([#253](https://github.com/TrigenSoftware/nano_kit/issues/253)) ([568df71](https://github.com/TrigenSoftware/nano_kit/commit/568df7139c2138e0a20f75d397ed6d9a6f4cdc9c))
+* **ssr,react-ssr,preact-ssr,svelte-ssr:** escape head values and the dehydrated snapshot in the rendered html ([#239](https://github.com/TrigenSoftware/nano_kit/issues/239)) ([60eefe2](https://github.com/TrigenSoftware/nano_kit/commit/60eefe2cb6e80d54306d15fcc63dab26cc878396))
+* **svelte-router:** re-render `App` when the matched page component changes ([#241](https://github.com/TrigenSoftware/nano_kit/issues/241)) ([0d44ed1](https://github.com/TrigenSoftware/nano_kit/commit/0d44ed15aa9d10b517e57a3255b4abd595f523d9))
+* **svelte-router:** resolve `getLocation`, `getNavigation`, `getPaths` and `getCanGoBack` through the Svelte context ([#240](https://github.com/TrigenSoftware/nano_kit/issues/240)) ([2e465d3](https://github.com/TrigenSoftware/nano_kit/commit/2e465d36cbc0733f848301a570c52e5610559b1e))
+
 ## [1.2.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.1.0...v1.2.0) (2026-08-30)
 
 ### Features

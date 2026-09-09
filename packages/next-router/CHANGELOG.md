@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0...v2.0.0) (2026-09-09)
+
+### Bug Fixes
+
+* let a nested `NextNavigationProvider` pick up search params below a prerenderable layout ([#242](https://github.com/TrigenSoftware/nano_kit/issues/242)) ([13a2eb3](https://github.com/TrigenSoftware/nano_kit/commit/13a2eb3f5b5f5f5e619952a3bf052573c705a99c))
+
 ## [1.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0-alpha.1...v1.0.0) (2026-07-22)
 
 ### Nano Kit 1.0 🎉

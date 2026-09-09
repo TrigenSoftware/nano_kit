@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.2.0...v2.0.0) (2026-09-09)
+
+### Features
+
+* add development diagnostics with separate development and production builds ([#236](https://github.com/TrigenSoftware/nano_kit/issues/236)) ([39be996](https://github.com/TrigenSoftware/nano_kit/commit/39be99600aa5c5066b8eb5205431740986df3dee))
+
+### Bug Fixes
+
+* render the `httpEquiv` meta prop as the `http-equiv` attribute ([#253](https://github.com/TrigenSoftware/nano_kit/issues/253)) ([568df71](https://github.com/TrigenSoftware/nano_kit/commit/568df7139c2138e0a20f75d397ed6d9a6f4cdc9c))
+
 ## [1.2.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0...v1.2.0) (2026-08-30)
 
 ### Features

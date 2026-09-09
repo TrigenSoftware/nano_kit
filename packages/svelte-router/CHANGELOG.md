@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0...v2.0.0) (2026-09-09)
+
+### Bug Fixes
+
+* re-render `App` when the matched page component changes ([#241](https://github.com/TrigenSoftware/nano_kit/issues/241)) ([0d44ed1](https://github.com/TrigenSoftware/nano_kit/commit/0d44ed15aa9d10b517e57a3255b4abd595f523d9))
+* resolve `getLocation`, `getNavigation`, `getPaths` and `getCanGoBack` through the Svelte context ([#240](https://github.com/TrigenSoftware/nano_kit/issues/240)) ([2e465d3](https://github.com/TrigenSoftware/nano_kit/commit/2e465d36cbc0733f848301a570c52e5610559b1e))
+
 ## [1.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0-alpha.1...v1.0.0) (2026-07-22)
 
 ### Nano Kit 1.0 🎉
