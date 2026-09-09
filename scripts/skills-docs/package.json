@@ -1,0 +1,29 @@
+{
+  "name": "skills-docs",
+  "type": "module",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Generates DOCS.md next to agent skills from Starlight docs sources.",
+  "author": "dangreen",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TrigenSoftware/nano_kit.git",
+    "directory": "scripts/skills-docs"
+  },
+  "bugs": {
+    "url": "https://github.com/TrigenSoftware/nano_kit/issues"
+  },
+  "bin": {
+    "skills-docs": "./index.js"
+  },
+  "dependencies": {
+    "mdast-util-to-markdown": "^2.1.2",
+    "remark-gfm": "^4.0.1",
+    "remark-mdx": "^3.1.1",
+    "remark-parse": "^11.0.0",
+    "remark-stringify": "^11.0.0",
+    "unified": "^11.0.5",
+    "yaml": "^2.9.0"
+  }
+}

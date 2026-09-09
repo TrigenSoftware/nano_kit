@@ -24,6 +24,29 @@ A lightweight, modular, and performant state management ecosystem for building m
 | [`@nano_kit/svelte-kit`](packages/svelte-kit#readme) | SvelteKit integration for stores, router, and SSR. | [![NPM version][svelte-kit-npm]][svelte-kit-npm-url] |
 | [`@nano_kit/next-router`](packages/next-router#readme) | Next.js integration for @nano_kit/router. | [![NPM version][next-router-npm]][next-router-npm-url] |
 
+## Agent Skills
+
+Universal agent skills for AI coding agents, one per package, live in the [skills](skills) directory:
+
+- [`nano-kit-store`](skills/nano-kit-store)
+- [`nano-kit-query`](skills/nano-kit-query)
+- [`nano-kit-intl`](skills/nano-kit-intl)
+- [`nano-kit-platform-web`](skills/nano-kit-platform-web)
+- [`nano-kit-react`](skills/nano-kit-react)
+- [`nano-kit-react-router`](skills/nano-kit-react-router)
+- [`nano-kit-react-ssr`](skills/nano-kit-react-ssr)
+
+Install a skill with either package runner:
+
+```sh
+# pnpm
+pnpx skills add TrigenSoftware/nano_kit --skill nano-kit-store
+# npm
+npx skills add TrigenSoftware/nano_kit --skill nano-kit-store
+```
+
+See the [Agent Skills](https://nano-kit.js.org/getting-started/agent-skills/) page for details.
+
 <!-- store -->
 
 [store-npm]: https://img.shields.io/npm/v/%40nano_kit%2Fstore.svg

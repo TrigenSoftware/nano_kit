@@ -112,7 +112,9 @@ export default defineConfig({
         baseUrl: 'https://github.com/TrigenSoftware/nano_kit/edit/main/website/'
       },
       plugins: [
-        llmsTxt(),
+        llmsTxt({
+          exclude: ['articles/**']
+        }),
         viewTransitions(),
         starlightSidebarTopics(
           [

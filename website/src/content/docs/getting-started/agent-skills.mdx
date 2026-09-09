@@ -1,0 +1,42 @@
+---
+title: Agent Skills
+description: Universal agent skills shipped with Nano Kit, one per package, each bundled with the documentation of the released package.
+sidebar:
+  order: 2
+---
+
+import { Aside, Code, Tabs, TabItem } from '@astrojs/starlight/components'
+
+The repository ships **universal agent skills**: instructions that teach an AI coding agent how to build with Nano Kit. They are compatible with Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, Windsurf, Cline and other agents that support the [skills](https://github.com/vercel-labs/skills) format.
+
+## Skills
+
+- [`nano-kit-store`](https://github.com/TrigenSoftware/nano_kit/tree/main/skills/nano-kit-store)
+- [`nano-kit-query`](https://github.com/TrigenSoftware/nano_kit/tree/main/skills/nano-kit-query)
+- [`nano-kit-intl`](https://github.com/TrigenSoftware/nano_kit/tree/main/skills/nano-kit-intl)
+- [`nano-kit-platform-web`](https://github.com/TrigenSoftware/nano_kit/tree/main/skills/nano-kit-platform-web)
+- [`nano-kit-react`](https://github.com/TrigenSoftware/nano_kit/tree/main/skills/nano-kit-react)
+- [`nano-kit-react-router`](https://github.com/TrigenSoftware/nano_kit/tree/main/skills/nano-kit-react-router)
+- [`nano-kit-react-ssr`](https://github.com/TrigenSoftware/nano_kit/tree/main/skills/nano-kit-react-ssr)
+
+Install `nano-kit-store` first, then the skills for the packages your app uses. The framework and SSR skills refer to the store skill for the reactive core instead of repeating it.
+
+## Installation
+
+Install a skill into your project with either package runner, replacing the skill name as needed:
+
+<Tabs syncKey='pkg'>
+  <TabItem label='pnpm' icon='pnpm'>
+    <Code frame='none' lang='bash' code='pnpx skills add TrigenSoftware/nano_kit --skill nano-kit-store' />
+  </TabItem>
+  <TabItem label='Yarn' icon='seti:yarn'>
+    <Code frame='none' lang='bash' code='yarn dlx skills add TrigenSoftware/nano_kit --skill nano-kit-store' />
+  </TabItem>
+  <TabItem label='npm' icon='seti:npm'>
+    <Code frame='none' lang='bash' code='npx skills add TrigenSoftware/nano_kit --skill nano-kit-store' />
+  </TabItem>
+</Tabs>
+
+<Aside title='What gets installed'>
+  The command copies the skill, `SKILL.md` and `DOCS.md`, into the skills directory of your agent. From then on, asking the agent to add a store, wire a query or set up server rendering follows the conventions and the released API of the package instead of an improvised setup.
+</Aside>
