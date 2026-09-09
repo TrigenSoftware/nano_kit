@@ -28,6 +28,7 @@
     "test:types": "pnpm -r --parallel --if-present --filter './packages/*' test:types",
     "test": "run -p lint test:unit test:types",
     "docs:build": "pnpm -r --parallel --filter './website' build",
+    "skills:docs": "skills-docs --tabs pnpm --drop 'See Also,Next Steps,Low-Level API'",
     "examples:sync": "pnpm -r --parallel --if-present --filter './examples/*/common' sync",
     "examples:test": "pnpm -r --sequential --if-present --filter './examples/*/common' test",
     "commit": "cz",
@@ -60,6 +61,7 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "simple-git-hooks": "^2.7.0",
+    "skills-docs": "workspace:*",
     "typescript": "catalog:"
   }
 }

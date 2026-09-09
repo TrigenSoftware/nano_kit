@@ -63,7 +63,7 @@ import { $admins } from '../stores/admins.js'
 
 export function Admins() {
   return ul()(
-    for$($admins, user => user.id)(
+    for_($admins, user => user.id)(
       $admin => li()(record($admin).$name)
     )
   )
