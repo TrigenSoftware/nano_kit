@@ -435,7 +435,10 @@ export function batch<T>(fn: () => T): T {
   try {
     return fn()
   } finally {
-    if (!--batchDepth) {
+    // Inside a running flush the writes join its queue, as a plain write
+    // does: draining it here would run the queued effects on the caller's
+    // stack, in the middle of whatever the caller was building
+    if (!--batchDepth && !flushDepth) {
       flush()
     }
   }
@@ -666,7 +669,7 @@ export function trigger(fn: () => void) {
       }
     }
 
-    if (!--batchDepth) {
+    if (!--batchDepth && !flushDepth) {
       flush()
     }
   }
