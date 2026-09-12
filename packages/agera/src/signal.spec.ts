@@ -1069,7 +1069,57 @@ describe('agera', () => {
       })
     })
 
+    describe('batch', () => {
+      it('should queue writes onto the running flush when called inside an effect', () => {
+        const $a = signal(0)
+        const $b = signal(0)
+        const order: string[] = []
+
+        effect(() => {
+          if ($a()) {
+            batch(() => $b(1))
+            order.push('a done')
+          }
+        })
+        effect(() => {
+          order.push(`c ${$a()}`)
+        })
+        effect(() => {
+          order.push(`b ${$b()}`)
+        })
+
+        order.length = 0
+        $a(1)
+
+        expect(order).toEqual(['a done', 'c 1', 'b 1'])
+      })
+    })
+
     describe('trigger', () => {
+      it('should queue updates onto the running flush when called inside an effect', () => {
+        const $a = signal(0)
+        const $b = signal(0)
+        const order: string[] = []
+
+        effect(() => {
+          if ($a()) {
+            trigger($b)
+            order.push('a done')
+          }
+        })
+        effect(() => {
+          order.push(`c ${$a()}`)
+        })
+        effect(() => {
+          order.push(`b ${$b()}`)
+        })
+
+        order.length = 0
+        $a(1)
+
+        expect(order).toEqual(['a done', 'c 1', 'b 0'])
+      })
+
       it('should trigger updates for dependent computed signals', () => {
         const arr = signal<number[]>([])
         const length = computed(() => arr().length)
