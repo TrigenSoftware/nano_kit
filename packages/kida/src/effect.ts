@@ -12,16 +12,14 @@ export * from './internals/effect.js'
  * Will trigger accessor mount if applicable.
  * @param source - The accessor to subscribe to or a value to call the callback with.
  * @param fn - The callback to call on value change.
- * @param noDefer - Ignore subscription defer. Enabled by default.
  * @returns A function to stop the subscription.
  */
 export function subscribeAny<T>(
   source: Signalish<T>,
-  callback: (value: T) => void,
-  noDefer = true
+  callback: (value: T) => void
 ) {
   if (isAccessor(source)) {
-    return subscribe(source, callback, noDefer)
+    return subscribe(source, callback)
   }
 
   callback(source)

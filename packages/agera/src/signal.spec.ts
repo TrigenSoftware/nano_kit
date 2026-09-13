@@ -10,6 +10,7 @@ import {
   batch,
   computed,
   createSignal,
+  deferEffect,
   deferScope,
   effect,
   effectScope,
@@ -604,7 +605,7 @@ describe('agera', () => {
         const $isSelected = selector(source)
         const values: boolean[] = []
         const scope = deferScope(() => {
-          effect(() => {
+          deferEffect(() => {
             values.push($isSelected(1))
           })
         })

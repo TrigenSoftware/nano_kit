@@ -8,6 +8,7 @@ import {
   type DeferredScope,
   computed,
   effect,
+  deferEffect,
   effectScope,
   batch,
   untracked,
@@ -1406,7 +1407,7 @@ describe('agera', () => {
       function header() {
         log.push('header')
 
-        effect(() => {
+        deferEffect(() => {
           log.push(`header user ${$user()}`)
 
           return () => log.push('header user destroy')
@@ -1416,7 +1417,7 @@ describe('agera', () => {
       function footer() {
         log.push('footer')
 
-        effect(() => {
+        deferEffect(() => {
           log.push(`footer year ${$year()}`)
 
           return () => log.push('footer year destroy')
@@ -1426,7 +1427,7 @@ describe('agera', () => {
       function reads() {
         log.push(`reads init ${$reads()}`)
 
-        effect(() => {
+        deferEffect(() => {
           log.push(`reads ${$reads()}`)
 
           return () => log.push('reads destroy')
@@ -1436,7 +1437,7 @@ describe('agera', () => {
       function subs() {
         log.push(`subs init ${$subs()}`)
 
-        effect(() => {
+        deferEffect(() => {
           log.push(`subs ${$subs()}`)
 
           return () => log.push('subs destroy')
@@ -1446,7 +1447,7 @@ describe('agera', () => {
       function body() {
         log.push('body')
 
-        effect(() => {
+        deferEffect(() => {
           log.push(`body views ${$views()}`)
 
           return () => log.push('body views destroy')
@@ -1464,7 +1465,7 @@ describe('agera', () => {
         })
         let scope = confition(tab)
 
-        effect((warmup) => {
+        deferEffect((warmup) => {
           const tab = $tab()
 
           log.push(`body tab ${tab}`)
@@ -1488,7 +1489,7 @@ describe('agera', () => {
       function page() {
         log.push('page')
 
-        effect(() => {
+        deferEffect(() => {
           log.push('page mount')
 
           return () => log.push('page destroy')
@@ -1591,27 +1592,27 @@ describe('agera', () => {
     it('should run nested scopes before own effects', () => {
       const log: string[] = []
       const scope = deferScope(() => {
-        effect(() => {
+        deferEffect(() => {
           log.push('own-1')
         })
         effectScope(() => {
-          effect(() => {
+          deferEffect(() => {
             log.push('nested-a')
           })
           effectScope(() => {
-            effect(() => {
+            deferEffect(() => {
               log.push('nested-a-deep')
             })
           })
-          effect(() => {
+          deferEffect(() => {
             log.push('nested-b')
           })
         })
-        effect(() => {
+        deferEffect(() => {
           log.push('own-2')
         })
         effectScope(() => {
-          effect(() => {
+          deferEffect(() => {
             log.push('nested-c')
           })
         })
@@ -1636,17 +1637,17 @@ describe('agera', () => {
     it('should start linked deferred scopes with parent before own effects', () => {
       const log: string[] = []
       const scope = deferScope(() => {
-        effect(() => {
+        deferEffect(() => {
           log.push('own-1')
         })
 
         boundDeferScope()(() => {
-          effect(() => {
+          deferEffect(() => {
             log.push('content')
           })
         })
 
-        effect(() => {
+        deferEffect(() => {
           log.push('own-2')
         })
       })
@@ -1668,7 +1669,7 @@ describe('agera', () => {
       const log: string[] = []
       const scope = deferScope(() => {
         boundDeferScope()(() => {
-          effect(() => {
+          deferEffect(() => {
             log.push('content')
 
             return () => log.push('content destroy')
@@ -1690,7 +1691,7 @@ describe('agera', () => {
       let content: DeferredScope
       const scope = deferScope(() => {
         content = boundDeferScope()(() => {
-          effect(() => {
+          deferEffect(() => {
             log.push('content')
           })
         })
@@ -1713,7 +1714,7 @@ describe('agera', () => {
       let content: DeferredScope
       const scope = deferScope(() => {
         content = boundDeferScope()(() => {
-          effect(() => {
+          deferEffect(() => {
             log.push('content')
 
             return () => log.push('content destroy')
@@ -1738,15 +1739,15 @@ describe('agera', () => {
     it('should destroy nested scope effects before own effects', () => {
       const log: string[] = []
       const scope = deferScope(() => {
-        effect(() => () => {
+        deferEffect(() => () => {
           log.push('own-1 destroy')
         })
         boundDeferScope()(() => {
-          effect(() => () => {
+          deferEffect(() => () => {
             log.push('nested destroy')
           })
         })
-        effect(() => () => {
+        deferEffect(() => () => {
           log.push('own-2 destroy')
         })
       })
@@ -1766,11 +1767,11 @@ describe('agera', () => {
     it('should destroy trailing nested scope before own effects', () => {
       const log: string[] = []
       const scope = deferScope(() => {
-        effect(() => () => {
+        deferEffect(() => () => {
           log.push('own destroy')
         })
         boundDeferScope()(() => {
-          effect(() => () => {
+          deferEffect(() => () => {
             log.push('nested destroy')
           })
         })
@@ -1787,7 +1788,7 @@ describe('agera', () => {
     it('should start and stop deferred scope with same handle', () => {
       const log: string[] = []
       const scope = deferScope(() => {
-        effect(() => {
+        deferEffect(() => {
           log.push('run')
 
           return () => log.push('destroy')
@@ -1803,19 +1804,20 @@ describe('agera', () => {
       expect(log).toEqual(['run', 'destroy'])
     })
 
-    it('should not warm up effect stopped during deferred start', () => {
+    it('should not warm up effects of a scope stopped during its deferred start', () => {
       const log: string[] = []
+      // oxlint-disable-next-line no-use-before-define
       const scope = deferScope(() => {
-        const stopFirst = effect(() => {
+        deferEffect(() => {
           log.push('first')
 
           return () => log.push('first destroy')
         })
 
         effectScope(() => {
-          effect(() => {
+          deferEffect(() => {
             log.push('stopper')
-            stopFirst()
+            stopScope(scope)
           })
         })
       })
@@ -1835,7 +1837,7 @@ describe('agera', () => {
     it('should start linked scope without lazy parent via startScope', () => {
       const log: string[] = []
       const scope = boundDeferScope()(() => {
-        effect(() => {
+        deferEffect(() => {
           log.push('run')
 
           return () => log.push('destroy')
@@ -1864,7 +1866,7 @@ describe('agera', () => {
       startScope(scope)
 
       const late = linked!(() => {
-        effect(() => {
+        deferEffect(() => {
           log.push('late')
 
           return () => log.push('late destroy')
@@ -1888,7 +1890,7 @@ describe('agera', () => {
       let stopSelf!: () => void
       const scope = deferScope(() => {
         const inner = deferScope(() => {
-          effect(() => {
+          deferEffect(() => {
             log.push('run')
             stopSelf()
 
@@ -1898,7 +1900,7 @@ describe('agera', () => {
 
         stopSelf = () => stopScope(inner)
 
-        effect(() => {
+        deferEffect(() => {
           startScope(inner)
         })
       })
@@ -1918,7 +1920,7 @@ describe('agera', () => {
       onMounted($num, callback)
 
       const scope = deferScope(() => {
-        effect(() => {
+        deferEffect(() => {
           $num()
         }, true)
       })
@@ -1968,7 +1970,7 @@ describe('agera', () => {
       })
 
       scope = deferScope(() => {
-        effect(() => {
+        deferEffect(() => {
           $derived()
 
           return () => cleanupEvents.push('effect cleanup')
@@ -1993,7 +1995,7 @@ describe('agera', () => {
       stopScope(scope)
 
       const late = linked!(() => {
-        effect(() => {
+        deferEffect(() => {
           log.push('late')
         })
       })
@@ -2012,7 +2014,7 @@ describe('agera', () => {
       const scope = deferScope(() => {
         $num()
 
-        effect(() => {
+        deferEffect(() => {
           $num()
         })
       })
@@ -2036,7 +2038,7 @@ describe('agera', () => {
       const scope = deferScope(() => {
         $double()
 
-        effect(() => {
+        deferEffect(() => {
           $double()
         })
       })
@@ -2062,7 +2064,7 @@ describe('agera', () => {
       const scope = deferScope(() => {
         $double()
 
-        effect(() => {
+        deferEffect(() => {
           $double()
         })
       })
@@ -2082,7 +2084,7 @@ describe('agera', () => {
       const $num = signal(0)
       const onEffect = vi.fn()
       const scope = deferScope(() => {
-        effect(() => {
+        deferEffect(() => {
           onEffect($num())
         })
       })
@@ -2107,7 +2109,7 @@ describe('agera', () => {
         3
       ])
       const onChange = vi.fn()
-      const createItem = (i: number) => effect(() => {
+      const createItem = (i: number) => deferEffect(() => {
         onChange($items()[i])
       })
       const itemsScope = deferScope(() => {
@@ -2156,13 +2158,12 @@ describe('agera', () => {
         'three'
       ])
       const $index = signal(0)
-      let destroyItemEffect: () => void
       const loopScope = deferScope(() => {
         logs.push('loop scope init')
 
         const $item = computed(() => $items()[$index()])
 
-        destroyItemEffect = effect(() => {
+        deferEffect(() => {
           logs.push(`item effect ${$item()}`)
 
           return () => logs.push('item destroy')
@@ -2201,7 +2202,6 @@ describe('agera', () => {
 
       expect(logs).toEqual(['items effect', 'items effect update'])
 
-      destroyItemEffect!()
       stopScope(loopScope)
       itemsDestroy()
     })
@@ -2241,7 +2241,7 @@ describe('agera', () => {
       const $value = signal(1)
       const log: string[] = []
       const scope = deferScope(() => {
-        effect(() => {
+        deferEffect(() => {
           log.push(`value ${$value()}`)
 
           return () => log.push('cleanup')
@@ -2282,10 +2282,10 @@ describe('agera', () => {
       const $value = signal(1)
       const log: string[] = []
       const scope = deferScope(() => {
-        effect(() => {
+        deferEffect(() => {
           log.push(`deferred ${$value()}`)
         })
-        effect(() => {
+        deferEffect(() => {
           log.push(`live ${$value()}`)
         }, true)
       })
@@ -2309,12 +2309,12 @@ describe('agera', () => {
       const log: string[] = []
       let inner!: DeferredScope
       const scope = deferScope(() => {
-        effect(() => {
+        deferEffect(() => {
           log.push('outer')
         })
 
         inner = boundDeferScope()(() => {
-          effect(() => {
+          deferEffect(() => {
             log.push('inner')
           })
         })
@@ -2338,12 +2338,12 @@ describe('agera', () => {
       const log: string[] = []
       let inner!: DeferredScope
       const scope = deferScope(() => {
-        effect(() => {
+        deferEffect(() => {
           log.push(`outer ${$value()}`)
         })
 
         inner = boundDeferScope()(() => {
-          effect(() => {
+          deferEffect(() => {
             log.push(`inner ${$value()}`)
           })
         })
@@ -2371,7 +2371,7 @@ describe('agera', () => {
     it('should stop a paused scope without doubling cleanups', () => {
       const log: string[] = []
       const scope = deferScope(() => {
-        effect(() => {
+        deferEffect(() => {
           log.push('run')
 
           return () => log.push('cleanup')
@@ -2396,7 +2396,7 @@ describe('agera', () => {
       const scope = deferScope(() => {
         log.push($value(), $double())
 
-        effect(() => {
+        deferEffect(() => {
           log.push(`effect ${$value()}`)
         })
       })
@@ -2421,7 +2421,7 @@ describe('agera', () => {
       let hide = true
       // oxlint-disable-next-line no-use-before-define
       const scope = deferScope(() => {
-        effect(() => {
+        deferEffect(() => {
           log.push(`run ${$value()}`)
 
           if (hide && $value() === 1) {
@@ -2454,20 +2454,20 @@ describe('agera', () => {
       stopScope(scope)
     })
 
-    it('should step over an effect stopped by a sibling warmed up in the resume walk', () => {
+    it('should step over effects of a scope stopped by a sibling warmed up in the resume walk', () => {
       const log: string[] = []
       let kill = false
-      let stopSecond!: () => void
+      // oxlint-disable-next-line no-use-before-define
       const scope = deferScope(() => {
-        effect(() => {
+        deferEffect(() => {
           log.push('first')
 
           if (kill) {
-            stopSecond()
+            stopScope(scope)
           }
         })
 
-        stopSecond = effect(() => {
+        deferEffect(() => {
           log.push('second')
         })
       })
@@ -2490,7 +2490,7 @@ describe('agera', () => {
       const $value = signal(0)
       const log: number[] = []
       const scope = deferScope(() => {
-        effect(() => {
+        deferEffect(() => {
           log.push($value())
         })
       })
@@ -2519,7 +2519,7 @@ describe('agera', () => {
     it('should ignore pause of a stopped scope', () => {
       const log: string[] = []
       const scope = deferScope(() => {
-        effect(() => {
+        deferEffect(() => {
           log.push('run')
         })
       })
