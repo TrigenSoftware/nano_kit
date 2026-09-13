@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.2.0...v2.0.0) (2026-09-13)
+
+### ⚠ BREAKING CHANGES
+
+* `effect` no longer defers when created inside a deferred scope body: use
+  `deferEffect` there. `subscribe`, `listen`, `observe` and `subscribeAny` no longer accept the
+  `noDefer` argument.
+
+### Features
+
+* add `deferEffect` for effects owned by a deferred scope ([#257](https://github.com/TrigenSoftware/nano_kit/issues/257)) ([12cb14b](https://github.com/TrigenSoftware/nano_kit/commit/12cb14b4ca39645dbd2899e8e2b79738d387c854))
+* add `inspect` to report graph events in the development build ([#237](https://github.com/TrigenSoftware/nano_kit/issues/237)) ([07e4290](https://github.com/TrigenSoftware/nano_kit/commit/07e4290790f7c2b75864fa0e82e2fa7acd0ed76c))
+* add development diagnostics with separate development and production builds ([#236](https://github.com/TrigenSoftware/nano_kit/issues/236)) ([39be996](https://github.com/TrigenSoftware/nano_kit/commit/39be99600aa5c5066b8eb5205431740986df3dee))
+
+### Bug Fixes
+
+* queue `batch` and `trigger` writes onto a running flush instead of draining it ([#256](https://github.com/TrigenSoftware/nano_kit/issues/256)) ([d6afbdd](https://github.com/TrigenSoftware/nano_kit/commit/d6afbdd0dcd8dd02ecf8172698b9cca9f4d290c5))
+
 ## [1.2.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0...v1.2.0) (2026-08-30)
 
 ### Features
