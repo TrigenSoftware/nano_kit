@@ -5,6 +5,7 @@ import type {
 } from './internals/types.js'
 import {
   effect,
+  deferEffect,
   effectScope,
   deferScope,
   boundDeferScope,
@@ -18,6 +19,7 @@ import {
 
 export {
   effect,
+  deferEffect,
   boundDeferScope,
   effectScope,
   deferScope,
@@ -33,13 +35,11 @@ export {
  * Will trigger accessor mount if applicable.
  * @param $accessor - The accessor to subscribe to.
  * @param fn - The callback to call on value change.
- * @param noDefer - Ignore subscription defer.
  * @returns A function to stop the subscription.
  */
 export function subscribe<T>(
   $accessor: Accessor<T>,
-  fn: ObserverCallback<T>,
-  noDefer?: boolean
+  fn: ObserverCallback<T>
 ) {
   return effect(() => {
     const value = $accessor()
@@ -52,7 +52,7 @@ export function subscribe<T>(
     } finally {
       popActiveSub(prevSub)
     }
-  }, noDefer)
+  })
 }
 
 /**
@@ -61,13 +61,11 @@ export function subscribe<T>(
  * Will trigger accessor mount if applicable.
  * @param $accessor - The accessor to subscribe to.
  * @param fn - The callback to call on value change.
- * @param noDefer - Ignore subscription defer.
  * @returns A function to stop the subscription.
  */
 export function listen<T>(
   $accessor: Accessor<T>,
-  fn: ObserverCallback<T>,
-  noDefer?: boolean
+  fn: ObserverCallback<T>
 ) {
   return effect((warmup) => {
     const value = $accessor()
@@ -81,7 +79,7 @@ export function listen<T>(
         popActiveSub(prevSub)
       }
     }
-  }, noDefer)
+  })
 }
 
 /**
@@ -90,13 +88,11 @@ export function listen<T>(
  * Will not trigger accessor mount.
  * @param $accessor - The accessor to subscribe to.
  * @param fn - The callback to call on value change.
- * @param noDefer - Ignore subscription defer.
  * @returns A function to stop the subscription.
  */
 export function observe<T>(
   $accessor: ReadableSignal<T>,
-  fn: ObserverCallback<T>,
-  noDefer?: boolean
+  fn: ObserverCallback<T>
 ) {
   // The exemption is the node the subscription links, preset on the
   // subscriber itself: no context window is needed to pair them with the
@@ -113,5 +109,5 @@ export function observe<T>(
         popActiveSub(prevSub)
       }
     }
-  }, noDefer, $accessor.node)
+  }, $accessor.node)
 }

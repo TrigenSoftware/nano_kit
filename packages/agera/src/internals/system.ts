@@ -546,18 +546,17 @@ export function effect(fn: EffectCallback): Destroy
 
 /**
  * Run effect function and re-run it on dependency change.
- * The third argument is internal: it exists for `observe`, which must pair
+ * The second argument is internal: it exists for `observe`, which must pair
  * the exemption with its node before the warmup boundary fires.
  * @internal
  * @param fn - The effect function to run.
- * @param noDefer - Ignore effect deferring.
  * @param lcx - The node this watcher must not keep mounted.
  * @returns A function to stop the effect.
  */
 // oxlint-disable-next-line typescript/unified-signatures
-export function effect(fn: EffectCallback, noDefer?: boolean, lcx?: ReactiveNode): Destroy
+export function effect(fn: EffectCallback, lcx?: ReactiveNode): Destroy
 
-export function effect(fn: EffectCallback, noDefer?: boolean, lcx?: ReactiveNode): Destroy {
+export function effect(fn: EffectCallback, lcx?: ReactiveNode): Destroy {
   const e: EffectNode = {
     fn,
     destroy: undefined,
@@ -578,19 +577,53 @@ export function effect(fn: EffectCallback, noDefer?: boolean, lcx?: ReactiveNode
 
   if (activeSub !== undefined) {
     link(e, activeSub, 0)
-
-    if (!noDefer && activeSub.modes & LazyMode) {
-      // The deferral mark outlives the token: a pause walk takes what was
-      // deferred and leaves everything else - `noDefer` effects among it -
-      // running, so a hidden subtree stays reachable through them
-      e.modes = LazyMode | DeferredMode
-      return effectOper.bind(e)
-    }
   }
 
   warmupEffect(e)
 
   return effectOper.bind(e)
+}
+
+/**
+ * Run effect function and re-run it on dependency change. Created in a
+ * deferred scope body, it starts with the scope and sleeps while the scope is
+ * paused. The scope owns it: there is no stop function.
+ * @param fn - The effect function to run.
+ */
+export function deferEffect(fn: EffectCallback): void
+
+/**
+ * Run effect function and re-run it on dependency change.
+ * @internal
+ * @param fn - The effect function to run.
+ * @param noDefer - Start at once and keep running while the scope is paused.
+ */
+// oxlint-disable-next-line typescript/unified-signatures
+export function deferEffect(fn: EffectCallback, noDefer?: boolean): void
+
+export function deferEffect(fn: EffectCallback, noDefer?: boolean): void {
+  const e: EffectNode = {
+    fn,
+    destroy: undefined,
+    subs: undefined,
+    subsTail: undefined,
+    deps: undefined,
+    depsTail: undefined,
+    flags: WatchingFlag | RecursedCheckFlag,
+    // A deferred scope body is lazy while it runs. The deferral mark outlives
+    // the token: a pause walk takes what was deferred and leaves `noDefer`
+    // effects running, so a hidden subtree stays reachable through them
+    modes: noDefer ? NoneFlag : LazyMode | DeferredMode,
+    // The lifecycle edge writes this slot: keep the shape of `effect` nodes
+    lcx: undefined
+  }
+
+  lifecycleEdge?.(e, e)
+  link(e, activeSub!, 0)
+
+  if (noDefer) {
+    warmupEffect(e)
+  }
 }
 
 /**
@@ -1162,11 +1195,13 @@ export function selector<T, U = T, R = boolean>(
 
 // #region Defer scopes
 //
-// A deferred scope is an ordinary effect scope whose effects are captured
-// but not warmed up: `deferScope` runs the body, `startScope` releases it,
-// `pauseScope` puts it down keeping the nodes, `resumeScope` warms them
-// back up, `stopScope` discards it. The layer introduces no node kind and
-// no new field - the whole state machine is two mode bits on a scope node:
+// A deferred scope is an ordinary effect scope whose `deferEffect` effects
+// are captured but not warmed up: `deferScope` runs the body, `startScope`
+// releases it, `pauseScope` puts it down keeping the nodes, `resumeScope`
+// warms them back up, `stopScope` discards it. A plain `effect` created in
+// the body runs at once and only goes with the scope stop. The layer
+// introduces no node kind and no new field - the whole state machine is two
+// mode bits on a scope node:
 //
 //   LazyMode set     LAZY      body ran, nothing was warmed up yet
 //   + PausedMode     HELD      stays lazy across the parent start
@@ -1175,9 +1210,10 @@ export function selector<T, U = T, R = boolean>(
 //   LazyMode clear   STOPPED   effects are gone      (flags === NoneFlag)
 //
 // LAW 1 - LazyMode is a one-shot token.
-// Minted in exactly one place, `deferScope`. Inherited everywhere else by a
-// single rule shared with `effect` and `effectScope`: a node created at a
-// lazy position is created lazy, so a subtree defers as one. Spent by
+// Minted in exactly one place, `deferScope`. Inherited everywhere else: a
+// scope created at a lazy position is created lazy, and a `deferEffect`
+// without `noDefer` is always created lazy, because it is only ever created
+// in a scope body that is still running, so a subtree defers as one. Spent by
 // exactly one of two claimants - `startScope`, which keeps the promise and
 // warms the subtree up, or the STOPPED transition (`effectScopeOper`),
 // which revokes it. Spending is always `modes &= ~LazyMode`.
@@ -1189,10 +1225,11 @@ export function selector<T, U = T, R = boolean>(
 // A node may therefore be stopped at any moment, including from inside the
 // walk that is starting it, and no participant has to know about it.
 // Two edges sit outside the contract: stopping a node from inside its own
-// still-running body leaves whatever the body creates after that point
-// live (imperative self-teardown mid-body is not a supported move), and a
-// lazy scope discarded by `unwatched` keeps an unspent token over already
-// purged deps, so a later start finds nothing to do.
+// still-running body leaves the scopes and the non-deferred effects the body
+// creates after that point live (imperative self-teardown mid-body is not a
+// supported move), and a lazy scope discarded by `unwatched` keeps an
+// unspent token over already purged deps, so a later start finds nothing to
+// do.
 //
 // LAW 2 - stopping is total.
 // `stopScope` is defined on a scope in any state, at any moment, and has to
@@ -1236,8 +1273,8 @@ function createScope(parent: ReactiveNode | undefined): ReactiveNode {
 
   if (parent !== undefined) {
     link(e, parent, 0)
-    // Inherit the state of the position, exactly as `effect` and
-    // `effectScope` do, so a subtree defers and starts as one
+    // Inherit the state of the position, exactly as `effectScope` does, so
+    // a subtree defers and starts as one
     e.modes |= parent.modes & LazyMode
   }
 
@@ -1394,8 +1431,8 @@ function pauseDeferred(e: ReactiveNode): void {
 
     // Then the effects captured directly here: exactly the ones that were
     // deferred at creation take the pause token, so signals and computeds
-    // captured by a read in the scope body, `noDefer` effects - a hidden
-    // subtree is kept reachable through them - and anything stopped
+    // captured by a read in the scope body, plain and `noDefer` effects - a
+    // hidden subtree is kept reachable through them - and anything stopped
     // meanwhile stay untouched
     do {
       const dep = own.dep
@@ -1460,9 +1497,9 @@ function resumeDeferred(e: ReactiveNode): void {
 /**
  * Pause the scope: destroy nothing, run effect cleanups, drop their
  * subscriptions and keep the nodes for `resumeScope` to warm back up.
- * `noDefer` effects keep running. A nested scope paused on its own stays
- * paused across an outer pause and resume, and a lazy scope paused before
- * its first start does not start with its parent.
+ * Plain and `noDefer` effects keep running. A nested scope paused on its
+ * own stays paused across an outer pause and resume, and a lazy scope paused
+ * before its first start does not start with its parent.
  * @internal
  * @param scope - Deferred scope handle.
  */
