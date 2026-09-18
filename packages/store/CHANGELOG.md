@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.2.0...v2.0.0) (2026-09-18)
+
+### ⚠ BREAKING CHANGES
+
+* an operator called with static operands returns the value, not an accessor.
+  `concat` is removed, the `f` tag takes its place.
+* the tasks pool is gone — `TasksPool$`, `TasksRunner$`, `tasksRunner`, `addTask`,
+  `waitCurrentTasks` and `taskPromise` are removed, `waitTasks` takes a signal instead of a pool, and
+  the `tasks()` and `ssr()` query settings are removed: `hydratable()` is the whole SSR setting.
+
+### Features
+
+* add development diagnostics with separate development and production builds ([#236](https://github.com/TrigenSoftware/nano_kit/issues/236)) ([39be996](https://github.com/TrigenSoftware/nano_kit/commit/39be99600aa5c5066b8eb5205431740986df3dee))
+* attach tasks to the signals they fill ([#222](https://github.com/TrigenSoftware/nano_kit/issues/222)) ([841acd1](https://github.com/TrigenSoftware/nano_kit/commit/841acd12fcb3c2bd6c494f9ff47dfe998c962457))
+* return a plain result from the operators when every operand is static ([#260](https://github.com/TrigenSoftware/nano_kit/issues/260)) ([3a8b32f](https://github.com/TrigenSoftware/nano_kit/commit/3a8b32f674e045cc42fd422803983f604b5cb4f9))
+
 ## [1.2.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0...v1.2.0) (2026-08-30)
 
 ### Features
