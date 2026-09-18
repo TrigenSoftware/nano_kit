@@ -4,11 +4,7 @@ import {
   computed,
   untracked
 } from 'agera'
-import type {
-  AnyFn,
-  Signalish
-} from './types.js'
-import { $get } from './internals/utils.js'
+import type { AnyFn } from './types.js'
 
 export * from './internals/utils.js'
 
@@ -41,16 +37,6 @@ export function length<T extends { length: number }>($signal: Accessor<T>) {
 /* @__NO_SIDE_EFFECTS__ */
 export function boolean<T>($signal: Accessor<T>) {
   return computed(() => Boolean($signal()))
-}
-
-/**
- * Concatenate multiple values or accessors into a single string.
- * @param parts - Values or accessors to concatenate.
- * @returns A computed signal that returns the concatenated string.
- */
-/* @__NO_SIDE_EFFECTS__ */
-export function concat(...parts: Signalish<unknown>[]) {
-  return computed(() => parts.map($get).join(''))
 }
 
 /**
