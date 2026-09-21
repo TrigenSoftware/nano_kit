@@ -1,116 +1,194 @@
 import {
-  type WritableSignal,
   type NewValue,
-  signal
+  type WritableSignal,
+  batch,
+  computed,
+  noop,
+  signal,
+  untracked
 } from 'kida'
 
-export const $$insert = Symbol()
-export const $$clear = Symbol()
-export const $$deleted = Symbol()
+type Item<V> = WritableSignal<V | undefined>
 
-export type SignalsMapEvent = typeof $$insert | typeof $$clear
-
-export interface SignalsMapEvents {
-  [$$insert]?: WritableSignal<number>
-  [$$clear]?: WritableSignal<number>
+// What the class keeps of Map: `has`, `keys` and `size` as they are, the rest
+// only through `super`. The items are signals, and a signal must not leave the
+// map, so whatever would hand one out is left undeclared. Declared only: the
+// cast in the heritage clause is all that is left of it at runtime
+declare class ItemsMap<K> {
+  readonly size: number
+  protected get(key: K): unknown
+  protected set(key: K, $item: unknown): this
+  protected values(): MapIterator<unknown>
+  delete(key: K): boolean
+  clear(): void
+  has(key: K): boolean
+  keys(): MapIterator<K>
 }
 
-export interface SignalsMap<K, V> extends SignalsMapEvents, Map<
-  K,
-  WritableSignal<V | undefined> | undefined
-> {}
-
-export function subMapEvent(map: SignalsMapEvents, event: SignalsMapEvent) {
-  (map[event] ??= signal(0))()
-}
-
-export function fireMapEvent(map: SignalsMapEvents, event: SignalsMapEvent) {
-  map[event]?.(x => x + 1)
-}
+// What the signal of a deleted item is left with: a value no item can hold,
+// so the write notifies whatever the item held - `undefined` included, which
+// is a value like any other here. Nobody reads it: the signal is out of the
+// map by then, and its readers run again to find that out
+const gone = {}
+// One counter for every map: a version only has to differ from the one its
+// signal holds, and the next epoch differs from all of them - with nothing
+// to allocate and no reducer to call
+let epoch = 0
 
 /**
- * Get value by key from the signals map.
- * @param map - The signals map.
- * @param key - The key to get.
- * @returns The value.
+ * A Map whose values are reactive: every value lives in a signal of its own,
+ * and the signals never leave the map.
  */
-export function $getMapKey<
-  K,
-  V
->(
-  map: SignalsMap<K, V>,
-  key: K
-) {
-  const $signal = map.get(key)
+export class SignalsMap<K, V> extends (Map as unknown as typeof ItemsMap)<K> {
+  // The version of the set of keys: moves when a key is added or removed.
+  // Shared with the subclass, so it is not private and a minifier leaves its
+  // name alone - which is why the name is this short
+  protected readonly $v = signal<number>()
 
-  if ($signal === undefined) {
-    subMapEvent(map, $$insert)
-    return undefined
+  /**
+   * Get the value by key without tracking it.
+   * @param key - The key to get.
+   * @returns The value.
+   */
+  override get(key: K): V | undefined {
+    const $item = super.get(key) as Item<V> | undefined
+
+    return $item && untracked($item)
   }
 
-  subMapEvent(map, $$clear)
+  /**
+   * Get the value by key: the running computed or effect runs again when
+   * the value changes, and when the key appears or goes.
+   * @param key - The key to get.
+   * @returns The value.
+   */
+  $get(key: K): V | undefined {
+    const $item = super.get(key) as Item<V> | undefined
 
-  return $signal()
-}
+    if ($item) {
+      return $item()
+    }
 
-/**
- * Set value by key to the signals map.
- * @param map - The signals map.
- * @param key - The key to set.
- * @param value - The value to set.
- */
-export function setMapKey<
-  K,
-  V
->(
-  map: SignalsMap<K, V>,
-  key: K,
-  value: NewValue<V | undefined>
-) {
-  let $item = map.get(key)
-  const insert = $item === undefined
-
-  if (insert) {
-    map.set(key, $item = signal())
+    // Nothing to read yet: the next change of the set of keys asks again
+    this.$v()
   }
 
-  $item!(value)
+  /**
+   * Set the value by key.
+   * @param key - The key to set.
+   * @param value - The value or a reducer of the current one.
+   * @returns The map.
+   */
+  override set(
+    key: K,
+    value: NewValue<V | undefined>
+  ) {
+    let $item = super.get(key) as Item<V> | undefined
+    const insert = !$item
 
-  if (insert) {
-    fireMapEvent(map, $$insert)
+    if (insert) {
+      super.set(key, $item = signal())
+    }
+
+    // Nobody reads a signal created a line ago: the write of an insert is
+    // silent, and the version is the only one that notifies
+    $item!(value)
+
+    if (insert) {
+      this.$v(++epoch)
+    }
+
+    return this
+  }
+
+  /**
+   * Delete the value by key.
+   * @param key - The key to delete.
+   * @returns Whether the key was there.
+   */
+  override delete(key: K) {
+    const $item = super.get(key) as Item<V> | undefined
+
+    if ($item) {
+      super.delete(key)
+      // The version goes first: a reader of both the keys and the item runs
+      // once, and lets the item go before it is written.
+      // The item is written all the same: a reader of the key alone holds
+      // nothing else, and a key deleted and set again within one batch has
+      // no other way to take its readers over to the new signal
+      this.$v(++epoch)
+      $item(gone as V)
+    }
+
+    return !!$item
+  }
+
+  /**
+   * Delete every value.
+   */
+  override clear() {
+    batch(() => {
+      for (const $item of super.values() as MapIterator<Item<V>>) {
+        $item(gone as V)
+      }
+
+      super.clear()
+      this.$v(++epoch)
+    })
   }
 }
 
 /**
- * Clear the signals map.
- * @param map - The signals map.
+ * A `SignalsMap` that lists its keys and has a lifecycle: `$index` is
+ * the list, and every tracked read of the map keeps it mounted.
  */
-export function clearMap<
-  K,
-  V
->(
-  map: SignalsMap<K, V>
-) {
-  map.clear()
-  fireMapEvent(map, $$clear)
-}
+export class IndexedSignalsMap<K, V> extends SignalsMap<K, V> {
+  // Computes nothing, so it never changes. Every tracked read of the map links
+  // to it: whoever reads an item keeps the map mounted, and nothing ever walks
+  // the links of a node that does not change, which makes holding it free.
+  // A computed and not a signal: the index wears this node, and the node of
+  // a signal would make `isWritable` say yes about the index
+  readonly #$anchor = computed(noop)
 
-/**
- * Delete item by key from the signals map.
- * @param map - The signals map.
- * @param key - The key to delete.
- */
-export function deleteMapKey<
-  K,
-  V
->(
-  map: SignalsMap<K, V>,
-  key: K
-) {
-  const $item = map.get(key)
+  /**
+   * The keys of the map: changes when a key is added or removed, not when
+   * a value is set. It stands for the whole map in the lifecycle: mark it
+   * `mountable` right after the map is created, and it is mounted by every
+   * reader of the map, the readers of `$get` included.
+   */
+  readonly $index = computed(() => {
+    // Read for the link alone: it puts the index under the anchor, so the
+    // readers of the index are readers of the map too
+    this.#$anchor()
+    this.$v()
 
-  if ($item !== undefined) {
-    map.delete(key)
-    $item($$deleted as V)
+    // Built on read: a mutation only moves the version, so a batch of them
+    // costs one array instead of one per write
+    return [...this.keys()]
+  })
+
+  constructor() {
+    super()
+
+    // Whatever asks a signal about its lifecycle asks its node, and the
+    // lifecycle of the index is the one of the whole map: the index gives its
+    // node away for the anchor's. The function stays bound to the computed it
+    // was made for, so reading it is what it was.
+    // The index is linked under the anchor at its first read, and a computed
+    // linked under a node that is not mountable yet does not relay later:
+    // this is why the index has to be marked before anybody reads it
+    this.$index.node = this.#$anchor.node
+  }
+
+  /**
+   * Get the value by key and track it, as `SignalsMap` does - and keep the map
+   * mounted for as long as the reader lives.
+   * @param key - The key to get.
+   * @returns The value.
+   */
+  override $get(key: K): V | undefined {
+    this.#$anchor()
+
+    return super.$get(key)
   }
 }

@@ -5,12 +5,7 @@ import type {
   CacheKey,
   CacheEntry
 } from './CacheStorage.types.js'
-import {
-  hasShardedMapKey,
-  $getShardedMapKey,
-  setShardedMapKey,
-  deleteShardedMapKey
-} from './map.js'
+import { ShardedSignalsMap } from './map.js'
 
 export type * from './CacheStorage.types.js'
 
@@ -40,7 +35,7 @@ let revCounter = 0
 export class CacheStorage {
   dedupeTime = DEFAULT_DEDUPE_TIME
   cacheTime = DEFAULT_CACHE_TIME
-  cache: CacheMap = new Map()
+  cache: CacheMap = new ShardedSignalsMap()
 
   initial() {
     return {
@@ -57,20 +52,18 @@ export class CacheStorage {
   $get(key: CacheKey) {
     const cache = this.cache
 
-    if (!hasShardedMapKey(cache, key)) {
-      setShardedMapKey(cache, key, this.initial())
+    if (!cache.has(key)) {
+      cache.set(key, this.initial())
     }
 
-    const result = $getShardedMapKey(cache, key)!
-
-    return result
+    return cache.$get(key)!
   }
 
   set(
     key: CacheShardKey | CacheKey,
     entry: NewValue<CacheEntry | undefined>
   ) {
-    setShardedMapKey(this.cache, key, entry)
+    this.cache.set(key, entry)
   }
 
   /**
@@ -79,7 +72,7 @@ export class CacheStorage {
    * @param key - The cache key to invalidate.
    */
   invalidate(key: CacheShardKey | CacheKey) {
-    deleteShardedMapKey(this.cache, key)
+    this.cache.delete(key)
   }
 
   /**
@@ -88,7 +81,7 @@ export class CacheStorage {
    * @param key - The cache key to revalidate.
    */
   revalidate(key: CacheShardKey | CacheKey) {
-    if (key.key === undefined || hasShardedMapKey(this.cache, key)) {
+    if (key.key === undefined || this.cache.has(key)) {
       this.set(key, entry => ({
         ...entry!,
         rev: UNSET_REV,

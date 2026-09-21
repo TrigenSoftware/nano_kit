@@ -8,7 +8,6 @@ import {
 import type { ClientSetting } from '../client.types.js'
 import type { ClientContext } from '../ClientContext.js'
 import type { EncodedCacheEntry } from '../CacheStorage.types.js'
-import { setShardedMapKey } from '../map.js'
 import {
   encodeEntry,
   decodeEntry
@@ -29,13 +28,13 @@ function encode({
   const encoded: EncodedShardedMap = []
 
   cache.forEach((shard, shardKey) => {
-    shard.forEach(($signal, key) => {
-      const value = $signal?.()
+    for (const key of shard.keys()) {
+      const value = shard.get(key)
 
       if (value !== undefined) {
         encoded.push([shardKey, key, encodeEntry(value, codec)])
       }
-    })
+    }
   })
 
   return encoded
@@ -48,7 +47,7 @@ function decode(
   }: HydratableContext,
   encoded: EncodedShardedMap
 ) {
-  encoded.forEach(([shard, key, value]) => setShardedMapKey(cache, {
+  encoded.forEach(([shard, key, value]) => cache.set({
     shard,
     key
   }, decodeEntry(value, codec)))
