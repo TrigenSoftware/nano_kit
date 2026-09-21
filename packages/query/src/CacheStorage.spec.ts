@@ -10,7 +10,6 @@ import {
   queryKey,
   keys
 } from './cache.js'
-import { hasShardedMapKey } from './map.js'
 import {
   DEFAULT_DEDUPE_TIME,
   DEFAULT_CACHE_TIME,
@@ -157,11 +156,11 @@ describe('query', () => {
 
         storage.$get(key)
 
-        expect(hasShardedMapKey(storage.cache, key)).toBe(true)
+        expect(storage.cache.has(key)).toBe(true)
 
         storage.invalidate(key)
 
-        expect(hasShardedMapKey(storage.cache, key)).toBe(false)
+        expect(storage.cache.has(key)).toBe(false)
       })
 
       it('should delete all entries in shard when key is undefined', () => {
@@ -172,13 +171,13 @@ describe('query', () => {
         storage.$get(keyA)
         storage.$get(keyB)
 
-        expect(hasShardedMapKey(storage.cache, keyA)).toBe(true)
-        expect(hasShardedMapKey(storage.cache, keyB)).toBe(true)
+        expect(storage.cache.has(keyA)).toBe(true)
+        expect(storage.cache.has(keyB)).toBe(true)
 
         storage.invalidate(TestKey)
 
-        expect(hasShardedMapKey(storage.cache, keyA)).toBe(false)
-        expect(hasShardedMapKey(storage.cache, keyB)).toBe(false)
+        expect(storage.cache.has(keyA)).toBe(false)
+        expect(storage.cache.has(keyB)).toBe(false)
       })
 
       it('should notify listeners on invalidate', () => {
@@ -264,7 +263,9 @@ describe('query', () => {
 
         storage.revalidate(key)
 
-        expect(storage.cache.has('test')).toBe(false)
+        expect(storage.cache.has({
+          shard: 'test'
+        })).toBe(false)
       })
 
       it('should revalidate all registered key shards', () => {

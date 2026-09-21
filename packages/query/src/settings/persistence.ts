@@ -11,7 +11,6 @@ import {
   revLock,
   revLocked
 } from '../CacheStorage.js'
-import { hasShardedMapKey } from '../map.js'
 import {
   encodeEntryData,
   decodeEntryData
@@ -46,8 +45,7 @@ export function persistence(storage: Storage | null, lifetime: number): ClientSe
       const superInvalidate = ctx.invalidate
 
       ctx.$get = function (key) {
-        const cache = this.cache
-        const hasKey = hasShardedMapKey(cache, key)
+        const hasKey = this.cache.has(key)
         const entry = superGet.call(this, key)
 
         if (hasKey) {

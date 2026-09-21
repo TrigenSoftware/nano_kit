@@ -2,255 +2,490 @@ import {
   vi,
   describe,
   it,
-  expect
+  expect,
+  expectTypeOf
 } from 'vitest'
-import { effect } from 'kida'
 import {
-  type SignalsMap,
-  $getMapKey,
-  setMapKey,
-  clearMap,
-  deleteMapKey
+  batch,
+  computed,
+  effect,
+  isMounted,
+  isWritable,
+  mountable
+} from 'kida'
+import {
+  SignalsMap,
+  IndexedSignalsMap
 } from './map.js'
 
 describe('store', () => {
   describe('map', () => {
-    describe('getMapKey', () => {
-      it('should return undefined for non-existent key', () => {
-        const map: SignalsMap<string, number> = new Map()
+    describe('SignalsMap', () => {
+      describe('get', () => {
+        it('should return the value', () => {
+          const map = new SignalsMap<string, number>().set('foo', 42)
 
-        expect($getMapKey(map, 'foo')).toBeUndefined()
-      })
-
-      it('should return value for existing key', () => {
-        const map: SignalsMap<string, number> = new Map()
-
-        setMapKey(map, 'foo', 42)
-
-        expect($getMapKey(map, 'foo')).toBe(42)
-      })
-
-      it('should track new key insertions', () => {
-        const map: SignalsMap<string, number> = new Map()
-        const listener = vi.fn()
-        const off = effect(() => {
-          listener($getMapKey(map, 'foo'))
+          expect(map.get('foo')).toBe(42)
         })
 
-        expect(listener).toHaveBeenCalledTimes(1)
-        expect(listener).toHaveBeenCalledWith(undefined)
+        it('should return undefined when the key is missing', () => {
+          const map = new SignalsMap<string, number>()
 
-        setMapKey(map, 'foo', 42)
-
-        expect(listener).toHaveBeenCalledTimes(2)
-        expect(listener).toHaveBeenCalledWith(42)
-
-        off()
-      })
-
-      it('should track value updates', () => {
-        const map: SignalsMap<string, number> = new Map()
-        const listener = vi.fn()
-
-        setMapKey(map, 'foo', 42)
-
-        const off = effect(() => {
-          listener($getMapKey(map, 'foo'))
+          expect(map.get('foo')).toBeUndefined()
         })
 
-        expect(listener).toHaveBeenCalledTimes(1)
-        expect(listener).toHaveBeenCalledWith(42)
+        it('should not track the value', () => {
+          const map = new SignalsMap<string, number>().set('foo', 42)
+          const listener = vi.fn()
+          const off = effect(() => {
+            listener(map.get('foo'))
+          })
 
-        setMapKey(map, 'foo', 100)
+          map.set('foo', 100)
 
-        expect(listener).toHaveBeenCalledTimes(2)
-        expect(listener).toHaveBeenCalledWith(100)
+          expect(listener).toHaveBeenCalledTimes(1)
 
-        off()
+          off()
+        })
       })
 
-      it('should track clear events', () => {
-        const map: SignalsMap<string, number> = new Map()
-        const listener = vi.fn()
+      describe('$get', () => {
+        it('should run the reader again when the value changes', () => {
+          const map = new SignalsMap<string, number>().set('foo', 42)
+          const listener = vi.fn()
+          const off = effect(() => {
+            listener(map.$get('foo'))
+          })
 
-        setMapKey(map, 'foo', 42)
+          map.set('foo', 100)
 
-        const off = effect(() => {
-          listener($getMapKey(map, 'foo'))
+          expect(listener).toHaveBeenCalledTimes(2)
+          expect(listener).toHaveBeenLastCalledWith(100)
+
+          off()
         })
 
-        expect(listener).toHaveBeenCalledTimes(1)
-        expect(listener).toHaveBeenCalledWith(42)
+        it('should not run the reader again when another key is set', () => {
+          const map = new SignalsMap<string, number>().set('foo', 42)
+          const listener = vi.fn()
+          const off = effect(() => {
+            listener(map.$get('foo'))
+          })
 
-        clearMap(map)
+          map.set('bar', 1)
+          map.set('bar', 2)
 
-        expect(listener).toHaveBeenCalledTimes(2)
-        expect(listener).toHaveBeenCalledWith(undefined)
+          expect(listener).toHaveBeenCalledTimes(1)
 
-        off()
+          off()
+        })
+
+        it('should run the reader again when its missing key appears', () => {
+          const map = new SignalsMap<string, number>()
+          const listener = vi.fn()
+          const off = effect(() => {
+            listener(map.$get('foo'))
+          })
+
+          expect(listener).toHaveBeenLastCalledWith(undefined)
+
+          map.set('foo', 42)
+
+          expect(listener).toHaveBeenLastCalledWith(42)
+
+          off()
+        })
+
+        it('should run the reader once when the key is deleted', () => {
+          const map = new SignalsMap<string, number>().set('foo', 42)
+          const listener = vi.fn()
+          const off = effect(() => {
+            listener(map.$get('foo'))
+          })
+
+          map.delete('foo')
+
+          expect(listener).toHaveBeenCalledTimes(2)
+          expect(listener).toHaveBeenLastCalledWith(undefined)
+
+          off()
+        })
+
+        it('should run the reader again when a key holding undefined is deleted and set again', () => {
+          const map = new SignalsMap<string, number>().set('foo', undefined)
+          const listener = vi.fn()
+          const off = effect(() => {
+            listener(map.$get('foo'))
+          })
+
+          map.delete('foo')
+          map.set('foo', 42)
+
+          expect(listener).toHaveBeenLastCalledWith(42)
+
+          off()
+        })
+
+        it('should run the reader again when a key holding undefined is cleared and set again', () => {
+          const map = new SignalsMap<string, number>().set('foo', undefined)
+          const listener = vi.fn()
+          const off = effect(() => {
+            listener(map.$get('foo'))
+          })
+
+          map.clear()
+          map.set('foo', 42)
+
+          expect(listener).toHaveBeenLastCalledWith(42)
+
+          off()
+        })
+
+        it('should follow a key deleted and set again within one batch', () => {
+          const map = new SignalsMap<string, number>().set('foo', 42)
+          const listener = vi.fn()
+          const off = effect(() => {
+            listener(map.$get('foo'))
+          })
+
+          batch(() => {
+            map.delete('foo')
+            map.set('foo', 100)
+          })
+
+          expect(listener).toHaveBeenLastCalledWith(100)
+
+          // the value lives in a new signal now: the reader has to be on it
+          map.set('foo', 200)
+
+          expect(listener).toHaveBeenLastCalledWith(200)
+
+          off()
+        })
+      })
+
+      describe('set', () => {
+        it('should reduce the current value', () => {
+          const map = new SignalsMap<string, number>().set('foo', 42)
+
+          map.set('foo', value => (value ?? 0) + 1)
+
+          expect(map.get('foo')).toBe(43)
+        })
+
+        it('should return the map', () => {
+          const map = new SignalsMap<string, number>()
+
+          expect(map.set('foo', 42)).toBe(map)
+        })
+
+        it('should keep a key set to undefined', () => {
+          const map = new SignalsMap<string, number>().set('foo', undefined)
+
+          expect(map.has('foo')).toBe(true)
+          expect(map.get('foo')).toBeUndefined()
+        })
+      })
+
+      describe('delete', () => {
+        it('should tell whether the key was there', () => {
+          const map = new SignalsMap<string, number>().set('foo', 42)
+
+          expect(map.delete('foo')).toBe(true)
+          expect(map.delete('foo')).toBe(false)
+        })
+      })
+
+      describe('clear', () => {
+        it('should run the reader of every key again, once', () => {
+          const map = new SignalsMap<string, number>().set('foo', 1).set('bar', 2)
+          const fooListener = vi.fn()
+          const barListener = vi.fn()
+          const offFoo = effect(() => {
+            fooListener(map.$get('foo'))
+          })
+          const offBar = effect(() => {
+            barListener(map.$get('bar'))
+          })
+
+          map.clear()
+
+          expect(map.size).toBe(0)
+          expect(fooListener).toHaveBeenCalledTimes(2)
+          expect(fooListener).toHaveBeenLastCalledWith(undefined)
+          expect(barListener).toHaveBeenCalledTimes(2)
+          expect(barListener).toHaveBeenLastCalledWith(undefined)
+
+          offFoo()
+          offBar()
+        })
+
+        it('should follow a key cleared and set again within one batch', () => {
+          const map = new SignalsMap<string, number>().set('foo', 42)
+          const listener = vi.fn()
+          const off = effect(() => {
+            listener(map.$get('foo'))
+          })
+
+          batch(() => {
+            map.clear()
+            map.set('foo', 100)
+          })
+          map.set('foo', 200)
+
+          expect(listener).toHaveBeenLastCalledWith(200)
+
+          off()
+        })
+      })
+
+      describe('as a Map', () => {
+        it('should keep has, keys and size', () => {
+          const map = new SignalsMap<string, number>().set('foo', 1).set('bar', 2)
+
+          expect(map).toBeInstanceOf(Map)
+          expect(map.has('foo')).toBe(true)
+          expect(map.has('baz')).toBe(false)
+          expect([...map.keys()]).toEqual(['foo', 'bar'])
+          expect(map.size).toBe(2)
+        })
+
+        it('should hide whatever hands a signal out', () => {
+          const map = new SignalsMap<string, number>()
+
+          // @ts-expect-error the items are signals, and a signal must not leave the map
+          map.values()
+          // @ts-expect-error the items are signals, and a signal must not leave the map
+          map.entries()
+          // @ts-expect-error the items are signals, and a signal must not leave the map
+          map.forEach(vi.fn())
+
+          expectTypeOf(map.get('foo')).toEqualTypeOf<number | undefined>()
+          expectTypeOf(map.$get('foo')).toEqualTypeOf<number | undefined>()
+        })
+
+        it('should not take initial entries', () => {
+          // The Map constructor would call `set` before the map is ready for it
+          // @ts-expect-error no arguments
+          expect(() => new SignalsMap<string, number>([['foo', 42]])).toThrow()
+        })
       })
     })
 
-    describe('setMapKey', () => {
-      it('should set value for new key', () => {
-        const map: SignalsMap<string, number> = new Map()
+    describe('IndexedSignalsMap', () => {
+      describe('$get', () => {
+        it('should run the reader again when the value changes', () => {
+          const map = new IndexedSignalsMap<string, number>().set('foo', 42)
+          const listener = vi.fn()
+          const off = effect(() => {
+            listener(map.$get('foo'))
+          })
 
-        setMapKey(map, 'foo', 42)
+          map.set('foo', 100)
 
-        expect($getMapKey(map, 'foo')).toBe(42)
-      })
+          expect(listener).toHaveBeenCalledTimes(2)
+          expect(listener).toHaveBeenLastCalledWith(100)
 
-      it('should update value for existing key', () => {
-        const map: SignalsMap<string, number> = new Map()
-
-        setMapKey(map, 'foo', 42)
-
-        expect($getMapKey(map, 'foo')).toBe(42)
-
-        setMapKey(map, 'foo', 100)
-
-        expect($getMapKey(map, 'foo')).toBe(100)
-      })
-
-      it('should set value with updater function', () => {
-        const map: SignalsMap<string, number> = new Map()
-
-        setMapKey(map, 'foo', 42)
-
-        expect($getMapKey(map, 'foo')).toBe(42)
-
-        setMapKey(map, 'foo', prev => (prev ?? 0) + 10)
-
-        expect($getMapKey(map, 'foo')).toBe(52)
-      })
-
-      it('should notify listeners on insert', () => {
-        const map: SignalsMap<string, number> = new Map()
-        const listener = vi.fn()
-        const off = effect(() => {
-          listener($getMapKey(map, 'foo'))
+          off()
         })
 
-        expect(listener).toHaveBeenCalledTimes(1)
-        expect(listener).toHaveBeenCalledWith(undefined)
+        it('should run the reader again when its missing key appears', () => {
+          const map = new IndexedSignalsMap<string, number>()
+          const listener = vi.fn()
+          const off = effect(() => {
+            listener(map.$get('foo'))
+          })
 
-        setMapKey(map, 'foo', 42)
+          map.set('foo', 42)
 
-        expect(listener).toHaveBeenCalledTimes(2)
-        expect(listener).toHaveBeenCalledWith(42)
+          expect(listener).toHaveBeenLastCalledWith(42)
 
-        off()
+          off()
+        })
       })
 
-      it('should notify listeners on update', () => {
-        const map: SignalsMap<string, number> = new Map()
+      describe('$index', () => {
+        it('should list the keys in the order they were added', () => {
+          const map = new IndexedSignalsMap<string, number>()
+            .set('foo', 1)
+            .set('bar', 2)
 
-        setMapKey(map, 'foo', 42)
+          map.delete('foo')
+          map.set('foo', 3)
 
-        const listener = vi.fn()
-        const off = effect(() => {
-          listener($getMapKey(map, 'foo'))
+          expect(map.$index()).toEqual(['bar', 'foo'])
         })
 
-        expect(listener).toHaveBeenCalledTimes(1)
-        expect(listener).toHaveBeenCalledWith(42)
+        it('should run the reader again when a key is added or removed', () => {
+          const map = new IndexedSignalsMap<string, number>()
+          const listener = vi.fn()
+          const off = effect(() => {
+            listener(map.$index())
+          })
 
-        setMapKey(map, 'foo', 100)
+          map.set('foo', 42)
 
-        expect(listener).toHaveBeenCalledTimes(2)
-        expect(listener).toHaveBeenCalledWith(100)
+          expect(listener).toHaveBeenLastCalledWith(['foo'])
 
-        off()
-      })
-    })
+          map.delete('foo')
 
-    describe('clearMap', () => {
-      it('should remove all keys from map', () => {
-        const map: SignalsMap<string, number> = new Map()
+          expect(listener).toHaveBeenCalledTimes(3)
+          expect(listener).toHaveBeenLastCalledWith([])
 
-        setMapKey(map, 'foo', 42)
-        setMapKey(map, 'bar', 100)
-
-        clearMap(map)
-
-        expect($getMapKey(map, 'foo')).toBeUndefined()
-        expect($getMapKey(map, 'bar')).toBeUndefined()
-      })
-
-      it('should notify listeners', () => {
-        const map: SignalsMap<string, number> = new Map()
-
-        setMapKey(map, 'foo', 42)
-
-        const listener = vi.fn()
-        const off = effect(() => {
-          listener($getMapKey(map, 'foo'))
+          off()
         })
 
-        expect(listener).toHaveBeenCalledTimes(1)
-        expect(listener).toHaveBeenCalledWith(42)
+        it('should not run the reader again when a value is set', () => {
+          const map = new IndexedSignalsMap<string, number>().set('foo', 42)
+          const listener = vi.fn()
+          const off = effect(() => {
+            listener(map.$index())
+          })
 
-        clearMap(map)
+          map.set('foo', 100)
 
-        expect(listener).toHaveBeenCalledTimes(2)
-        expect(listener).toHaveBeenCalledWith(undefined)
+          expect(listener).toHaveBeenCalledTimes(1)
 
-        setMapKey(map, 'foo', 100)
-
-        expect(listener).toHaveBeenCalledTimes(3)
-        expect(listener).toHaveBeenCalledWith(100)
-
-        off()
-      })
-    })
-
-    describe('deleteMapKey', () => {
-      it('should delete existing key', () => {
-        const map: SignalsMap<string, number> = new Map()
-
-        setMapKey(map, 'foo', 42)
-
-        expect($getMapKey(map, 'foo')).toBe(42)
-
-        deleteMapKey(map, 'foo')
-
-        expect(map.has('foo')).toBe(false)
-      })
-
-      it('should allow re-adding deleted key', () => {
-        const map: SignalsMap<string, number> = new Map()
-
-        setMapKey(map, 'foo', 42)
-        deleteMapKey(map, 'foo')
-        setMapKey(map, 'foo', 100)
-
-        expect($getMapKey(map, 'foo')).toBe(100)
-      })
-
-      it('should notify listeners on delete', () => {
-        const map: SignalsMap<string, number> = new Map()
-
-        setMapKey(map, 'foo', 42)
-
-        const listener = vi.fn()
-        const off = effect(() => {
-          listener($getMapKey(map, 'foo'))
+          off()
         })
 
-        expect(listener).toHaveBeenCalledTimes(1)
-        expect(listener).toHaveBeenCalledWith(42)
+        it('should run the reader once for a batch of mutations', () => {
+          const map = new IndexedSignalsMap<string, number>()
+          const listener = vi.fn()
+          const off = effect(() => {
+            listener(map.$index())
+          })
 
-        deleteMapKey(map, 'foo')
+          batch(() => {
+            map.set('foo', 1)
+            map.set('bar', 2)
+            map.delete('foo')
+          })
 
-        expect(listener).toHaveBeenCalledTimes(2)
-        expect(listener).toHaveBeenCalledWith(undefined)
+          expect(listener).toHaveBeenCalledTimes(2)
+          expect(listener).toHaveBeenLastCalledWith(['bar'])
 
-        setMapKey(map, 'foo', 100)
+          off()
+        })
 
-        expect(listener).toHaveBeenCalledTimes(3)
-        expect(listener).toHaveBeenCalledWith(100)
+        it('should run a reader of both the keys and an item once per deletion', () => {
+          const map = new IndexedSignalsMap<string, number>().set('foo', 42)
+          const listener = vi.fn()
+          const off = effect(() => {
+            listener(map.$index().length, map.$get('foo'))
+          })
 
-        off()
+          map.delete('foo')
+
+          expect(listener).toHaveBeenCalledTimes(2)
+          expect(listener).toHaveBeenLastCalledWith(0, undefined)
+
+          off()
+        })
+
+        it('should not be writable', () => {
+          const map = new IndexedSignalsMap<string, number>()
+
+          expect(isWritable(map.$index)).toBe(false)
+        })
+      })
+
+      describe('lifecycle', () => {
+        it('should be mounted by a reader of an item', () => {
+          const map = new IndexedSignalsMap<string, number>().set('foo', 42)
+
+          mountable(map.$index)
+
+          const off = effect(() => {
+            map.$get('foo')
+          })
+
+          expect(isMounted(map.$index)).toBe(true)
+
+          off()
+        })
+
+        it('should be mounted by a reader of a missing key', () => {
+          const map = new IndexedSignalsMap<string, number>()
+
+          mountable(map.$index)
+
+          const off = effect(() => {
+            map.$get('foo')
+          })
+
+          expect(isMounted(map.$index)).toBe(true)
+
+          off()
+        })
+
+        it('should be mounted by a reader of the keys', () => {
+          const map = new IndexedSignalsMap<string, number>()
+
+          mountable(map.$index)
+
+          const off = effect(() => {
+            map.$index()
+          })
+
+          expect(isMounted(map.$index)).toBe(true)
+
+          off()
+        })
+
+        it('should be mounted through a computed only while it is watched', () => {
+          const map = new IndexedSignalsMap<string, number>().set('foo', 42)
+
+          mountable(map.$index)
+
+          const $foo = computed(() => map.$get('foo'))
+
+          $foo()
+
+          expect(isMounted(map.$index)).toBe(false)
+
+          const off = effect(() => {
+            $foo()
+          })
+
+          expect(isMounted(map.$index)).toBe(true)
+
+          off()
+
+          expect(isMounted(map.$index)).toBe(false)
+        })
+
+        it('should be unmounted when the last reader is gone', () => {
+          const map = new IndexedSignalsMap<string, number>().set('foo', 42)
+
+          mountable(map.$index)
+
+          const offItem = effect(() => {
+            map.$get('foo')
+          })
+          const offKeys = effect(() => {
+            map.$index()
+          })
+
+          offItem()
+
+          expect(isMounted(map.$index)).toBe(true)
+
+          offKeys()
+
+          expect(isMounted(map.$index)).toBe(false)
+        })
+
+        it('should not be mounted by reads outside of an effect', () => {
+          const map = new IndexedSignalsMap<string, number>().set('foo', 42)
+
+          mountable(map.$index)
+          map.get('foo')
+          map.$get('foo')
+          map.$index()
+
+          expect(isMounted(map.$index)).toBe(false)
+        })
       })
     })
   })

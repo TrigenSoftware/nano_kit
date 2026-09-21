@@ -1,15 +1,7 @@
 import {
-  type SignalsMap,
-  type SignalsMapEvents,
   type NewValue,
-  batch,
-  $getMapKey,
-  setMapKey,
-  clearMap,
-  deleteMapKey,
-  $$insert,
-  fireMapEvent,
-  subMapEvent
+  SignalsMap,
+  batch
 } from '@nano_kit/store'
 
 export interface ShardKey<S> {
@@ -22,128 +14,109 @@ export interface ShardedKey<S, K> {
   key: K
 }
 
-export interface ShardedSignalsMap<S, K, T> extends SignalsMapEvents, Map<
-  S,
-  SignalsMap<K, T>
-> {}
-
-/**
- * Check if sharded map has the key.
- * Checks full key.
- * @param map - The sharded map.
- * @param shardedKey - The sharded key.
- * @returns True if the sharded map has the key, false otherwise.
- */
-/* @__NO_SIDE_EFFECTS__ */
-export function hasShardedMapKey<S, K, T>(
-  map: ShardedSignalsMap<S, K, T>,
-  shardedKey: ShardKey<S> | ShardedKey<S, K>
-) {
-  const {
-    shard,
-    key
-  } = shardedKey
-
-  if (key === undefined) {
-    return map.has(shard)
-  }
-
-  return map.get(shard)?.has(key) || false
+// What the class keeps of Map: the shards, which are signals maps and hand no
+// signal out. `has`, `set` and `delete` are taken over by their sharded
+// versions, the raw `has` and `set` are reached through `super`. Declared
+// only: the cast in the heritage clause is all that is left of it at runtime
+declare class ShardsMap<S, K, T> {
+  readonly size: number
+  protected has(shard: unknown): boolean
+  protected set(shard: unknown, map: unknown): unknown
+  get(shard: S): SignalsMap<K, T> | undefined
+  forEach(callback: (map: SignalsMap<K, T>, shard: S) => void): void
 }
 
 /**
- * Get value from sharded map by key.
- * @param map - The sharded map.
- * @param shardedKey - The sharded key.
- * @returns The value or undefined if not found.
+ * Signals maps by shard: a value is addressed by a shard and a key in it,
+ * and a key of a shard alone addresses every value of the shard.
  */
-export function $getShardedMapKey<S, K, T>(
-  map: ShardedSignalsMap<S, K, T>,
-  shardedKey: ShardedKey<S, K>
-) {
-  const {
-    shard,
-    key
-  } = shardedKey
-  let shardMap
+export class ShardedSignalsMap<S, K, T> extends (Map as unknown as typeof ShardsMap)<S, K, T> {
+  // A shard is made by whoever asks for it first, a reader included: a reader
+  // of a key that is not there waits for it on the shard, so there is nothing
+  // to wait for on the map itself
+  #shard(shard: S) {
+    let map = this.get(shard)
 
-  if ((shardMap = map.get(shard)) === undefined) {
-    subMapEvent(map, $$insert)
-    return undefined
-  }
-
-  return $getMapKey(shardMap, key)
-}
-
-/**
- * Set value in sharded map by key.
- * If sharded key contains only shard name, sets value for all entries in the shard.
- * @param map - The sharded map.
- * @param shardedKey - The sharded key.
- * @param value - The value to set.
- */
-export function setShardedMapKey<S, K, T>(
-  map: ShardedSignalsMap<S, K, T>,
-  shardedKey: ShardKey<S> | ShardedKey<S, K>,
-  value: NewValue<T | undefined>
-) {
-  const {
-    shard,
-    key
-  } = shardedKey
-  let shardMap = map.get(shard)
-  const shardExists = shardMap !== undefined
-
-  if (key === undefined) {
-    if (shardExists) {
-      batch(() => {
-        for (const params of shardMap!.keys()) {
-          setMapKey(shardMap!, params, value)
-        }
-      })
+    if (!map) {
+      super.set(shard, map = new SignalsMap())
     }
 
-    return
+    return map
   }
 
-  if (!shardExists) {
-    map.set(
-      shard,
-      shardMap = new Map<K, T>() as SignalsMap<K, T>
-    )
-  }
-
-  setMapKey(shardMap!, key, value)
-
-  if (!shardExists) {
-    fireMapEvent(map, $$insert)
-  }
-}
-
-/**
- * Delete sharded map key.
- * If sharded key contains only shard name, deletes all entries in the shard.
- * @param map - The sharded map.
- * @param shardedKey - The sharded key.
- */
-export function deleteShardedMapKey<S, K, T>(
-  map: ShardedSignalsMap<S, K, T>,
-  shardedKey: ShardKey<S> | ShardedKey<S, K>
-) {
-  const {
+  /**
+   * Check if the map has the key.
+   * A key of a shard alone tells whether the shard is there.
+   * @param shardedKey - The sharded key.
+   * @returns Whether the key is there.
+   */
+  override has({
     shard,
     key
-  } = shardedKey
-  const shardMap = map.get(shard)
-
-  if (shardMap === undefined) {
-    return
+  }: ShardKey<S> | ShardedKey<S, K>) {
+    return key === undefined
+      ? super.has(shard)
+      : this.get(shard)?.has(key) || false
   }
 
-  if (key === undefined) {
-    clearMap(shardMap)
-    return
+  /**
+   * Get the value by key: the running computed or effect runs again when
+   * the value changes, and when the key appears or goes.
+   * @param shardedKey - The sharded key.
+   * @returns The value.
+   */
+  $get({
+    shard,
+    key
+  }: ShardedKey<S, K>) {
+    return this.#shard(shard).$get(key)
   }
 
-  deleteMapKey(shardMap, key)
+  /**
+   * Set the value by key.
+   * A key of a shard alone sets the value of every key of the shard.
+   * @param shardedKey - The sharded key.
+   * @param value - The value or a reducer of the current one.
+   */
+  override set(
+    {
+      shard,
+      key
+    }: ShardKey<S> | ShardedKey<S, K>,
+    value: NewValue<T | undefined>
+  ) {
+    if (key !== undefined) {
+      this.#shard(shard).set(key, value)
+    } else {
+      const map = this.get(shard)
+
+      if (map) {
+        batch(() => {
+          for (const each of map.keys()) {
+            map.set(each, value)
+          }
+        })
+      }
+    }
+  }
+
+  /**
+   * Delete the value by key.
+   * A key of a shard alone deletes every value of the shard.
+   * @param shardedKey - The sharded key.
+   */
+  delete({
+    shard,
+    key
+  }: ShardKey<S> | ShardedKey<S, K>) {
+    const map = this.get(shard)
+
+    if (map) {
+      if (key === undefined) {
+        map.clear()
+      } else {
+        map.delete(key)
+      }
+    }
+  }
 }
