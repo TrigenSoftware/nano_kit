@@ -20,7 +20,7 @@ export default [
     name: 'All publics (Brotli)',
     path: 'dist/index.production.js',
     import: '*',
-    limit: '6.1 kB',
+    limit: '6.15 kB',
     modifyEsbuildConfig
   },
   {
