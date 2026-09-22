@@ -1,3 +1,13 @@
+import type {
+  LinkEvent,
+  UnlinkEvent,
+  UpdateEvent,
+  RunEvent,
+  StopEvent,
+  LifecycleEvent,
+  FlushEvent
+} from './flags.js'
+
 export type AnyFn = (...args: any) => any
 
 export type DefineVirtualFlags<F extends string, V = unknown> = {
@@ -22,7 +32,45 @@ export type NewValue<T, A = void> = T | ((prevValue: T, arg: A) => T)
 
 export type MountedListener = (mounted: boolean) => void
 
-export type InspectListener = (kind: number, target?: ReactiveNode | Link, oldValue?: unknown) => void
+/**
+ * A link was made or dropped: `sub` reads `dep`, or, when `dep` is an effect or a scope, owns it.
+ */
+export interface LinkInspectEvent {
+  kind: typeof LinkEvent | typeof UnlinkEvent
+  dep: ReactiveNode
+  sub: ReactiveNode
+}
+
+/**
+ * The value of a signal or a computed changed.
+ */
+export interface UpdateInspectEvent {
+  kind: typeof UpdateEvent
+  node: ReactiveNode
+  /**
+   * The value the node had before; none with the first evaluation of a computed.
+   */
+  oldValue: unknown
+}
+
+/**
+ * A computed was evaluated or an effect ran, an effect or a scope stopped, a mountable node was mounted or unmounted.
+ */
+export interface NodeInspectEvent {
+  kind: typeof RunEvent | typeof StopEvent | typeof LifecycleEvent
+  node: ReactiveNode
+}
+
+/**
+ * A flush of the effects ended.
+ */
+export interface FlushInspectEvent {
+  kind: typeof FlushEvent
+}
+
+export type InspectEvent = LinkInspectEvent | UpdateInspectEvent | NodeInspectEvent | FlushInspectEvent
+
+export type InspectListener = (event: InspectEvent) => void
 
 export interface ReadableNode extends ReactiveNode, DefineVirtualFlags<'writable' | 'mountable'> {
   /**
