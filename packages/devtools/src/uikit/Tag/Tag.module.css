@@ -1,0 +1,37 @@
+.root {
+  display: inline-block;
+  padding: 1px var(--sizeSpaceSm);
+  border-radius: var(--sizeRadiusSm);
+  background: var(--colorTagBackground);
+  color: var(--colorTag);
+  font-size: var(--sizeTextXs);
+  font-weight: 600;
+  letter-spacing: .02em;
+  line-height: 14px;
+  white-space: nowrap;
+}
+
+.info {
+  --colorTagBackground: var(--colorInfoSoft);
+  --colorTag: var(--colorInfo);
+}
+
+.success {
+  --colorTagBackground: var(--colorSuccessSoft);
+  --colorTag: var(--colorSuccess);
+}
+
+.warning {
+  --colorTagBackground: var(--colorWarningSoft);
+  --colorTag: var(--colorWarning);
+}
+
+.danger {
+  --colorTagBackground: var(--colorDangerSoft);
+  --colorTag: var(--colorDanger);
+}
+
+.muted {
+  --colorTagBackground: var(--colorMutedSoft);
+  --colorTag: var(--colorTextSecondary);
+}

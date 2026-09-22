@@ -1,0 +1,23 @@
+.root {
+  height: var(--sizeRow);
+  padding: 0 var(--sizeSpaceMd);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* A td is no flex container: the content gets its own box for the gap and the alignment */
+.content {
+  display: flex;
+  align-items: center;
+  gap: var(--sizeSpaceSm);
+  min-width: 0;
+}
+
+.end .content {
+  justify-content: flex-end;
+}
+
+.spacer {
+  flex: none;
+  width: calc(var(--sizeIcon) - 2px);
+}

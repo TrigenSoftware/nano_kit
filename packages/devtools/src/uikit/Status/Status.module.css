@@ -1,0 +1,38 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sizeSpaceSm);
+  min-width: 0;
+  white-space: nowrap;
+
+  &::before {
+    content: '';
+    flex: none;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--colorStatus);
+    /* Below the geometric centre: the visual centre of lowercase text sits lower */
+    translate: 0 1px;
+  }
+}
+
+.success {
+  --colorStatus: var(--colorSuccess);
+}
+
+.warning {
+  --colorStatus: var(--colorWarning);
+}
+
+.danger {
+  --colorStatus: var(--colorDanger);
+}
+
+.info {
+  --colorStatus: var(--colorInfo);
+}
+
+.muted {
+  --colorStatus: var(--colorTextTertiary);
+}

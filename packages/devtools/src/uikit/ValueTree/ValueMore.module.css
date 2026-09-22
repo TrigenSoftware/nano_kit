@@ -1,0 +1,34 @@
+.root {
+  display: block;
+  margin-left: calc(var(--sizeIcon) - 2px + var(--sizeSpaceXs));
+  padding: 0 var(--sizeSpaceXs);
+  border: 0;
+  border-radius: var(--sizeRadiusSm);
+  background: none;
+  font: inherit;
+  color: var(--colorTextTertiary);
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--durationSm) ease;
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    color: var(--colorText);
+  }
+
+  &:active:not(:disabled) {
+    filter: brightness(.9);
+  }
+
+  &:disabled {
+    opacity: .5;
+    cursor: default;
+  }
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+  .root {
+    transition: none;
+  }
+}

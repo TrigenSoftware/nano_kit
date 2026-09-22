@@ -1,0 +1,96 @@
+.root {
+  --fontSans: -apple-system, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
+  --fontMono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  /* Sizes - Typography */
+  --sizeText: 12px;
+  --sizeTextXs: 10px;
+  --sizeTextSm: 11px;
+  --sizeTextLg: 13px;
+  --sizeLine: 16px;
+
+  /* Sizes - Boxes */
+  --sizeRow: 24px;
+  --sizeControl: 28px;
+  --sizeControlSm: 22px;
+  --sizeBar: 44px;
+  --sizeIcon: 16px;
+  /* One tree level: a Disclosure, calc(var(--sizeIcon) - 2px), plus the cell gap, var(--sizeSpaceSm) */
+  --sizeIndent: 20px;
+
+  /* Sizes - Borders */
+  --sizeBorder: 1px;
+  --sizeBorderFocus: 2px;
+  --sizeRadiusSm: 6px;
+  --sizeRadiusMd: 8px;
+  --sizeRadiusLg: 12px;
+
+  /* Sizes - Spacing */
+  --sizeSpaceXs: 4px;
+  --sizeSpaceSm: 6px;
+  --sizeSpaceMd: 8px;
+  --sizeSpaceLg: 12px;
+  --sizeSpaceXl: 16px;
+
+  /* Durations */
+  --durationSm: 160ms;
+
+  /* Shadows */
+  --shadowWindow: 0 18px 48px rgb(0 0 0 / 40%);
+  --shadowPill: 0 8px 24px rgb(0 0 0 / 28%);
+  --shadowControl: 0 1px 2px rgb(0 0 0 / 25%);
+
+  /* Colors */
+  --colorBackground: #1d1d1f;
+  --colorBackgroundElevated: #242426;
+  --colorSurface: #232325;
+  --colorRow: #28282b;
+  --colorHairline: #38383b;
+  --colorHairlineSoft: #2f2f32;
+  --colorText: #ececee;
+  --colorTextSecondary: #a1a1a6;
+  --colorTextTertiary: #6e6e73;
+  --colorPrimary: #2b62d6;
+  --colorOnPrimary: #fff;
+  --colorSelection: var(--colorPrimary);
+  --colorSelectionText: var(--colorOnPrimary);
+  --colorControl: #2c2c2e;
+  --colorControlActive: #48484b;
+  --colorSuccess: #54c25c;
+  --colorWarning: #f0a23b;
+  --colorDanger: #f2555f;
+  --colorInfo: #4ca3f5;
+  --colorSuccessSoft: rgb(84 194 92 / 18%);
+  --colorWarningSoft: rgb(240 162 59 / 12%);
+  --colorDangerSoft: rgb(242 85 95 / 18%);
+  --colorInfoSoft: rgb(76 163 245 / 18%);
+  --colorMutedSoft: rgb(160 160 166 / 18%);
+  --colorOnWarning: #1d1d1f;
+  --colorFocusOutline: var(--colorInfo);
+
+  color-scheme: dark;
+  font: var(--sizeText) / var(--sizeLine) var(--fontSans);
+  color: var(--colorText);
+  -webkit-font-smoothing: antialiased;
+}
+
+.light {
+  --shadowControl: 0 1px 2px rgb(0 0 0 / 12%);
+  --colorBackground: #f2f2f4;
+  --colorBackgroundElevated: #fff;
+  --colorSurface: #fff;
+  --colorRow: #fff;
+  --colorHairline: #d9d9de;
+  --colorHairlineSoft: #e6e6ea;
+  --colorText: #1d1d1f;
+  --colorTextSecondary: #5c5c62;
+  --colorTextTertiary: #8e8e93;
+  --colorControl: #e4e4e8;
+  --colorControlActive: #fff;
+  --colorSuccess: #2ea043;
+  --colorWarning: #d9820b;
+  --colorDanger: #d93a45;
+  --colorInfo: #1f78d1;
+
+  color-scheme: light;
+}

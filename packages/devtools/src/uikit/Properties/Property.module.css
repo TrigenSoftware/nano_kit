@@ -1,0 +1,10 @@
+.name {
+  color: var(--colorTextSecondary);
+  white-space: nowrap;
+}
+
+.value {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}

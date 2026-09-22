@@ -1,0 +1,63 @@
+.root {
+  height: var(--sizeRow);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+
+  &:nth-child(odd) {
+    --colorRowBackground: var(--colorRow);
+  }
+
+  &:hover:not([aria-selected='true']) {
+    --colorRowBackground: var(--colorHairline);
+  }
+
+  &:active:not([aria-selected='true']) {
+    --colorRowBackground: var(--colorControlActive);
+  }
+
+  &:focus-visible {
+    outline: var(--sizeBorderFocus) solid var(--colorFocusOutline);
+    outline-offset: calc(-1 * var(--sizeBorderFocus));
+  }
+
+  &[aria-selected='true'] {
+    --colorRowBackground: var(--colorSelection);
+    --colorTextSecondary: var(--colorSelectionText);
+    --colorTextTertiary: var(--colorSelectionText);
+    --colorInfo: var(--colorSelectionText);
+    --colorFocusOutline: var(--colorSelectionText);
+    color: var(--colorSelectionText);
+  }
+
+  /* Rounded rows: a tr takes no radius, its first and last cells do */
+  & > td {
+    background: var(--colorRowBackground, transparent);
+    transition: background-color var(--durationSm) ease;
+  }
+
+  & > td:first-child {
+    /* The tree column: one chevron slot per level above this one, then the row's own slot inside the cell */
+    padding-left: calc(var(--sizeSpaceSm) + var(--sizeSpaceMd) + var(--sizeIndent) * (var(--tableLevel) - 1));
+    border-radius: var(--sizeRadiusSm) 0 0 var(--sizeRadiusSm);
+  }
+
+  & > td:last-child {
+    padding-right: calc(var(--sizeSpaceSm) + var(--sizeSpaceMd));
+    border-radius: 0 var(--sizeRadiusSm) var(--sizeRadiusSm) 0;
+  }
+
+  /* A group row is one cell across every column */
+  & > td:first-child:last-child {
+    border-radius: var(--sizeRadiusSm);
+  }
+}
+
+.group {
+  font-weight: 600;
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+  .root > td {
+    transition: none;
+  }
+}

@@ -1,0 +1,35 @@
+.mono {
+  font-family: var(--fontMono);
+  font-size: var(--sizeTextSm);
+}
+
+.secondary {
+  color: var(--colorTextSecondary);
+}
+
+.tertiary {
+  color: var(--colorTextTertiary);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.strong {
+  font-weight: 600;
+}
+
+.caption {
+  font-size: var(--sizeTextSm);
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--colorTextSecondary);
+}
+
+.truncate {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -1,0 +1,74 @@
+.root {
+  &:focus-visible {
+    outline: none;
+  }
+
+  &:focus-visible > .row {
+    outline: var(--sizeBorderFocus) solid var(--colorFocusOutline);
+    outline-offset: calc(-1 * var(--sizeBorderFocus));
+  }
+
+  &[aria-expanded='true'] > .row > .chevron {
+    transform: rotate(90deg);
+  }
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--sizeSpaceXs);
+  min-height: 18px;
+  padding: 0 var(--sizeSpaceXs);
+  border-radius: var(--sizeRadiusSm);
+  white-space: nowrap;
+  transition: background-color var(--durationSm) ease;
+}
+
+.expandable > .row {
+  cursor: pointer;
+
+  &:hover {
+    background: var(--colorRow);
+  }
+
+  &:active {
+    background: var(--colorHairline);
+  }
+}
+
+.chevron {
+  color: var(--colorTextSecondary);
+  transition: transform var(--durationSm) ease;
+}
+
+/* A leaf keeps the chevron's place, so the names of one level line up */
+.spacer {
+  flex: none;
+  width: calc(var(--sizeIcon) - 2px);
+}
+
+.name {
+  color: var(--colorTextSecondary);
+
+  &::after {
+    content: ':';
+    color: var(--colorTextTertiary);
+  }
+}
+
+.preview {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.group {
+  padding-left: calc(var(--sizeIcon) - 2px + var(--sizeSpaceXs));
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+  .row,
+  .chevron {
+    transition: none;
+  }
+}

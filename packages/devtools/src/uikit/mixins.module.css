@@ -1,0 +1,20 @@
+.focusOutline {
+  --transitionFocusOutline: outline-color var(--durationSm) ease;
+  transition: var(--transitionFocusOutline);
+  outline: var(--sizeBorderFocus) solid transparent;
+  outline-offset: 1px;
+
+  &:is(input, textarea):focus {
+    outline-color: var(--colorFocusOutline);
+  }
+
+  &:not(:is(input, textarea)):focus-visible {
+    outline-color: var(--colorFocusOutline);
+  }
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+  .focusOutline {
+    transition: none;
+  }
+}

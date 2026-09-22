@@ -13,6 +13,42 @@
       "skillPath": "skills/conventional-commit-message/SKILL.md",
       "computedHash": "6ae250d67edc757e2e54163dae2d32f7b44bd8827231cbab2895db8fc0331ac3"
     },
+    "css-mixin": {
+      "source": "TrigenSoftware/scripts",
+      "sourceType": "github",
+      "skillPath": "skills/css-mixin/SKILL.md",
+      "computedHash": "27649cb12ce5f4b41f0ee747c3e5ec11f0688d13b014136c3fe1cc5b451d0468"
+    },
+    "flat-layers-design": {
+      "source": "TrigenSoftware/scripts",
+      "sourceType": "github",
+      "skillPath": "skills/flat-layers-design/SKILL.md",
+      "computedHash": "eaf0d517365f819c072e2b0b2cb96cd8ea853d20733a4cc7388c534e054ec205"
+    },
+    "nanoviews": {
+      "source": "TrigenSoftware/nanoviews",
+      "sourceType": "github",
+      "skillPath": "skills/nanoviews/SKILL.md",
+      "computedHash": "811e91b3b7156a6209bcbcb9aa6ca74cc93014de7e1265e9055133ff368f2ba0"
+    },
+    "nanoviews-component": {
+      "source": "TrigenSoftware/scripts",
+      "sourceType": "github",
+      "skillPath": "skills/nanoviews-component/SKILL.md",
+      "computedHash": "ee4ff21487e965df1c3f3163e53fbfed8af4e11681c22c41fc355bb5019a9c9f"
+    },
+    "nanoviews-storybook": {
+      "source": "TrigenSoftware/nanoviews",
+      "sourceType": "github",
+      "skillPath": "skills/nanoviews-storybook/SKILL.md",
+      "computedHash": "b5133e0763fe66c6ecbc72f26d19c136d875f094409a60b9df250ea1ad9f45b9"
+    },
+    "nanoviews-testing": {
+      "source": "TrigenSoftware/nanoviews",
+      "sourceType": "github",
+      "skillPath": "skills/nanoviews-testing/SKILL.md",
+      "computedHash": "8f3d2f173597ce53332f9d58d3cb462eb1e611eeb08d8154f75a71c6e2a22dd8"
+    },
     "simple-release-action": {
       "source": "TrigenSoftware/simple-release",
       "sourceType": "github",
@@ -25,11 +61,23 @@
       "skillPath": "skills/size-limit/SKILL.md",
       "computedHash": "eff8783cbf63b1ec2f7de5427dcc9c07628c8f67e482d8cec7de5673a33a52c0"
     },
+    "svg-sprite-icons": {
+      "source": "TrigenSoftware/scripts",
+      "sourceType": "github",
+      "skillPath": "skills/svg-sprite-icons/SKILL.md",
+      "computedHash": "eba24473df281084a821bef23c994f3f6ca3dc2ca7ce1b708a4f3cac31ee8a73"
+    },
     "tree-shaking": {
       "source": "TrigenSoftware/scripts",
       "sourceType": "github",
       "skillPath": "skills/tree-shaking/SKILL.md",
       "computedHash": "058d048ec51f904a7107cef2ee95095d6f533faf887cb9e885f9fb188c9da635"
+    },
+    "ui-component": {
+      "source": "TrigenSoftware/scripts",
+      "sourceType": "github",
+      "skillPath": "skills/ui-component/SKILL.md",
+      "computedHash": "b41a69853e29928cd1a80cc67a245dc6ce9ab3968c1f9a29c757d6c6e7a00279"
     },
     "unit-tests": {
       "source": "TrigenSoftware/scripts",

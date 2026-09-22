@@ -1,0 +1,5 @@
+.root {
+  font-family: var(--fontMono);
+  font-size: var(--sizeTextSm);
+  line-height: 18px;
+}

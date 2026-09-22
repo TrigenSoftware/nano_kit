@@ -1,0 +1,10 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  border: var(--sizeBorder) solid var(--colorHairline);
+  border-radius: var(--sizeRadiusMd);
+  background: var(--colorSurface);
+  overflow: hidden;
+}

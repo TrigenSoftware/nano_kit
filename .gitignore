@@ -26,6 +26,7 @@ integration-test-cache.json
 dist
 package
 build
+storybook-static
 .astro
 .next
 .output

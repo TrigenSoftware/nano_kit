@@ -1,0 +1,6 @@
+.root {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 3px var(--sizeSpaceMd);
+  margin: 0;
+}
