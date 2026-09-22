@@ -5,9 +5,10 @@ import {
   beforeEach
 } from 'vitest'
 import type {
-  Link,
   ReactiveNode,
-  WritableSignal
+  WritableSignal,
+  InspectEvent,
+  LinkInspectEvent
 } from './types.js'
 import {
   UninspectedMode,
@@ -36,16 +37,18 @@ import {
 } from './inspect.js'
 import { mountable } from '../modes.js'
 
-type Event = [kind: number, target: ReactiveNode | Link | undefined, oldValue: unknown]
+const events: InspectEvent[] = []
 
-const events: Event[] = []
-
-inspect((kind, target, oldValue) => {
-  events.push([kind, target, oldValue])
+inspect((event) => {
+  events.push(event)
 })
 
-function of(kind: number, target?: ReactiveNode | Link) {
-  return events.filter(([k, t]) => k === kind && (target === undefined || t === target))
+function of(kind: number, node?: ReactiveNode) {
+  return events.filter(event => event.kind === kind && (node === undefined || ('node' in event && event.node === node)))
+}
+
+function links(kind: LinkInspectEvent['kind']) {
+  return events.filter((event): event is LinkInspectEvent => event.kind === kind)
 }
 
 describe('agera', () => {
@@ -61,13 +64,19 @@ describe('agera', () => {
           const stop = effect(() => {
             $count()
           })
-          const [link] = of(LinkEvent).map(([, target]) => target as Link)
+          const [link] = links(LinkEvent)
 
           expect(link.dep).toBe($count.node)
 
           stop()
 
-          expect(of(UnlinkEvent, link)).toHaveLength(1)
+          expect(links(UnlinkEvent)).toEqual([
+            {
+              kind: UnlinkEvent,
+              dep: link.dep,
+              sub: link.sub
+            }
+          ])
           expect(of(StopEvent, link.sub)).toHaveLength(1)
         })
 
@@ -114,7 +123,13 @@ describe('agera', () => {
             $count(2)
           })
 
-          expect(of(UpdateEvent, $count.node)).toEqual([[UpdateEvent, $count.node, 0]])
+          expect(of(UpdateEvent, $count.node)).toEqual([
+            {
+              kind: UpdateEvent,
+              node: $count.node,
+              oldValue: 0
+            }
+          ])
           expect($count.node.value).toBe(2)
         })
 
@@ -128,8 +143,16 @@ describe('agera', () => {
           $count(2)
 
           expect(of(UpdateEvent, $double.node)).toEqual([
-            [UpdateEvent, $double.node, undefined],
-            [UpdateEvent, $double.node, 2]
+            {
+              kind: UpdateEvent,
+              node: $double.node,
+              oldValue: undefined
+            },
+            {
+              kind: UpdateEvent,
+              node: $double.node,
+              oldValue: 2
+            }
           ])
         })
 
@@ -180,7 +203,7 @@ describe('agera', () => {
             $count()
           })
 
-          const [link] = of(LinkEvent).map(([, target]) => target as Link)
+          const [link] = links(LinkEvent)
 
           expect(of(RunEvent, link.sub)).toHaveLength(0)
 
@@ -218,11 +241,11 @@ describe('agera', () => {
           const oldValues: unknown[] = []
           let calls = 0
 
-          inspect((kind, _target, oldValue) => {
+          inspect((event) => {
             calls++
 
-            if (kind === UpdateEvent) {
-              oldValues.push(oldValue)
+            if (event.kind === UpdateEvent) {
+              oldValues.push(event.oldValue)
             }
           })
 
@@ -241,7 +264,7 @@ describe('agera', () => {
 
       describe('uninspected', () => {
         function reported() {
-          return events.filter(([kind]) => kind !== FlushEvent)
+          return events.filter(event => event.kind !== FlushEvent)
         }
 
         beforeEach(() => {

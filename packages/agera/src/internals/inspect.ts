@@ -1,9 +1,16 @@
 import type {
   ReactiveNode,
   Link,
-  InspectListener
+  InspectListener,
+  LinkInspectEvent,
+  NodeInspectEvent,
+  FlushInspectEvent
 } from './types.js'
-import { UninspectedMode } from './flags.js'
+import {
+  type FlushEvent,
+  UninspectedMode,
+  UpdateEvent
+} from './flags.js'
 
 // The inspection layer: a listener the devtools register, and the mute that
 // keeps their own nodes out of what it hears. Every path into it is behind
@@ -17,12 +24,12 @@ let inspectListener: InspectListener | undefined
 let inspectMuted = false
 
 /**
- * Register an inspect listener. It is called with an event kind from the
- * event constants and the node or link the event is about; `FlushEvent`
- * carries no target, `UpdateEvent` also carries the value the node had
- * before. The contract exists for the devtools package alone
- * and may change in minor versions. The development build is the only one
- * that reports events, in production this is a no-op.
+ * Register an inspect listener. It is called with an event: its `kind` is one
+ * of the event constants, a link event carries `dep` and `sub`, a node event
+ * carries `node`, and `UpdateEvent` also carries the value the node had before
+ * as `oldValue`; `FlushEvent` carries the kind alone. The contract exists for
+ * the devtools package alone and may change in minor versions. The development
+ * build is the only one that reports events, in production this is a no-op.
  * @param listener - The listener, composed with any previous one.
  */
 export function inspect(listener: InspectListener) {
@@ -30,7 +37,7 @@ export function inspect(listener: InspectListener) {
     const prevListener = inspectListener
 
     inspectListener = prevListener
-      ? (kind, target, oldValue) => (prevListener(kind, target, oldValue), listener(kind, target, oldValue))
+      ? event => (prevListener(event), listener(event))
       : listener
   }
 }
@@ -61,16 +68,42 @@ export function uninspected<T>(fn: () => T): T {
 }
 
 // Tell the listener of an event, unless the node - or an end of the link -
-// is one to keep out
+// is one to keep out. The event object is built here, so nothing is allocated
+// while nobody listens
+export function report(kind: typeof FlushEvent): void
+
+export function report(kind: LinkInspectEvent['kind'], link: Link): void
+
+export function report(kind: NodeInspectEvent['kind'], node: ReactiveNode): void
+
+export function report(kind: typeof UpdateEvent, node: ReactiveNode, oldValue?: unknown): void
+
 export function report(kind: number, target?: ReactiveNode | Link, oldValue?: unknown) {
-  if (
-    inspectListener
-    && (
-      target === undefined
-      || !(('dep' in target ? target.dep.modes | target.sub.modes : target.modes) & UninspectedMode)
-    )
-  ) {
-    inspectListener(kind, target, oldValue)
+  if (inspectListener) {
+    if (target === undefined) {
+      inspectListener({
+        kind
+      } as FlushInspectEvent)
+    } else if ('dep' in target) {
+      if (!((target.dep.modes | target.sub.modes) & UninspectedMode)) {
+        inspectListener({
+          kind,
+          dep: target.dep,
+          sub: target.sub
+        } as LinkInspectEvent)
+      }
+    } else if (!(target.modes & UninspectedMode)) {
+      inspectListener(kind === UpdateEvent
+        ? {
+          kind,
+          node: target,
+          oldValue
+        }
+        : {
+          kind,
+          node: target
+        } as NodeInspectEvent)
+    }
   }
 }
 
