@@ -16,8 +16,7 @@ import type {
   Accessor,
   Compute,
   NewValue,
-  DeferredScope,
-  InspectListener
+  DeferredScope
 } from './types.js'
 import {
   NoneFlag,
@@ -41,6 +40,11 @@ import {
   LifecycleEvent,
   FlushEvent
 } from './flags.js'
+import {
+  report,
+  inheritInspection,
+  callInspected
+} from './inspect.js'
 
 // #region Lifecycle sockets
 
@@ -51,7 +55,6 @@ import {
 // slot must exist before the first core path that checks it
 let lifecycleEdge: ((dep: ReactiveNode, sub?: ReactiveNode) => void) | undefined
 let lifecycleSettle: (() => void) | undefined
-let inspectListener: InspectListener | undefined
 // #endregion
 // #region Core
 let cycle = 0
@@ -186,8 +189,8 @@ function link(dep: ReactiveNode, sub: ReactiveNode, version: number): void {
     dep.subs = newLink
   }
 
-  if (import.meta.env.DEV && inspectListener) {
-    inspectListener(LinkEvent, newLink)
+  if (import.meta.env.DEV) {
+    report(LinkEvent, newLink)
   }
 
   // The slot is tested first so a bundle without the lifecycle layer drops
@@ -198,8 +201,8 @@ function link(dep: ReactiveNode, sub: ReactiveNode, version: number): void {
 }
 
 function unlink(link: Link, sub = link.sub): Link | undefined {
-  if (import.meta.env.DEV && inspectListener) {
-    inspectListener(UnlinkEvent, link)
+  if (import.meta.env.DEV) {
+    report(UnlinkEvent, link)
   }
 
   const {
@@ -455,24 +458,6 @@ export function onSignal(callback: ($signal: AnySignal) => void) {
 }
 
 /**
- * Register an inspect listener. It is called with an event kind from the
- * event constants and the node or link the event is about; `FlushEvent`
- * carries no target. The contract exists for the devtools package alone
- * and may change in minor versions. The development build is the only one
- * that reports events, in production this is a no-op.
- * @param listener - The listener, composed with any previous one.
- */
-export function inspect(listener: InspectListener) {
-  if (import.meta.env.DEV) {
-    const prevListener = inspectListener
-
-    inspectListener = prevListener
-      ? (kind, target) => (prevListener(kind, target), listener(kind, target))
-      : listener
-  }
-}
-
-/**
  * Create a signal function over a reactive node. The node is the operator's
  * `this`, so whatever a call site needs at read or write time lives on the
  * node and a signal costs one object and one bound function, nothing else.
@@ -488,6 +473,10 @@ export function createSignal<N extends ComputedNode | SignalNode>(
   const $signal = constructor.bind(node) as AnySignal
 
   $signal.node = node
+
+  if (import.meta.env.DEV) {
+    inheritInspection(node)
+  }
 
   signalCallback?.($signal)
 
@@ -569,6 +558,10 @@ export function effect(fn: EffectCallback, lcx?: ReactiveNode): Destroy {
     lcx
   }
 
+  if (import.meta.env.DEV) {
+    inheritInspection(e)
+  }
+
   if (import.meta.env.DEV && activeSub !== undefined && 'compute' in activeSub) {
     console.warn('[agera] An effect was created while a computed was evaluating: keep computeds pure, move the effect to an action, an effect or the store setup')
   }
@@ -618,6 +611,10 @@ export function deferEffect(fn: EffectCallback, noDefer?: boolean): void {
     lcx: undefined
   }
 
+  if (import.meta.env.DEV) {
+    inheritInspection(e)
+  }
+
   lifecycleEdge?.(e, e)
   link(e, activeSub!, 0)
 
@@ -639,6 +636,10 @@ export function effectScope(fn: () => void): Destroy {
     subsTail: undefined,
     flags: MutableFlag,
     modes: ScopeMode
+  }
+
+  if (import.meta.env.DEV) {
+    inheritInspection(e)
   }
 
   if (import.meta.env.DEV && activeSub !== undefined && 'compute' in activeSub) {
@@ -677,6 +678,11 @@ export function trigger(fn: () => void) {
     flags: WatchingFlag | RecursedCheckFlag,
     modes: NoneFlag
   }
+
+  if (import.meta.env.DEV) {
+    inheritInspection(sub)
+  }
+
   const prevSub = pushActiveSub(sub)
 
   ++batchDepth
@@ -715,16 +721,18 @@ function updateComputed(c: ComputedNode): boolean {
 
   const prevSub = pushActiveSub(c)
 
-  if (import.meta.env.DEV && inspectListener) {
-    inspectListener(RunEvent, c)
+  if (import.meta.env.DEV) {
+    report(RunEvent, c)
   }
 
   try {
     const oldValue = c.value
-    const changed = oldValue !== (c.value = c.compute(oldValue))
+    const changed = oldValue !== (c.value = import.meta.env.DEV
+      ? callInspected(c, c.compute, oldValue)
+      : c.compute(oldValue))
 
-    if (import.meta.env.DEV && inspectListener && changed) {
-      inspectListener(UpdateEvent, c)
+    if (import.meta.env.DEV && changed) {
+      report(UpdateEvent, c, oldValue)
     }
 
     return changed
@@ -739,20 +747,29 @@ function updateComputed(c: ComputedNode): boolean {
 function updateSignal(s: SignalNode): boolean {
   s.flags = MutableFlag
 
-  const changed = s.value !== (s.value = s.pendingValue)
+  // The development build keeps the old value for the listener. It is a branch of its own,
+  // so the production one folds to the comparison alone, with no local left behind
+  if (import.meta.env.DEV) {
+    const oldValue = s.value
+    const changed = oldValue !== (s.value = s.pendingValue)
 
-  if (import.meta.env.DEV && inspectListener && changed) {
-    inspectListener(UpdateEvent, s)
+    if (changed) {
+      report(UpdateEvent, s, oldValue)
+    }
+
+    return changed
   }
 
-  return changed
+  return s.value !== (s.value = s.pendingValue)
 }
 
 function warmupEffect(e: EffectNode): void {
   const prevSub = pushActiveSub(e)
 
   try {
-    e.destroy = e.fn(true) || undefined
+    e.destroy = (import.meta.env.DEV
+      ? callInspected(e, e.fn, true)
+      : e.fn(true)) || undefined
 
     // Stopping is total: the effect reached STOPPED while this body was
     // still running, so finish the teardown the stop could not do - run the
@@ -773,12 +790,14 @@ function warmupEffect(e: EffectNode): void {
 function runEffect(e: EffectNode): void {
   const prevSub = pushActiveSub(e)
 
-  if (import.meta.env.DEV && inspectListener) {
-    inspectListener(RunEvent, e)
+  if (import.meta.env.DEV) {
+    report(RunEvent, e)
   }
 
   try {
-    e.destroy = e.fn() || undefined
+    e.destroy = (import.meta.env.DEV
+      ? callInspected(e, e.fn)
+      : e.fn()) || undefined
   } finally {
     popActiveSub(prevSub)
     e.flags &= ~RecursedCheckFlag
@@ -840,8 +859,8 @@ function flush(): void {
 
     lifecycleSettle?.()
 
-    if (import.meta.env.DEV && inspectListener && !flushDepth) {
-      inspectListener(FlushEvent)
+    if (import.meta.env.DEV && !flushDepth) {
+      report(FlushEvent)
     }
   }
 }
@@ -878,15 +897,17 @@ export function computedOper<T>(this: ComputedNode<T>): T {
 
     const prevSub = pushActiveSub(this)
 
-    if (import.meta.env.DEV && inspectListener) {
-      inspectListener(RunEvent, this)
+    if (import.meta.env.DEV) {
+      report(RunEvent, this)
     }
 
     try {
-      this.value = this.compute()
+      this.value = import.meta.env.DEV
+        ? callInspected(this, this.compute)
+        : this.compute()
 
-      if (import.meta.env.DEV && inspectListener) {
-        inspectListener(UpdateEvent, this)
+      if (import.meta.env.DEV) {
+        report(UpdateEvent, this)
       }
     } finally {
       popActiveSub(prevSub)
@@ -977,8 +998,8 @@ function effectOper(this: EffectNode): void {
 // The STOPPED transition, shared by effect and scope disposal: make the node
 // terminal, destroy what it owns, detach it from its position
 function effectScopeOper(this: ReactiveNode): void {
-  if (import.meta.env.DEV && inspectListener) {
-    inspectListener(StopEvent, this)
+  if (import.meta.env.DEV) {
+    report(StopEvent, this)
   }
 
   this.depsTail = undefined
@@ -1150,6 +1171,10 @@ export function selector<T, U = T, R = boolean>(
         modes: MountableMode
       }
 
+      if (import.meta.env.DEV) {
+        inheritInspection(tracker)
+      }
+
       warmupEffect(tracker)
     } else if (flags & (DirtyFlag | PendingFlag)) {
       // Asked between a write and its flush: settle first, so the answer is
@@ -1176,6 +1201,10 @@ export function selector<T, U = T, R = boolean>(
         // go empties the tracker's subs, which stops it and releases the
         // source - the graph tears the chain down edge by edge
         destroy: () => keys.delete(key)
+      }
+
+      if (import.meta.env.DEV) {
+        inheritInspection(node)
       }
 
       keys.set(key, node)
@@ -1269,6 +1298,10 @@ function createScope(parent: ReactiveNode | undefined): ReactiveNode {
     subsTail: undefined,
     flags: MutableFlag,
     modes: ScopeMode
+  }
+
+  if (import.meta.env.DEV) {
+    inheritInspection(e)
   }
 
   if (parent !== undefined) {
@@ -1676,8 +1709,8 @@ function evaluate(node: ReadableNode): void {
 
   node.lcd = mounted
 
-  if (import.meta.env.DEV && inspectListener && changed) {
-    inspectListener(LifecycleEvent, node)
+  if (import.meta.env.DEV && changed) {
+    report(LifecycleEvent, node)
   }
 
   // Sources mount before their dependents and unmount after them

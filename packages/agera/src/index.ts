@@ -1,8 +1,12 @@
 export type * from './internals/types.js'
 export {
   NoneFlag,
+  DirtyFlag,
+  PendingFlag,
   WritableMode,
+  MountableMode,
   ExternalModesBase,
+  UninspectedMode,
   LinkEvent,
   UnlinkEvent,
   UpdateEvent,
@@ -15,10 +19,13 @@ export {
   untracked,
   trigger,
   onSignal,
-  inspect,
   createSignal,
   computedOper
 } from './internals/system.js'
+export {
+  inspect,
+  uninspected
+} from './internals/inspect.js'
 export * from './signal.js'
 export * from './modes.js'
 export * from './effect.js'

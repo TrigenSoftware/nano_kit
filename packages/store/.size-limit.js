@@ -13,7 +13,7 @@ export default [
     gzip: true,
     path: 'dist/index.production.js',
     import: '*',
-    limit: '6.6 kB',
+    limit: '6.65 kB',
     modifyEsbuildConfig
   },
   {

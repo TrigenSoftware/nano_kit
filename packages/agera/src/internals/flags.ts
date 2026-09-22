@@ -28,7 +28,10 @@ export const PausedMode = 1 << 4
 
 export const DeferredMode = 1 << 5
 
-export const ExternalModesBase = 6
+// Set by the development build only: `inspect` never reports such a node
+export const UninspectedMode = 1 << 6
+
+export const ExternalModesBase = 7
 
 // #endregion
 
