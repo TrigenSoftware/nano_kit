@@ -5,6 +5,7 @@ import {
   PendingFlag,
   MountableMode
 } from '@nano_kit/store'
+import { preview } from '../values/index.js'
 import type {
   ChildNode,
   NodeKind,
@@ -44,13 +45,26 @@ export function parentOf(node: ReactiveNode): [parent: ReactiveNode, key: unknow
     : undefined
 }
 
+function owns(kind: NodeKind) {
+  return kind === 'effect' || kind === 'scope'
+}
+
 /**
  * A link whose dependency is an effect or a scope is not a read: it says where that one was created.
  * @param dep - Record of the dependency end of a link.
  * @returns Whether the link is ownership.
  */
 export function isOwnership(dep: Pick<NodeRecord, 'kind'>) {
-  return dep.kind === 'effect' || dep.kind === 'scope'
+  return owns(dep.kind)
+}
+
+/**
+ * Whether a node is an effect or a scope: the dependency end of an ownership link.
+ * @param node
+ * @returns Whether a link to the node is ownership.
+ */
+export function isOwner(node: ReactiveNode) {
+  return owns(kindOf(node))
 }
 
 /**
@@ -89,6 +103,16 @@ export function valueOf(record: NodeRecord): unknown {
   const node = record.ref.deref()
 
   return node && 'value' in node ? node.value : undefined
+}
+
+/**
+ * The value of a record as one line, the way a table shows it: nothing for an effect or a scope,
+ * which have no value, and for a computed nobody has evaluated, which is never evaluated for a look.
+ * @param record
+ * @returns The preview; empty when there is nothing to show.
+ */
+export function previewOf(record: NodeRecord) {
+  return isOwnership(record) || record.state === 'unevaluated' ? '' : preview(valueOf(record))
 }
 
 /**

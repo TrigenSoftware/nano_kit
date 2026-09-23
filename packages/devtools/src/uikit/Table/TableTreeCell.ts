@@ -1,10 +1,10 @@
+import { inject } from 'nanoviews/store'
 import {
   type Attributes,
   td,
   div,
   span,
-  component$,
-  inject
+  component$
 } from 'nanoviews'
 import { Disclosure } from '../Disclosure/index.js'
 import { TableRowTree$ } from './TableRow.js'

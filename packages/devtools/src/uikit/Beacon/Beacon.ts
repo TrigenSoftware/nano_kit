@@ -23,7 +23,7 @@ export const Beacon = component$(({
   class: className,
   active,
   ...restProps
-}: BeaconProps, _children: never) => (
+}: BeaconProps) => (
   span({
     class: [
       className,

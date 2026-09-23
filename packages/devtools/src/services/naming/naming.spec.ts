@@ -38,10 +38,10 @@ describe('devtools', () => {
             'http://localhost:6006/@fs/cache/storybook/10.6.0/0d57/sb-vite/deps/nanoviews_store.js'
           ]
           const application = [
-            '/workspace/nano_kit/packages/devtools/src/services/registry/registry.mock.ts',
+            '/workspace/nano_kit/packages/devtools/src/services/naming/naming.mock.ts',
             '/workspace/nano_kit/packages/devtools/src/stores/registry.spec.ts',
-            'http://localhost:6006/src/services/registry/registry.mock.ts',
-            'http://localhost:6006/src/blocks/shared/demo.mock.ts'
+            'http://localhost:6006/src/services/naming/naming.mock.ts',
+            'http://localhost:6006/src/blocks/shared/app.mock.ts'
           ]
 
           expect(library.filter(isWorkspaceLibrary)).toEqual(library)

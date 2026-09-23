@@ -28,7 +28,7 @@ export const Disclosure = component$(({
   label,
   onClick,
   ...restProps
-}: DisclosureProps, _children: never) => (
+}: DisclosureProps) => (
   button({
     class: [
       className,

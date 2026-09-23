@@ -20,6 +20,7 @@ import {
   isOwnership,
   stateOf,
   valueOf,
+  previewOf,
   visitStale
 } from './registry.js'
 
@@ -175,6 +176,30 @@ describe('devtools', () => {
           })
 
           expect(valueOf(describeNode($count.node.subs!.sub))).toBeUndefined()
+        })
+      })
+
+      describe('previewOf', () => {
+        it('should preview the value of a signal and nothing for an effect or a computed nobody evaluated', () => {
+          const $count = signal(1)
+          const $double = computed(() => $count() * 2)
+
+          watch(() => {
+            $count()
+          })
+
+          const withState = (node: ReactiveNode) => ({
+            ...describeNode(node),
+            state: stateOf(describeNode(node))
+          })
+
+          expect(previewOf(withState($count.node))).toBe('1')
+          expect(previewOf(withState($double.node))).toBe('')
+          expect(previewOf(withState($count.node.subs!.sub))).toBe('')
+
+          $double()
+
+          expect(previewOf(withState($double.node))).toBe('2')
         })
       })
 

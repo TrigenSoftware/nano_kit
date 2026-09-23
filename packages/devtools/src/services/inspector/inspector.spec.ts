@@ -17,6 +17,7 @@ import {
   signal,
   computed,
   effect,
+  effectScope,
   mountable,
   uninspected,
   provide,
@@ -145,6 +146,26 @@ describe('devtools', () => {
           expect(meeting.signal).toBeUndefined()
           expect(meeting.reached).toBe(false)
           expect(meeting.origin![0].stack).toContain('logCount')
+        })
+
+        it('should meet an effect created inside a scope, and the scope, on the stack of the body', async () => {
+          const $count = signal(0)
+
+          stops.push(effectScope(function scopeBody() {
+            effect(function innerEffect() {
+              $count()
+            })
+          }))
+
+          await tick()
+
+          const reader = $count.node.subs!.sub
+          const owner = reader.subs!.sub
+
+          expect(meetingOf(reader)!.reached).toBe(false)
+          expect(meetingOf(reader)!.origin![0].stack).toContain('scopeBody')
+          expect(meetingOf(owner)!.reached).toBe(false)
+          expect(meetingOf(owner)!.origin![0].stack).toContain('scopeBody')
         })
 
         it('should meet a node once', async () => {

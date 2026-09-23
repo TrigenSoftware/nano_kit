@@ -1,15 +1,15 @@
 import {
   type Signalish,
   type WritableSignal,
-  DependencyNotFound
+  DependencyNotFound,
+  provide
 } from 'nanoviews/store'
 import {
   type Attributes,
   type ChangeEvent,
   div,
   component$,
-  context$,
-  provide
+  context$
 } from 'nanoviews'
 import styles from './Tabs.module.css'
 

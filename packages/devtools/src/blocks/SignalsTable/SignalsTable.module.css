@@ -1,0 +1,10 @@
+.site {
+  margin-inline-start: 8px;
+}
+
+/* The one column that gives way: it takes what the others leave and cuts its text, so a long value
+   never pushes the last columns out of sight */
+.value {
+  width: 100%;
+  max-width: 0;
+}

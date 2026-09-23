@@ -1,13 +1,13 @@
 import {
   type Signalish,
-  is
+  is,
+  inject
 } from 'nanoviews/store'
 import {
   type Attributes,
   label,
   input,
-  component$,
-  inject
+  component$
 } from 'nanoviews'
 import { TabsGroup$ } from './Tabs.js'
 import styles from './Tab.module.css'

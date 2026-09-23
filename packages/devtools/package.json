@@ -64,12 +64,12 @@
   },
   "dependencies": {
     "@nano_kit/store": "workspace:^",
-    "nanoviews": "1.0.0-prerelease.20260919120230"
+    "nanoviews": "1.0.0-prerelease.20260923175652"
   },
   "devDependencies": {
-    "@nanoviews/storybook": "1.0.0-prerelease.20260919120230",
-    "@nanoviews/storybook-vite": "1.0.0-prerelease.20260919120230",
-    "@nanoviews/testing-library": "1.0.0-prerelease.20260919120230",
+    "@nanoviews/storybook": "1.0.0-prerelease.20260923175652",
+    "@nanoviews/storybook-vite": "1.0.0-prerelease.20260923175652",
+    "@nanoviews/testing-library": "1.0.0-prerelease.20260923175652",
     "@testing-library/dom": "catalog:",
     "@types/svg-sprite": "^0.0.39",
     "@vitest/coverage-v8": "catalog:",

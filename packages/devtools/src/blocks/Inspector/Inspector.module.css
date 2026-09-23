@@ -1,0 +1,60 @@
+.root {
+  display: flex;
+  gap: var(--sizeSpaceMd);
+  min-height: 0;
+}
+
+.box {
+  flex: 1;
+  min-width: 0;
+}
+
+.wide {
+  flex: 2;
+}
+
+/* The body of the value box: a notice, when there is one, keeps its distance from the value below */
+.value {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sizeSpaceLg);
+}
+
+.empty {
+  padding: var(--sizeSpaceMd);
+}
+
+/* The body of the links box: one side under the other */
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sizeSpaceMd);
+}
+
+/* A side of the links: the caption sits as far from its list as the items sit from each other */
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sizeSpaceXs);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sizeSpaceXs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* The place an effect among the links was created in, next to its name */
+.site {
+  margin-inline-start: var(--sizeSpaceSm);
+}
+
+/* A long string, opened: the whole of it, wrapped */
+.text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

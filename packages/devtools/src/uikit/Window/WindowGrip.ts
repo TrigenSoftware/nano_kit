@@ -14,7 +14,7 @@ export type WindowGripProps = Attributes<'div'>
 export const WindowGrip = component$(({
   class: className,
   ...restProps
-}: WindowGripProps, _children: never) => (
+}: WindowGripProps) => (
   div({
     class: [className, styles.root],
     'aria-hidden': true,

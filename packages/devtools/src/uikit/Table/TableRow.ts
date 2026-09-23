@@ -1,14 +1,14 @@
 import {
   type Signalish,
   type WritableSignal,
-  when
+  when,
+  provide
 } from 'nanoviews/store'
 import {
   type Attributes,
   tr,
   component$,
-  context$,
-  provide
+  context$
 } from 'nanoviews'
 import styles from './TableRow.module.css'
 

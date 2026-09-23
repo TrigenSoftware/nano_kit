@@ -94,18 +94,14 @@ export const ValueNode = component$(slots$([ValueChildren], ({
         })
         // A leaf keeps the width of the chevron, so the names of one level line up;
         // the root has no name and nothing to line up with
-        : name === undefined
-          ? null
-          : span({
-            class: styles.spacer
-          }),
-      name === undefined
-        ? null
-        : span({
-          class: styles.name
-        })(
-          name
-        ),
+        : name && span({
+          class: styles.spacer
+        }),
+      name && span({
+        class: styles.name
+      })(
+        name
+      ),
       span({
         class: styles.preview
       })(

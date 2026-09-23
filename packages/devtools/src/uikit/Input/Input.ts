@@ -11,7 +11,7 @@ export type InputProps = Attributes<'input'>
 export const Input = component$(({
   class: className,
   ...restProps
-}: InputProps, _children: never) => (
+}: InputProps) => (
   input({
     class: [
       className,

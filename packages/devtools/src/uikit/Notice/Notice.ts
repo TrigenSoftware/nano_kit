@@ -47,7 +47,8 @@ export const Notice = component$(slots$([NoticeActions], ({
     class: [
       className,
       styles.root,
-      pick(styles, tone)
+      pick(styles, tone),
+      actions && styles.withActions
     ],
     role: 'status',
     ...restProps

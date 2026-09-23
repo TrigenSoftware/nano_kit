@@ -66,6 +66,11 @@
   padding-left: calc(var(--sizeIcon) - 2px + var(--sizeSpaceXs));
 }
 
+/* A level where nothing opens has no chevron to line its names up with */
+.group:not(:has(> .expandable)) > .root > .row > .spacer {
+  display: none;
+}
+
 @media screen and (prefers-reduced-motion: reduce) {
   .row,
   .chevron {

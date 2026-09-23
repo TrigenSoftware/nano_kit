@@ -12,7 +12,10 @@ import {
   inject
 } from '@nano_kit/store'
 import { NamingService$ } from '../naming/index.js'
-import { parentOf } from '../registry/index.js'
+import {
+  parentOf,
+  isOwner
+} from '../registry/index.js'
 import type {
   InspectorEvent,
   InspectorListener
@@ -160,10 +163,12 @@ export class InspectorService$ extends Injectable$ {
       const { dep, sub } = event
 
       if (event.kind === LinkEvent) {
-        // The first link of an effect or a scope is made while its body runs: that is its own stack.
-        // The dependent goes first, or the walk from an old dependency would take it for an old node too
+        // A read is made while the body of the dependent runs, that is its own stack, and what it reads
+        // may be older. An ownership link is made as an effect or a scope is created inside the body
+        // of its owner: both are on the stack. The dependent goes first either way, or the walk from
+        // an old dependency would take it for an old node too
         this.#meet(sub, 'compute' in sub)
-        this.#meet(dep, true)
+        this.#meet(dep, !isOwner(dep))
         this.#emit(event)
       } else if (this.#met.has(dep) && this.#met.has(sub)) {
         // No meeting: a stopped effect is forgotten already and must not be met again

@@ -30,7 +30,7 @@ export const Icon = component$(({
   name,
   size = DEFAULT_SIZE,
   ...restProps
-}: IconProps, _children: never) => (
+}: IconProps) => (
   svg({
     class: [styles.root, className],
     'aria-hidden': true,

@@ -10,7 +10,7 @@ export type PillSeparatorProps = Attributes<'span'>
 export const PillSeparator = component$(({
   class: className,
   ...restProps
-}: PillSeparatorProps, _children: never) => (
+}: PillSeparatorProps) => (
   span({
     class: [className, styles.root],
     'aria-hidden': true,

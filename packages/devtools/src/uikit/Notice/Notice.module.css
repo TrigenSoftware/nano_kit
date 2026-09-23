@@ -3,6 +3,7 @@
   align-items: center;
   gap: var(--sizeSpaceMd);
   padding: var(--sizeSpaceSm) calc(var(--sizeSpaceMd) + 2px);
+  border-radius: var(--sizeRadiusSm);
   background: var(--colorNoticeBackground);
   color: var(--colorNotice);
 
@@ -16,6 +17,11 @@
     /* Below the geometric centre: the visual centre of lowercase text sits lower */
     translate: 0 1px;
   }
+}
+
+/* The actions sit as far from the edge as from the top, so a button reads as centred in its corner */
+.withActions {
+  padding-right: var(--sizeSpaceSm);
 }
 
 .text {
