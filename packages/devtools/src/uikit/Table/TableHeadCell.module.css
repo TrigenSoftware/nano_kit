@@ -15,6 +15,7 @@
   }
 
   &:last-child {
+    padding-right: calc(var(--sizeSpaceSm) + var(--sizeSpaceMd));
     border-right: 0;
   }
 }

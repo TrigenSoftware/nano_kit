@@ -3,8 +3,9 @@
   align-items: center;
   justify-content: center;
   flex: none;
-  width: calc(var(--sizeIcon) - 2px);
-  height: calc(var(--sizeIcon) - 2px);
+  /* The chevron is drawn at 14 px in the box of an icon: the chevron of a nested row sits right under the icon of its parent */
+  width: var(--sizeIcon);
+  height: var(--sizeIcon);
   padding: 0;
   border: 0;
   border-radius: var(--sizeRadiusSm);

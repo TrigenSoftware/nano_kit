@@ -17,7 +17,11 @@
   justify-content: flex-end;
 }
 
-.spacer {
+/* The chevron of a tree cell, or its place left empty. As wide as an icon, so the slot of a nested row sits
+   right under the icon of its parent. The icon after it comes closer than the text comes to the icon:
+   the drawing of an icon keeps 2 px inside its box, so the icon of a nested row draws right under the text of its parent */
+.slot {
   flex: none;
-  width: calc(var(--sizeIcon) - 2px);
+  width: var(--sizeIcon);
+  margin-inline-end: calc(var(--sizeSpaceXs) - var(--sizeSpaceSm));
 }

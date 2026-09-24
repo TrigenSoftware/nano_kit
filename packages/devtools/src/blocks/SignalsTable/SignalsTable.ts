@@ -48,7 +48,7 @@ const KIND_ICONS: Record<NodeRecord['kind'], IconName> = {
   signal: 'signal',
   computed: 'computed',
   child: 'child',
-  selector: 'effect',
+  selector: 'selector',
   effect: 'effect',
   scope: 'effect'
 }

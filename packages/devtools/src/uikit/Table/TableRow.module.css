@@ -15,9 +15,27 @@
     --colorRowBackground: var(--colorControlActive);
   }
 
+  /* A tr takes no radius, so its outline would be square: the cells draw the ring, rounded at the ends like the row */
   &:focus-visible {
-    outline: var(--sizeBorderFocus) solid var(--colorFocusOutline);
-    outline-offset: calc(-1 * var(--sizeBorderFocus));
+    --shadowFocusTop: inset 0 var(--sizeBorderFocus) var(--colorFocusOutline);
+    --shadowFocusBottom: inset 0 calc(-1 * var(--sizeBorderFocus)) var(--colorFocusOutline);
+    outline: 0;
+  }
+
+  &:focus-visible > td {
+    box-shadow: var(--shadowFocusTop), var(--shadowFocusBottom);
+  }
+
+  &:focus-visible > td:first-child {
+    box-shadow: inset var(--sizeBorderFocus) 0 var(--colorFocusOutline), var(--shadowFocusTop), var(--shadowFocusBottom);
+  }
+
+  &:focus-visible > td:last-child {
+    box-shadow: inset calc(-1 * var(--sizeBorderFocus)) 0 var(--colorFocusOutline), var(--shadowFocusTop), var(--shadowFocusBottom);
+  }
+
+  &:focus-visible > td:first-child:last-child {
+    box-shadow: inset 0 0 0 var(--sizeBorderFocus) var(--colorFocusOutline);
   }
 
   &[aria-selected='true'] {

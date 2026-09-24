@@ -32,11 +32,14 @@ export const TableTreeCell = component$(({
       })(
         tree?.$expanded
           ? Disclosure({
+            class: styles.slot,
+            // The row opens and closes itself on the arrows and holds the tab stop: the chevron is for the mouse
+            tabIndex: -1,
             $expanded: tree.$expanded,
             label: tree.label
           })
           : span({
-            class: styles.spacer
+            class: styles.slot
           }),
         ...children
       )

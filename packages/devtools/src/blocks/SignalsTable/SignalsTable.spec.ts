@@ -160,6 +160,19 @@ describe('devtools', () => {
         expect(row.getAttribute('aria-selected')).not.toBe('true')
       })
 
+      it('should select the row Enter was pressed on', async () => {
+        await setup()
+
+        const row = rowWith('148')
+
+        row.focus()
+        fireEvent.keyDown(row, {
+          key: 'Enter'
+        })
+
+        expect(row.getAttribute('aria-selected')).toBe('true')
+      })
+
       it('should fold the rows of a group', async () => {
         await setup()
 

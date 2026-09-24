@@ -15,7 +15,7 @@
   --sizeControlSm: 22px;
   --sizeBar: 44px;
   --sizeIcon: 16px;
-  /* One tree level: a Disclosure, calc(var(--sizeIcon) - 2px), plus the cell gap, var(--sizeSpaceSm) */
+  /* One tree level: the slot of a chevron, var(--sizeIcon), plus the gap after it, var(--sizeSpaceXs) */
   --sizeIndent: 20px;
 
   /* Sizes - Borders */
