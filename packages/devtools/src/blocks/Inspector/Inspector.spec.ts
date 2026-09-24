@@ -145,6 +145,29 @@ describe('devtools', () => {
         expect(links.getByText(/^app\.mock\.ts:\d+$/)).toBeDefined()
       })
 
+      it('should show what happened to the node lately, with the number of its transaction', async () => {
+        const context = await setup(ctx => ctx.$total)
+
+        inject(Cart$, context).tick()
+
+        await Promise.resolve()
+
+        const recent = box('Recent')
+
+        expect(recent.getAllByText(/^#\d+$/).length).toBeGreaterThan(0)
+        expect(recent.getAllByText('computed').length).toBeGreaterThan(0)
+      })
+
+      it('should tell how long the last run of the node took', async () => {
+        const context = await setup(ctx => ctx.$total)
+
+        inject(Cart$, context).tick()
+
+        await Promise.resolve()
+
+        expect(box('Node').getByText(/ms$/)).toBeDefined()
+      })
+
       it('should lead to the rows of what the node reads and what reads it', async () => {
         await setup(ctx => ctx.$total)
 

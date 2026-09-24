@@ -182,7 +182,7 @@ describe('devtools', () => {
           expect(reader.subs).toEqual([])
         })
 
-        it('should drop a stopped effect with its edges', async () => {
+        it('should keep the record of a stopped effect, out of every link', async () => {
           const $count = signal(0)
           const stop = effect(() => {
             $count()
@@ -190,13 +190,46 @@ describe('devtools', () => {
 
           await tick()
 
-          const [readerId] = recordOf($count)!.subs
+          const reader = $count.node.subs!.sub
+          const { id } = store.recordOf(reader)!
 
           stop()
 
           await tick()
 
-          expect(recordsOf([readerId])).toEqual([undefined])
+          expect(store.recordOf(reader)).toMatchObject({
+            id,
+            deps: []
+          })
+          expect(recordOf($count)!.subs).toEqual([])
+        })
+
+        it('should keep the records of a stopped scope and of its effects, out of every link', async () => {
+          const $count = signal(0)
+          const stop = effectScope(() => {
+            effect(() => {
+              $count()
+            })
+          })
+
+          await tick()
+
+          const [readerId] = recordOf($count)!.subs
+          const [reader] = recordsOf([readerId])
+
+          stop()
+
+          await tick()
+
+          expect(recordsOf([readerId, reader.owner!])).toMatchObject([
+            {
+              deps: [],
+              owner: undefined
+            },
+            {
+              owned: []
+            }
+          ])
           expect(recordOf($count)!.subs).toEqual([])
         })
 

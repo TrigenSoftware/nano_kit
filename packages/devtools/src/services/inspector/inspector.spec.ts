@@ -11,8 +11,10 @@ import {
   UnlinkEvent,
   UpdateEvent,
   RunEvent,
+  RunEndEvent,
   StopEvent,
   LifecycleEvent,
+  FlushEvent,
   InjectionContext,
   signal,
   computed,
@@ -20,6 +22,7 @@ import {
   effectScope,
   mountable,
   uninspected,
+  batch,
   provide,
   inject,
   record
@@ -62,13 +65,13 @@ describe('devtools', () => {
         }
 
         function meetingOf(node: ReactiveNode) {
-          return heard().find((event): event is MeetInspectEvent => event.kind === MeetEvent && event.node === node)
+          return heard().find((event): event is InspectorEvent & MeetInspectEvent => event.kind === MeetEvent && event.node === node)
         }
 
         // The kinds of the events about a node, a link told of by its dependent
         function kindsAbout(node: ReactiveNode) {
           return heard()
-            .filter(event => ('dep' in event ? event.sub : event.node) === node)
+            .filter(event => ('dep' in event ? event.sub : 'node' in event && event.node) === node)
             .map(event => event.kind)
         }
 
@@ -105,18 +108,73 @@ describe('devtools', () => {
             MeetEvent,
             LinkEvent,
             UpdateEvent,
-            RunEvent
+            RunEvent,
+            RunEndEvent,
+            FlushEvent
           ])
           expect(batches[0][2]).toEqual({
             kind: LinkEvent,
             dep: $count.node,
-            sub: reader
+            sub: reader,
+            time: expect.any(Number)
           })
           expect(batches[0][3]).toEqual({
             kind: UpdateEvent,
             node: $count.node,
-            oldValue: 0
+            oldValue: 0,
+            time: expect.any(Number)
           })
+        })
+
+        it('should stamp every event with the time it was heard, in their order', async () => {
+          const $count = signal(0)
+
+          watch(() => {
+            $count()
+          })
+          $count(1)
+
+          await tick()
+
+          const times = heard().map(event => event.time)
+
+          expect(times).toEqual([...times].sort((a, b) => a - b))
+        })
+
+        it('should hand a flush over only after something of the application', async () => {
+          batch(() => {})
+          uninspected(() => {
+            const $panel = signal(0)
+
+            effect(() => {
+              $panel()
+            })
+            $panel(1)
+          })
+
+          await tick()
+
+          expect(heard()).toEqual([])
+        })
+
+        it('should call every listener with the same events, in the order they started', async () => {
+          const calls: string[] = []
+          const stopOther = service.listen((events) => {
+            calls.push('other')
+            expect(events).toBe(batches[0])
+          })
+
+          service.listen(() => {
+            calls.push('last')
+          })()
+          signal(0)
+
+          await tick()
+
+          expect(calls).toEqual(['other'])
+          expect(batches).toHaveLength(1)
+
+          stopOther()
         })
 
         it('should meet a signal at its creation, with its signal and the stack of that moment', async () => {
@@ -243,17 +301,20 @@ describe('devtools', () => {
           expect(heard()).toContainEqual({
             kind: LinkEvent,
             dep: $old.node,
-            sub: $oldDouble.node
+            sub: $oldDouble.node,
+            time: expect.any(Number)
           })
           expect(heard()).toContainEqual({
             kind: LinkEvent,
             dep: $oldDouble.node,
-            sub: oldReader
+            sub: oldReader,
+            time: expect.any(Number)
           })
           expect(heard()).toContainEqual({
             kind: LinkEvent,
             dep: $oldDouble.node,
-            sub: newReader
+            sub: newReader,
+            time: expect.any(Number)
           })
         })
 
@@ -328,7 +389,8 @@ describe('devtools', () => {
           expect(heard()).toEqual([
             {
               kind: StopEvent,
-              node: reader
+              node: reader,
+              time: expect.any(Number)
             }
           ])
         })
@@ -353,12 +415,14 @@ describe('devtools', () => {
           expect(heard()).toContainEqual({
             kind: UnlinkEvent,
             dep: $left.node,
-            sub: $side.node
+            sub: $side.node,
+            time: expect.any(Number)
           })
           expect(heard()).toContainEqual({
             kind: LinkEvent,
             dep: $right.node,
-            sub: $side.node
+            sub: $side.node,
+            time: expect.any(Number)
           })
         })
 
@@ -391,17 +455,14 @@ describe('devtools', () => {
           stopOther()
         })
 
-        it('should hear nothing once stopped, and hand over what it heard before', async () => {
-          const $before = signal(0)
-
+        it('should hand nothing over once stopped, what it heard before included', async () => {
+          signal(0)
           stop()
-
-          const $after = signal(0)
+          signal(0)
 
           await tick()
 
-          expect(meetingOf($before.node)).toBeDefined()
-          expect(meetingOf($after.node)).toBeUndefined()
+          expect(batches).toEqual([])
         })
       })
     })

@@ -48,6 +48,15 @@
   list-style: none;
 }
 
+/* A line of the recent log of the node: its transaction, what happened and how long it took */
+.recent {
+  display: flex;
+  align-items: center;
+  gap: var(--sizeSpaceSm);
+  max-width: 100%;
+  white-space: nowrap;
+}
+
 /* The place an effect among the links was created in, next to its name */
 .site {
   margin-inline-start: var(--sizeSpaceSm);

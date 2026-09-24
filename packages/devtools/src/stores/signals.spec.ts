@@ -13,6 +13,7 @@ import {
   signal,
   computed,
   effect,
+  batch,
   uninspected,
   provide,
   inject,
@@ -326,9 +327,10 @@ describe('devtools', () => {
           expect(recordOf($cold).subs).toEqual([])
         })
 
-        it('should follow the selection, prepare its links and drop it when the record leaves', async () => {
+        it('should follow the selection and prepare its links', async () => {
           const $count = signal(1)
-          const stop = effect(() => {
+
+          watch(() => {
             $count()
           })
 
@@ -345,16 +347,69 @@ describe('devtools', () => {
           expect(store.$isSelected(readerId)).toBe(true)
           expect(store.$isSelected(source.id)).toBe(false)
 
+          store.select(undefined)
+
+          expect(store.$isSelected(readerId)).toBe(false)
+        })
+
+        it('should keep a stopped effect selected, out of every link', async () => {
+          const $count = signal(1)
+          const stop = effect(() => {
+            $count()
+          })
+
+          await tick()
+
+          const [readerId] = recordOf($count).subs
+
+          store.select(readerId)
           stop()
 
           await tick()
 
-          expect(store.$selected()).toBeUndefined()
+          expect(store.$selected()?.id).toBe(readerId)
           expect(store.$selectedDeps()).toEqual([])
+        })
 
-          store.select(undefined)
+        it('should give the log of the selected record, newest first', async () => {
+          const $count = signal(0)
 
-          expect(store.$isSelected(readerId)).toBe(false)
+          watch(() => {
+            $count()
+          })
+
+          await tick()
+
+          store.select(recordOf($count).id)
+          // The Recent box on the screen: the log listens while it is read
+          bind(() => {
+            store.$selectedRecent()
+          })
+          $count(1)
+          $count(2)
+
+          await tick()
+
+          expect(store.$selectedRecent().map(entry => [entry.group, entry.line.kind, entry.line.to])).toEqual([
+            [2, 'write', '2'],
+            [1, 'write', '1']
+          ])
+        })
+
+        it('should drop the selection when the record leaves', async () => {
+          const $count = signal(1)
+
+          await tick()
+
+          const { id } = recordOf($count)
+
+          store.select(id)
+          // The way the registry lets go of a node that was collected: inside a batch
+          batch(() => {
+            registry.records.delete(id)
+          })
+
+          expect(store.$selected()).toBeUndefined()
         })
       })
     })

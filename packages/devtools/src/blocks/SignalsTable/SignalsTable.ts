@@ -14,10 +14,7 @@ import {
   for_,
   if_
 } from 'nanoviews'
-import {
-  type NodeRecord,
-  previewOf
-} from '../../services/registry/index.js'
+import { previewOf } from '../../services/registry/index.js'
 import { basename } from '../../services/naming/index.js'
 import { RegistryStore$ } from '../../stores/registry.js'
 import {
@@ -41,17 +38,10 @@ import {
   TableTreeCell
 } from '../../uikit/Table/index.js'
 import { STATE_TONES } from '../shared/state.js'
+import { KIND_ICONS } from '../shared/kind.js'
 import styles from './SignalsTable.module.css'
 
 const COLUMNS = 6
-const KIND_ICONS: Record<NodeRecord['kind'], IconName> = {
-  signal: 'signal',
-  computed: 'computed',
-  child: 'child',
-  selector: 'selector',
-  effect: 'effect',
-  scope: 'effect'
-}
 
 export type SignalsTableProps = Attributes<'div'>
 

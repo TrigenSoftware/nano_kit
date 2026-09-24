@@ -12,11 +12,13 @@ import {
   isOwnership,
   previewOf
 } from '../services/registry/index.js'
+import { recentOf } from '../services/log/index.js'
 import { PanelStore$ } from './panel.js'
 import {
   type NodeRecords,
   RegistryStore$
 } from './registry.js'
+import { LogStore$ } from './log.js'
 
 export interface GraphRow {
   readonly id: number
@@ -220,6 +222,7 @@ function buildGroups(records: NodeRecords, query: string) {
 export function SignalsStore$() {
   const { records } = inject(RegistryStore$)
   const { $filter } = inject(PanelStore$)
+  const { $groups: $logGroups } = inject(LogStore$)
   const $selectedId = signal<number>()
   /**
    * The table of the Signals tab: the records grouped by owner in the order of creation, child
@@ -260,6 +263,15 @@ export function SignalsStore$() {
     return untracked(() => endsOf(records, subs))
   })
   /**
+   * The last lines of the log about the selected record, newest first, each with the number of its group.
+   * It follows the id, not the record: what happens to the node reads the log again only as it adds groups.
+   */
+  const $selectedRecent = computed(() => {
+    const id = $selectedId()
+
+    return id === undefined ? [] : recentOf($logGroups(), id)
+  })
+  /**
    * Whether the record with the id is selected; wakes the two rows a selection moves between.
    */
   const $isSelected = selector($selectedId)
@@ -284,6 +296,7 @@ export function SignalsStore$() {
     $selected,
     $selectedDeps,
     $selectedSubs,
+    $selectedRecent,
     $isSelected,
     select,
     evaluate

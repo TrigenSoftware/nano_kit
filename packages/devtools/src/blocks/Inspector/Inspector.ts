@@ -12,13 +12,14 @@ import typography from '../../uikit/typography.module.css'
 import { NodeBox } from './NodeBox.js'
 import { ValueBox } from './ValueBox.js'
 import { LinksBox } from './LinksBox.js'
+import { RecentBox } from './RecentBox.js'
 import styles from './Inspector.module.css'
 
 export type InspectorProps = Attributes<'div'>
 
 /**
- * The boxes about the selected row: what the node is, its value and its links. Each reads the
- * selection from the store, stays when it moves and follows it through its bindings.
+ * The boxes about the selected row: what the node is, its value, its links and what happened to it
+ * lately. Each reads the selection from the store, stays when it moves and follows it through its bindings.
  */
 export const Inspector = component$(({
   class: className,
@@ -35,7 +36,8 @@ export const Inspector = component$(({
         () => fragment(
           NodeBox(),
           ValueBox(),
-          LinksBox()
+          LinksBox(),
+          RecentBox()
         ),
         () => (
           span({

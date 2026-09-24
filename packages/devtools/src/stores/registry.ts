@@ -49,6 +49,11 @@ export function RegistryStore$() {
   // What the updates of the task left out of date, visited once
   const stale = new Set<ReactiveNode>()
   const read = (id: number | undefined) => (id === undefined ? undefined : records.get(id))
+  /**
+   * The record of a node, a node that stopped included.
+   * @param node
+   * @returns The record; none for a node never met, a node of the panel, and a node met in this very task.
+   */
   const recordOf = (node: ReactiveNode) => read(ids.get(node))
   // A record is never changed in place, and its state is read again with every change
   const write = (record: NodeRecord, change?: Partial<NodeRecord>) => {
@@ -70,29 +75,39 @@ export function RegistryStore$() {
       })
     }
   }
+  // Take the record out of the links of the others
+  const isolate = ({
+    id,
+    deps,
+    subs,
+    owned,
+    owner
+  }: NodeRecord) => {
+    deps.forEach(dep => unlist(dep, 'subs', id))
+    subs.forEach(sub => unlist(sub, 'deps', id))
+    owned.forEach((ownedId) => {
+      const other = read(ownedId)
+
+      if (other) {
+        write(other, {
+          owner: undefined
+        })
+      }
+    })
+
+    if (owner !== undefined) {
+      unlist(owner, 'owned', id)
+    }
+  }
   const remove = (id: number) => {
     const record = read(id)
 
     if (record) {
       records.delete(id)
-      record.deps.forEach(dep => unlist(dep, 'subs', id))
-      record.subs.forEach(sub => unlist(sub, 'deps', id))
-      record.owned.forEach((owned) => {
-        const other = read(owned)
-
-        if (other) {
-          write(other, {
-            owner: undefined
-          })
-        }
-      })
-
-      if (record.owner !== undefined) {
-        unlist(record.owner, 'owned', id)
-      }
+      isolate(record)
     }
   }
-  // A collected node tells of itself in a task of its own; a record removed by a stop is simply not found any more
+  // A collected node tells of itself in a task of its own, a node that stopped included
   const collected = new FinalizationRegistry<number>((id) => {
     batch(() => remove(id))
   })
@@ -179,9 +194,19 @@ export function RegistryStore$() {
       // A link is told of between nodes that were met, and a meeting comes first: both records are there
       (event.kind === LinkEvent ? attach : detach)(recordOf(event.dep)!, recordOf(event.sub)!)
     } else if (event.kind === StopEvent) {
-      remove(ids.get(event.node)!)
-      ids.delete(event.node)
-    } else {
+      // The links a stopped node drops are not told of. Its record stays out of them until the node
+      // is collected, so what tells of the stop still names it
+      const record = recordOf(event.node)!
+
+      isolate(record)
+      write(record, {
+        deps: [],
+        subs: [],
+        owned: [],
+        owner: undefined
+      })
+    } else if ('node' in event) {
+      // A flush changes no record: it only closes the transactions of the log
       touch(event.node, event.kind === UpdateEvent)
 
       // What an update left out of date got no event of its own
@@ -209,6 +234,7 @@ export function RegistryStore$() {
 
   return {
     records,
-    idOf
+    idOf,
+    recordOf
   }
 }

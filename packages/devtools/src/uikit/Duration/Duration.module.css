@@ -1,0 +1,22 @@
+.root {
+  color: var(--colorTextSecondary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.warning,
+.danger {
+  padding: 1px var(--sizeSpaceSm);
+  border-radius: var(--sizeRadiusSm);
+  font-weight: 600;
+}
+
+.warning {
+  background: var(--colorWarningSoft);
+  color: var(--colorWarning);
+}
+
+.danger {
+  background: var(--colorDangerSoft);
+  color: var(--colorDanger);
+}

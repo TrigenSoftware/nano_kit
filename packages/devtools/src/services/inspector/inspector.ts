@@ -5,6 +5,7 @@ import {
   UninspectedMode,
   LinkEvent,
   StopEvent,
+  FlushEvent,
   Injectable$,
   onSignal,
   inspect,
@@ -17,6 +18,7 @@ import {
   isOwner
 } from '../registry/index.js'
 import type {
+  MeetInspectEvent,
   InspectorEvent,
   InspectorListener
 } from './inspector.types.js'
@@ -30,15 +32,14 @@ export const MeetEvent = -1
  * The runtime of the application as a listener hears it. `onSignal` and `inspect` fire in the
  * middle of the application's own work, inside `link()`, inside the evaluation of a computed, where
  * nothing of the panel can be written. So the service does right there only what cannot wait,
- * telling a new node from a known one and taking its call stack, and hands the events of a task
- * over all at once, a microtask later.
+ * telling a new node from a known one, taking its call stack and the time, and hands the events
+ * of a task over all at once, a microtask later.
  */
 export class InspectorService$ extends Injectable$ {
   readonly #naming = inject(NamingService$)
   readonly #met = new WeakSet<ReactiveNode>()
 
-  #listener: InspectorListener | undefined
-  #listening = false
+  readonly #listeners = new Set<InspectorListener>()
   #events: InspectorEvent[] = []
 
   constructor() {
@@ -46,33 +47,37 @@ export class InspectorService$ extends Injectable$ {
     // `onSignal` and `inspect` compose and cannot be unsubscribed: the service is one per
     // injection context, so they are installed with it, for good, and are deaf until somebody listens
     onSignal(($signal) => {
-      if (this.#listening) {
+      if (this.#listeners.size) {
         this.#meet($signal.node, false, $signal)
       }
     })
     inspect((event) => {
-      if (this.#listening) {
+      if (this.#listeners.size) {
         this.#hear(event)
       }
     })
   }
 
   /**
-   * Start listening to the runtime.
+   * Start listening to the runtime. The listeners are called in the order they started, so one
+   * that reads the records of the registry starts after it.
    * @param listener - Called inside `uninspected`: whatever it creates is of the panel.
-   * @returns A function to stop. What was heard before the stop still comes, with the microtask of its task.
+   * @returns A function to stop. A stopped listener hears nothing more, its last task included.
    */
   listen(listener: InspectorListener) {
-    this.#listener = listener
-    this.#listening = true
+    this.#listeners.add(listener)
 
     return () => {
-      this.#listening = false
+      this.#listeners.delete(listener)
     }
   }
 
-  #emit(event: InspectorEvent) {
-    if (this.#events.push(event) === 1) {
+  // The time is taken last: a run is timed from after its node was met, stack and all
+  #emit(event: MeetInspectEvent | InspectEvent) {
+    if (this.#events.push({
+      ...event,
+      time: performance.now()
+    }) === 1) {
       queueMicrotask(() => this.#flush())
     }
   }
@@ -81,7 +86,7 @@ export class InspectorService$ extends Injectable$ {
     const events = this.#events
 
     this.#events = []
-    uninspected(() => this.#listener!(events))
+    uninspected(() => this.#listeners.forEach(listener => listener(events)))
   }
 
   /**
@@ -183,6 +188,11 @@ export class InspectorService$ extends Injectable$ {
         this.#meet(event.node, true)
         this.#emit(event)
       }
+    } else if (this.#events.length && this.#events[this.#events.length - 1].kind !== FlushEvent) {
+      // A flush closes what the application did since the one before. A flush of the panel alone
+      // is none of its business, and a flush of the batch the listeners write in would start the
+      // next task of events all by itself, and so on for good
+      this.#emit(event)
     }
   }
 }

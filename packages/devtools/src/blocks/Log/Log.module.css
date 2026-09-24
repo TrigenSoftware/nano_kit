@@ -1,0 +1,16 @@
+/* The column that gives way: it takes what the others leave and cuts its text */
+.event {
+  width: 100%;
+  max-width: 0;
+}
+
+/* A run caused by another one: one step of the tree further in per run above it */
+.nested {
+  flex: none;
+  width: calc(var(--sizeIndent) * var(--logDepth) - var(--sizeSpaceSm));
+}
+
+.empty {
+  padding: var(--sizeSpaceMd);
+  text-align: center;
+}

@@ -1,8 +1,7 @@
 import type {
   AnySignal,
   ReactiveNode,
-  InspectEvent,
-  FlushInspectEvent
+  InspectEvent
 } from '@nano_kit/store'
 import type { NodeOrigin } from '../naming/index.js'
 import type { MeetEvent } from './inspector.js'
@@ -34,10 +33,16 @@ export interface MeetInspectEvent {
 }
 
 /**
- * What the service hands over: its own meetings and the events of the runtime, flushes left out.
+ * What the service hands over: its own meetings and the events of the runtime, each with the time it was heard.
+ * A flush comes only after something of the application: one that moved nothing but the panel is left out.
  * A link older than the service may be told of more than once, as the walk meets it from both of its ends.
  */
-export type InspectorEvent = MeetInspectEvent | Exclude<InspectEvent, FlushInspectEvent>
+export type InspectorEvent = (MeetInspectEvent | InspectEvent) & {
+  /**
+   * When the service heard the event, in milliseconds of `performance.now()`.
+   */
+  time: number
+}
 
 /**
  * Called with the events of a task, in their order, a microtask after them.
