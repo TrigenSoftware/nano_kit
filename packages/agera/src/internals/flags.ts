@@ -50,4 +50,6 @@ export const LifecycleEvent = 5
 
 export const FlushEvent = 6
 
+export const RunEndEvent = 7
+
 // #endregion

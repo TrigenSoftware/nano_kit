@@ -18,7 +18,8 @@ import {
   RunEvent,
   StopEvent,
   LifecycleEvent,
-  FlushEvent
+  FlushEvent,
+  RunEndEvent
 } from './flags.js'
 import {
   signal,
@@ -133,7 +134,7 @@ describe('agera', () => {
           expect($count.node.value).toBe(2)
         })
 
-        it('should pass the value a computed had before its update and none with its first evaluation', () => {
+        it('should pass the value a computed had before its update, and leave it out with its first evaluation', () => {
           const $count = signal(1)
           const $double = computed(() => $count() * 2)
 
@@ -142,18 +143,14 @@ describe('agera', () => {
           })
           $count(2)
 
-          expect(of(UpdateEvent, $double.node)).toEqual([
-            {
-              kind: UpdateEvent,
-              node: $double.node,
-              oldValue: undefined
-            },
-            {
-              kind: UpdateEvent,
-              node: $double.node,
-              oldValue: 2
-            }
-          ])
+          const [first, next] = of(UpdateEvent, $double.node)
+
+          expect('oldValue' in first).toBe(false)
+          expect(next).toEqual({
+            kind: UpdateEvent,
+            node: $double.node,
+            oldValue: 2
+          })
         })
 
         it('should report a run and an update for the first evaluation of a computed', () => {
@@ -206,10 +203,63 @@ describe('agera', () => {
           const [link] = links(LinkEvent)
 
           expect(of(RunEvent, link.sub)).toHaveLength(0)
+          expect(of(RunEndEvent, link.sub)).toHaveLength(0)
 
           $count(1)
 
           expect(of(RunEvent, link.sub)).toHaveLength(1)
+          expect(of(RunEndEvent, link.sub)).toHaveLength(1)
+        })
+
+        it('should end the run of a computed after its update', () => {
+          const $count = signal(1)
+          const $double = computed(() => $count() * 2)
+
+          effect(() => {
+            $double()
+          })
+          events.length = 0
+          $count(2)
+
+          expect(events.filter(event => 'node' in event && event.node === $double.node).map(event => event.kind)).toEqual([
+            RunEvent,
+            UpdateEvent,
+            RunEndEvent
+          ])
+        })
+
+        it('should enclose the runs an effect causes between its run and its end', () => {
+          const $count = signal(1)
+          const $double = computed(() => $count() * 2)
+
+          effect(() => {
+            $count()
+            $double()
+          })
+
+          const [link] = links(LinkEvent)
+
+          events.length = 0
+          $count(2)
+
+          expect(events
+            .filter(event => event.kind === RunEvent || event.kind === RunEndEvent)
+            .map(event => [event.kind, 'node' in event && event.node === link.sub ? 'effect' : 'computed'])).toEqual([
+            [RunEvent, 'effect'],
+            [RunEvent, 'computed'],
+            [RunEndEvent, 'computed'],
+            [RunEndEvent, 'effect']
+          ])
+        })
+
+        it('should end a run whose body threw', () => {
+          const $broken = computed(() => {
+            throw new Error('broken')
+          })
+
+          expect(() => $broken()).toThrow('broken')
+          expect(of(RunEvent, $broken.node)).toHaveLength(1)
+          expect(of(RunEndEvent, $broken.node)).toHaveLength(1)
         })
 
         it('should report a flush once after a write outside a batch', () => {
