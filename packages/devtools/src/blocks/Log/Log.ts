@@ -1,5 +1,6 @@
 import {
   type Accessor,
+  type Signalish,
   signal,
   inject
 } from 'nanoviews/store'
@@ -20,6 +21,7 @@ import type {
   LogLineKind
 } from '../../services/log/index.js'
 import { LogStore$ } from '../../stores/log.js'
+import { PanelStore$ } from '../../stores/panel.js'
 import { SignalsStore$ } from '../../stores/signals.js'
 import typography from '../../uikit/typography.module.css'
 import { Icon } from '../../uikit/Icon/index.js'
@@ -72,6 +74,7 @@ interface GroupRowsProps {
 
 interface LineRowProps {
   line: LogLine
+  striped: Signalish<boolean>
 }
 
 function summaryOf({ counts }: LogGroup) {
@@ -84,7 +87,10 @@ function summaryOf({ counts }: LogGroup) {
 /**
  * A line of a group: what happened to one node, and, for a run, how long it took.
  */
-const LineRow = component$(({ line }: LineRowProps) => {
+const LineRow = component$(({
+  line,
+  striped
+}: LineRowProps) => {
   const { select } = inject(SignalsStore$)
   const {
     record,
@@ -97,6 +103,7 @@ const LineRow = component$(({ line }: LineRowProps) => {
     TableRow({
       label: record.name.name,
       level: 2,
+      striped,
       onClick() {
         select(record.id)
       }
@@ -151,21 +158,30 @@ const LineRow = component$(({ line }: LineRowProps) => {
  * The row of a transaction and, once it is opened, its lines.
  */
 const GroupRows = component$(({ $group }: GroupRowsProps) => {
-  // A group never changes once it is in the log
-  const group = $group()
+  // The number, the time and the duration of a transaction never change; the filter cuts its lines down
   const {
     id,
-    duration,
-    slowest
-  } = group
+    time,
+    duration
+  } = $group()
   const outside = duration === undefined
+  // A transaction is striped by its number, not by its place, which moves with every one that comes in above
+  const parity = id % 2
   const $expanded = signal(false)
+  // The slowest run is named once it is worth a look, when its time is set apart as well
+  const $slowest = () => {
+    const { slowest } = $group()
+
+    return slowest && durationTone(slowest.self!) ? slowest : undefined
+  }
+  const $lines = () => $group().lines
 
   return fragment(
     TableRow({
       label: outside ? `Outside a flush, ${id}` : `Flush ${id}`,
       $expanded,
-      group: true
+      group: true,
+      striped: parity === 1
     })(
       TableTreeCell()(
         outside
@@ -179,14 +195,16 @@ const GroupRows = component$(({ $group }: GroupRowsProps) => {
       TableCell({
         class: styles.event
       })(
-        summaryOf(group),
-        slowest && fragment(
-          span({
-            class: typography.tertiary
-          })(
-            '· slowest'
-          ),
-          slowest.record.name.name
+        () => summaryOf($group()),
+        if_($slowest)(
+          $run => fragment(
+            span({
+              class: typography.tertiary
+            })(
+              '· slowest'
+            ),
+            () => $run().record.name.name
+          )
         )
       ),
       TableCell(),
@@ -201,14 +219,16 @@ const GroupRows = component$(({ $group }: GroupRowsProps) => {
       TableCell({
         class: typography.secondary
       })(
-        CLOCK.format(group.time)
+        CLOCK.format(time)
       )
     ),
     if_($expanded)(
-      () => fragment(
-        ...group.lines.map(line => LineRow({
-          line
-        }))
+      () => for_($lines, line => line)(
+        // A line never changes; the lines of a transaction go on alternating from its row
+        ($line, $index) => LineRow({
+          line: $line(),
+          striped: () => $index() % 2 === parity
+        })
       )
     )
   )
@@ -220,7 +240,8 @@ const GroupRows = component$(({ $group }: GroupRowsProps) => {
  * one took on its own and with what it caused.
  */
 export const Log = component$((props: LogProps) => {
-  const { $groups } = inject(LogStore$)
+  const { $shown } = inject(LogStore$)
+  const { $filter } = inject(PanelStore$)
 
   return (
     Table({
@@ -239,7 +260,7 @@ export const Log = component$((props: LogProps) => {
         TableHeadCell()('Time')
       ),
       TableBody()(
-        for_($groups, trackById)(
+        for_($shown, trackById)(
           $group => GroupRows({
             $group
           }),
@@ -249,7 +270,9 @@ export const Log = component$((props: LogProps) => {
                 class: [typography.secondary, styles.empty],
                 colSpan: COLUMNS
               })(
-                'Nothing yet: the log fills as the application updates.'
+                () => ($filter().trim()
+                  ? 'Nothing in the log matches the filter.'
+                  : 'Nothing yet: the log fills as the application updates.')
               )
             )
           )

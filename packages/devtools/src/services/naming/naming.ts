@@ -120,3 +120,19 @@ export class NamingService$ extends Injectable$ {
     return taken > 1 ? `${name}-${taken}` : name
   }
 }
+
+/**
+ * Whether a filter finds a node by its name: the handle, the creation site or the owner.
+ * @param name - The name of the node.
+ * @param query - The filter, lower case.
+ * @returns Whether one of them holds the filter.
+ */
+export function nameMatches({
+  name,
+  site,
+  owner
+}: NodeName, query: string) {
+  return name.toLowerCase().includes(query)
+    || site?.toLowerCase().includes(query)
+    || owner?.toLowerCase().includes(query)
+}

@@ -1,6 +1,7 @@
 .root {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
+  column-gap: calc(var(--sizeSpaceMd) + 2px);
   align-items: center;
   flex: none;
   height: var(--sizeBar);

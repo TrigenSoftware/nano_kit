@@ -56,6 +56,26 @@ function box(title: string) {
 describe('devtools', () => {
   describe('blocks', () => {
     describe('Inspector', () => {
+      it('should show the source of a computed under its value', async () => {
+        await setup(ctx => ctx.$total)
+
+        const value = box('Value')
+
+        expect(value.getByRole('heading', {
+          name: 'Compute'
+        })).toBeDefined()
+        expect(value.getByText(/\$items\(\)\.reduce/)).toBeDefined()
+      })
+
+      it('should show the body of an effect in place of its value', async () => {
+        // The effect of the cart reads its total first
+        await setup(ctx => ({
+          node: ctx.$total.node.subs.sub
+        }))
+
+        expect(box('Body').getByText(/\$total\(\)/)).toBeDefined()
+      })
+
       it('should ask for a row while nothing is selected', async () => {
         await setup()
 

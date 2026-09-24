@@ -1392,6 +1392,9 @@ importers:
 
   packages/devtools:
     dependencies:
+      '@nano_kit/platform-web':
+        specifier: workspace:^
+        version: link:../platform-web
       '@nano_kit/store':
         specifier: workspace:^
         version: link:../store

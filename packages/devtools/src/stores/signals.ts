@@ -6,7 +6,10 @@ import {
   untracked,
   inject
 } from '@nano_kit/store'
-import type { NodeName } from '../services/naming/index.js'
+import {
+  type NodeName,
+  nameMatches
+} from '../services/naming/index.js'
 import {
   type NodeRecord,
   isOwnership,
@@ -47,11 +50,7 @@ const NO_ROWS: GraphRow[] = []
 
 // The value is matched by its preview, the line the Value column shows
 function matches(record: NodeRecord, query: string) {
-  const { name, site, owner } = record.name
-
-  return name.toLowerCase().includes(query)
-    || site?.toLowerCase().includes(query)
-    || owner?.toLowerCase().includes(query)
+  return nameMatches(record.name, query)
     || previewOf(record).toLowerCase().includes(query)
 }
 

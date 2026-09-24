@@ -18,13 +18,14 @@
   align-items: center;
   gap: var(--sizeSpaceXs);
   min-height: 18px;
-  padding: 0 var(--sizeSpaceXs);
   border-radius: var(--sizeRadiusSm);
   white-space: nowrap;
   transition: background-color var(--durationSm) ease;
 }
 
 .expandable > .row {
+  /* Room inside the light of hover and focus; a leaf is never lit and needs none */
+  padding: 0 var(--sizeSpaceXs);
   cursor: pointer;
 
   &:hover {
@@ -41,10 +42,10 @@
   transition: transform var(--durationSm) ease;
 }
 
-/* A leaf keeps the chevron's place, so the names of one level line up */
+/* A leaf keeps the place of the chevron and of the room before it, so the names of one level line up */
 .spacer {
   flex: none;
-  width: calc(var(--sizeIcon) - 2px);
+  width: calc(var(--sizeSpaceXs) + var(--sizeIcon) - 2px);
 }
 
 .name {
@@ -66,9 +67,10 @@
   padding-left: calc(var(--sizeIcon) - 2px + var(--sizeSpaceXs));
 }
 
-/* A level where nothing opens has no chevron to line its names up with */
+/* A level where nothing opens has no chevron to line its names up with: the gap after an empty spacer
+   stands for the room before the chevron above, so the names stand under its text */
 .group:not(:has(> .expandable)) > .root > .row > .spacer {
-  display: none;
+  width: 0;
 }
 
 @media screen and (prefers-reduced-motion: reduce) {

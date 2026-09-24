@@ -1,5 +1,6 @@
 import {
   signal,
+  computed,
   mountable,
   onMount,
   action,
@@ -11,9 +12,11 @@ import {
 } from '../services/inspector/index.js'
 import {
   type LogGroup,
-  groupEvents
+  groupEvents,
+  filterGroup
 } from '../services/log/index.js'
 import { RegistryStore$ } from './registry.js'
+import { PanelStore$ } from './panel.js'
 
 /**
  * The transactions the log keeps. The oldest leave as new ones come.
@@ -29,6 +32,7 @@ export const LOG_GROUPS = 200
 export function LogStore$() {
   const inspector = inject(InspectorService$)
   const { recordOf } = inject(RegistryStore$)
+  const { $filter } = inject(PanelStore$)
   const $groups = signal<LogGroup[]>([])
   const $paused = signal(false)
   // The number of the next group, counted on through a clear
@@ -62,11 +66,42 @@ export function LogStore$() {
   const clear = action(() => {
     $groups([])
   })
+  // What the filter left of each group, worked out once per group while the filter stays the same
+  const cut = {
+    query: '',
+    groups: new WeakMap<LogGroup, LogGroup | undefined>()
+  }
+  /**
+   * The groups the Log tab shows: with a filter, those with a line of a node it finds by name, cut down
+   * to such lines.
+   */
+  const $shown = computed(() => {
+    const query = $filter().trim().toLowerCase()
+    const groups = $groups()
+
+    if (!query) {
+      return groups
+    }
+
+    if (query !== cut.query) {
+      cut.query = query
+      cut.groups = new WeakMap()
+    }
+
+    return groups.flatMap((group) => {
+      if (!cut.groups.has(group)) {
+        cut.groups.set(group, filterGroup(group, query))
+      }
+
+      return cut.groups.get(group) ?? []
+    })
+  })
 
   onMount(mountable($groups), () => inspector.listen(apply))
 
   return {
     $groups,
+    $shown,
     $paused,
     pause,
     resume,

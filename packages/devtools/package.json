@@ -63,6 +63,7 @@
     "test": "run -p lint test:unit test:types"
   },
   "dependencies": {
+    "@nano_kit/platform-web": "workspace:^",
     "@nano_kit/store": "workspace:^",
     "nanoviews": "1.0.0-prerelease.20260923175652"
   },

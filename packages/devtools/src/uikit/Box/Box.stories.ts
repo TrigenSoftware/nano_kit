@@ -7,7 +7,8 @@ import typography from '../typography.module.css'
 import {
   Box,
   BoxBody,
-  BoxHeader
+  BoxHeader,
+  BoxSubheader
 } from './index.js'
 
 const meta: Meta = {
@@ -36,6 +37,35 @@ export const Default: Story = {
             class: typography.mono
           })(
             '148'
+          )
+        )
+      )
+    )
+  }
+}
+
+export const Sections: Story = {
+  render() {
+    return (
+      div({
+        style: {
+          width: '320px',
+          height: '220px'
+        }
+      })(
+        Box()(
+          BoxHeader()('Value'),
+          BoxBody({
+            class: typography.mono,
+            style: {
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px'
+            }
+          })(
+            '326',
+            BoxSubheader()('Compute'),
+            '() => $items().reduce((sum, item) => sum + item.qty * item.price, 0)'
           )
         )
       )

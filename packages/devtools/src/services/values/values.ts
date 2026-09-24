@@ -173,3 +173,25 @@ export function entriesOf(value: object, from: number, limit: number) {
 
   return entries
 }
+
+/**
+ * The source of a function, its lines moved left by the indentation they share, spaces or tabs alike.
+ * The first line stays as it is: it starts where the function does.
+ * @param fn
+ * @returns The source.
+ */
+export function sourceOf(fn: (...args: never[]) => unknown) {
+  const source = String(fn)
+  let indent: string | undefined
+
+  // A line break with the indentation after it, of every line with something on it
+  for (const own of source.match(/\n[\t ]*(?=\S)/g) ?? []) {
+    indent ??= own
+
+    while (!own.startsWith(indent)) {
+      indent = indent.slice(0, -1)
+    }
+  }
+
+  return indent ? source.replaceAll(indent, '\n') : source
+}

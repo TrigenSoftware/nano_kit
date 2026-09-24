@@ -186,6 +186,56 @@ describe('devtools', () => {
         expect(document.activeElement).toBe(row)
       })
 
+      it('should open and close a group row on a click anywhere on it', () => {
+        const { $expanded } = setup()
+
+        fireEvent.click(rowOf('Cart$'))
+
+        expect($expanded()).toBe(false)
+
+        fireEvent.click(rowOf('Cart$'))
+
+        expect($expanded()).toBe(true)
+      })
+
+      it('should open and close a group row once on a click on its chevron', () => {
+        const { $expanded } = setup()
+
+        fireEvent.click(screen.getByRole('button', {
+          name: 'Cart$'
+        }))
+
+        expect($expanded()).toBe(false)
+      })
+
+      it('should stripe a row by the stripe it is given, and leave the others to their place', () => {
+        render(() => Table({
+          label: 'Log'
+        })(
+          TableBody()(
+            TableRow({
+              label: 'first',
+              striped: true
+            })(
+              TableTreeCell()('first')
+            ),
+            TableRow({
+              label: 'second',
+              striped: false
+            })(
+              TableTreeCell()('second')
+            ),
+            TableRow({
+              label: 'third'
+            })(
+              TableTreeCell()('third')
+            )
+          )
+        ))
+
+        expect(['first', 'second', 'third'].map(name => rowOf(name).getAttribute('data-striped'))).toEqual(['true', 'false', null])
+      })
+
       it('should give the tab stop back to the table once its row is gone', () => {
         const { $expanded } = setup()
 

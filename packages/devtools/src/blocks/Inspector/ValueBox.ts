@@ -1,6 +1,8 @@
 import { inject } from 'nanoviews/store'
 import {
   span,
+  pre,
+  fragment,
   component$,
   if_,
   switch_,
@@ -9,14 +11,16 @@ import {
 import {
   type NodeRecord,
   isOwnership,
-  valueOf
+  valueOf,
+  bodyOf
 } from '../../services/registry/index.js'
 import { SignalsStore$ } from '../../stores/signals.js'
 import typography from '../../uikit/typography.module.css'
 import {
   Box,
   BoxHeader,
-  BoxBody
+  BoxBody,
+  BoxSubheader
 } from '../../uikit/Box/index.js'
 import { Button } from '../../uikit/Button/index.js'
 import {
@@ -34,7 +38,9 @@ function isValued(record: NodeRecord) {
 /**
  * The value of the selected node as a tree, read from the node itself and never evaluated:
  * a computed out of date or not evaluated yet says so and offers to evaluate it once.
- * The box stays when the selection moves and follows it through its bindings.
+ * A computed shows the source it computes the value with under the value, and an effect, which has no value,
+ * the source it runs in its place: the source tells one from another. The box stays when the selection moves
+ * and follows it through its bindings.
  */
 export const ValueBox = component$(() => {
   const {
@@ -46,6 +52,9 @@ export const ValueBox = component$(() => {
   const $state = () => $record().state
   const $value = () => valueOf($record())
   const $valued = () => isValued($record())
+  const $effect = () => $record().kind === 'effect'
+  const $computed = () => $record().kind === 'computed'
+  const $body = () => bodyOf($record())
   const $label = () => `Value of ${$record().name.name}`
   // A signal is never stale the way a computed is: its pending write is its own business
   const $notice = () => ($record().kind === 'signal' ? undefined : $state())
@@ -68,7 +77,9 @@ export const ValueBox = component$(() => {
     Box({
       class: [styles.box, styles.wide]
     })(
-      BoxHeader()('Value'),
+      BoxHeader()(
+        () => ($effect() ? 'Body' : 'Value')
+      ),
       BoxBody({
         class: styles.value
       })(
@@ -77,7 +88,7 @@ export const ValueBox = component$(() => {
             Notice({
               tone: 'warning'
             })(
-              'Stale: a dependency changed and nothing has read this computed since. Shown as cached, not re-evaluated.',
+              'Stale: cached value.',
               actions
             )
           )),
@@ -85,12 +96,12 @@ export const ValueBox = component$(() => {
             Notice({
               tone: 'warning'
             })(
-              'Not evaluated yet: nothing has read this computed.',
+              'Not evaluated yet.',
               actions
             )
           ))
         ),
-        if_($valued)(() => (
+        if_($valued)(() => fragment(
           if_($evaluated)(() => (
             ValueTree({
               label: $label
@@ -100,12 +111,31 @@ export const ValueBox = component$(() => {
                 defaultExpanded: true
               })
             )
+          )),
+          if_($computed)(() => fragment(
+            BoxSubheader()('Compute'),
+            pre({
+              class: [typography.mono, styles.source]
+            })(
+              $body
+            )
           ))
         ), () => (
-          span({
-            class: typography.secondary
-          })(
-            'An effect has no value: it only runs.'
+          if_($effect)(
+            () => (
+              pre({
+                class: [typography.mono, styles.source]
+              })(
+                $body
+              )
+            ),
+            () => (
+              span({
+                class: typography.secondary
+              })(
+                'An effect has no value: it only runs.'
+              )
+            )
           )
         ))
       )

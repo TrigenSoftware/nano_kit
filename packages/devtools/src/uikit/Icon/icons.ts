@@ -10,6 +10,7 @@ export const icons = [
   'grip',
   'moon',
   'pause',
+  'play',
   'search',
   'selector',
   'signal',

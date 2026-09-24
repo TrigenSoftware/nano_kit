@@ -1,4 +1,5 @@
 import {
+  vi,
   describe,
   it,
   expect
@@ -16,6 +17,7 @@ import {
   inject
 } from '@nano_kit/store'
 import { RegistryStore$ } from '../../stores/registry.js'
+import { PanelStore$ } from '../../stores/panel.js'
 import { SignalsStore$ } from '../../stores/signals.js'
 import { LogStore$ } from '../../stores/log.js'
 import {
@@ -89,6 +91,56 @@ describe('devtools', () => {
         expect(within(row).getByText(/ms$/)).toBeDefined()
       })
 
+      it('should name the slowest run of a transaction only once it is worth a look', async () => {
+        const context = await setup()
+        const clock = {
+          now: performance.now()
+        }
+
+        await tick(context)
+
+        expect(groupRows()[0].textContent).not.toMatch(/slowest/)
+
+        // Every step of the application takes a couple of milliseconds now
+        vi.spyOn(performance, 'now').mockImplementation(() => {
+          clock.now += 2
+
+          return clock.now
+        })
+
+        await tick(context)
+
+        vi.restoreAllMocks()
+
+        expect(groupRows()[0].textContent).toMatch(/slowest/)
+      })
+
+      it('should keep the stripe of a transaction as new ones come in above', async () => {
+        const context = await setup()
+
+        await tick(context)
+
+        const [row] = groupRows()
+        const stripe = row.getAttribute('data-striped')
+
+        await tick(context)
+
+        const [newest, before] = groupRows()
+
+        expect(before).toBe(row)
+        expect(row.getAttribute('data-striped')).toBe(stripe)
+        expect(newest.getAttribute('data-striped')).not.toBe(stripe)
+      })
+
+      it('should open a transaction on a click anywhere on its row', async () => {
+        const context = await setup()
+
+        await tick(context)
+        fireEvent.click(groupRows()[0])
+
+        expect(screen.getAllByRole('row').some(row => row.getAttribute('aria-level') === '2')).toBe(true)
+      })
+
       it('should open a transaction into its lines, a run under the run it happened in', async () => {
         const context = await setup()
 
@@ -124,6 +176,25 @@ describe('devtools', () => {
         fireEvent.click(lineRow(record.name.name))
 
         expect(inject(SignalsStore$, context).$selected()?.id).toBe(record.id)
+      })
+
+      it('should show the lines of the nodes the filter finds alone, and say so when it finds none', async () => {
+        const context = await setup()
+
+        await tick(context)
+
+        const { recordOf } = inject(RegistryStore$, context)
+        const { $filter } = inject(PanelStore$, context)
+        const { name } = recordOf(inject(Cart$, context).$total.node)!.name
+
+        $filter(name)
+        fireEvent.click(within(groupRows()[0]).getByRole('button'))
+
+        expect(screen.getAllByRole('row').filter(row => row.getAttribute('aria-level') === '2')).toEqual([lineRow(name)])
+
+        $filter('no such node')
+
+        expect(screen.getByText('Nothing in the log matches the filter.')).toBeDefined()
       })
 
       it('should say so while the log is empty', async () => {

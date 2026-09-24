@@ -1,0 +1,14 @@
+.root {
+  flex: none;
+  /* Out through the side padding of the body, to the edges of the box */
+  margin: 0 calc(-1 * (var(--sizeSpaceMd) + 2px));
+  padding: var(--sizeSpaceSm) calc(var(--sizeSpaceMd) + 2px);
+  border-block: var(--sizeBorder) solid var(--colorHairlineSoft);
+  /* A header whatever the body is set in */
+  font-family: var(--fontSans);
+  font-size: var(--sizeTextSm);
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--colorTextSecondary);
+}

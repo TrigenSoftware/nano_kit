@@ -31,7 +31,7 @@ export interface CartItem {
   price: number
 }
 
-const TICK = 2000
+const TICK = 10_000
 
 export function Cart$() {
   const $items = signal<CartItem[]>([

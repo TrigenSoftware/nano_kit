@@ -3,7 +3,9 @@
   font-variant-numeric: tabular-nums;
   cursor: pointer;
 
-  &:nth-child(odd) {
+  /* By place, or by the stripe the table gave the row; the check for one adds nothing to the weight of the rule */
+  &:nth-child(odd):where(:not([data-striped])),
+  &[data-striped='true'] {
     --colorRowBackground: var(--colorRow);
   }
 

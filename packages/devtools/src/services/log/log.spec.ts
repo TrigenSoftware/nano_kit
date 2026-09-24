@@ -22,12 +22,16 @@ import { RegistryStore$ } from '../../stores/registry.js'
 import { InspectorService$ } from '../inspector/index.js'
 import { LibraryDetector$ } from '../naming/index.js'
 import { isWorkspaceLibrary } from '../naming/naming.mock.js'
-import type { LogGroup } from './log.types.js'
+import type {
+  LogGroup,
+  LogLineKind
+} from './log.types.js'
 import {
   GROUP_LINES,
   RECENT_LINES,
   groupEvents,
-  recentOf
+  recentOf,
+  filterGroup
 } from './log.js'
 
 describe('devtools', () => {
@@ -339,6 +343,60 @@ describe('devtools', () => {
           }, (_, index): [number, string] => [1, String(index)])
 
           expect(recentOf([groupOf(1, writes)], 1)).toHaveLength(RECENT_LINES)
+        })
+      })
+
+      describe('filterGroup', () => {
+        // A transaction of `Cart$` with a line for each node, named, of a kind, with its own time for a run
+        const group = {
+          id: 1,
+          lines: ([
+            ['quiet-otter', 'write'],
+            ['soft-frog', 'computed', 2, '1483', '1572'],
+            ['quiet-dove', 'effect', 1]
+          ] as [string, LogLineKind, number?, string?, string?][]).map(([name, kind, self, from, to]) => ({
+            kind,
+            record: {
+              name: {
+                name,
+                site: `${name}.ts:1`,
+                owner: 'Cart$'
+              }
+            },
+            depth: 0,
+            self,
+            from,
+            to
+          }))
+        } as unknown as LogGroup
+
+        it('should cut a group down to the lines of the nodes the filter finds, with their counts and slowest run', () => {
+          const cut = filterGroup(group, 'quiet')!
+
+          expect(cut.lines.map(line => line.record.name.name)).toEqual(['quiet-otter', 'quiet-dove'])
+          expect(cut.counts).toMatchObject({
+            write: 1,
+            computed: 0,
+            effect: 1
+          })
+          expect(cut.slowest?.record.name.name).toBe('quiet-dove')
+        })
+
+        it('should find a node by its creation site', () => {
+          expect(filterGroup(group, 'soft-frog.ts')?.lines).toHaveLength(1)
+        })
+
+        it('should find a line by a value it tells of, before or after', () => {
+          expect(filterGroup(group, '1483')?.lines.map(line => line.record.name.name)).toEqual(['soft-frog'])
+          expect(filterGroup(group, '1572')?.lines.map(line => line.record.name.name)).toEqual(['soft-frog'])
+        })
+
+        it('should give the group itself when every line matches', () => {
+          expect(filterGroup(group, 'cart$')).toBe(group)
+        })
+
+        it('should give nothing when no line matches', () => {
+          expect(filterGroup(group, 'user$')).toBeUndefined()
         })
       })
     })

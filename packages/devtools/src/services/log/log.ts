@@ -8,6 +8,7 @@ import {
   FlushEvent
 } from '@nano_kit/store'
 import type { InspectorEvent } from '../inspector/index.js'
+import { nameMatches } from '../naming/index.js'
 import {
   type NodeRecord,
   valueOf,
@@ -49,6 +50,17 @@ function noLines(): Record<LogLineKind, number> {
     lifecycle: 0,
     stopped: 0
   }
+}
+
+// A line the filter finds by the name of its node or by a value it tells of, the way the table finds a row
+function lineMatches({
+  record,
+  from,
+  to
+}: LogLine, query: string) {
+  return nameMatches(record.name, query)
+    || from?.toLowerCase().includes(query)
+    || to?.toLowerCase().includes(query)
 }
 
 function slowestOf(lines: LogLine[]) {
@@ -239,4 +251,36 @@ export function recentOf(groups: LogGroup[], id: number) {
   }
 
   return entries
+}
+
+/**
+ * A group cut down to the lines a filter finds, by the name of the node or by a value, its counts and its
+ * slowest run taken from those lines alone.
+ * @param group - A group of the log.
+ * @param query - The filter, lower case.
+ * @returns The group itself when every line it keeps matches; none when no line does.
+ */
+export function filterGroup(group: LogGroup, query: string): LogGroup | undefined {
+  const lines = group.lines.filter(line => lineMatches(line, query))
+
+  if (lines.length === group.lines.length) {
+    return group
+  }
+
+  if (lines.length) {
+    const counts = noLines()
+
+    lines.forEach((line) => {
+      counts[line.kind]++
+    })
+
+    return {
+      ...group,
+      lines,
+      counts,
+      slowest: slowestOf(lines)
+    }
+  }
+
+  return undefined
 }

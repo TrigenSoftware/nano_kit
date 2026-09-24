@@ -20,6 +20,7 @@ import {
   isOwnership,
   stateOf,
   valueOf,
+  bodyOf,
   previewOf,
   visitStale
 } from './registry.js'
@@ -176,6 +177,26 @@ describe('devtools', () => {
           })
 
           expect(valueOf(describeNode($count.node.subs!.sub))).toBeUndefined()
+        })
+      })
+
+      describe('bodyOf', () => {
+        it('should give the source an effect runs, and nothing for a signal', () => {
+          const $count = signal(1)
+
+          watch(() => {
+            $count()
+          })
+
+          expect(bodyOf(describeNode($count.node.subs!.sub))).toMatch(/\$count\(\)/)
+          expect(bodyOf(describeNode($count.node))).toBeUndefined()
+        })
+
+        it('should give the source a computed computes its value with', () => {
+          const $count = signal(1)
+          const $double = computed(() => $count() * 2)
+
+          expect(bodyOf(describeNode($double.node))).toMatch(/\$count\(\) \* 2/)
         })
       })
 

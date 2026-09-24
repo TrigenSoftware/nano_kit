@@ -12,6 +12,7 @@ import {
   InjectionContext,
   signal,
   effect,
+  batch,
   uninspected,
   provide,
   inject
@@ -19,6 +20,7 @@ import {
 import { LibraryDetector$ } from '../services/naming/index.js'
 import { isWorkspaceLibrary } from '../services/naming/naming.mock.js'
 import { RegistryStore$ } from './registry.js'
+import { PanelStore$ } from './panel.js'
 import {
   LOG_GROUPS,
   LogStore$
@@ -29,6 +31,7 @@ describe('devtools', () => {
     describe('log', () => {
       describe('LogStore$', () => {
         let registry: ReturnType<typeof RegistryStore$>
+        let panel: ReturnType<typeof PanelStore$>
         let log: ReturnType<typeof LogStore$>
         let hide: () => void
         const stops: (() => void)[] = []
@@ -74,6 +77,7 @@ describe('devtools', () => {
             return read(registry.records.$index)
           })
           const hideLog = uninspected(() => {
+            panel = inject(PanelStore$, context)
             log = inject(LogStore$, context)
 
             return read(log.$groups)
@@ -168,6 +172,63 @@ describe('devtools', () => {
           await tick()
 
           expect(ids()).toEqual([last + 1])
+        })
+
+        it('should show every group while the filter is empty', async () => {
+          const $count = signal(0)
+
+          watch(() => {
+            $count()
+          })
+          $count(1)
+
+          await tick()
+
+          expect(log.$shown()).toBe(log.$groups())
+        })
+
+        it('should show the groups with a line of a node the filter finds, cut down to such lines', async () => {
+          const $count = signal(0)
+          const $other = signal(0)
+
+          watch(() => {
+            $count()
+            $other()
+          })
+          batch(() => {
+            $count(1)
+            $other(1)
+          })
+          $other(2)
+
+          await tick()
+
+          const { name } = registry.recordOf($count.node)!.name
+
+          panel.$filter(name.toUpperCase())
+
+          expect(log.$shown().map(group => group.lines.map(line => line.record.name.name))).toEqual([[name]])
+        })
+
+        it('should cut a group down once while the filter stays the same', async () => {
+          const $count = signal(0)
+
+          watch(() => {
+            $count()
+          })
+          $count(1)
+
+          await tick()
+
+          panel.$filter(registry.recordOf($count.node)!.name.name)
+
+          const [cut] = log.$shown()
+
+          $count(2)
+
+          await tick()
+
+          expect(log.$shown()[1]).toBe(cut)
         })
 
         it('should listen only while somebody reads the groups', async () => {

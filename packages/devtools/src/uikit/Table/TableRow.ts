@@ -1,6 +1,7 @@
 import {
   type Signalish,
   type WritableSignal,
+  get,
   when,
   provide,
   inject
@@ -33,9 +34,14 @@ export interface TableRowProps extends Attributes<'tr'>, TableRowTree {
   level?: number
   selected?: Signalish<boolean>
   /**
-   * A row that names a group of rows: bold.
+   * A row that names a group of rows: bold, and opened and closed by a click anywhere on it.
    */
   group?: Signalish<boolean>
+  /**
+   * Whether the row is filled. Rows alternate by their place unless told, and a place changes as rows come in
+   * above: a table that puts new rows on top gives each row a stripe of its own, or the rows under them flicker.
+   */
+  striped?: Signalish<boolean>
 }
 
 /**
@@ -101,6 +107,7 @@ function press(row: HTMLElement, key: string, $expanded: WritableSignal<boolean>
  * Row of a `Table`: a `TableTreeCell` first, then `TableCell`s. The rows share one tab stop:
  * up and down move between them, Home and End go to the ends, right opens a row or goes down
  * to its first child, left closes it or goes up to its parent, Enter and Space act as a click.
+ * A group row opens and closes on a click anywhere on it; any other row leaves that to its chevron.
  */
 export const TableRow = component$(({
   class: className,
@@ -109,6 +116,8 @@ export const TableRow = component$(({
   $expanded,
   selected,
   group,
+  striped,
+  onClick,
   onFocus,
   onKeyDown,
   ...restProps
@@ -141,9 +150,18 @@ export const TableRow = component$(({
         'aria-level': level,
         'aria-expanded': $expanded,
         'aria-selected': selected,
+        'data-striped': striped,
         tabIndex: () => ($isActive(self) ? 0 : -1),
         style: {
           '--tableLevel': level
+        },
+        onClick(event) {
+          // The chevron opens and closes the row by itself
+          if ($expanded && get(group) && !event.target.closest('button')) {
+            $expanded(expanded => !expanded)
+          }
+
+          onClick?.(event)
         },
         onFocus(event) {
           $active(self)

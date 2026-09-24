@@ -12,7 +12,8 @@ import {
   Getter,
   preview,
   sizeOf,
-  entriesOf
+  entriesOf,
+  sourceOf
 } from './values.js'
 
 class Cart {
@@ -262,6 +263,31 @@ describe('devtools', () => {
           expect(preview(entry.value)).toBe('(…)')
           expect(sizeOf(entry.value)).toBe(0)
           expect(get).not.toHaveBeenCalled()
+        })
+      })
+
+      describe('sourceOf', () => {
+        // A function that tells its source as it is given
+        function writtenAs(source: string) {
+          return Object.assign(() => undefined, {
+            toString: () => source
+          })
+        }
+
+        it('should move the lines left by the indentation they share', () => {
+          expect(sourceOf(writtenAs('() => {\n      $count()\n      $total()\n    }'))).toBe('() => {\n  $count()\n  $total()\n}')
+        })
+
+        it('should take tabs for the indentation as well as spaces', () => {
+          expect(sourceOf(writtenAs('() => {\n\t\t$count()\n\t}'))).toBe('() => {\n\t$count()\n}')
+        })
+
+        it('should keep the empty lines empty', () => {
+          expect(sourceOf(writtenAs('() => {\n    one()\n\n    two()\n  }'))).toBe('() => {\n  one()\n\n  two()\n}')
+        })
+
+        it('should leave a function on one line as it is', () => {
+          expect(sourceOf(writtenAs('() => $count()'))).toBe('() => $count()')
         })
       })
     })

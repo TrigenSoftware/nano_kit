@@ -1,11 +1,16 @@
 import {
   type ReactiveNode,
+  type EffectNode,
+  type ComputedNode,
   NoneFlag,
   DirtyFlag,
   PendingFlag,
   MountableMode
 } from '@nano_kit/store'
-import { preview } from '../values/index.js'
+import {
+  preview,
+  sourceOf
+} from '../values/index.js'
 import type {
   ChildNode,
   NodeKind,
@@ -103,6 +108,18 @@ export function valueOf(record: NodeRecord): unknown {
   const node = record.ref.deref()
 
   return node && 'value' in node ? node.value : undefined
+}
+
+/**
+ * The body of an effect or of a computed: the source of the function it runs, moved left.
+ * @param record
+ * @returns The source; none for a node that runs nothing and for one that was collected.
+ */
+export function bodyOf(record: NodeRecord) {
+  const node = record.ref.deref() as Partial<EffectNode & ComputedNode> | undefined
+  const run = node?.fn ?? node?.compute
+
+  return run && sourceOf(run)
 }
 
 /**

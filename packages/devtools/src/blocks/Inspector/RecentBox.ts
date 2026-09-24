@@ -32,7 +32,7 @@ export const RecentBox = component$(() => {
 
   return (
     Box({
-      class: styles.box
+      class: [styles.box, styles.wide]
     })(
       BoxHeader()('Recent'),
       BoxBody()(
