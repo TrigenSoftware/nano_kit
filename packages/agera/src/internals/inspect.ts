@@ -3,6 +3,7 @@ import type {
   Link,
   InspectListener,
   LinkInspectEvent,
+  UpdateInspectEvent,
   NodeInspectEvent,
   FlushInspectEvent
 } from './types.js'
@@ -27,9 +28,12 @@ let inspectMuted = false
  * Register an inspect listener. It is called with an event: its `kind` is one
  * of the event constants, a link event carries `dep` and `sub`, a node event
  * carries `node`, and `UpdateEvent` also carries the value the node had before
- * as `oldValue`; `FlushEvent` carries the kind alone. The contract exists for
- * the devtools package alone and may change in minor versions. The development
- * build is the only one that reports events, in production this is a no-op.
+ * as `oldValue`, left out with the first evaluation of a computed; `RunEvent`
+ * and `RunEndEvent` enclose the body of a computed or an effect, so the runs
+ * it causes on the way come in between; `FlushEvent` carries the kind alone.
+ * The contract exists for the devtools package alone and may change in minor
+ * versions. The development build is the only one that reports events, in
+ * production this is a no-op.
  * @param listener - The listener, composed with any previous one.
  */
 export function inspect(listener: InspectListener) {
@@ -93,7 +97,8 @@ export function report(kind: number, target?: ReactiveNode | Link, oldValue?: un
         } as LinkInspectEvent)
       }
     } else if (!(target.modes & UninspectedMode)) {
-      inspectListener(kind === UpdateEvent
+      // The first evaluation of a computed passes no value before it: its event leaves `oldValue` out
+      inspectListener(kind === UpdateEvent && arguments.length > 2
         ? {
           kind,
           node: target,
@@ -102,7 +107,7 @@ export function report(kind: number, target?: ReactiveNode | Link, oldValue?: un
         : {
           kind,
           node: target
-        } as NodeInspectEvent)
+        } as NodeInspectEvent | UpdateInspectEvent)
     }
   }
 }

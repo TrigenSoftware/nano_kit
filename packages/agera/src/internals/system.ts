@@ -38,7 +38,8 @@ import {
   RunEvent,
   StopEvent,
   LifecycleEvent,
-  FlushEvent
+  FlushEvent,
+  RunEndEvent
 } from './flags.js'
 import {
   report,
@@ -740,6 +741,11 @@ function updateComputed(c: ComputedNode): boolean {
     popActiveSub(prevSub)
     c.flags &= ~RecursedCheckFlag
     purgeDeps(c)
+
+    if (import.meta.env.DEV) {
+      report(RunEndEvent, c)
+    }
+
     lifecycleSettle?.()
   }
 }
@@ -802,6 +808,11 @@ function runEffect(e: EffectNode): void {
     popActiveSub(prevSub)
     e.flags &= ~RecursedCheckFlag
     purgeDeps(e)
+
+    if (import.meta.env.DEV) {
+      report(RunEndEvent, e)
+    }
+
     lifecycleSettle?.()
   }
 }
@@ -912,6 +923,11 @@ export function computedOper<T>(this: ComputedNode<T>): T {
     } finally {
       popActiveSub(prevSub)
       this.flags &= ~RecursedCheckFlag
+
+      if (import.meta.env.DEV) {
+        report(RunEndEvent, this)
+      }
+
       lifecycleSettle?.()
     }
   }
