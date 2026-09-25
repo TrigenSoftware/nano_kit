@@ -6,4 +6,5 @@
   color: var(--colorTextTertiary);
   cursor: nwse-resize;
   touch-action: none;
+  user-select: none;
 }

@@ -46,8 +46,8 @@ describe('devtools', () => {
         })
 
         describe('resizeFrame', () => {
-          it('should resize the window from its corner, keeping its top left corner', () => {
-            expect(resizeFrame(FRAME, -300, -100, VIEWPORT)).toEqual({
+          it('should resize the window by its lower right corner, keeping its top left corner', () => {
+            expect(resizeFrame(FRAME, -300, -100, VIEWPORT, 'bottomRight')).toEqual({
               right: 320,
               bottom: 120,
               width: 740,
@@ -55,19 +55,65 @@ describe('devtools', () => {
             })
           })
 
+          it('should resize the window by its lower left corner, keeping its top right corner', () => {
+            expect(resizeFrame(FRAME, 100, -100, VIEWPORT, 'bottomLeft')).toEqual({
+              right: 20,
+              bottom: 120,
+              width: 940,
+              height: 500
+            })
+          })
+
+          it('should resize the width alone by the left edge, keeping the right one', () => {
+            expect(resizeFrame(FRAME, -300, 50, VIEWPORT, 'left')).toEqual({
+              ...FRAME,
+              width: 1340
+            })
+          })
+
+          it('should resize the width alone by the right edge, keeping the left one', () => {
+            expect(resizeFrame(FRAME, -300, 50, VIEWPORT, 'right')).toEqual({
+              ...FRAME,
+              right: 320,
+              width: 740
+            })
+          })
+
+          it('should resize the height alone by the bottom edge, keeping the top one', () => {
+            expect(resizeFrame(FRAME, 50, -100, VIEWPORT, 'bottom')).toEqual({
+              ...FRAME,
+              bottom: 120,
+              height: 500
+            })
+          })
+
           it('should keep the window to its least size', () => {
-            expect(resizeFrame(FRAME, -5000, -5000, VIEWPORT)).toMatchObject({
+            expect(resizeFrame(FRAME, -5000, -5000, VIEWPORT, 'bottomRight')).toMatchObject({
               width: MIN_WIDTH,
               height: MIN_HEIGHT
             })
           })
 
+          it('should keep the right edge in place when the left one stops at the least width', () => {
+            expect(resizeFrame(FRAME, 5000, 0, VIEWPORT, 'left')).toEqual({
+              ...FRAME,
+              width: MIN_WIDTH
+            })
+          })
+
           it('should keep the window in the viewport', () => {
-            expect(resizeFrame(FRAME, 5000, 5000, VIEWPORT)).toEqual({
+            expect(resizeFrame(FRAME, 5000, 5000, VIEWPORT, 'bottomRight')).toEqual({
               right: 0,
               bottom: 0,
               width: 1060,
               height: 620
+            })
+          })
+
+          it('should stop the left edge at the edge of the viewport', () => {
+            expect(resizeFrame(FRAME, -5000, 0, VIEWPORT, 'left')).toEqual({
+              ...FRAME,
+              width: 1420
             })
           })
         })

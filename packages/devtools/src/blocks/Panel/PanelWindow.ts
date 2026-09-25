@@ -13,6 +13,7 @@ import {
 } from 'nanoviews'
 import { LogStore$ } from '../../stores/log.js'
 import {
+  type PanelFrame,
   DEFAULT_FRAME,
   PanelStore$
 } from '../../stores/panel.js'
@@ -25,12 +26,14 @@ import {
   Tabs
 } from '../../uikit/Tabs/index.js'
 import {
+  type WindowEdgeName,
   Window,
   WindowBar,
   WindowBarStart,
   WindowBarCenter,
   WindowBarEnd,
   WindowBody,
+  WindowEdge,
   WindowGrip
 } from '../../uikit/Window/index.js'
 import { SignalsTable } from '../SignalsTable/index.js'
@@ -50,6 +53,19 @@ import styles from './Panel.module.css'
 export interface PanelWindowProps {
   onClose(): void
 }
+
+// A press being dragged: the pointer, where it began, the frame it began with, and the edge it resizes by;
+// none for the bar, which moves the window
+interface Drag {
+  pointer: number
+  x: number
+  y: number
+  from: PanelFrame
+  edge: WindowEdgeName | undefined
+}
+
+// The window is resized by every edge but the top one, where the bar is
+const EDGES: WindowEdgeName[] = ['left', 'right', 'bottom', 'bottomLeft', 'bottomRight']
 
 // The viewport a fixed box is placed in: the width and the height of the page without its scrollbars
 function viewport() {
@@ -71,8 +87,8 @@ function isControl(target: EventTarget | null) {
 
 /**
  * The open panel: a window over the page with the Signals and Log tabs, the filter, the log controls and the
- * boxes of the selected node under either tab. Dragged by its bar, resized by its corner, collapsed by its
- * close button or by Escape while the focus is inside it.
+ * boxes of the selected node under either tab. Dragged by its bar, resized by its sides, its bottom edge and its
+ * lower corners, collapsed by its close button or by Escape while the focus is inside it.
  */
 export const PanelWindow = component$(({ onClose }: PanelWindowProps) => {
   const {
@@ -90,30 +106,29 @@ export const PanelWindow = component$(({ onClose }: PanelWindowProps) => {
     clear
   } = inject(LogStore$)
   const $box = signal<HTMLDivElement | null>(null)
-  // The press being dragged: the pointer, where it began, the frame it began with, and whether it resizes
-  const drag = {
+  const drag: Drag = {
     pointer: -1,
     x: 0,
     y: 0,
     from: DEFAULT_FRAME,
-    resize: false
+    edge: undefined
   }
-  const begin = (event: PointerEvent, resize: boolean) => {
+  const begin = (event: PointerEvent, edge?: WindowEdgeName) => {
     drag.pointer = event.pointerId
     drag.x = event.clientX
     drag.y = event.clientY
     drag.from = frameOf($box()!, viewport())
-    drag.resize = resize
+    drag.edge = edge
     $box()!.setPointerCapture(event.pointerId)
   }
   const move = (event: PointerEvent) => {
     if (event.pointerId === drag.pointer) {
-      placeWindow((drag.resize ? resizeFrame : moveFrame)(
-        drag.from,
-        event.clientX - drag.x,
-        event.clientY - drag.y,
-        viewport()
-      ))
+      const dx = event.clientX - drag.x
+      const dy = event.clientY - drag.y
+
+      placeWindow(drag.edge
+        ? resizeFrame(drag.from, dx, dy, viewport(), drag.edge)
+        : moveFrame(drag.from, dx, dy, viewport()))
     }
   }
   const end = (event: PointerEvent) => {
@@ -162,7 +177,7 @@ export const PanelWindow = component$(({ onClose }: PanelWindowProps) => {
         WindowBar({
           onPointerDown(event) {
             if (event.button === 0 && !isControl(event.target)) {
-              begin(event, false)
+              begin(event)
             }
           }
         })(
@@ -268,11 +283,19 @@ export const PanelWindow = component$(({ onClose }: PanelWindowProps) => {
         WindowGrip({
           onPointerDown(event) {
             if (event.button === 0) {
-              begin(event, true)
+              begin(event, 'bottomRight')
             }
           }
         })
-      )
+      ),
+      ...EDGES.map(edge => WindowEdge({
+        edge,
+        onPointerDown(event) {
+          if (event.button === 0) {
+            begin(event, edge)
+          }
+        }
+      }))
     )
   )
 })

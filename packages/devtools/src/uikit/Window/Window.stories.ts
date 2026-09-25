@@ -15,17 +15,25 @@ import {
   Tabs
 } from '../Tabs/index.js'
 import {
+  type WindowEdgeName,
   Window,
   WindowBar,
   WindowBarCenter,
   WindowBarEnd,
   WindowBarStart,
   WindowBody,
+  WindowEdge,
   WindowGrip
 } from './index.js'
 
+const EDGES: WindowEdgeName[] = ['left', 'right', 'bottom', 'bottomLeft', 'bottomRight']
+// Shows where the invisible edges catch the pointer
+const EDGE_TINT = {
+  background: 'rgb(255 99 71 / 40%)'
+}
 const meta: Meta<{
   tab: string
+  tintEdges: boolean
 }> = {
   title: 'UIKit/Window',
   parameters: {
@@ -35,10 +43,14 @@ const meta: Meta<{
     tab: {
       control: 'select',
       options: ['signals', 'log']
+    },
+    tintEdges: {
+      control: 'boolean'
     }
   },
   args: {
-    tab: 'signals'
+    tab: 'signals',
+    tintEdges: false
   }
 }
 
@@ -47,10 +59,14 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
-  render({ tab }) {
+  render({
+    tab,
+    tintEdges
+  }) {
     return (
       div({
         style: {
+          position: 'relative',
           width: '1040px',
           height: '400px'
         }
@@ -129,7 +145,11 @@ export const Default: Story = {
             )
           ),
           WindowGrip()
-        )
+        ),
+        ...EDGES.map(edge => WindowEdge({
+          edge,
+          style: () => (tintEdges() ? EDGE_TINT : {})
+        }))
       )
     )
   }

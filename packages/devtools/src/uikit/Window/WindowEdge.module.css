@@ -1,0 +1,54 @@
+/* Half out of the window, the way a desktop window takes a resize: an edge is easy to catch, and a scrollbar
+   along it keeps most of its width */
+.root {
+  --sizeWindowEdge: 8px;
+  --sizeWindowCorner: 16px;
+
+  position: absolute;
+  touch-action: none;
+  user-select: none;
+}
+
+/* The sides start below the rounded top corners, which belong to the bar */
+.left,
+.right {
+  top: var(--sizeRadiusLg);
+  bottom: 0;
+  width: var(--sizeWindowEdge);
+  cursor: ew-resize;
+}
+
+.left {
+  left: calc(var(--sizeWindowEdge) / -2);
+}
+
+.right {
+  right: calc(var(--sizeWindowEdge) / -2);
+}
+
+.bottom {
+  right: 0;
+  bottom: calc(var(--sizeWindowEdge) / -2);
+  left: 0;
+  height: var(--sizeWindowEdge);
+  cursor: ns-resize;
+}
+
+/* Over the edges they end on */
+.bottomLeft,
+.bottomRight {
+  z-index: 1;
+  bottom: calc(var(--sizeWindowCorner) / -2);
+  width: var(--sizeWindowCorner);
+  height: var(--sizeWindowCorner);
+}
+
+.bottomLeft {
+  left: calc(var(--sizeWindowCorner) / -2);
+  cursor: nesw-resize;
+}
+
+.bottomRight {
+  right: calc(var(--sizeWindowCorner) / -2);
+  cursor: nwse-resize;
+}
