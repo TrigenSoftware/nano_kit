@@ -85,6 +85,7 @@ catalogs:
 overrides:
   agera: workspace:^
   kida: workspace:^
+  '@nano_kit/devtools@*': workspace:^
   '@nano_kit/intl@*': workspace:^
   '@nano_kit/next-router@*': workspace:^
   '@nano_kit/preact@*': workspace:^
@@ -1075,6 +1076,9 @@ importers:
         specifier: workspace:^
         version: link:../../../packages/store
     devDependencies:
+      '@nano_kit/devtools':
+        specifier: workspace:^
+        version: link:../../../packages/devtools
       '@types/react':
         specifier: ^19.2.17
         version: 19.2.17
