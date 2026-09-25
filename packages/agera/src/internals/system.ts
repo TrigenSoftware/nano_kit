@@ -968,10 +968,6 @@ export function signalNextValue<T>($signal: WritableSignal<T>, newValue: NewValu
 
 function signalOper<T>(this: SignalNode<T>, ...value: [NewValue<T>]): T | void {
   if (value.length) {
-    if (import.meta.env.DEV && activeSub !== undefined && 'compute' in activeSub) {
-      console.warn('[agera] A signal was written while a computed was evaluating: keep computeds pure, write from an effect or an action')
-    }
-
     const prevValue = this.pendingValue
 
     if (prevValue !== (this.pendingValue = nextValue(prevValue, value[0]))) {
