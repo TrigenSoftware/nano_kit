@@ -18,8 +18,11 @@ import {
   InspectorService$
 } from '../services/inspector/index.js'
 import {
+  type MapNode,
   type NodeRecord,
   kindOf,
+  parentOf,
+  inMap,
   isOwnership,
   stateOf,
   visitStale
@@ -122,19 +125,21 @@ export function RegistryStore$() {
     node,
     signal,
     origin,
-    reached,
-    parent: parentNode,
-    key
+    reached
   }: MeetInspectEvent) => {
     const id = nextId++
+    const kind = kindOf(node)
+    // Read now, not at the meeting: a map marks an entry right after it made its signal
+    const [parentNode, key] = parentOf(node) ?? []
     const parent = parentNode && recordOf(parentNode)
 
     ids.set(node, id)
     collected.register(node, id)
     write({
       id,
-      kind: kindOf(node),
-      name: naming.name(id, origin, parent?.name, key, running.at(-1)),
+      kind,
+      // An entry of a map is keyed by any value, and the index of a map by its field
+      name: naming.name(id, origin, parent?.name, key, running.at(-1), parent?.kind === 'map' && kind === 'signal'),
       ref: new WeakRef(node),
       signal: signal && new WeakRef(signal),
       parent: parent?.id,
@@ -194,12 +199,35 @@ export function RegistryStore$() {
       })
     }
   }
+  // An entry or the index of a map: their values and their readers are the map's too, and an entry the map let go
+  // of leaves with its key. A write nobody reads tells of nothing, so the registry learns of it as the entry is read
+  // or let go of
+  const settleEntry = (node: ReactiveNode, updated: boolean) => {
+    const record = recordOf(node)
+    const map = read(record?.parent)
+
+    if (map?.kind === 'map') {
+      if (record!.kind === 'signal' && !inMap(node as MapNode)) {
+        remove(record!.id)
+      } else if (updated || stateOf(map) !== map.state) {
+        write(map, {
+          updates: map.updates + (updated ? 1 : 0)
+        })
+      }
+    }
+  }
   const applyEvent = (event: InspectorEvent) => {
     if (event.kind === MeetEvent) {
       add(event)
     } else if ('dep' in event) {
-      // A link is told of between nodes that were met, and a meeting comes first: both records are there
-      (event.kind === LinkEvent ? attach : detach)(recordOf(event.dep)!, recordOf(event.sub)!)
+      const dep = recordOf(event.dep)
+
+      // A link is told of between nodes that were met, and a meeting comes first: both records are there,
+      // but for an entry its map let go of, whose record leaves before its readers do
+      if (dep) {
+        (event.kind === LinkEvent ? attach : detach)(dep, recordOf(event.sub)!)
+        settleEntry(event.dep, false)
+      }
     } else if (event.kind === StopEvent) {
       // The links a stopped node drops are not told of. Its record stays out of them until the node
       // is collected, so what tells of the stop still names it
@@ -223,6 +251,7 @@ export function RegistryStore$() {
       } else if (event.kind === UpdateEvent) {
         // What an update left out of date got no event of its own
         visitStale(event.node, stale, touch)
+        settleEntry(event.node, true)
       }
     }
   }

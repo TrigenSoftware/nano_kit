@@ -125,12 +125,12 @@ export class InspectorService$ extends Injectable$ {
     }
 
     if (!this.#met.has(node)) {
-      const child = parentOf(node)
+      const parent = parentOf(node)?.[0]
       const old = walk ?? []
 
       // The parent of a child signal is met first, whatever its age: the child is named after it
-      if (child) {
-        this.#meet(child[0], true, undefined, old)
+      if (parent) {
+        this.#meet(parent, true, undefined, old)
       }
 
       this.#met.add(node)
@@ -139,9 +139,7 @@ export class InspectorService$ extends Injectable$ {
         node,
         signal,
         origin: reached ? undefined : this.#naming.capture(),
-        reached,
-        parent: child?.[0],
-        key: child?.[1]
+        reached
       })
 
       if (reached) {

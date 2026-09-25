@@ -7,10 +7,13 @@ import {
   afterEach
 } from 'vitest'
 import {
+  type AnySignal,
   type ReactiveNode,
   type WritableSignal,
   STORE_UNMOUNT_DELAY,
   InjectionContext,
+  IndexedSignalsMap,
+  SignalsMap,
   signal,
   computed,
   effect,
@@ -71,6 +74,15 @@ describe('devtools', () => {
           const id = store.idOf(node)
 
           return id === undefined ? undefined : store.records.get(id)
+        }
+
+        // The nodes a signals map keeps to itself: its version, which stands for it, and the signal of an entry
+        function versionOf(map: SignalsMap<string, number>) {
+          return (map as unknown as { $v: AnySignal }).$v
+        }
+
+        function entryOf(map: SignalsMap<string, number>, key: string) {
+          return Map.prototype.get.call(map, key) as AnySignal
         }
 
         function recordsOf(ids: number[]) {
@@ -143,6 +155,95 @@ describe('devtools', () => {
 
           expect(name.owner).toBe('Cache$')
           expect(name.site).toBeUndefined()
+        })
+
+        it('should put the entries of a signals map under the map, named after it and their keys', async () => {
+          const map = new SignalsMap<string, number>()
+
+          map.set('foo', 42)
+
+          await tick()
+
+          const version = recordOf(versionOf(map))!
+          const entry = recordOf(entryOf(map, 'foo'))!
+
+          expect(version.kind).toBe('map')
+          expect(entry.parent).toBe(version.id)
+          expect(entry.name.name).toBe(`${version.name.name}["foo"]`)
+        })
+
+        it('should show the index of an indexed map with the map, and keep its anchor out', async () => {
+          const map = new IndexedSignalsMap<string, number>()
+
+          watch(() => {
+            map.$index()
+          })
+
+          await tick()
+
+          const version = recordOf(versionOf(map))!
+          const [index] = recordsOf(store.records.$index()).filter(record => record.parent === version.id)
+
+          expect(index.kind).toBe('computed')
+          expect(index.name.name).toBe(`${version.name.name}.$index`)
+          // The index wears the node of the anchor
+          expect(recordOf(map.$index)).toBeUndefined()
+        })
+
+        it('should count a new value of an entry as a new value of its map', async () => {
+          const map = new SignalsMap<string, number>()
+
+          map.set('foo', 1)
+          watch(() => {
+            map.$get('foo')
+          })
+
+          await tick()
+
+          const { updates } = recordOf(versionOf(map))!
+
+          map.set('foo', 2)
+
+          await tick()
+
+          expect(recordOf(versionOf(map))!.updates).toBe(updates + 1)
+        })
+
+        it('should keep a map busy while one of its entries is read', async () => {
+          const map = new SignalsMap<string, number>()
+
+          map.set('foo', 42)
+
+          await tick()
+
+          expect(recordOf(versionOf(map))!.state).toBe('detached')
+
+          watch(() => {
+            map.$get('foo')
+          })
+
+          await tick()
+
+          expect(recordOf(versionOf(map))!.state).toBe('active')
+        })
+
+        it('should let an entry go with its key, as its readers let it go', async () => {
+          const map = new SignalsMap<string, number>()
+
+          map.set('foo', 42)
+          watch(() => {
+            map.$get('foo')
+          })
+
+          const entry = entryOf(map, 'foo')
+
+          await tick()
+
+          map.delete('foo')
+
+          await tick()
+
+          expect(recordOf(entry)).toBeUndefined()
         })
 
         it('should put a child signal under its parent and name it after the parent and the key', async () => {

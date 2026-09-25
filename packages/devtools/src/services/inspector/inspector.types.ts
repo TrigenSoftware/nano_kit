@@ -28,11 +28,6 @@ export interface MeetInspectEvent {
    * The node is older than the meeting: it was reached through a link or an event, its creation was not seen.
    */
   reached: boolean
-  /**
-   * For a child signal, the node of the signal it was taken from, met before the child, and the key there.
-   */
-  parent: ReactiveNode | undefined
-  key: unknown
 }
 
 /**

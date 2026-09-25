@@ -8,6 +8,7 @@ export const icons = [
   'effect',
   'file',
   'grip',
+  'map',
   'moon',
   'pause',
   'play',

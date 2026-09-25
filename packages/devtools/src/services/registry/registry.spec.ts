@@ -5,7 +5,10 @@ import {
   afterEach
 } from 'vitest'
 import {
+  type AnySignal,
   type ReactiveNode,
+  IndexedSignalsMap,
+  SignalsMap,
   signal,
   computed,
   effect,
@@ -13,10 +16,14 @@ import {
   mountable,
   record
 } from '@nano_kit/store'
-import type { NodeRecord } from './registry.types.js'
+import type {
+  MapNode,
+  NodeRecord
+} from './registry.types.js'
 import {
   kindOf,
   parentOf,
+  inMap,
   isOwnership,
   stateOf,
   valueOf,
@@ -43,6 +50,15 @@ describe('devtools', () => {
           subs: [],
           ...links
         } as unknown as NodeRecord
+      }
+
+      // The nodes a signals map keeps to itself: its version, which stands for it, and the signal of an entry
+      function versionOf(map: SignalsMap<string, number>) {
+        return (map as unknown as { $v: AnySignal }).$v.node
+      }
+
+      function entryOf(map: SignalsMap<string, number>, key: string) {
+        return (Map.prototype.get.call(map, key) as AnySignal).node
       }
 
       afterEach(() => {
@@ -77,6 +93,15 @@ describe('devtools', () => {
           expect(kindOf(reader)).toBe('effect')
           expect(kindOf(owner)).toBe('scope')
         })
+
+        it('should take the version of a signals map for the map, and an entry of it for a signal', () => {
+          const map = new SignalsMap<string, number>()
+
+          map.set('foo', 42)
+
+          expect(kindOf(versionOf(map))).toBe('map')
+          expect(kindOf(entryOf(map, 'foo'))).toBe('signal')
+        })
       })
 
       describe('parentOf', () => {
@@ -87,6 +112,45 @@ describe('devtools', () => {
 
           expect(parentOf($user.$name.node)).toEqual([$user.node, 'name'])
           expect(parentOf($user.node)).toBeUndefined()
+        })
+
+        it('should find the version of the map of an entry and its key', () => {
+          const map = new SignalsMap<string, number>()
+
+          map.set('foo', 42)
+
+          expect(parentOf(entryOf(map, 'foo'))).toEqual([versionOf(map), 'foo'])
+          expect(parentOf(versionOf(map))).toBeUndefined()
+        })
+
+        it('should find the version of an indexed map for its index, keyed by its field', () => {
+          const map = new IndexedSignalsMap<string, number>()
+
+          watch(() => {
+            map.$index()
+          })
+
+          // The index reads the version, so it is among the readers of the version
+          const index = versionOf(map).subs!.sub
+
+          expect(kindOf(index)).toBe('computed')
+          expect(parentOf(index)).toEqual([versionOf(map), 'index'])
+        })
+      })
+
+      describe('inMap', () => {
+        it('should tell an entry the map holds from one it let go of', () => {
+          const map = new SignalsMap<string, number>()
+
+          map.set('foo', 42)
+
+          const entry = entryOf(map, 'foo') as MapNode
+
+          expect(inMap(entry)).toBe(true)
+
+          map.delete('foo')
+
+          expect(inMap(entry)).toBe(false)
         })
       })
 
@@ -148,6 +212,38 @@ describe('devtools', () => {
           expect(stateOf(describeNode($count.node))).toBe('detached')
         })
 
+        it('should call a map busy while one of its entries is read', () => {
+          const map = new SignalsMap<string, number>()
+
+          map.set('foo', 42)
+
+          expect(stateOf(describeNode(versionOf(map)))).toBe('detached')
+
+          watch(() => {
+            map.$get('foo')
+          })
+
+          expect(stateOf(describeNode(versionOf(map)))).toBe('active')
+        })
+
+        it('should call an indexed map busy while its index is read', () => {
+          const map = new IndexedSignalsMap<string, number>()
+
+          watch(() => {
+            map.$index()
+          })
+
+          expect(stateOf(describeNode(versionOf(map)))).toBe('active')
+        })
+
+        it('should never take a map for one out of date', () => {
+          const map = new SignalsMap<string, number>()
+
+          map.set('foo', 42)
+
+          expect(stateOf(describeNode(versionOf(map)))).toBe('detached')
+        })
+
         it('should call an effect busy while it has something to wait for', () => {
           const $count = signal(0)
 
@@ -183,6 +279,18 @@ describe('devtools', () => {
           $count(2)
 
           expect(valueOf(describeNode($count.node))).toBe(2)
+        })
+
+        it('should give a map its entries with the values written last to them', () => {
+          const map = new SignalsMap<string, number>()
+
+          map.set('foo', 1)
+          map.set('bar', 2)
+
+          expect(valueOf(describeNode(versionOf(map)))).toEqual(new Map([
+            ['foo', 1],
+            ['bar', 2]
+          ]))
         })
 
         it('should find no value in an effect', () => {

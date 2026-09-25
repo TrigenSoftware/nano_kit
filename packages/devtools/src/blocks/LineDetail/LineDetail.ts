@@ -61,7 +61,8 @@ export const LineDetail = component$(({ line }: LineDetailProps) => {
   } = line
 
   if (kind === 'write') {
-    return change(from, to)
+    // The version of a map moves when its keys change, and the number it holds says nothing
+    return record.kind === 'map' ? note('keys changed') : change(from, to)
   }
 
   if (kind === 'computed') {

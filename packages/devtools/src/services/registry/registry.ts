@@ -1,7 +1,9 @@
 import {
+  type AnySignal,
   type ReactiveNode,
   type EffectNode,
   type ComputedNode,
+  type SignalNode,
   NoneFlag,
   DirtyFlag,
   PendingFlag,
@@ -13,6 +15,7 @@ import {
 } from '../values/index.js'
 import type {
   ChildNode,
+  MapNode,
   NodeKind,
   NodeRecord,
   NodeState
@@ -29,7 +32,8 @@ export function kindOf(node: ReactiveNode): NodeKind {
   }
 
   if ('pendingValue' in node) {
-    return 'signal'
+    // In development the version of a signals map carries the map and stands for it, and an entry carries its key too
+    return 'map' in node && !('key' in node) ? 'map' : 'signal'
   }
 
   if ('fn' in node) {
@@ -40,14 +44,50 @@ export function kindOf(node: ReactiveNode): NodeKind {
 }
 
 /**
- * The signal a child signal was taken from and its key there.
+ * The signal a child signal was taken from and its key there. In development, for an entry and the index of
+ * a signals map, the version, which stands for the map, and the key of the entry or the field of the index.
  * @param node
  * @returns The node of the parent and the key; none for any other node.
  */
 export function parentOf(node: ReactiveNode): [parent: ReactiveNode, key: unknown] | undefined {
-  return 'p' in node
-    ? [(node as ChildNode).p.node, (node as ChildNode).k]
-    : undefined
+  if ('p' in node) {
+    return [(node as ChildNode).p.node, (node as ChildNode).k]
+  }
+
+  if ('map' in node) {
+    const { node: version } = (node as MapNode).map.$v
+
+    // The index carries no key: no key of the map can take its place
+    return version === node ? undefined : [version, 'key' in node ? (node as MapNode).key : 'index']
+  }
+
+  return undefined
+}
+
+/**
+ * Whether an entry of a signals map is in the map still: a deleted key lets its signal go.
+ * @param node - The node of the entry.
+ * @returns Whether the map holds it.
+ */
+export function inMap(node: MapNode) {
+  // The map hands out values: the signal is taken past its own `get`
+  return (Map.prototype.get.call(node.map, node.key) as AnySignal | undefined)?.node === node
+}
+
+// Whether something reads a map: the anchor of an indexed one, which every read links to and its index wears,
+// or an entry of it
+function readsMap({ map }: MapNode) {
+  if (map.$index?.node.subs) {
+    return true
+  }
+
+  for (const $entry of map.values()) {
+    if ($entry.node.subs) {
+      return true
+    }
+  }
+
+  return false
 }
 
 function owns(kind: NodeKind) {
@@ -81,8 +121,9 @@ export function stateOf(record: Pick<NodeRecord, 'kind' | 'ref' | 'deps' | 'subs
   const node = record.ref.deref()
 
   if (node && !isOwnership(record) && record.kind !== 'selector') {
-    // A signal is never out of date: its flags only tell that nobody has read the value written last
-    if (record.kind !== 'signal') {
+    // A signal is never out of date, the version of a map neither: their flags only tell that nobody has read
+    // the value written last
+    if (!('pendingValue' in node)) {
       if (node.flags === NoneFlag) {
         return 'unevaluated'
       }
@@ -96,7 +137,8 @@ export function stateOf(record: Pick<NodeRecord, 'kind' | 'ref' | 'deps' | 'subs
       return node.lcd ? 'mounted' : 'unmounted'
     }
 
-    return record.subs.length ? 'active' : 'detached'
+    // A map is busy while something reads it or one of its entries
+    return record.subs.length || (record.kind === 'map' && readsMap(node as MapNode)) ? 'active' : 'detached'
   }
 
   return node && record.deps.length ? 'active' : 'detached'
@@ -110,6 +152,14 @@ export function stateOf(record: Pick<NodeRecord, 'kind' | 'ref' | 'deps' | 'subs
  */
 export function valueOf(record: NodeRecord): unknown {
   const node = record.ref.deref()
+
+  // A map holds its entries, each with the value written last to it
+  if (node && record.kind === 'map') {
+    return new Map(Array.from(
+      (node as MapNode).map,
+      ([key, $entry]) => [key, ($entry.node as SignalNode).pendingValue]
+    ))
+  }
 
   if (node && 'pendingValue' in node) {
     return node.pendingValue

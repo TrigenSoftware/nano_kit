@@ -36,6 +36,22 @@ describe('devtools', () => {
 
         expect(screen.getByText('not run, stays dirty')).toBeDefined()
       })
+
+      it('should tell a write to a map by its keys, not by its version', () => {
+        render(() => LineDetail({
+          line: {
+            kind: 'write',
+            record: {
+              kind: 'map'
+            } as NodeRecord,
+            depth: 0,
+            from: '47',
+            to: 'Map(1) {"foo" => 42}'
+          }
+        }))
+
+        expect(screen.getByText('keys changed')).toBeDefined()
+      })
     })
   })
 })

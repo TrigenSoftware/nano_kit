@@ -2,6 +2,7 @@ import {
   Injectable$,
   inject
 } from '@nano_kit/store'
+import { preview } from '../values/index.js'
 import type {
   LibraryDetector,
   NodeName,
@@ -34,7 +35,12 @@ function captureStack() {
   return stack
 }
 
-function formatKey(key: unknown) {
+function formatKey(key: unknown, entry: boolean | undefined) {
+  // A map is keyed by any value, and a string key is no field
+  if (entry) {
+    return `[${preview(key)}]`
+  }
+
   if (typeof key === 'string') {
     return `.$${key}`
   }
@@ -94,9 +100,17 @@ export class NamingService$ extends Injectable$ {
    * @param key - For a child signal, its key in the parent.
    * @param runner - The name of the computed or the effect whose body was running when the node appeared:
    * the owner of a node libraries created in there.
+   * @param entry - The node is an entry of a signals map, whose version is the parent.
    * @returns The name.
    */
-  name(id: number, origin?: NodeOrigin, parent?: NodeName, key?: unknown, runner?: NodeName): NodeName {
+  name(
+    id: number,
+    origin?: NodeOrigin,
+    parent?: NodeName,
+    key?: unknown,
+    runner?: NodeName,
+    entry?: boolean
+  ): NodeName {
     const [trace, ordinal] = origin ?? []
     const { frame, adapter, inBody } = trace
       ? trace.origin ??= locate(parseStack(trace.stack), this.#library)
@@ -105,7 +119,7 @@ export class NamingService$ extends Injectable$ {
 
     return {
       name: parent
-        ? parent.name + formatKey(key)
+        ? parent.name + formatKey(key, entry)
         : this.#unique(moniker(`${trace?.stack ?? id}#${ordinal}`)),
       site: frame && `${basename(frame.file)}:${frame.line}`,
       file,

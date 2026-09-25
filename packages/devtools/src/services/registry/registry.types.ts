@@ -5,7 +5,7 @@ import type {
 } from '@nano_kit/store'
 import type { NodeName } from '../naming/index.js'
 
-export type NodeKind = 'signal' | 'computed' | 'child' | 'selector' | 'effect' | 'scope'
+export type NodeKind = 'signal' | 'map' | 'computed' | 'child' | 'selector' | 'effect' | 'scope'
 
 /**
  * A child signal of kida: a computed over its parent that remembers the parent and its key in it.
@@ -15,6 +15,24 @@ export interface ChildNode extends ReactiveNode {
     node: ReactiveNode
   }
   k: unknown
+}
+
+/**
+ * A node of a signals map in development, which carries the map: its version, which stands for the map, an entry,
+ * which carries its key too, and the index of an indexed map.
+ */
+export interface MapNode extends ReactiveNode {
+  /**
+   * The map. An indexed one has its index, which wears the node of the anchor every read of the map links to.
+   */
+  map: Map<unknown, AnySignal> & {
+    $v: AnySignal
+    $index?: AnySignal
+  }
+  /**
+   * Of an entry, its key.
+   */
+  key?: unknown
 }
 
 /**

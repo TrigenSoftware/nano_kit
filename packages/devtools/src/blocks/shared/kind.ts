@@ -6,6 +6,7 @@ import type { IconName } from '../../uikit/Icon/index.js'
  */
 export const KIND_ICONS: Record<NodeKind, IconName> = {
   signal: 'signal',
+  map: 'map',
   computed: 'computed',
   child: 'child',
   selector: 'selector',

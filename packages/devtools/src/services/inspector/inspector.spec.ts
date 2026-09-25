@@ -211,7 +211,6 @@ describe('devtools', () => {
           expect(meeting.signal).toBe($count)
           expect(meeting.reached).toBe(false)
           expect(meeting.origin![0].stack).toContain('inspector.spec.ts')
-          expect(meeting.parent).toBeUndefined()
         })
 
         it('should meet an effect on its first link, while its body runs', async () => {
@@ -281,12 +280,7 @@ describe('devtools', () => {
           const meetings = heard().filter(event => event.kind === MeetEvent)
 
           expect(meetings.map(event => event.node)).toEqual([$user.node, $name.node])
-          expect(meetings[0].reached).toBe(true)
-          expect(meetings[1]).toMatchObject({
-            reached: false,
-            parent: $user.node,
-            key: 'name'
-          })
+          expect(meetings.map(event => event.reached)).toEqual([true, false])
         })
 
         it('should reach the nodes older than itself from a node that links to them, with their links', async () => {

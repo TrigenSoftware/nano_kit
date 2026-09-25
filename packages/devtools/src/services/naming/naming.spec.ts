@@ -91,6 +91,13 @@ describe('devtools', () => {
           expect(naming.name(4, naming.capture(), parent, () => 0).name).toBe(`${parent.name}[…]`)
         })
 
+        it('should name an entry of a map after the map and the key it has there', () => {
+          const map = naming.name(1, naming.capture())
+
+          expect(naming.name(2, naming.capture(), map, 'foo', undefined, true).name).toBe(`${map.name}["foo"]`)
+          expect(naming.name(3, naming.capture(), map, 7, undefined, true).name).toBe(`${map.name}[7]`)
+        })
+
         it('should give a node libraries created inside the body of another the owner and the file of that one', () => {
           function Cache$() {
             return naming.capture()
