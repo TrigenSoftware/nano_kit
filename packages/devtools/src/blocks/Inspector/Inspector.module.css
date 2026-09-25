@@ -22,8 +22,10 @@
   gap: var(--sizeSpaceMd);
 }
 
+/* Nothing selected: the prompt stands in the middle of the place of the boxes */
 .empty {
-  padding: var(--sizeSpaceMd);
+  margin: auto;
+  font-size: var(--sizeTextXl);
 }
 
 /* The body of the links box: one side under the other */

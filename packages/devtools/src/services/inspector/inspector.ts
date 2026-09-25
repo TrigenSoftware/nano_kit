@@ -19,6 +19,7 @@ import {
 } from '../registry/index.js'
 import type {
   MeetInspectEvent,
+  PanelInspectEvent,
   InspectorEvent,
   InspectorListener
 } from './inspector.types.js'
@@ -27,6 +28,12 @@ import type {
  * A node is met for the first time: created under the eyes of the service, or reached from a known one.
  */
 export const MeetEvent = -1
+
+/**
+ * The panel is about to run nodes of the application, an evaluation the user asked for: what comes after it
+ * up to the end of the flush is the panel's doing, not a reaction of the application.
+ */
+export const PanelEvent = -2
 
 /**
  * The runtime of the application as a listener hears it. `onSignal` and `inspect` fire in the
@@ -72,8 +79,23 @@ export class InspectorService$ extends Injectable$ {
     }
   }
 
+  /**
+   * Run what the panel does to the nodes of the application, an evaluation on the word of the user:
+   * a `PanelEvent` goes before the events it causes, so the log tells them from the reactions of the application.
+   * @param fn
+   */
+  act(fn: () => void) {
+    if (this.#listeners.size) {
+      this.#emit({
+        kind: PanelEvent
+      })
+    }
+
+    fn()
+  }
+
   // The time is taken last: a run is timed from after its node was met, stack and all
-  #emit(event: MeetInspectEvent | InspectEvent) {
+  #emit(event: MeetInspectEvent | PanelInspectEvent | InspectEvent) {
     if (this.#events.push({
       ...event,
       time: performance.now()

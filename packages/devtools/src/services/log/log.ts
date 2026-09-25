@@ -7,7 +7,10 @@ import {
   LifecycleEvent,
   FlushEvent
 } from '@nano_kit/store'
-import type { InspectorEvent } from '../inspector/index.js'
+import {
+  type InspectorEvent,
+  PanelEvent
+} from '../inspector/index.js'
 import { nameMatches } from '../naming/index.js'
 import {
   type NodeRecord,
@@ -96,6 +99,7 @@ export function groupEvents(
   let lines: LogLine[] | undefined
   let counts = noLines()
   let start = 0
+  let panel = false
   const add = (kind: LogLineKind, record: NodeRecord, depth = runs.length) => {
     const line: LogLine = {
       kind,
@@ -130,13 +134,15 @@ export function groupEvents(
         duration: end === undefined ? undefined : end - start,
         lines: lines!,
         counts,
-        slowest: slowestOf(lines!)
+        slowest: slowestOf(lines!),
+        panel
       })
     }
 
     updated.length = 0
     lines = undefined
     counts = noLines()
+    panel = false
   }
 
   events.forEach((event) => {
@@ -147,6 +153,8 @@ export function groupEvents(
 
     if (event.kind === FlushEvent) {
       close(event.time)
+    } else if (event.kind === PanelEvent) {
+      panel = true
     } else if (event.kind === RunEvent) {
       const record = recordOf(event.node)
 

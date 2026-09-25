@@ -4,7 +4,10 @@ import type {
   InspectEvent
 } from '@nano_kit/store'
 import type { NodeOrigin } from '../naming/index.js'
-import type { MeetEvent } from './inspector.js'
+import type {
+  MeetEvent,
+  PanelEvent
+} from './inspector.js'
 
 /**
  * A node is met for the first time. It comes before the first event about the node.
@@ -33,11 +36,18 @@ export interface MeetInspectEvent {
 }
 
 /**
+ * The panel is about to run nodes of the application. It comes before the events it causes.
+ */
+export interface PanelInspectEvent {
+  kind: typeof PanelEvent
+}
+
+/**
  * What the service hands over: its own meetings and the events of the runtime, each with the time it was heard.
  * A flush comes only after something of the application: one that moved nothing but the panel is left out.
  * A link older than the service may be told of more than once, as the walk meets it from both of its ends.
  */
-export type InspectorEvent = (MeetInspectEvent | InspectEvent) & {
+export type InspectorEvent = (MeetInspectEvent | PanelInspectEvent | InspectEvent) & {
   /**
    * When the service heard the event, in milliseconds of `performance.now()`.
    */

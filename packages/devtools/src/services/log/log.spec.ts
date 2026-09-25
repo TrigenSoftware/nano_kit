@@ -39,6 +39,7 @@ describe('devtools', () => {
     describe('log', () => {
       describe('groupEvents', () => {
         let registry: ReturnType<typeof RegistryStore$>
+        let inspector: InspectorService$
         let groups: LogGroup[]
         let stopLog: () => void
         let hide: () => void
@@ -86,7 +87,8 @@ describe('devtools', () => {
             registry.records.$index()
           }))
 
-          stopLog = inject(InspectorService$, context).listen((events) => {
+          inspector = inject(InspectorService$, context)
+          stopLog = inspector.listen((events) => {
             groups.push(...groupEvents(events, registry.recordOf, () => nextId++))
           })
 
@@ -118,6 +120,30 @@ describe('devtools', () => {
           expect(groups.map(group => group.id)).toEqual([1, 2])
           expect(groups.every(group => group.duration! >= 0)).toBe(true)
           expect(groups.map(group => group.counts.write)).toEqual([1, 1])
+        })
+
+        it('should tell a transaction the panel made from a reaction of the application', async () => {
+          const $count = signal(1)
+          const $double = computed(() => $count() * 2)
+
+          watch(() => {
+            $count()
+          })
+
+          await tick()
+          groups.length = 0
+          // The way the panel evaluates a computed on the word of the user: inside an action
+          batch(() => {
+            inspector.act(() => {
+              $double()
+            })
+          })
+          $count(2)
+
+          await tick()
+
+          expect(groups.map(group => group.panel)).toEqual([true, false])
+          expect(groups[0].counts.computed).toBe(1)
         })
 
         it('should write a signal from its value before to the one the next write found', async () => {

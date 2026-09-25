@@ -158,11 +158,13 @@ const LineRow = component$(({
  * The row of a transaction and, once it is opened, its lines.
  */
 const GroupRows = component$(({ $group }: GroupRowsProps) => {
-  // The number, the time and the duration of a transaction never change; the filter cuts its lines down
+  // The number, the time, the duration of a transaction and whether the panel made it never change;
+  // the filter cuts its lines down
   const {
     id,
     time,
-    duration
+    duration,
+    panel
   } = $group()
   const outside = duration === undefined
   // A transaction is striped by its number, not by its place, which moves with every one that comes in above
@@ -195,6 +197,12 @@ const GroupRows = component$(({ $group }: GroupRowsProps) => {
       TableCell({
         class: styles.event
       })(
+        // What the user asked for from the panel is no reaction of the application
+        panel && Tag({
+          tone: 'muted'
+        })(
+          'evaluate now'
+        ),
         () => summaryOf($group()),
         if_($slowest)(
           $run => fragment(

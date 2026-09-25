@@ -11,6 +11,11 @@ export const MIN_WIDTH = 640
 export const MIN_HEIGHT = 360
 
 /**
+ * How near the middle of the bottom edge the pill snaps to it, in pixels.
+ */
+export const PILL_SNAP = 16
+
+/**
  * The size of the viewport a fixed box is placed in, scrollbars left out, in pixels.
  */
 export interface Viewport {
@@ -84,12 +89,15 @@ export function resizeFrame(from: PanelFrame, dx: number, dy: number, viewport: 
 }
 
 /**
- * Where the pill goes when it is dragged along the bottom edge: all of it stays in sight.
+ * Where the pill goes when it is dragged along the bottom edge: all of it stays in sight, and near the middle
+ * of the edge it snaps to the middle.
  * @param middle - Where its middle was dragged to, in pixels from the left edge.
  * @param half - Half its width.
  * @param width - The width of the viewport.
  * @returns Its middle, a share of the width of the viewport.
  */
 export function pillAt(middle: number, half: number, width: number) {
-  return clamp(middle, half, width - half) / width
+  return Math.abs(middle - width / 2) <= PILL_SNAP
+    ? 0.5
+    : clamp(middle, half, width - half) / width
 }

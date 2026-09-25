@@ -16,6 +16,7 @@ import {
   previewOf
 } from '../services/registry/index.js'
 import { recentOf } from '../services/log/index.js'
+import { InspectorService$ } from '../services/inspector/index.js'
 import { PanelStore$ } from './panel.js'
 import {
   type NodeRecords,
@@ -219,6 +220,7 @@ function buildGroups(records: NodeRecords, query: string) {
  * @returns The store.
  */
 export function SignalsStore$() {
+  const inspector = inject(InspectorService$)
   const { records } = inject(RegistryStore$)
   const { $filter } = inject(PanelStore$)
   const { $groups: $logGroups } = inject(LogStore$)
@@ -284,10 +286,13 @@ export function SignalsStore$() {
    * Evaluate a computed once, on the word of the user: read it the way the application would.
    * An action reads outside tracking, so the body runs, links its dependencies and caches the value
    * with no subscriber created and nothing mounted. A record reached through a link has no signal,
-   * its creation was not seen, and there is nothing to read it with.
+   * its creation was not seen, and there is nothing to read it with. The log tells the evaluation
+   * from a reaction of the application.
    */
   const evaluate = action((record: NodeRecord) => {
-    record.signal?.deref()?.()
+    inspector.act(() => {
+      record.signal?.deref()?.()
+    })
   })
 
   return {

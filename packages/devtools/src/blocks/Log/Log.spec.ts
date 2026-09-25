@@ -91,6 +91,21 @@ describe('devtools', () => {
         expect(within(row).getByText(/ms$/)).toBeDefined()
       })
 
+      it('should mark a transaction the panel made on the word of the user', async () => {
+        const context = await setup()
+        const { $discount } = inject(Cart$, context)
+
+        await tick(context)
+        inject(SignalsStore$, context).evaluate(inject(RegistryStore$, context).recordOf($discount.node)!)
+
+        await Promise.resolve()
+
+        const [evaluated, reacted] = groupRows()
+
+        expect(within(evaluated).getByText('evaluate now')).toBeDefined()
+        expect(within(reacted).queryByText('evaluate now')).toBeNull()
+      })
+
       it('should name the slowest run of a transaction only once it is worth a look', async () => {
         const context = await setup()
         const clock = {

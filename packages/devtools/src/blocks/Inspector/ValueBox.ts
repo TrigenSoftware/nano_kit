@@ -9,7 +9,6 @@ import {
   case_
 } from 'nanoviews'
 import {
-  type NodeRecord,
   isOwnership,
   valueOf,
   bodyOf
@@ -31,16 +30,12 @@ import { ValueTree } from '../../uikit/ValueTree/index.js'
 import { ValueBranch } from './ValueBranch.js'
 import styles from './Inspector.module.css'
 
-function isValued(record: NodeRecord) {
-  return !isOwnership(record) && record.kind !== 'selector'
-}
-
 /**
  * The value of the selected node as a tree, read from the node itself and never evaluated:
- * a computed out of date or not evaluated yet says so and offers to evaluate it once.
- * A computed shows the source it computes the value with under the value, and an effect, which has no value,
- * the source it runs in its place: the source tells one from another. The box stays when the selection moves
- * and follows it through its bindings.
+ * a computed out of date or not evaluated yet says so and offers to evaluate it once, and a key of a selector
+ * has the value it answers with. A computed shows the source it computes the value with under the value,
+ * and an effect, which has no value, the source it runs in its place: the source tells one from another.
+ * A scope says it has none. The box stays when the selection moves and follows it through its bindings.
  */
 export const ValueBox = component$(() => {
   const {
@@ -51,7 +46,7 @@ export const ValueBox = component$(() => {
   const $record = () => $selected()!
   const $state = () => $record().state
   const $value = () => valueOf($record())
-  const $valued = () => isValued($record())
+  const $valued = () => !isOwnership($record())
   const $effect = () => $record().kind === 'effect'
   const $computed = () => $record().kind === 'computed'
   const $body = () => bodyOf($record())
@@ -133,7 +128,7 @@ export const ValueBox = component$(() => {
               span({
                 class: typography.secondary
               })(
-                'An effect has no value: it only runs.'
+                'A scope has no value: it holds the effects created inside it.'
               )
             )
           )

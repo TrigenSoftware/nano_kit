@@ -14,9 +14,15 @@ import {
   type InjectionContext,
   getContext,
   inject,
-  batch
+  batch,
+  signal,
+  selector,
+  effect,
+  effectScope
 } from '@nano_kit/store'
+import type { NodeKind } from '../../services/registry/index.js'
 import { RegistryStore$ } from '../../stores/registry.js'
+import { SignalsStore$ } from '../../stores/signals.js'
 import {
   Cart$,
   withMockApp
@@ -45,6 +51,13 @@ async function setup(select?: (ctx: any) => unknown) {
   await Promise.resolve()
 
   return context
+}
+
+// The last record of a kind the registry holds: the node a test created, after those of the application
+function recordOfKind(context: InjectionContext, kind: NodeKind) {
+  const { records } = inject(RegistryStore$, context)
+
+  return [...records.keys()].map(id => records.get(id)!).findLast(record => record.kind === kind)!
 }
 
 function box(title: string) {
@@ -80,6 +93,38 @@ describe('devtools', () => {
         await setup()
 
         expect(screen.getByText('Select a row to inspect it.')).toBeDefined()
+      })
+
+      it('should show the value a key of a selector answers with', async () => {
+        const context = await setup()
+        const $id = signal(1)
+        const $isSelected = selector($id)
+        const stop = effect(() => {
+          $isSelected(1)
+        })
+
+        await Promise.resolve()
+
+        inject(SignalsStore$, context).select(recordOfKind(context, 'selector').id)
+
+        expect(box('Value').getByText('true')).toBeDefined()
+
+        stop()
+      })
+
+      it('should say that a scope has no value', async () => {
+        const context = await setup()
+        const stop = effectScope(() => {
+          effect(() => {})
+        })
+
+        await Promise.resolve()
+
+        inject(SignalsStore$, context).select(recordOfKind(context, 'scope').id)
+
+        expect(box('Value').getByText(/^A scope has no value/)).toBeDefined()
+
+        stop()
       })
 
       it('should say what the selected node is', async () => {

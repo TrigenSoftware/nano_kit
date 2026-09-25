@@ -75,6 +75,10 @@ export interface LogGroup {
    * The run that took the longest by its own time.
    */
   readonly slowest: LogLine | undefined
+  /**
+   * The panel made it happen, an evaluation the user asked for: no reaction of the application.
+   */
+  readonly panel: boolean
 }
 
 /**

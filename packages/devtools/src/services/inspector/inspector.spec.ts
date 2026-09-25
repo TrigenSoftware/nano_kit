@@ -35,6 +35,7 @@ import type {
 } from './inspector.types.js'
 import {
   MeetEvent,
+  PanelEvent,
   InspectorService$
 } from './inspector.js'
 
@@ -155,6 +156,29 @@ describe('devtools', () => {
           await tick()
 
           expect(heard()).toEqual([])
+        })
+
+        it('should hand a mark of the panel over before the events of what the panel does', async () => {
+          const $count = signal(0)
+
+          watch(() => {
+            $count()
+          })
+
+          await tick()
+          batches.length = 0
+          batch(() => {
+            service.act(() => {
+              $count(1)
+            })
+          })
+
+          await tick()
+
+          const kinds = heard().map(event => event.kind)
+
+          expect(kinds[0]).toBe(PanelEvent)
+          expect(kinds).toContain(UpdateEvent)
         })
 
         it('should call every listener with the same events, in the order they started', async () => {
