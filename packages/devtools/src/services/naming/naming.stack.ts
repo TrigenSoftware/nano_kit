@@ -10,6 +10,8 @@ const V8_FRAME = /^\s*at (?:(.*?) \()?(.+?):(\d+):(\d+)\)?$/
 // "Cart$@http://localhost:5173/src/cart.ts:18:22", "@http://localhost:5173/src/main.ts:5:1"
 const GECKO_FRAME = /^(.*?)@(.+?):(\d+):(\d+)$/
 const FN_PREFIX = /^(?:async\*?\s*|new )*(?:(?:Object|Module|exports)\.)?/
+// "Object.fn" and "Object.compute" of V8: a body with no name of its own, run by the core through its node
+const CORE_CALL = /^Object\.(?:fn|compute)$/
 // " [as get]" of V8 aliases, "/<" of Firefox for a function nested in a named one
 const FN_SUFFIX = / \[as [^\]]+\]$|(?:\/<)+$/
 const ANONYMOUS = /^(?:<anonymous>|anonymous|eval|global code|module code|eval code)?$/
@@ -18,10 +20,10 @@ const LIBRARY = /\/node_modules\/|\/\.vite\/deps\/|^node:/
 // "/@nano_kit/react/" of an installed package, "@nano_kit_react.js" of a dependency Vite pre-bundled
 const ADAPTER = /@nano_kit[/_](react|preact|svelte)(?:[/_.-]|$)/
 
-function cleanFn(raw: string | undefined) {
-  const fn = raw?.replace(FN_PREFIX, '').replace(FN_SUFFIX, '')
+function cleanFn(raw = '') {
+  const fn = raw.replace(FN_PREFIX, '').replace(FN_SUFFIX, '')
 
-  return fn === undefined || ANONYMOUS.test(fn) ? undefined : fn
+  return ANONYMOUS.test(fn) || CORE_CALL.test(raw) ? undefined : fn
 }
 
 /**

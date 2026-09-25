@@ -14,6 +14,10 @@ const rootDir = resolve(import.meta.dirname, '..')
 const spriter = new SVGSpriter({
   mode: {
     symbol: true
+  },
+  // The sprite goes into the markup of the panel, where a declaration is no more than a stray comment
+  svg: {
+    xmlDeclaration: false
   }
 })
 const iconFiles = glob(join(rootDir, 'src', 'assets', 'icons', '*.svg'))

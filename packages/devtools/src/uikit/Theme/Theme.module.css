@@ -1,6 +1,9 @@
 .root {
-  --fontSans: -apple-system, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
-  --fontMono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  /* 'nano_kit Segoe UI' is Segoe UI with its baseline where SF has it, which `devtools()` puts on the page */
+  --fontSans: -apple-system, 'SF Pro Text', 'nano_kit Segoe UI', 'Segoe UI', system-ui, sans-serif;
+  /* On Windows 11 the light instance of Cascadia Mono, which Chromium finds by name: Consolas, the one Firefox
+     and Windows 10 are left with, reads as bold at this size */
+  --fontMono: ui-monospace, 'SF Mono', Menlo, 'Cascadia Mono Light', Consolas, monospace;
 
   /* Sizes - Typography */
   --sizeText: 12px;

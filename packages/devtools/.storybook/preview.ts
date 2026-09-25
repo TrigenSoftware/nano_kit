@@ -3,7 +3,11 @@ import type {
   Preview
 } from '@nanoviews/storybook'
 import theme from '../src/uikit/Theme/Theme.module.css'
+import sprite from '../src/assets/sprite.svg?raw'
 import './preview.css'
+
+// The icons refer to the symbols of the sprite in their own tree: the page holds it here, as the shadow root of the panel does
+document.body.insertAdjacentHTML('afterbegin', `<div hidden>${sprite}</div>`)
 
 // The tokens go on the body, so the whole preview frame follows the theme toggle.
 const withTheme: Decorator = (story, context) => {

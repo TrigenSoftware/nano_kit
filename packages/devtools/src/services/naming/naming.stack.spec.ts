@@ -104,6 +104,15 @@ describe('devtools', () => {
 
           expect(frames.map(frame => frame.fn)).toEqual(['CartStore', 'load'])
         })
+
+        it('should leave a body the core runs through its node unnamed in V8', () => {
+          const frames = parseStack(`Error
+    at Object.fn (http://localhost:5173/src/main.ts:8:3)
+    at Object.compute (http://localhost:5173/src/main.ts:5:28)
+    at Object.load (http://localhost:5173/src/cart.ts:9:1)`)
+
+          expect(frames.map(frame => frame.fn)).toEqual([undefined, undefined, 'load'])
+        })
       })
 
       describe('isLibrary', () => {

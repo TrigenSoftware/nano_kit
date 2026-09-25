@@ -8,7 +8,6 @@ import {
   svg,
   use
 } from 'nanoviews/svg'
-import spriteUrl from '../../assets/sprite.svg?no-inline'
 import type { IconName } from './icons.js'
 import styles from './Icon.module.css'
 
@@ -24,6 +23,8 @@ const DEFAULT_SIZE = 16
 
 /**
  * Sprite icon. Decorative by default: the element that uses it carries the label.
+ * It refers to a symbol of `assets/sprite.svg` in its own tree: the panel holds the sprite in its shadow root,
+ * the preview of Storybook in the page.
  */
 export const Icon = component$(({
   class: className,
@@ -39,7 +40,7 @@ export const Icon = component$(({
     ...restProps
   })(
     use({
-      href: text`${spriteUrl}#${name}`
+      href: text`#${name}`
     })
   )
 ))
