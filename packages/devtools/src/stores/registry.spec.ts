@@ -8,6 +8,7 @@ import {
 } from 'vitest'
 import {
   type ReactiveNode,
+  type WritableSignal,
   STORE_UNMOUNT_DELAY,
   InjectionContext,
   signal,
@@ -122,6 +123,26 @@ describe('devtools', () => {
           expect(name.name).toMatch(/^[a-z]+-[a-z]+$/)
           expect(name.owner).toBe('Cart$')
           expect(name.site).toMatch(/^registry\.spec\.ts:\d+$/)
+        })
+
+        it('should give a node libraries created inside the body of a computed the owner of the computed', async () => {
+          const entries: WritableSignal<number>[] = []
+          // A body in no file of the application, the way a library runs one: the frames of evaluated code are left out
+          // oxlint-disable-next-line eslint/no-new-func, typescript/no-implied-eval
+          const readEntry = new Function('signal', 'entries', 'return () => entries.push(signal(0))')(signal, entries) as () => number
+
+          function Cache$() {
+            return computed(readEntry)
+          }
+
+          Cache$()()
+
+          await tick()
+
+          const { name } = recordOf(entries[0])!
+
+          expect(name.owner).toBe('Cache$')
+          expect(name.site).toBeUndefined()
         })
 
         it('should put a child signal under its parent and name it after the parent and the key', async () => {

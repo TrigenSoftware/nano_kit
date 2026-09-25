@@ -19,7 +19,7 @@ export interface ChildNode extends ReactiveNode {
 
 /**
  * What a row says about its node. `unevaluated` and `dirty` come first: a computed that was never
- * read, a node an update left out of date. A mountable node is `mounted` or `unmounted`; anything
+ * read, a computed an update left out of date. A mountable node is `mounted` or `unmounted`; anything
  * else is `active` while something keeps it busy, subscribers for a value, dependencies for an
  * effect, and `detached` otherwise.
  */

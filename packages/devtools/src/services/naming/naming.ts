@@ -92,14 +92,16 @@ export class NamingService$ extends Injectable$ {
    * @param origin - What `capture()` gave when the node appeared; none for a node older than its record.
    * @param parent - For a child signal, the name of the signal it was taken from.
    * @param key - For a child signal, its key in the parent.
+   * @param runner - The name of the computed or the effect whose body was running when the node appeared:
+   * the owner of a node libraries created in there.
    * @returns The name.
    */
-  name(id: number, origin?: NodeOrigin, parent?: NodeName, key?: unknown): NodeName {
+  name(id: number, origin?: NodeOrigin, parent?: NodeName, key?: unknown, runner?: NodeName): NodeName {
     const [trace, ordinal] = origin ?? []
-    const { frame, adapter } = trace
+    const { frame, adapter, inBody } = trace
       ? trace.origin ??= locate(parseStack(trace.stack), this.#library)
       : {}
-    const file = frame?.file
+    const file = inBody ? runner?.file : frame?.file
 
     return {
       name: parent
@@ -107,7 +109,7 @@ export class NamingService$ extends Injectable$ {
         : this.#unique(moniker(`${trace?.stack ?? id}#${ordinal}`)),
       site: frame && `${basename(frame.file)}:${frame.line}`,
       file,
-      owner: frame?.fn ?? (file === undefined ? undefined : basename(file)),
+      owner: inBody ? runner?.owner : frame?.fn ?? (file === undefined ? undefined : basename(file)),
       adapter
     }
   }

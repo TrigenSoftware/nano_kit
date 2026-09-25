@@ -80,7 +80,8 @@ export const LineDetail = component$(({ line }: LineDetailProps) => {
   }
 
   if (kind === 'invalidated') {
-    return note('not read, stays dirty')
+    // A computed waits to be read, an effect to be run
+    return note(record.kind === 'effect' ? 'not run, stays dirty' : 'not read, stays dirty')
   }
 
   if (kind === 'lifecycle') {

@@ -3,6 +3,8 @@ import {
   IndexedSignalsMap,
   LinkEvent,
   UpdateEvent,
+  RunEvent,
+  RunEndEvent,
   StopEvent,
   mountable,
   onMount,
@@ -22,7 +24,10 @@ import {
   stateOf,
   visitStale
 } from '../services/registry/index.js'
-import { NamingService$ } from '../services/naming/index.js'
+import {
+  type NodeName,
+  NamingService$
+} from '../services/naming/index.js'
 
 /**
  * The records of the registry: a record by the id of its node, each in a signal of its own.
@@ -48,6 +53,8 @@ export function RegistryStore$() {
   const ids = new WeakMap<ReactiveNode, number>()
   // What the updates of the task left out of date, visited once
   const stale = new Set<ReactiveNode>()
+  // The names of the computeds and effects whose bodies run at this point of the task, the innermost last
+  const running: (NodeName | undefined)[] = []
   const read = (id: number | undefined) => (id === undefined ? undefined : records.get(id))
   /**
    * The record of a node, a node that stopped included.
@@ -127,7 +134,7 @@ export function RegistryStore$() {
     write({
       id,
       kind: kindOf(node),
-      name: naming.name(id, origin, parent?.name, key),
+      name: naming.name(id, origin, parent?.name, key, running.at(-1)),
       ref: new WeakRef(node),
       signal: signal && new WeakRef(signal),
       parent: parent?.id,
@@ -209,8 +216,12 @@ export function RegistryStore$() {
       // A flush changes no record: it only closes the transactions of the log
       touch(event.node, event.kind === UpdateEvent)
 
-      // What an update left out of date got no event of its own
-      if (event.kind === UpdateEvent) {
+      if (event.kind === RunEvent) {
+        running.push(recordOf(event.node)?.name)
+      } else if (event.kind === RunEndEvent) {
+        running.pop()
+      } else if (event.kind === UpdateEvent) {
+        // What an update left out of date got no event of its own
         visitStale(event.node, stale, touch)
       }
     }

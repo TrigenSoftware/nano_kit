@@ -25,6 +25,11 @@ export interface StackOrigin {
    * The framework adapter of the kit the stack went through on its way there.
    */
   adapter: Adapter | undefined
+  /**
+   * Libraries alone led to the node from the body of a computed or an effect the core was running: the node
+   * is of that one, and `frame` is none, since the frames beyond that body only tell who made it run.
+   */
+  inBody: boolean
 }
 
 /**
@@ -55,11 +60,12 @@ export interface NodeName {
    */
   site: string | undefined
   /**
-   * File or URL of the creation site.
+   * File or URL of the creation site; for a node libraries created inside the body of another, the file of that one.
    */
   file: string | undefined
   /**
-   * The function the node was created in, `Cart$`, otherwise the name of the file.
+   * The function the node was created in, `Cart$`, otherwise the name of the file; for a node libraries created
+   * inside the body of another, the owner of that one.
    */
   owner: string | undefined
   adapter: Adapter | undefined

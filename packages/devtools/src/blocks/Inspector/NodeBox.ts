@@ -66,7 +66,7 @@ export const NodeBox = component$(() => {
           Property({
             name: 'Created'
           })(
-            () => $name().site ?? 'before DevTools'
+            () => $name().site ?? ($record().reached ? 'before DevTools' : 'by libraries')
           ),
           Property({
             name: 'State'

@@ -140,6 +140,14 @@ describe('devtools', () => {
           expect(stateOf(describeNode($double.node))).toBe('dirty')
         })
 
+        it('should never take a signal nobody has read since a write for one out of date', () => {
+          const $count = signal(1)
+
+          $count(2)
+
+          expect(stateOf(describeNode($count.node))).toBe('detached')
+        })
+
         it('should call an effect busy while it has something to wait for', () => {
           const $count = signal(0)
 
@@ -167,6 +175,14 @@ describe('devtools', () => {
           $double()
 
           expect(valueOf(describeNode($double.node))).toBe(2)
+        })
+
+        it('should take the value written last from a signal nobody has read since', () => {
+          const $count = signal(1)
+
+          $count(2)
+
+          expect(valueOf(describeNode($count.node))).toBe(2)
         })
 
         it('should find no value in an effect', () => {

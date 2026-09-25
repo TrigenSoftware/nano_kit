@@ -11,11 +11,16 @@ import {
   LineDetail
 } from './LineDetail.js'
 
-// All a line reads of its record is where its node was created
+// All a line reads of its record is its kind and where its node was created
 const record = {
+  kind: 'computed',
   name: {
     site: 'app.mock.ts:63'
   }
+} as NodeRecord
+const effectRecord = {
+  ...record,
+  kind: 'effect'
 } as NodeRecord
 const LINES: LogLine[] = [
   {
@@ -47,6 +52,11 @@ const LINES: LogLine[] = [
   {
     kind: 'invalidated',
     record,
+    depth: 0
+  },
+  {
+    kind: 'invalidated',
+    record: effectRecord,
     depth: 0
   },
   {

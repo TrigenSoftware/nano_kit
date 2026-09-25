@@ -32,6 +32,15 @@ const SUBSCRIPTION = `Error
     at subscribe (http://localhost:5173/node_modules/.vite/deps/@nano_kit_react.js?v=1f0c:31:12)
     at subscribeToStore (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=1f0c:6120:10)
     at commitHookEffectListMount (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=1f0c:8460:26)`
+// A cache creates an entry on the first read of a computed of its own, and a component made it read
+const IN_BODY = `Error
+    at createSignal (http://localhost:5173/node_modules/.vite/deps/chunk-7GX2ABCD.js?v=1f0c:301:3)
+    at CacheStorage.$get (http://localhost:5173/node_modules/.vite/deps/@nano_kit_query.js?v=1f0c:56:13)
+    at Object.compute (http://localhost:5173/node_modules/.vite/deps/@nano_kit_query.js?v=1f0c:53:43)
+    at callInspected (http://localhost:5173/node_modules/.vite/deps/chunk-7GX2ABCD.js?v=1f0c:135:15)
+    at Object.computedOper (http://localhost:5173/node_modules/.vite/deps/chunk-7GX2ABCD.js?v=1f0c:917:11)
+    at useSignal (http://localhost:5173/node_modules/.vite/deps/@nano_kit_react.js?v=1f0c:40:25)
+    at Weather (http://localhost:5173/src/components/Weather.tsx:11:23)`
 
 describe('devtools', () => {
   describe('services', () => {
@@ -133,14 +142,24 @@ describe('devtools', () => {
               line: 18,
               column: 22
             },
-            adapter: undefined
+            adapter: undefined,
+            inBody: false
           })
         })
 
         it('should name the adapter of a subscription made by a framework alone', () => {
           expect(locate(parseStack(SUBSCRIPTION))).toEqual({
             frame: undefined,
-            adapter: 'react'
+            adapter: 'react',
+            inBody: false
+          })
+        })
+
+        it('should stop at the body of a node the core runs when libraries alone led there', () => {
+          expect(locate(parseStack(IN_BODY))).toEqual({
+            frame: undefined,
+            adapter: undefined,
+            inBody: true
           })
         })
 

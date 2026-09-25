@@ -8,6 +8,7 @@ import {
 } from 'vitest'
 import {
   type ReactiveNode,
+  type WritableSignal,
   STORE_UNMOUNT_DELAY,
   InjectionContext,
   signal,
@@ -124,6 +125,31 @@ describe('devtools', () => {
           ])
           expect(store.$groups()[0].file).toMatch(/\/signals\.spec\.ts$/)
           expect(store.$groups()[0].rows.map(row => row.id)).toEqual([idOf($items), idOf($total)])
+        })
+
+        it('should keep the nodes libraries created alone apart from the ones older than the panel', async () => {
+          const entries: WritableSignal<number>[] = []
+
+          // Created while the panel was closed
+          hide()
+
+          const $old = signal(0)
+
+          hide = show()
+          // In no file of the application and from a timer: libraries alone on the stack, and no body of the core running
+          // oxlint-disable-next-line eslint/no-new-func, typescript/no-implied-eval
+          new Function('signal', 'entries', 'setTimeout(() => entries.push(signal(0)))')(signal, entries)
+          await new Promise(resolve => setTimeout(resolve))
+          watch(() => {
+            $old()
+          })
+
+          await tick()
+
+          expect(store.$groups().map(group => [group.owner, group.reached, group.rows.length])).toEqual([
+            [undefined, false, 1],
+            [undefined, true, 1]
+          ])
         })
 
         it('should put the rows of child signals under their parent', async () => {

@@ -6,10 +6,7 @@ import {
   untracked,
   inject
 } from '@nano_kit/store'
-import {
-  type NodeName,
-  nameMatches
-} from '../services/naming/index.js'
+import { nameMatches } from '../services/naming/index.js'
 import {
   type NodeRecord,
   isOwnership,
@@ -39,10 +36,14 @@ export interface GraphGroup {
   readonly key: string
   /**
    * The function the nodes were created in, or the file for nodes created at module level.
-   * None for the nodes whose creation was not seen.
+   * None for the nodes whose creation was not seen and for the ones libraries created alone.
    */
   readonly owner: string | undefined
   readonly file: string | undefined
+  /**
+   * Of a group with no owner: its nodes are older than the panel, not created by libraries alone.
+   */
+  readonly reached: boolean
   readonly rows: GraphRow[]
 }
 
@@ -157,30 +158,39 @@ function buildRow(
 }
 
 /**
- * Put a row into the group of its owner and file; a group appears with its first row.
+ * Put a row into the group of its owner and file; a group appears with its first row. The nodes
+ * with no owner, and so no file, are grouped by whether they are older than the panel.
  * @param row
- * @param name - The name of the record of the row.
+ * @param record - The record of the row.
  * @param groups - The groups in the order of appearance.
  * @param byOwner - The same groups by owner, then by file: no key to concatenate for every record.
  */
 function placeRow(
   row: GraphRow,
-  { owner, file }: NodeName,
+  {
+    name: {
+      owner,
+      file
+    },
+    reached
+  }: NodeRecord,
   groups: GraphGroup[],
-  byOwner: Map<string | undefined, Map<string | undefined, GraphGroup>>
+  byOwner: Map<string | boolean, Map<string | undefined, GraphGroup>>
 ) {
-  let byFile = byOwner.get(owner)
+  const by = owner ?? reached
+  let byFile = byOwner.get(by)
   let group = byFile?.get(file)
 
   if (!byFile) {
-    byOwner.set(owner, byFile = new Map<string | undefined, GraphGroup>())
+    byOwner.set(by, byFile = new Map<string | undefined, GraphGroup>())
   }
 
   if (!group) {
     byFile.set(file, group = {
-      key: `${owner}\n${file}`,
+      key: `${by}\n${file}`,
       owner,
       file,
+      reached,
       rows: []
     })
     groups.push(group)
@@ -197,7 +207,7 @@ function placeRow(
  */
 function buildGroups(records: NodeRecords, query: string) {
   const groups: GraphGroup[] = []
-  const byOwner = new Map<string | undefined, Map<string | undefined, GraphGroup>>()
+  const byOwner = new Map<string | boolean, Map<string | undefined, GraphGroup>>()
   const children = childrenByParent(records)
 
   for (const record of values(records, query !== '')) {
@@ -207,7 +217,7 @@ function buildGroups(records: NodeRecords, query: string) {
       : undefined
 
     if (row) {
-      placeRow(row, record.name, groups, byOwner)
+      placeRow(row, record, groups, byOwner)
     }
   }
 

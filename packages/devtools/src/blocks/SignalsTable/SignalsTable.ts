@@ -54,8 +54,8 @@ interface NodeRowsProps {
   level: number
 }
 
-function groupTitle({ owner }: GraphGroup) {
-  return owner ?? 'created before DevTools'
+function groupTitle({ owner, reached }: GraphGroup) {
+  return owner ?? (reached ? 'created before DevTools' : 'created by libraries')
 }
 
 // Nodes created at module level: the file itself is the owner

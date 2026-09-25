@@ -81,12 +81,15 @@ export function stateOf(record: Pick<NodeRecord, 'kind' | 'ref' | 'deps' | 'subs
   const node = record.ref.deref()
 
   if (node && !isOwnership(record) && record.kind !== 'selector') {
-    if (record.kind !== 'signal' && node.flags === NoneFlag) {
-      return 'unevaluated'
-    }
+    // A signal is never out of date: its flags only tell that nobody has read the value written last
+    if (record.kind !== 'signal') {
+      if (node.flags === NoneFlag) {
+        return 'unevaluated'
+      }
 
-    if (node.flags & (DirtyFlag | PendingFlag)) {
-      return 'dirty'
+      if (node.flags & (DirtyFlag | PendingFlag)) {
+        return 'dirty'
+      }
     }
 
     if (node.modes & MountableMode) {
@@ -100,12 +103,17 @@ export function stateOf(record: Pick<NodeRecord, 'kind' | 'ref' | 'deps' | 'subs
 }
 
 /**
- * The value of a node, read from the node right here and never evaluated.
+ * The value of a node, read from the node right here and never evaluated. A signal holds the value
+ * written last: its readers catch up with it as they read.
  * @param record
  * @returns The value; none for an effect, a scope and a node that was collected.
  */
 export function valueOf(record: NodeRecord): unknown {
   const node = record.ref.deref()
+
+  if (node && 'pendingValue' in node) {
+    return node.pendingValue
+  }
 
   return node && 'value' in node ? node.value : undefined
 }

@@ -91,6 +91,38 @@ describe('devtools', () => {
           expect(naming.name(4, naming.capture(), parent, () => 0).name).toBe(`${parent.name}[…]`)
         })
 
+        it('should give a node libraries created inside the body of another the owner and the file of that one', () => {
+          function Cache$() {
+            return naming.capture()
+          }
+
+          const runner = naming.name(1, Cache$())
+          // An entry a cache creates as its computed runs: libraries alone from the body up
+          const trace = {
+            stack: `Error
+    at createSignal (http://localhost:5173/node_modules/.vite/deps/chunk.js:301:3)
+    at callInspected (http://localhost:5173/node_modules/.vite/deps/chunk.js:135:15)
+    at Weather (http://localhost:5173/src/Weather.tsx:11:23)`,
+            count: 1,
+            origin: undefined
+          }
+          const name = naming.name(2, [trace, 1], undefined, undefined, runner)
+
+          expect(name.owner).toBe('Cache$')
+          expect(name.file).toBe(runner.file)
+          expect(name.site).toBeUndefined()
+        })
+
+        it('should name a node the application created after its own frame, whatever body was running', () => {
+          function Cart$() {
+            return naming.capture()
+          }
+
+          const runner = naming.name(1, naming.capture())
+
+          expect(naming.name(2, Cart$(), undefined, undefined, runner).owner).toBe('Cart$')
+        })
+
         it('should leave a node without an origin without a site', () => {
           const name = naming.name(7)
 
