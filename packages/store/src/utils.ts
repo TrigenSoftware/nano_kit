@@ -1,5 +1,6 @@
 import {
   type Accessor,
+  type AnySignal,
   type WritableSignal,
   computed,
   isFunction,
@@ -140,4 +141,22 @@ export function throttle(fnOrDelay?: (() => void) | number) {
 /* @__NO_SIDE_EFFECTS__ */
 export function noLimit<T extends unknown[]>(fn: (...args: T) => void): (...args: T) => void {
   return fn
+}
+
+/**
+ * Assign fields to the node of a signal: how a store marks its nodes for the devtools, in development alone.
+ * Production has no use for it and throws: call it inside `if (import.meta.env.DEV)`, which the production
+ * build folds away with the call.
+ * @param $signal - The signal whose node takes the fields.
+ * @param fields - The fields to assign.
+ * @returns The signal.
+ */
+export function signalNodeAssign<T extends AnySignal>($signal: T, fields: object): T {
+  if (!import.meta.env.DEV) {
+    throw new Error('signalNodeAssign is for development alone')
+  }
+
+  Object.assign($signal.node, fields)
+
+  return $signal
 }

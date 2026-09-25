@@ -12,7 +12,8 @@ import {
 } from 'kida'
 import {
   interval,
-  previous
+  previous,
+  signalNodeAssign
 } from './utils.js'
 
 describe('store', () => {
@@ -96,6 +97,29 @@ describe('store', () => {
         vi.advanceTimersByTime(300)
 
         expect($interval()).toBe(valueAfterUnmount)
+      })
+    })
+
+    describe('signalNodeAssign', () => {
+      afterEach(() => {
+        vi.unstubAllEnvs()
+      })
+
+      it('should assign the fields to the node of the signal and return the signal', () => {
+        const $count = signal(0)
+
+        expect(signalNodeAssign($count, {
+          label: 'count'
+        })).toBe($count)
+        expect($count.node).toMatchObject({
+          label: 'count'
+        })
+      })
+
+      it('should throw outside of development', () => {
+        vi.stubEnv('DEV', false)
+
+        expect(() => signalNodeAssign(signal(0), {})).toThrow('development')
       })
     })
   })
