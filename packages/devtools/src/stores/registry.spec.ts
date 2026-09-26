@@ -177,7 +177,7 @@ describe('devtools', () => {
           const entries: WritableSignal<number>[] = []
           // A listener in no file of the application, the way a library runs one: the frames of evaluated code are left out
           // oxlint-disable-next-line eslint/no-new-func, typescript/no-implied-eval
-          const listener = new Function('signal', 'entries', 'return () => entries.push(signal(0))')(signal, entries) as () => void
+          const listener = new Function('signal', 'entries', 'return () => { entries.push(signal(0)) }')(signal, entries) as () => void
 
           function Cache$() {
             const $data = mountable(signal(0))
