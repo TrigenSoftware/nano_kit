@@ -22,7 +22,7 @@ export const WindowEdge = component$(({
   class: className,
   edge,
   ...restProps
-}: WindowEdgeProps, _children: never) => (
+}: WindowEdgeProps) => (
   div({
     class: [className, styles.root, styles[edge]],
     'aria-hidden': true,
