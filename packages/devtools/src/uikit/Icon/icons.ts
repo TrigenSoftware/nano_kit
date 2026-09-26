@@ -7,7 +7,6 @@ export const icons = [
   'computed',
   'effect',
   'file',
-  'grip',
   'map',
   'moon',
   'pause',

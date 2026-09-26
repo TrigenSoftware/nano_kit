@@ -14,8 +14,8 @@ export interface WindowProps extends Attributes<'section'> {
 }
 
 /**
- * Floating window chrome: fills the box it is given. Put a `WindowBar`, a `WindowBody` and a `WindowGrip` inside;
- * where the box sits and how it moves is the caller's.
+ * Floating window chrome: fills the box it is given. Put a `WindowBar` and a `WindowBody` inside, and the `WindowEdge`
+ * handles after it in the same box; where the box sits and how it moves is the caller's.
  */
 export const Window = component$(({
   class: className,

@@ -22,8 +22,7 @@ import {
   WindowBarEnd,
   WindowBarStart,
   WindowBody,
-  WindowEdge,
-  WindowGrip
+  WindowEdge
 } from './index.js'
 
 const EDGES: WindowEdgeName[] = ['left', 'right', 'bottom', 'bottomLeft', 'bottomRight']
@@ -143,8 +142,7 @@ export const Default: Story = {
             })(
               'Body'
             )
-          ),
-          WindowGrip()
+          )
         ),
         ...EDGES.map(edge => WindowEdge({
           edge,

@@ -33,8 +33,7 @@ import {
   WindowBarCenter,
   WindowBarEnd,
   WindowBody,
-  WindowEdge,
-  WindowGrip
+  WindowEdge
 } from '../../uikit/Window/index.js'
 import { SignalsTable } from '../SignalsTable/index.js'
 import { Log } from '../Log/index.js'
@@ -279,14 +278,7 @@ export const PanelWindow = component$(({ onClose }: PanelWindowProps) => {
           Inspector({
             class: styles.inspector
           })
-        ),
-        WindowGrip({
-          onPointerDown(event) {
-            if (event.button === 0) {
-              begin(event, 'bottomRight')
-            }
-          }
-        })
+        )
       ),
       ...EDGES.map(edge => WindowEdge({
         edge,
