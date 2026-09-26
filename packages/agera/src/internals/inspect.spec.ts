@@ -19,7 +19,9 @@ import {
   StopEvent,
   LifecycleEvent,
   FlushEvent,
-  RunEndEvent
+  RunEndEvent,
+  FireEvent,
+  FireEndEvent
 } from './flags.js'
 import {
   signal,
@@ -37,6 +39,7 @@ import {
   uninspected
 } from './inspect.js'
 import { mountable } from '../modes.js'
+import { onMounted } from '../signal.js'
 
 const events: InspectEvent[] = []
 
@@ -287,6 +290,31 @@ describe('agera', () => {
           expect(of(LifecycleEvent, $count.node)).toHaveLength(2)
         })
 
+        it('should enclose the lifecycle listeners of a node between its fire and its end', () => {
+          const $count = mountable(signal(0))
+          const $other = signal(0)
+          let stopInner = () => {}
+          const off = onMounted($count, (mounted) => {
+            if (mounted) {
+              stopInner = effect(() => {
+                $other()
+              })
+            }
+          })
+          const stop = effect(() => {
+            $count()
+          })
+          // The fire of the node, its end, and the link the effect made in between
+          const kinds = events.filter(event => ('node' in event && event.node === $count.node && event.kind !== LifecycleEvent)
+            || (event.kind === LinkEvent && event.dep === $other.node)).map(event => event.kind)
+
+          expect(kinds).toEqual([FireEvent, LinkEvent, FireEndEvent])
+
+          stop()
+          stopInner()
+          off()
+        })
+
         it('should compose listeners', () => {
           const oldValues: unknown[] = []
           let calls = 0
@@ -319,6 +347,22 @@ describe('agera', () => {
 
         beforeEach(() => {
           events.length = 0
+        })
+
+        it('should run a lifecycle listener with the inspection state of the node it listens to', () => {
+          const $count = mountable(signal(0))
+          let $created: WritableSignal<number> | undefined
+          const off = onMounted($count, () => {
+            $created ??= signal(0)
+          })
+          const stop = uninspected(() => effect(() => {
+            $count()
+          }))
+
+          expect($created!.node.modes & UninspectedMode).toBe(0)
+
+          stop()
+          off()
         })
 
         it('should report nothing about the nodes created inside', () => {
