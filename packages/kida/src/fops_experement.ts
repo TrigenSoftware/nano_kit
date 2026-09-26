@@ -291,27 +291,27 @@ type TextValue = string | number | boolean | bigint | EmptyValue
  * @returns The text, or an accessor of it when there is an accessor among the values
  * @example
  * ```ts
- * const $href = f`${$spriteUrl}#${name}`
+ * const $href = text`${$spriteUrl}#${name}`
  * ```
  */
-export function f<V extends Signalish<TextValue>[]>(
+export function text<V extends Signalish<TextValue>[]>(
   strings: TemplateStringsArray,
   ...values: V
 ): Fop<V, string>
 
 /* @__NO_SIDE_EFFECTS__ */
-export function f(
+export function text(
   strings: TemplateStringsArray,
   ...values: Signalish<TextValue>[]
 ) {
   const fn = () => {
-    let text = strings[0]
+    let result = strings[0]
 
     for (let i = 0, len = values.length; i < len; i++) {
-      text += ($get(values[i]) ?? '') + strings[i + 1]
+      result += ($get(values[i]) ?? '') + strings[i + 1]
     }
 
-    return text
+    return result
   }
 
   return values.some(isAccessor) ? fn : fn()

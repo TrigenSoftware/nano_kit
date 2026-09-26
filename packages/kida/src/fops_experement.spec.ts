@@ -25,7 +25,7 @@ import {
   lte,
   when,
   pick,
-  f
+  text
 } from './fops_experement.js'
 
 describe('kida', () => {
@@ -200,19 +200,19 @@ describe('kida', () => {
       })
     })
 
-    describe('f', () => {
+    describe('text', () => {
       it('should return a string when there are no accessors among the values', () => {
-        const text = f`a${1}b${'c'}d${true}`
+        const value = text`a${1}b${'c'}d${true}`
 
-        expectTypeOf(text).toEqualTypeOf<string>()
-        expect(text).toBe('a1bcdtrue')
-        expect(f`plain text`).toBe('plain text')
+        expectTypeOf(value).toEqualTypeOf<string>()
+        expect(value).toBe('a1bcdtrue')
+        expect(text`plain text`).toBe('plain text')
       })
 
       it('should return an accessor that follows the accessors among the values', () => {
         const $spriteUrl = signal('/sprite.svg')
         const $name = computed(() => 'close')
-        const $href = f`${$spriteUrl}#${$name}`
+        const $href = text`${$spriteUrl}#${$name}`
 
         expectTypeOf($href).toEqualTypeOf<Accessor<string>>()
         expect($href()).toBe('/sprite.svg#close')
@@ -223,18 +223,18 @@ describe('kida', () => {
       })
 
       it('should return either for a value that may be both', () => {
-        const label = (value: Signalish<string>) => f`Toggle ${value}`
-        const text = label('menu')
-        const $text = label(signal('menu'))
+        const label = (value: Signalish<string>) => text`Toggle ${value}`
+        const menu = label('menu')
+        const $menu = label(signal('menu'))
 
-        expectTypeOf(text).toEqualTypeOf<Signalish<string>>()
-        expect(text).toBe('Toggle menu')
-        expect(($text as Accessor<string>)()).toBe('Toggle menu')
+        expectTypeOf(menu).toEqualTypeOf<Signalish<string>>()
+        expect(menu).toBe('Toggle menu')
+        expect(($menu as Accessor<string>)()).toBe('Toggle menu')
       })
 
       it('should add nothing for an empty value', () => {
         const $label = signal<string | null | undefined>(null)
-        const $text = f`Toggle ${$label}${undefined}!`
+        const $text = text`Toggle ${$label}${undefined}!`
 
         expect($text()).toBe('Toggle !')
 

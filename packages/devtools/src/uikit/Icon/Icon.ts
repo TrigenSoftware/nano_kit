@@ -1,6 +1,6 @@
 import {
   type Signalish,
-  f as text
+  text
 } from 'nanoviews/store'
 import { component$ } from 'nanoviews'
 import {
