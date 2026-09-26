@@ -98,8 +98,8 @@ export class NamingService$ extends Injectable$ {
    * @param origin - What `capture()` gave when the node appeared; none for a node older than its record.
    * @param parent - For a child signal, the name of the signal it was taken from.
    * @param key - For a child signal, its key in the parent.
-   * @param runner - The name of the computed or the effect whose body was running when the node appeared:
-   * the owner of a node libraries created in there.
+   * @param runner - The name of the computed or the effect whose body was running when the node appeared,
+   * or of the node whose lifecycle listeners were called: the owner of a node libraries created in there.
    * @param entry - The node is an entry of a signals map, whose version is the parent.
    * @returns The name.
    */

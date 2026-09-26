@@ -19,6 +19,7 @@ import {
   effect,
   effectScope,
   mountable,
+  onMount,
   uninspected,
   provide,
   inject,
@@ -170,6 +171,31 @@ describe('devtools', () => {
           expect(version.kind).toBe('map')
           expect(entry.parent).toBe(version.id)
           expect(entry.name.name).toBe(`${version.name.name}["foo"]`)
+        })
+
+        it('should give a node libraries create in a lifecycle listener the owner of the node it listens to', async () => {
+          const entries: WritableSignal<number>[] = []
+          // A listener in no file of the application, the way a library runs one: the frames of evaluated code are left out
+          // oxlint-disable-next-line eslint/no-new-func, typescript/no-implied-eval
+          const listener = new Function('signal', 'entries', 'return () => entries.push(signal(0))')(signal, entries) as () => void
+
+          function Cache$() {
+            const $data = mountable(signal(0))
+
+            onMount($data, listener)
+
+            return $data
+          }
+
+          const $data = Cache$()
+
+          watch(() => {
+            $data()
+          })
+
+          await tick()
+
+          expect(recordOf(entries[0])!.name.owner).toBe('Cache$')
         })
 
         it('should show the index of an indexed map with the map, and keep its anchor out', async () => {

@@ -26,8 +26,9 @@ export interface StackOrigin {
    */
   adapter: Adapter | undefined
   /**
-   * Libraries alone led to the node from the body of a computed or an effect the core was running: the node
-   * is of that one, and `frame` is none, since the frames beyond that body only tell who made it run.
+   * Libraries alone led to the node from the body of a computed or an effect, or from a lifecycle listener of
+   * a node, the core was running: the node is of that one, and `frame` is none, since the frames beyond only
+   * tell who made it run.
    */
   inBody: boolean
 }

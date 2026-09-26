@@ -12,7 +12,8 @@ const GECKO_FRAME = /^(.*?)@(.+?):(\d+):(\d+)$/
 const FN_PREFIX = /^(?:async\*?\s*|new )*(?:(?:Object|Module|exports)\.)?/
 // "Object.fn" and "Object.compute" of V8: a body with no name of its own, run by the core through its node
 const CORE_CALL = /^Object\.(?:fn|compute)$/
-// The function of the development build of the core that runs the body of a computed or an effect
+// The function of the development build of the core that runs the body of a computed or an effect,
+// and a lifecycle listener of a node
 const BODY_RUNNER = 'callInspected'
 // " [as get]" of V8 aliases, "/<" of Firefox for a function nested in a named one
 const FN_SUFFIX = / \[as [^\]]+\]$|(?:\/<)+$/
@@ -66,8 +67,8 @@ export function isLibrary(file: string) {
 /**
  * Find where in the application a stack comes from: the first frame outside libraries,
  * and the framework adapter of the kit among the library frames passed on the way.
- * The search ends at the body of a computed or an effect the core runs: what libraries
- * create in there is of that node, not of whoever made it run.
+ * The search ends at the body of a computed or an effect, or at a lifecycle listener, the core
+ * runs: what libraries create in there is of that node, not of whoever made it run.
  * @param frames - Frames, innermost first.
  * @param library - Which files are libraries.
  * @returns The origin.

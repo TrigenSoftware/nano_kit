@@ -5,6 +5,8 @@ import {
   UpdateEvent,
   RunEvent,
   RunEndEvent,
+  FireEvent,
+  FireEndEvent,
   StopEvent,
   mountable,
   onMount,
@@ -56,7 +58,8 @@ export function RegistryStore$() {
   const ids = new WeakMap<ReactiveNode, number>()
   // What the updates of the task left out of date, visited once
   const stale = new Set<ReactiveNode>()
-  // The names of the computeds and effects whose bodies run at this point of the task, the innermost last
+  // The names of the computeds and effects whose bodies run at this point of the task, and of the nodes whose
+  // lifecycle listeners are called, the innermost last
   const running: (NodeName | undefined)[] = []
   const read = (id: number | undefined) => (id === undefined ? undefined : records.get(id))
   /**
@@ -244,9 +247,9 @@ export function RegistryStore$() {
       // A flush changes no record: it only closes the transactions of the log
       touch(event.node, event.kind === UpdateEvent)
 
-      if (event.kind === RunEvent) {
+      if (event.kind === RunEvent || event.kind === FireEvent) {
         running.push(recordOf(event.node)?.name)
-      } else if (event.kind === RunEndEvent) {
+      } else if (event.kind === RunEndEvent || event.kind === FireEndEvent) {
         running.pop()
       } else if (event.kind === UpdateEvent) {
         // What an update left out of date got no event of its own
@@ -259,6 +262,8 @@ export function RegistryStore$() {
     batch(() => {
       events.forEach(applyEvent)
       stale.clear()
+      // Nothing runs across tasks: what is left came from a listener that threw, which tells of no end
+      running.length = 0
     })
   }
   /**
