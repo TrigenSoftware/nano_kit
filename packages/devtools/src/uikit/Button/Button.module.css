@@ -1,0 +1,69 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sizeSpaceXs);
+  height: var(--sizeControlSm);
+  padding: 0 var(--sizeSpaceMd);
+  border: 0;
+  border-radius: var(--sizeRadiusSm);
+  font: inherit;
+  font-size: var(--sizeTextSm);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: filter var(--durationSm) ease, background-color var(--durationSm) ease;
+
+  &:disabled {
+    opacity: .5;
+    cursor: default;
+  }
+}
+
+.primary {
+  background: var(--colorPrimary);
+  color: var(--colorOnPrimary);
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    filter: brightness(1.12);
+  }
+
+  &:active:not(:disabled) {
+    filter: brightness(.95);
+  }
+}
+
+.warning {
+  background: var(--colorWarning);
+  color: var(--colorOnWarning);
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    filter: brightness(1.08);
+  }
+
+  &:active:not(:disabled) {
+    filter: brightness(.95);
+  }
+}
+
+.secondary {
+  background: var(--colorControl);
+  color: var(--colorText);
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    background: var(--colorControlActive);
+  }
+
+  &:active:not(:disabled) {
+    filter: brightness(.95);
+  }
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+  .root {
+    transition: none;
+  }
+}

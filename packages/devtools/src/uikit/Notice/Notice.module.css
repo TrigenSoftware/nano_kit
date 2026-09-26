@@ -1,0 +1,51 @@
+.root {
+  display: flex;
+  align-items: center;
+  gap: var(--sizeSpaceMd);
+  padding: var(--sizeSpaceSm) calc(var(--sizeSpaceMd) + 2px);
+  border-radius: var(--sizeRadiusSm);
+  background: var(--colorNoticeBackground);
+  color: var(--colorNotice);
+
+  &::before {
+    content: '';
+    flex: none;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--colorNotice);
+    /* Below the geometric centre: the visual centre of lowercase text sits lower */
+    translate: 0 1px;
+  }
+}
+
+/* The actions sit as far from the edge as from the top, so a button reads as centred in its corner */
+.withActions {
+  padding-right: var(--sizeSpaceSm);
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+}
+
+.actions {
+  display: flex;
+  flex: none;
+  gap: var(--sizeSpaceSm);
+}
+
+.warning {
+  --colorNoticeBackground: var(--colorWarningSoft);
+  --colorNotice: var(--colorWarning);
+}
+
+.danger {
+  --colorNoticeBackground: var(--colorDangerSoft);
+  --colorNotice: var(--colorDanger);
+}
+
+.info {
+  --colorNoticeBackground: var(--colorInfoSoft);
+  --colorNotice: var(--colorInfo);
+}

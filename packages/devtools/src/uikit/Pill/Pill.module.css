@@ -1,0 +1,41 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--sizeSpaceMd) + 2px);
+  height: 34px;
+  padding: 0 calc(var(--sizeSpaceLg) + 2px) 0 var(--sizeSpaceLg);
+  border: var(--sizeBorder) solid var(--colorHairline);
+  border-radius: 17px;
+  background: var(--colorBackground);
+  box-shadow: var(--shadowPill);
+  font: inherit;
+  color: var(--colorText);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: box-shadow var(--durationSm) ease;
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    border-color: var(--colorControlActive);
+  }
+
+  &:active:not(:disabled) {
+    filter: brightness(.95);
+  }
+
+  &:disabled {
+    opacity: .5;
+    cursor: default;
+  }
+}
+
+.dragging {
+  box-shadow: var(--shadowWindow);
+  cursor: grabbing;
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+  .root {
+    transition: none;
+  }
+}

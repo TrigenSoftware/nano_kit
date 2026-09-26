@@ -1,0 +1,31 @@
+.root {
+  display: inline;
+  padding: 0;
+  border: 0;
+  border-radius: 2px;
+  background: none;
+  font: inherit;
+  color: var(--colorInfo);
+  cursor: pointer;
+  transition: color var(--durationSm) ease;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--colorText);
+  }
+
+  &:active {
+    filter: brightness(.9);
+  }
+
+  &:disabled {
+    color: var(--colorTextTertiary);
+    cursor: default;
+  }
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+  .root {
+    transition: none;
+  }
+}

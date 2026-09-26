@@ -1,0 +1,29 @@
+.root {
+  display: inline-block;
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--colorSuccess);
+  box-shadow: 0 0 0 3px var(--colorSuccessSoft);
+}
+
+.active {
+  animation: pulse .6s ease-out;
+}
+
+@keyframes pulse {
+  from {
+    box-shadow: 0 0 0 0 var(--colorSuccess);
+  }
+
+  to {
+    box-shadow: 0 0 0 6px transparent;
+  }
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+  .active {
+    animation: none;
+  }
+}

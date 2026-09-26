@@ -1,0 +1,212 @@
+import {
+  type AnySignal,
+  type ReactiveNode,
+  type EffectNode,
+  type ComputedNode,
+  type SignalNode,
+  NoneFlag,
+  DirtyFlag,
+  PendingFlag,
+  MountableMode
+} from '@nano_kit/store'
+import {
+  preview,
+  sourceOf
+} from '../values/index.js'
+import type {
+  ChildNode,
+  MapNode,
+  NodeKind,
+  NodeRecord,
+  NodeState
+} from './registry.types.js'
+
+/**
+ * What a reactive node is, told by its shape.
+ * @param node
+ * @returns The kind.
+ */
+export function kindOf(node: ReactiveNode): NodeKind {
+  if ('compute' in node) {
+    return 'p' in node ? 'child' : 'computed'
+  }
+
+  if ('pendingValue' in node) {
+    // In development the version of a signals map carries the map and stands for it, and an entry carries its key too
+    return 'map' in node && !('key' in node) ? 'map' : 'signal'
+  }
+
+  if ('fn' in node) {
+    return 'effect'
+  }
+
+  return 'value' in node ? 'selector' : 'scope'
+}
+
+/**
+ * The signal a child signal was taken from and its key there. In development, for an entry and the index of
+ * a signals map, the version, which stands for the map, and the key of the entry or the field of the index.
+ * @param node
+ * @returns The node of the parent and the key; none for any other node.
+ */
+export function parentOf(node: ReactiveNode): [parent: ReactiveNode, key: unknown] | undefined {
+  if ('p' in node) {
+    return [(node as ChildNode).p.node, (node as ChildNode).k]
+  }
+
+  if ('map' in node) {
+    const { node: version } = (node as MapNode).map.$v
+
+    // The index carries no key: no key of the map can take its place
+    return version === node ? undefined : [version, 'key' in node ? (node as MapNode).key : 'index']
+  }
+
+  return undefined
+}
+
+/**
+ * Whether an entry of a signals map is in the map still: a deleted key lets its signal go.
+ * @param node - The node of the entry.
+ * @returns Whether the map holds it.
+ */
+export function inMap(node: MapNode) {
+  // The map hands out values: the signal is taken past its own `get`
+  return (Map.prototype.get.call(node.map, node.key) as AnySignal | undefined)?.node === node
+}
+
+// Whether something reads a map: the anchor of an indexed one, which every read links to and its index wears,
+// or an entry of it
+function readsMap({ map }: MapNode) {
+  if (map.$index?.node.subs) {
+    return true
+  }
+
+  for (const $entry of map.values()) {
+    if ($entry.node.subs) {
+      return true
+    }
+  }
+
+  return false
+}
+
+function owns(kind: NodeKind) {
+  return kind === 'effect' || kind === 'scope'
+}
+
+/**
+ * A link whose dependency is an effect or a scope is not a read: it says where that one was created.
+ * @param dep - Record of the dependency end of a link.
+ * @returns Whether the link is ownership.
+ */
+export function isOwnership(dep: Pick<NodeRecord, 'kind'>) {
+  return owns(dep.kind)
+}
+
+/**
+ * Whether a node is an effect or a scope: the dependency end of an ownership link.
+ * @param node
+ * @returns Whether a link to the node is ownership.
+ */
+export function isOwner(node: ReactiveNode) {
+  return owns(kindOf(node))
+}
+
+/**
+ * The state of a node, read from its flags and the links of its record right now.
+ * @param record
+ * @returns The state.
+ */
+export function stateOf(record: Pick<NodeRecord, 'kind' | 'ref' | 'deps' | 'subs'>): NodeState {
+  const node = record.ref.deref()
+
+  if (node && !isOwnership(record) && record.kind !== 'selector') {
+    // A signal is never out of date, the version of a map neither: their flags only tell that nobody has read
+    // the value written last
+    if (!('pendingValue' in node)) {
+      if (node.flags === NoneFlag) {
+        return 'unevaluated'
+      }
+
+      if (node.flags & (DirtyFlag | PendingFlag)) {
+        return 'dirty'
+      }
+    }
+
+    if (node.modes & MountableMode) {
+      return node.lcd ? 'mounted' : 'unmounted'
+    }
+
+    // A map is busy while something reads it or one of its entries
+    return record.subs.length || (record.kind === 'map' && readsMap(node as MapNode)) ? 'active' : 'detached'
+  }
+
+  return node && record.deps.length ? 'active' : 'detached'
+}
+
+/**
+ * The value of a node, read from the node right here and never evaluated. A signal holds the value
+ * written last: its readers catch up with it as they read.
+ * @param record
+ * @returns The value; none for an effect, a scope and a node that was collected.
+ */
+export function valueOf(record: NodeRecord): unknown {
+  const node = record.ref.deref()
+
+  // A map holds its entries, each with the value written last to it
+  if (node && record.kind === 'map') {
+    return new Map(Array.from(
+      (node as MapNode).map,
+      ([key, $entry]) => [key, ($entry.node as SignalNode).pendingValue]
+    ))
+  }
+
+  if (node && 'pendingValue' in node) {
+    return node.pendingValue
+  }
+
+  return node && 'value' in node ? node.value : undefined
+}
+
+/**
+ * The body of an effect or of a computed: the source of the function it runs, moved left.
+ * @param record
+ * @returns The source; none for a node that runs nothing and for one that was collected.
+ */
+export function bodyOf(record: NodeRecord) {
+  const node = record.ref.deref() as Partial<EffectNode & ComputedNode> | undefined
+  const run = node?.fn ?? node?.compute
+
+  return run && sourceOf(run)
+}
+
+/**
+ * The value of a record as one line, the way a table shows it: nothing for an effect or a scope,
+ * which have no value, and for a computed nobody has evaluated, which is never evaluated for a look.
+ * @param record
+ * @returns The preview; empty when there is nothing to show.
+ */
+export function previewOf(record: NodeRecord) {
+  return isOwnership(record) || record.state === 'unevaluated' ? '' : preview(valueOf(record))
+}
+
+/**
+ * Visit what an update of a node left out of date: the nodes that read it, directly or through
+ * one another, and still carry `DirtyFlag` or `PendingFlag`. Those are computeds read by hand with no
+ * effect to pull them, paused effects, an effect that wrote to its own dependency. The flags are the
+ * whole truth: a node evaluated a moment ago may have been invalidated again since.
+ * @param node - The updated node.
+ * @param seen - The nodes visited already, shared between the walks of one pass.
+ * @param visit
+ */
+export function visitStale(node: ReactiveNode, seen: Set<ReactiveNode>, visit: (node: ReactiveNode) => void) {
+  for (let link = node.subs; link; link = link.nextSub) {
+    const { sub } = link
+
+    if (!seen.has(sub) && sub.flags & (DirtyFlag | PendingFlag)) {
+      seen.add(sub)
+      visit(sub)
+      visitStale(sub, seen, visit)
+    }
+  }
+}

@@ -1,0 +1,64 @@
+/* The collapsed panel: at rest half of it hides below the bottom edge, it rises under the pointer */
+.pill {
+  --sizePillRise: 12px;
+
+  position: fixed;
+  z-index: 2147483647;
+  bottom: 0;
+  left: calc(var(--pillAt) * 100%);
+  transform: translate(-50%, 50%);
+  transition: transform var(--durationSm) ease, box-shadow var(--durationSm) ease;
+
+  /* The gap the pill rose by is still the pill, or the pointer resting at the edge would drop it again */
+  &::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    height: var(--sizePillRise);
+  }
+
+  &:hover,
+  &:focus-visible {
+    transform: translate(-50%, calc(-1 * var(--sizePillRise)));
+  }
+}
+
+.raised {
+  transform: translate(-50%, calc(-1 * var(--sizePillRise)));
+}
+
+/* The box of the window: the frame it was given, cut to the viewport, and pushed back into it */
+.frame {
+  --sizePanelShownWidth: min(var(--sizePanelWidth), 100%);
+  --sizePanelShownHeight: min(var(--sizePanelHeight), 100%);
+
+  position: fixed;
+  z-index: 2147483647;
+  right: clamp(0px, var(--sizePanelRight), 100% - var(--sizePanelShownWidth));
+  bottom: clamp(0px, var(--sizePanelBottom), 100% - var(--sizePanelShownHeight));
+  width: var(--sizePanelShownWidth);
+  height: var(--sizePanelShownHeight);
+}
+
+/* The field gives way in a narrow window, so the buttons next to it never push onto the tabs */
+.filter {
+  flex: 0 1 190px;
+  min-width: 0;
+}
+
+/* The boxes of the selected node under the table of either tab */
+.inspector {
+  flex: none;
+  height: 168px;
+  padding: var(--sizeSpaceMd) var(--sizeSpaceLg) var(--sizeSpaceLg);
+  border-top: var(--sizeBorder) solid var(--colorHairline);
+  background: var(--colorBackgroundElevated);
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+  .pill {
+    transition: none;
+  }
+}

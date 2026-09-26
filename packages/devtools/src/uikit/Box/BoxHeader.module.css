@@ -1,0 +1,11 @@
+.root {
+  flex: none;
+  margin: 0;
+  padding: var(--sizeSpaceSm) calc(var(--sizeSpaceMd) + 2px);
+  border-bottom: var(--sizeBorder) solid var(--colorHairlineSoft);
+  font-size: var(--sizeTextSm);
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--colorTextSecondary);
+}

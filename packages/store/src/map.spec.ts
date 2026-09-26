@@ -6,6 +6,8 @@ import {
   expectTypeOf
 } from 'vitest'
 import {
+  type ReactiveNode,
+  UninspectedMode,
   batch,
   computed,
   effect,
@@ -270,6 +272,36 @@ describe('store', () => {
           expect(() => new SignalsMap<string, number>([['foo', 42]])).toThrow()
         })
       })
+
+      describe('in development', () => {
+        // What the devtools read: the version and the signals of the entries, which the map keeps to itself
+        function versionOf(map: SignalsMap<string, number>) {
+          return (map as unknown as { $v: { node: object } }).$v
+        }
+
+        function entryOf(map: SignalsMap<string, number>, key: string) {
+          return (Map.prototype.get.call(map, key) as { node: object }).node
+        }
+
+        it('should give the node of its version the map', () => {
+          const map = new SignalsMap<string, number>()
+
+          expect(versionOf(map).node).toMatchObject({
+            map
+          })
+        })
+
+        it('should give the node of an entry the map and the key', () => {
+          const map = new SignalsMap<string, number>()
+
+          map.set('foo', 42)
+
+          expect(entryOf(map, 'foo')).toMatchObject({
+            map,
+            key: 'foo'
+          })
+        })
+      })
     })
 
     describe('IndexedSignalsMap', () => {
@@ -485,6 +517,36 @@ describe('store', () => {
           map.$index()
 
           expect(isMounted(map.$index)).toBe(false)
+        })
+      })
+
+      describe('in development', () => {
+        // What the devtools read: the version, which the map keeps to itself
+        function versionOf(map: IndexedSignalsMap<string, number>) {
+          return (map as unknown as { $v: { node: ReactiveNode } }).$v
+        }
+
+        it('should keep its anchor out of inspect', () => {
+          const map = new IndexedSignalsMap<string, number>()
+
+          // The index wears the node of the anchor
+          expect(map.$index.node.modes & UninspectedMode).toBeTruthy()
+        })
+
+        it('should give the node of its index the map and no key, which no key of the map could take', () => {
+          const map = new IndexedSignalsMap<string, number>()
+          const stop = effect(() => {
+            map.$index()
+          })
+          // The index reads the version, so it is among the readers of the version
+          const index = versionOf(map).node.subs!.sub
+
+          expect(index).toMatchObject({
+            map
+          })
+          expect(index).not.toHaveProperty('key')
+
+          stop()
         })
       })
     })

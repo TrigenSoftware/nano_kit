@@ -1,0 +1,43 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  /* The chevron is drawn at 14 px in the box of an icon: the chevron of a nested row sits right under the icon of its parent */
+  width: var(--sizeIcon);
+  height: var(--sizeIcon);
+  padding: 0;
+  border: 0;
+  border-radius: var(--sizeRadiusSm);
+  background: transparent;
+  color: var(--colorTextSecondary);
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--colorText);
+  }
+
+  &:active {
+    filter: brightness(.9);
+  }
+
+  &:disabled {
+    opacity: .5;
+    cursor: default;
+  }
+}
+
+.icon {
+  transition: transform var(--durationSm) ease;
+}
+
+.root[aria-expanded='true'] .icon {
+  transform: rotate(90deg);
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+  .icon {
+    transition: none;
+  }
+}

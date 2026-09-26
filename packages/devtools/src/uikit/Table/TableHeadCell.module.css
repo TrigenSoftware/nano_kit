@@ -1,0 +1,25 @@
+.root {
+  height: var(--sizeControl);
+  padding: 0 var(--sizeSpaceMd);
+  border-right: var(--sizeBorder) solid var(--colorHairlineSoft);
+  border-bottom: var(--sizeBorder) solid var(--colorHairlineSoft);
+  color: var(--colorTextSecondary);
+  font-weight: 500;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &:first-child {
+    padding-left: calc(var(--sizeSpaceSm) + var(--sizeSpaceMd));
+  }
+
+  &:last-child {
+    padding-right: calc(var(--sizeSpaceSm) + var(--sizeSpaceMd));
+    border-right: 0;
+  }
+}
+
+.end {
+  text-align: right;
+}

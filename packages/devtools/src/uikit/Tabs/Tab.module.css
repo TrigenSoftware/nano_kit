@@ -1,0 +1,51 @@
+.root {
+  position: relative;
+  padding: 5px 14px;
+  border-radius: calc(var(--sizeRadiusSm) + 1px);
+  color: var(--colorTextSecondary);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--durationSm) ease, color var(--durationSm) ease;
+
+  &:hover:not(:has(:disabled)),
+  &:has(:focus-visible) {
+    color: var(--colorText);
+  }
+
+  &:has(:focus-visible) {
+    outline: var(--sizeBorderFocus) solid var(--colorFocusOutline);
+    outline-offset: 1px;
+  }
+
+  &:active:not(:has(:disabled)) {
+    filter: brightness(.95);
+  }
+
+  &:has(:checked) {
+    background: var(--colorControlActive);
+    color: var(--colorText);
+    box-shadow: var(--shadowControl);
+  }
+
+  &:has(:disabled) {
+    opacity: .5;
+    cursor: default;
+  }
+}
+
+/* The radio itself: invisible, but it takes the click, the focus and the arrow keys */
+.input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  appearance: none;
+  cursor: inherit;
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+  .root {
+    transition: none;
+  }
+}

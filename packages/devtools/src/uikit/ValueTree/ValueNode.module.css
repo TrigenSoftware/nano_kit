@@ -1,0 +1,81 @@
+.root {
+  &:focus-visible {
+    outline: none;
+  }
+
+  &:focus-visible > .row {
+    outline: var(--sizeBorderFocus) solid var(--colorFocusOutline);
+    outline-offset: calc(-1 * var(--sizeBorderFocus));
+  }
+
+  &[aria-expanded='true'] > .row > .chevron {
+    transform: rotate(90deg);
+  }
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--sizeSpaceXs);
+  min-height: 18px;
+  border-radius: var(--sizeRadiusSm);
+  white-space: nowrap;
+  transition: background-color var(--durationSm) ease;
+}
+
+.expandable > .row {
+  /* Room inside the light of hover and focus; a leaf is never lit and needs none */
+  padding: 0 var(--sizeSpaceXs);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--colorRow);
+  }
+
+  &:active {
+    background: var(--colorHairline);
+  }
+}
+
+.chevron {
+  color: var(--colorTextSecondary);
+  transition: transform var(--durationSm) ease;
+}
+
+/* A leaf keeps the place of the chevron and of the room before it, so the names of one level line up */
+.spacer {
+  flex: none;
+  width: calc(var(--sizeSpaceXs) + var(--sizeIcon) - 2px);
+}
+
+.name {
+  color: var(--colorTextSecondary);
+
+  &::after {
+    content: ':';
+    color: var(--colorTextTertiary);
+  }
+}
+
+.preview {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.group {
+  padding-left: calc(var(--sizeIcon) - 2px + var(--sizeSpaceXs));
+}
+
+/* A level where nothing opens has no chevron to line its names up with: the gap after an empty spacer
+   stands for the room before the chevron above, so the names stand under its text */
+.group:not(:has(> .expandable)) > .root > .row > .spacer {
+  width: 0;
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+  .row,
+  .chevron {
+    transition: none;
+  }
+}

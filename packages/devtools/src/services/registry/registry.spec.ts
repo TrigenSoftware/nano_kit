@@ -1,0 +1,375 @@
+import {
+  describe,
+  it,
+  expect,
+  afterEach
+} from 'vitest'
+import {
+  type AnySignal,
+  type ReactiveNode,
+  IndexedSignalsMap,
+  SignalsMap,
+  signal,
+  computed,
+  effect,
+  effectScope,
+  mountable,
+  record
+} from '@nano_kit/store'
+import type {
+  MapNode,
+  NodeRecord
+} from './registry.types.js'
+import {
+  kindOf,
+  parentOf,
+  inMap,
+  isOwnership,
+  stateOf,
+  valueOf,
+  bodyOf,
+  previewOf,
+  visitStale
+} from './registry.js'
+
+describe('devtools', () => {
+  describe('services', () => {
+    describe('registry', () => {
+      const stops: (() => void)[] = []
+
+      function watch(fn: () => void) {
+        stops.push(effect(fn))
+      }
+
+      // What a record says about the node, as far as the functions under test read it
+      function describeNode(node: ReactiveNode, links: Partial<Pick<NodeRecord, 'deps' | 'subs'>> = {}) {
+        return {
+          kind: kindOf(node),
+          ref: new WeakRef(node),
+          deps: [],
+          subs: [],
+          ...links
+        } as unknown as NodeRecord
+      }
+
+      // The nodes a signals map keeps to itself: its version, which stands for it, and the signal of an entry
+      function versionOf(map: SignalsMap<string, number>) {
+        return (map as unknown as { $v: AnySignal }).$v.node
+      }
+
+      function entryOf(map: SignalsMap<string, number>, key: string) {
+        return (Map.prototype.get.call(map, key) as AnySignal).node
+      }
+
+      afterEach(() => {
+        stops.splice(0).forEach(stop => stop())
+      })
+
+      describe('kindOf', () => {
+        it('should tell a signal, a computed and a child signal apart', () => {
+          const $count = signal(0)
+          const $double = computed(() => $count() * 2)
+          const $user = record(signal({
+            name: 'Dan'
+          }))
+
+          expect(kindOf($count.node)).toBe('signal')
+          expect(kindOf($double.node)).toBe('computed')
+          expect(kindOf($user.$name.node)).toBe('child')
+        })
+
+        it('should tell an effect from the scope that owns it', () => {
+          const $count = signal(0)
+
+          stops.push(effectScope(() => {
+            effect(() => {
+              $count()
+            })
+          }))
+
+          const reader = $count.node.subs!.sub
+          const owner = reader.subs!.sub
+
+          expect(kindOf(reader)).toBe('effect')
+          expect(kindOf(owner)).toBe('scope')
+        })
+
+        it('should take the version of a signals map for the map, and an entry of it for a signal', () => {
+          const map = new SignalsMap<string, number>()
+
+          map.set('foo', 42)
+
+          expect(kindOf(versionOf(map))).toBe('map')
+          expect(kindOf(entryOf(map, 'foo'))).toBe('signal')
+        })
+      })
+
+      describe('parentOf', () => {
+        it('should find the parent of a child signal and its key, and none for anything else', () => {
+          const $user = record(signal({
+            name: 'Dan'
+          }))
+
+          expect(parentOf($user.$name.node)).toEqual([$user.node, 'name'])
+          expect(parentOf($user.node)).toBeUndefined()
+        })
+
+        it('should find the version of the map of an entry and its key', () => {
+          const map = new SignalsMap<string, number>()
+
+          map.set('foo', 42)
+
+          expect(parentOf(entryOf(map, 'foo'))).toEqual([versionOf(map), 'foo'])
+          expect(parentOf(versionOf(map))).toBeUndefined()
+        })
+
+        it('should find the version of an indexed map for its index, keyed by its field', () => {
+          const map = new IndexedSignalsMap<string, number>()
+
+          watch(() => {
+            map.$index()
+          })
+
+          // The index reads the version, so it is among the readers of the version
+          const index = versionOf(map).subs!.sub
+
+          expect(kindOf(index)).toBe('computed')
+          expect(parentOf(index)).toEqual([versionOf(map), 'index'])
+        })
+      })
+
+      describe('inMap', () => {
+        it('should tell an entry the map holds from one it let go of', () => {
+          const map = new SignalsMap<string, number>()
+
+          map.set('foo', 42)
+
+          const entry = entryOf(map, 'foo') as MapNode
+
+          expect(inMap(entry)).toBe(true)
+
+          map.delete('foo')
+
+          expect(inMap(entry)).toBe(false)
+        })
+      })
+
+      describe('isOwnership', () => {
+        it('should take a link to an effect or a scope for ownership', () => {
+          expect(['signal', 'computed', 'child', 'selector', 'effect', 'scope'].filter(kind => isOwnership({
+            kind
+          } as NodeRecord))).toEqual(['effect', 'scope'])
+        })
+      })
+
+      describe('stateOf', () => {
+        it('should tell a mounted node from an unmounted one', () => {
+          const $count = mountable(signal(0))
+
+          expect(stateOf(describeNode($count.node))).toBe('unmounted')
+
+          watch(() => {
+            $count()
+          })
+
+          expect(stateOf(describeNode($count.node))).toBe('mounted')
+        })
+
+        it('should tell a node somebody reads from a detached one', () => {
+          const $count = signal(0)
+
+          expect(stateOf(describeNode($count.node))).toBe('detached')
+          expect(stateOf(describeNode($count.node, {
+            subs: [1]
+          }))).toBe('active')
+        })
+
+        it('should put a computed nobody evaluated and a node left out of date first', () => {
+          const $count = signal(1)
+          const $double = computed(() => $count() * 2)
+
+          watch(() => {
+            $count()
+          })
+
+          expect(stateOf(describeNode($double.node))).toBe('unevaluated')
+
+          // Read by hand once: linked to the signal, pulled by no effect
+          $double()
+
+          expect(stateOf(describeNode($double.node))).toBe('detached')
+
+          $count(2)
+
+          expect(stateOf(describeNode($double.node))).toBe('dirty')
+        })
+
+        it('should never take a signal nobody has read since a write for one out of date', () => {
+          const $count = signal(1)
+
+          $count(2)
+
+          expect(stateOf(describeNode($count.node))).toBe('detached')
+        })
+
+        it('should call a map busy while one of its entries is read', () => {
+          const map = new SignalsMap<string, number>()
+
+          map.set('foo', 42)
+
+          expect(stateOf(describeNode(versionOf(map)))).toBe('detached')
+
+          watch(() => {
+            map.$get('foo')
+          })
+
+          expect(stateOf(describeNode(versionOf(map)))).toBe('active')
+        })
+
+        it('should call an indexed map busy while its index is read', () => {
+          const map = new IndexedSignalsMap<string, number>()
+
+          watch(() => {
+            map.$index()
+          })
+
+          expect(stateOf(describeNode(versionOf(map)))).toBe('active')
+        })
+
+        it('should never take a map for one out of date', () => {
+          const map = new SignalsMap<string, number>()
+
+          map.set('foo', 42)
+
+          expect(stateOf(describeNode(versionOf(map)))).toBe('detached')
+        })
+
+        it('should call an effect busy while it has something to wait for', () => {
+          const $count = signal(0)
+
+          watch(() => {
+            $count()
+          })
+
+          const reader = $count.node.subs!.sub
+
+          expect(stateOf(describeNode(reader))).toBe('detached')
+          expect(stateOf(describeNode(reader, {
+            deps: [1]
+          }))).toBe('active')
+        })
+      })
+
+      describe('valueOf', () => {
+        it('should read the value from the node and never evaluate it', () => {
+          const $count = signal(1)
+          const $double = computed(() => $count() * 2)
+
+          expect(valueOf(describeNode($count.node))).toBe(1)
+          expect(valueOf(describeNode($double.node))).toBeUndefined()
+
+          $double()
+
+          expect(valueOf(describeNode($double.node))).toBe(2)
+        })
+
+        it('should take the value written last from a signal nobody has read since', () => {
+          const $count = signal(1)
+
+          $count(2)
+
+          expect(valueOf(describeNode($count.node))).toBe(2)
+        })
+
+        it('should give a map its entries with the values written last to them', () => {
+          const map = new SignalsMap<string, number>()
+
+          map.set('foo', 1)
+          map.set('bar', 2)
+
+          expect(valueOf(describeNode(versionOf(map)))).toEqual(new Map([
+            ['foo', 1],
+            ['bar', 2]
+          ]))
+        })
+
+        it('should find no value in an effect', () => {
+          const $count = signal(1)
+
+          watch(() => {
+            $count()
+          })
+
+          expect(valueOf(describeNode($count.node.subs!.sub))).toBeUndefined()
+        })
+      })
+
+      describe('bodyOf', () => {
+        it('should give the source an effect runs, and nothing for a signal', () => {
+          const $count = signal(1)
+
+          watch(() => {
+            $count()
+          })
+
+          expect(bodyOf(describeNode($count.node.subs!.sub))).toMatch(/\$count\(\)/)
+          expect(bodyOf(describeNode($count.node))).toBeUndefined()
+        })
+
+        it('should give the source a computed computes its value with', () => {
+          const $count = signal(1)
+          const $double = computed(() => $count() * 2)
+
+          expect(bodyOf(describeNode($double.node))).toMatch(/\$count\(\) \* 2/)
+        })
+      })
+
+      describe('previewOf', () => {
+        it('should preview the value of a signal and nothing for an effect or a computed nobody evaluated', () => {
+          const $count = signal(1)
+          const $double = computed(() => $count() * 2)
+
+          watch(() => {
+            $count()
+          })
+
+          const withState = (node: ReactiveNode) => ({
+            ...describeNode(node),
+            state: stateOf(describeNode(node))
+          })
+
+          expect(previewOf(withState($count.node))).toBe('1')
+          expect(previewOf(withState($double.node))).toBe('')
+          expect(previewOf(withState($count.node.subs!.sub))).toBe('')
+
+          $double()
+
+          expect(previewOf(withState($double.node))).toBe('2')
+        })
+      })
+
+      describe('visitStale', () => {
+        it('should visit what an update left out of date, through one another and once', () => {
+          const $count = signal(1)
+          const $double = computed(() => $count() * 2)
+          const $label = computed(() => `${$double()}`)
+          const $fresh = computed(() => $count() + 1)
+          const visited: ReactiveNode[] = []
+          const seen = new Set<ReactiveNode>()
+
+          watch(() => {
+            $count()
+            $fresh()
+          })
+          // Read by hand once: linked to the signal, pulled by no effect
+          $label()
+          $count(2)
+          visitStale($count.node, seen, stale => visited.push(stale))
+          visitStale($count.node, seen, stale => visited.push(stale))
+
+          expect(visited).toEqual([$double.node, $label.node])
+        })
+      })
+    })
+  })
+})

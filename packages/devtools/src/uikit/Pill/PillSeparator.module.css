@@ -1,0 +1,6 @@
+.root {
+  flex: none;
+  width: var(--sizeBorder);
+  height: 14px;
+  background: var(--colorHairline);
+}

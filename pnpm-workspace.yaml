@@ -36,6 +36,10 @@ catalog:
   vite: ^8.2.1
   vitest: ^5.0.0
 overrides:
+  # nanoviews depends on published kida snapshots; the workspace core is the one instance every graph shares
+  agera: workspace:^
+  kida: workspace:^
+  '@nano_kit/devtools@*': workspace:^
   '@nano_kit/intl@*': workspace:^
   '@nano_kit/next-router@*': workspace:^
   '@nano_kit/preact@*': workspace:^

@@ -1,0 +1,32 @@
+.root {
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--sizeControl);
+  padding: 0 var(--sizeSpaceMd);
+  border: 0;
+  border-radius: var(--sizeRadiusMd);
+  background: var(--colorControl);
+  font: inherit;
+  color: var(--colorText);
+  transition: background-color var(--durationSm) ease;
+
+  &::placeholder {
+    color: var(--colorTextTertiary);
+  }
+
+  &:hover:not(:disabled),
+  &:focus {
+    background: var(--colorControlActive);
+  }
+
+  &:disabled {
+    opacity: .5;
+    cursor: default;
+  }
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+  .root {
+    transition: none;
+  }
+}

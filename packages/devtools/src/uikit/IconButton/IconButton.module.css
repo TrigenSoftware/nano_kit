@@ -1,0 +1,42 @@
+.root {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--sizeControl);
+  height: var(--sizeControl);
+  padding: 0;
+  border: 0;
+  border-radius: var(--sizeRadiusMd);
+  background: var(--colorControl);
+  color: var(--colorTextSecondary);
+  cursor: pointer;
+  transition: background-color var(--durationSm) ease, color var(--durationSm) ease;
+
+  &:hover:not(:disabled),
+  &:focus-visible {
+    background: var(--colorControlActive);
+    color: var(--colorText);
+  }
+
+  &:active:not(:disabled) {
+    filter: brightness(.95);
+  }
+
+  &[aria-pressed='true'] {
+    background: var(--colorControlActive);
+    color: var(--colorText);
+    box-shadow: inset 0 0 0 var(--sizeBorder) var(--colorHairline);
+  }
+
+  &:disabled {
+    opacity: .5;
+    cursor: default;
+  }
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+  .root {
+    transition: none;
+  }
+}

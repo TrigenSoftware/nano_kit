@@ -1,0 +1,6 @@
+.root {
+  flex: 1;
+  min-height: 0;
+  padding: var(--sizeSpaceMd) calc(var(--sizeSpaceMd) + 2px);
+  overflow: auto;
+}

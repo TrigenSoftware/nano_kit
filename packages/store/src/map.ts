@@ -5,8 +5,10 @@ import {
   computed,
   noop,
   signal,
+  uninspected,
   untracked
 } from 'kida'
+import { signalNodeAssign } from './utils.js'
 
 type Item<V> = WritableSignal<V | undefined>
 
@@ -42,8 +44,14 @@ let epoch = 0
 export class SignalsMap<K, V> extends (Map as unknown as typeof ItemsMap)<K> {
   // The version of the set of keys: moves when a key is added or removed.
   // Shared with the subclass, so it is not private and a minifier leaves its
-  // name alone - which is why the name is this short
-  protected readonly $v = signal<number>()
+  // name alone - which is why the name is this short. For the devtools, in
+  // development alone, its node carries the map: they tell the map from
+  // a signal by it and read its entries
+  protected readonly $v = import.meta.env.DEV
+    ? signalNodeAssign(signal<number>(), {
+      map: this
+    })
+    : signal<number>()
 
   /**
    * Get the value by key without tracking it.
@@ -88,6 +96,15 @@ export class SignalsMap<K, V> extends (Map as unknown as typeof ItemsMap)<K> {
 
     if (insert) {
       super.set(key, $item = signal())
+
+      // For the devtools, in development alone: an entry carries its map and
+      // its key
+      if (import.meta.env.DEV) {
+        signalNodeAssign($item, {
+          map: this,
+          key
+        })
+      }
     }
 
     // Nobody reads a signal created a line ago: the write of an insert is
@@ -147,8 +164,11 @@ export class IndexedSignalsMap<K, V> extends SignalsMap<K, V> {
   // to it: whoever reads an item keeps the map mounted, and nothing ever walks
   // the links of a node that does not change, which makes holding it free.
   // A computed and not a signal: the index wears this node, and the node of
-  // a signal would make `isWritable` say yes about the index
-  readonly #$anchor = computed(noop)
+  // a signal would make `isWritable` say yes about the index. The devtools
+  // never see it, in development alone: nobody reads it for what it holds
+  readonly #$anchor = import.meta.env.DEV
+    ? uninspected(() => computed(noop))
+    : computed(noop)
 
   /**
    * The keys of the map: changes when a key is added or removed, not when
@@ -169,6 +189,15 @@ export class IndexedSignalsMap<K, V> extends SignalsMap<K, V> {
 
   constructor() {
     super()
+
+    if (import.meta.env.DEV) {
+      // For the devtools, in development alone: the index carries its map,
+      // and with no key, so no key of the map is taken for it. Marked while
+      // the index still wears its own node
+      signalNodeAssign(this.$index, {
+        map: this
+      })
+    }
 
     // Whatever asks a signal about its lifecycle asks its node, and the
     // lifecycle of the index is the one of the whole map: the index gives its

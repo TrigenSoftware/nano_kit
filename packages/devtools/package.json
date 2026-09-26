@@ -1,0 +1,80 @@
+{
+  "name": "@nano_kit/devtools",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "In-page DevTools panel for nano_kit: the reactive graph, values, lifecycle and a flush-grouped log.",
+  "author": "dangreen",
+  "license": "MIT",
+  "homepage": "https://nano-kit.js.org/devtools",
+  "funding": "https://ko-fi.com/dangreen",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TrigenSoftware/nano_kit.git",
+    "directory": "packages/devtools"
+  },
+  "bugs": {
+    "url": "https://github.com/TrigenSoftware/nano_kit/issues"
+  },
+  "keywords": [
+    "devtools",
+    "inspector",
+    "signal",
+    "reactive",
+    "nano_kit"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "sideEffects": false,
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "publishConfig": {
+    "directory": "package",
+    "linkDirectory": false
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clear:package": "del ./package",
+    "clear:dist": "del ./dist",
+    "clear": "del ./package ./dist ./coverage ./storybook-static",
+    "emitDeclarations": "tsc -p ./tsconfig.build.json --emitDeclarationOnly",
+    "build:sprite": "node ./scripts/svg-sprite.js",
+    "build:dist": "run -p emitDeclarations [ vite build ]",
+    "build": "run clear:dist build:dist",
+    "storybook": "storybook dev -p 6006 --no-open",
+    "storybook:build": "storybook build",
+    "lint": "oxlint",
+    "format": "oxlint --fix",
+    "test:unit": "vitest run --coverage",
+    "test:unit:watch": "vitest watch",
+    "test:types": "tsc --noEmit",
+    "test": "run -p lint test:unit test:types"
+  },
+  "dependencies": {
+    "@nano_kit/platform-web": "workspace:^",
+    "@nano_kit/store": "workspace:^",
+    "nanoviews": "1.0.0-prerelease.20260923175652"
+  },
+  "devDependencies": {
+    "@nanoviews/storybook": "1.0.0-prerelease.20260923175652",
+    "@nanoviews/storybook-vite": "1.0.0-prerelease.20260923175652",
+    "@nanoviews/testing-library": "1.0.0-prerelease.20260923175652",
+    "@testing-library/dom": "catalog:",
+    "@types/svg-sprite": "^0.0.39",
+    "@vitest/coverage-v8": "catalog:",
+    "csstype": "^3.1.3",
+    "happy-dom": "catalog:",
+    "storybook": "^10.5.10",
+    "svg-sprite": "^2.0.4",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  }
+}

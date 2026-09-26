@@ -1,0 +1,89 @@
+.root {
+  display: flex;
+  gap: var(--sizeSpaceMd);
+  min-height: 0;
+}
+
+.box {
+  flex: 1;
+  min-width: 0;
+}
+
+/* The value and the recent lines have the most to show; the lines of the log cannot wrap */
+.wide {
+  flex: 1.5;
+}
+
+/* The body of the value box: its parts, a notice, the value, the source, stand as far apart as the body keeps
+   them from its edges */
+.value {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sizeSpaceMd);
+}
+
+/* Nothing selected: the prompt stands in the middle of the place of the boxes */
+.empty {
+  margin: auto;
+  font-size: var(--sizeTextXl);
+}
+
+/* The body of the links box: one side under the other */
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sizeSpaceMd);
+}
+
+/* A side of the links: the caption sits as far from its list as the items sit from each other */
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sizeSpaceXs);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sizeSpaceXs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A line of the recent log of the node: its transaction, what happened and how long it took */
+.recent {
+  display: flex;
+  align-items: center;
+  gap: var(--sizeSpaceSm);
+  max-width: 100%;
+  white-space: nowrap;
+}
+
+/* The place an effect among the links was created in, next to its name */
+.site {
+  margin-inline-start: var(--sizeSpaceSm);
+}
+
+/* The source of an effect or a computed as the page runs it, lines kept, scrolled rather than wrapped; a dev
+   server hands the source over indented with tabs. It scrolls sideways on its own, so what is around it,
+   the header above it first of all, stays in place. A scroller would give way to a tall value down to
+   nothing, so it keeps its height and the box scrolls down instead. It reaches out through the padding of
+   the body, or the gap above it, which is as wide, to the edges of the box and to the rule of the header
+   above it, and keeps as much room inside: the text stays where it would be, and under it the room is
+   twice that, for a scrollbar drawn over it */
+.source {
+  flex: none;
+  margin: calc(-1 * var(--sizeSpaceMd)) calc(-1 * (var(--sizeSpaceMd) + 2px));
+  padding: var(--sizeSpaceMd) calc(var(--sizeSpaceMd) + 2px) calc(2 * var(--sizeSpaceMd));
+  overflow-x: auto;
+  white-space: pre;
+  tab-size: 2;
+}
+
+/* A long string, opened: the whole of it, wrapped */
+.text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

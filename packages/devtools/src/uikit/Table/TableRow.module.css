@@ -1,0 +1,83 @@
+.root {
+  height: var(--sizeRow);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+
+  /* By place, or by the stripe the table gave the row; the check for one adds nothing to the weight of the rule */
+  &:nth-child(odd):where(:not([data-striped])),
+  &[data-striped='true'] {
+    --colorRowBackground: var(--colorRow);
+  }
+
+  &:hover:not([aria-selected='true']) {
+    --colorRowBackground: var(--colorHairline);
+  }
+
+  &:active:not([aria-selected='true']) {
+    --colorRowBackground: var(--colorControlActive);
+  }
+
+  /* A tr takes no radius, so its outline would be square: the cells draw the ring, rounded at the ends like the row */
+  &:focus-visible {
+    --shadowFocusTop: inset 0 var(--sizeBorderFocus) var(--colorFocusOutline);
+    --shadowFocusBottom: inset 0 calc(-1 * var(--sizeBorderFocus)) var(--colorFocusOutline);
+    outline: 0;
+  }
+
+  &:focus-visible > td {
+    box-shadow: var(--shadowFocusTop), var(--shadowFocusBottom);
+  }
+
+  &:focus-visible > td:first-child {
+    box-shadow: inset var(--sizeBorderFocus) 0 var(--colorFocusOutline), var(--shadowFocusTop), var(--shadowFocusBottom);
+  }
+
+  &:focus-visible > td:last-child {
+    box-shadow: inset calc(-1 * var(--sizeBorderFocus)) 0 var(--colorFocusOutline), var(--shadowFocusTop), var(--shadowFocusBottom);
+  }
+
+  &:focus-visible > td:first-child:last-child {
+    box-shadow: inset 0 0 0 var(--sizeBorderFocus) var(--colorFocusOutline);
+  }
+
+  &[aria-selected='true'] {
+    --colorRowBackground: var(--colorSelection);
+    --colorTextSecondary: var(--colorSelectionText);
+    --colorTextTertiary: var(--colorSelectionText);
+    --colorInfo: var(--colorSelectionText);
+    --colorFocusOutline: var(--colorSelectionText);
+    color: var(--colorSelectionText);
+  }
+
+  /* Rounded rows: a tr takes no radius, its first and last cells do */
+  & > td {
+    background: var(--colorRowBackground, transparent);
+    transition: background-color var(--durationSm) ease;
+  }
+
+  & > td:first-child {
+    /* The tree column: one chevron slot per level above this one, then the row's own slot inside the cell */
+    padding-left: calc(var(--sizeSpaceSm) + var(--sizeSpaceMd) + var(--sizeIndent) * (var(--tableLevel) - 1));
+    border-radius: var(--sizeRadiusSm) 0 0 var(--sizeRadiusSm);
+  }
+
+  & > td:last-child {
+    padding-right: calc(var(--sizeSpaceSm) + var(--sizeSpaceMd));
+    border-radius: 0 var(--sizeRadiusSm) var(--sizeRadiusSm) 0;
+  }
+
+  /* A group row is one cell across every column */
+  & > td:first-child:last-child {
+    border-radius: var(--sizeRadiusSm);
+  }
+}
+
+.group {
+  font-weight: 600;
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+  .root > td {
+    transition: none;
+  }
+}
