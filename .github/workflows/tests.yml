@@ -18,7 +18,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version-file: .tool-versions
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
@@ -37,7 +37,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version-file: .tool-versions
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
@@ -45,7 +45,13 @@ jobs:
         run: pnpm lint
   unit:
     runs-on: ubuntu-latest
-    name: unit
+    name: unit (${{ matrix.node-version || '.tool-versions' }})
+    strategy:
+      matrix:
+        # The least Node.js the packages declare, and the one the repository is developed on
+        include:
+          - node-version: 24
+          - node-version-file: .tool-versions
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v7
@@ -56,7 +62,8 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version: ${{ matrix.node-version }}
+          node-version-file: ${{ matrix.node-version-file }}
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
@@ -64,9 +71,10 @@ jobs:
         run: pnpm test:install-deps
       - name: Run tests
         run: pnpm test:unit
+      # One upload per commit, from the leg of the version the repository is developed on
       - name: Collect coverage
         uses: codecov/codecov-action@v7
-        if: success()
+        if: success() && matrix.node-version-file
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
   integration:
@@ -82,7 +90,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version-file: .tool-versions
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
