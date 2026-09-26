@@ -1,6 +1,6 @@
 ---
 name: nano-kit-store
-description: How to use @nano_kit/store, the signals-based state management core of Nano Kit. Covers signals, computed values, effects, mountable stores with lifecycle hooks, dependency injection with injectable store factories, async tasks, SSR hydration, storage-backed and external signals, structured state helpers, functional operators and testing. Apply when writing, reviewing or testing stores and business logic built on @nano_kit/store. Every other nano_kit skill refers here for the reactive core instead of repeating it.
+description: How to use @nano_kit/store, the signals-based state management core of Nano Kit. Covers signals, computed values, effects, mountable stores with lifecycle hooks, dependency injection with injectable store factories, async tasks, SSR hydration, storage-backed and external signals, structured state helpers, functional operators, testing and the DevTools panel. Apply when writing, reviewing or testing stores and business logic built on @nano_kit/store. Every other nano_kit skill refers here for the reactive core instead of repeating it.
 license: MIT
 compatibility:
   - Claude Code
@@ -97,6 +97,10 @@ export class Api$ extends Injectable$ {
 
 - Test stores without components: build an `InjectionContext` with mocks, `inject` the store, mount the signal under test with `start` and wait for its async work as the Testing section of `DOCS.md` shows.
 - Unmount cleanup is debounced by `STORE_UNMOUNT_DELAY`; tests that expect immediate teardown use fake timers.
+
+## DevTools
+
+`@nano_kit/devtools` is the way to look into the stores of a running app: its signals with their values and links, their lifecycle, and a log of every transaction. Install it as a dev dependency and call `devtools()` once behind the development flag of the bundler, imported before the modules that create stores so their signals are named from the start; the guarded call folds away in production. Stores need nothing for it, and there is no API to name a signal: the panel names each one after the store factory, component or file it was created in, one more reason to keep factories named `Something$`.
 
 ## Pitfalls
 
