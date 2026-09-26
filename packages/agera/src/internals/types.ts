@@ -6,7 +6,9 @@ import type {
   StopEvent,
   LifecycleEvent,
   FlushEvent,
-  RunEndEvent
+  RunEndEvent,
+  FireEvent,
+  FireEndEvent
 } from './flags.js'
 
 export type AnyFn = (...args: any) => any
@@ -56,10 +58,16 @@ export interface UpdateInspectEvent {
 
 /**
  * The body of a computed or an effect is about to run, or has run, whether it returned or threw;
- * an effect or a scope stopped; a mountable node was mounted or unmounted.
+ * an effect or a scope stopped; a mountable node was mounted or unmounted; the lifecycle listeners
+ * of a node are about to be called, or have been.
  */
 export interface NodeInspectEvent {
-  kind: typeof RunEvent | typeof RunEndEvent | typeof StopEvent | typeof LifecycleEvent
+  kind: typeof RunEvent
+    | typeof RunEndEvent
+    | typeof StopEvent
+    | typeof LifecycleEvent
+    | typeof FireEvent
+    | typeof FireEndEvent
   node: ReactiveNode
 }
 

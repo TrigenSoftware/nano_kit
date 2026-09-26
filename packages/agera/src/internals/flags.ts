@@ -52,4 +52,8 @@ export const FlushEvent = 6
 
 export const RunEndEvent = 7
 
+export const FireEvent = 8
+
+export const FireEndEvent = 9
+
 // #endregion

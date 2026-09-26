@@ -30,7 +30,9 @@ let inspectMuted = false
  * carries `node`, and `UpdateEvent` also carries the value the node had before
  * as `oldValue`, left out with the first evaluation of a computed; `RunEvent`
  * and `RunEndEvent` enclose the body of a computed or an effect, so the runs
- * it causes on the way come in between; `FlushEvent` carries the kind alone.
+ * it causes on the way come in between, and `FireEvent` and `FireEndEvent`
+ * enclose the lifecycle listeners of a node the same way, but for a listener
+ * that throws, which leaves the end out; `FlushEvent` carries the kind alone.
  * The contract exists for the devtools package alone and may change in minor
  * versions. The development build is the only one that reports events, in
  * production this is a no-op.

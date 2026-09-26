@@ -14,7 +14,9 @@ export {
   StopEvent,
   LifecycleEvent,
   FlushEvent,
-  RunEndEvent
+  RunEndEvent,
+  FireEvent,
+  FireEndEvent
 } from './internals/flags.js'
 export {
   untracked,

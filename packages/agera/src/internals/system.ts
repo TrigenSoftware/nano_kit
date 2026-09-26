@@ -39,7 +39,9 @@ import {
   StopEvent,
   LifecycleEvent,
   FlushEvent,
-  RunEndEvent
+  RunEndEvent,
+  FireEvent,
+  FireEndEvent
 } from './flags.js'
 import {
   report,
@@ -1748,8 +1750,23 @@ function evaluate(node: ReadableNode): void {
     // reads a vacated slot
     node.lce = to
 
+    if (import.meta.env.DEV) {
+      report(FireEvent, node)
+    }
+
     while (node.lcf < (mounted ? listeners!.length : node.lce)) {
-      listeners![node.lcf++](mounted)
+      // The development build runs a listener with the inspection state of
+      // the node it listens to, and through the frame that tells the
+      // devtools where the body of a node begins
+      if (import.meta.env.DEV) {
+        callInspected(node, listeners![node.lcf++], mounted)
+      } else {
+        listeners![node.lcf++](mounted)
+      }
+    }
+
+    if (import.meta.env.DEV) {
+      report(FireEndEvent, node)
     }
   }
 
