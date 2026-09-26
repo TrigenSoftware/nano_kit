@@ -20,7 +20,7 @@
     "performance"
   ],
   "engines": {
-    "node": ">=20"
+    "node": ">=24"
   },
   "scripts": {
     "js-size": "node js-size.js"
