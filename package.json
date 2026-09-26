@@ -30,7 +30,7 @@
     "docs:build": "pnpm -r --parallel --filter './website' build",
     "skills:docs": "skills-docs --tabs pnpm --drop 'See Also,Next Steps,Low-Level API'",
     "examples:sync": "pnpm -r --parallel --if-present --filter './examples/*/common' sync",
-    "examples:test": "pnpm -r --sequential --if-present --filter './examples/*/common' test",
+    "examples:test": "pnpm -r --sequential --if-present --filter './examples/*/common' run test",
     "commit": "cz",
     "updateGitHooks": "simple-git-hooks"
   },

@@ -35,6 +35,10 @@ catalog:
   typescript: ^7.0.2
   vite: ^8.2.1
   vitest: ^5.0.0
+# Snapshots of nanoviews are taken right after they are published, younger than the day pnpm waits by default
+minimumReleaseAgeExclude:
+  - nanoviews
+  - '@nanoviews/*'
 overrides:
   # nanoviews depends on published kida snapshots; the workspace core is the one instance every graph shares
   agera: workspace:^

@@ -2,7 +2,7 @@
   "name": "weather-svelte-nano_kit-di",
   "private": true,
   "version": "0.0.0",
-  "packageManager": "pnpm@10.33.0",
+  "packageManager": "pnpm@12.6.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
