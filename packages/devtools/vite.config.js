@@ -83,7 +83,8 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['lcovonly', 'text'],
       include: ['src/**/*'],
-      exclude: ['src/**/*.stories.ts']
+      // The entry imports the styles only the library build makes: no spec loads it
+      exclude: ['src/**/*.stories.ts', 'src/devtools.ts']
     }
   }
 })
