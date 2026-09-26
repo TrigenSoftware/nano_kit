@@ -3,6 +3,31 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.2.0...v2.0.0) (2026-09-26)
+
+### ⚠ BREAKING CHANGES
+
+* `effect` no longer defers when created inside a deferred scope body: use
+  `deferEffect` there. `subscribe`, `listen`, `observe` and `subscribeAny` no longer accept the
+  `noDefer` argument.
+* the packages require Node.js 24 or newer.
+
+### Features
+
+* add `deferEffect` for effects owned by a deferred scope ([#257](https://github.com/TrigenSoftware/nano_kit/issues/257)) ([12cb14b](https://github.com/TrigenSoftware/nano_kit/commit/12cb14b4ca39645dbd2899e8e2b79738d387c854))
+* add `inspect` to report graph events in the development build ([#237](https://github.com/TrigenSoftware/nano_kit/issues/237)) ([07e4290](https://github.com/TrigenSoftware/nano_kit/commit/07e4290790f7c2b75864fa0e82e2fa7acd0ed76c))
+* add `uninspected` to keep the nodes of a listener out of `inspect`, and the old value to `UpdateEvent` ([#262](https://github.com/TrigenSoftware/nano_kit/issues/262)) ([83384ce](https://github.com/TrigenSoftware/nano_kit/commit/83384ce8e61f37d27bf8989df91c503f0ec3200e))
+* add development diagnostics with separate development and production builds ([#236](https://github.com/TrigenSoftware/nano_kit/issues/236)) ([39be996](https://github.com/TrigenSoftware/nano_kit/commit/39be99600aa5c5066b8eb5205431740986df3dee))
+* call the `inspect` listener with one event object ([#264](https://github.com/TrigenSoftware/nano_kit/issues/264)) ([f49ec73](https://github.com/TrigenSoftware/nano_kit/commit/f49ec734647dee7bd97ee3ffc908232e2f095ccb))
+* enclose the lifecycle listeners of a node between `FireEvent` and `FireEndEvent` ([#267](https://github.com/TrigenSoftware/nano_kit/issues/267)) ([ef084b7](https://github.com/TrigenSoftware/nano_kit/commit/ef084b7d898f21c70d96bec8702ffd490ff3cf15))
+* report the end of a run with `RunEndEvent`, and leave `oldValue` out of a first evaluation ([#265](https://github.com/TrigenSoftware/nano_kit/issues/265)) ([61186e0](https://github.com/TrigenSoftware/nano_kit/commit/61186e07a5f6e8ff77fb782c1d177b5534d4462a))
+* require Node.js 24 ([#268](https://github.com/TrigenSoftware/nano_kit/issues/268)) ([c6ed062](https://github.com/TrigenSoftware/nano_kit/commit/c6ed0627e0e76785941ede1bb8f280c5d80896a0))
+
+### Bug Fixes
+
+* drop the development warning about a signal written inside a computed ([#266](https://github.com/TrigenSoftware/nano_kit/issues/266)) ([21e269b](https://github.com/TrigenSoftware/nano_kit/commit/21e269b0f4aab003f3559229d8146e3b67bfe8eb))
+* queue `batch` and `trigger` writes onto a running flush instead of draining it ([#256](https://github.com/TrigenSoftware/nano_kit/issues/256)) ([d6afbdd](https://github.com/TrigenSoftware/nano_kit/commit/d6afbdd0dcd8dd02ecf8172698b9cca9f4d290c5))
+
 ## [1.2.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0...v1.2.0) (2026-08-30)
 
 ### Features

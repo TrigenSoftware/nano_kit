@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.2.0...v2.0.0) (2026-09-26)
+
+### ⚠ BREAKING CHANGES
+
+* `$getMapKey`, `setMapKey`, `deleteMapKey`, `clearMap`, `subMapEvent`,
+  `fireMapEvent`, `$$insert`, `$$clear`, `$$deleted` and the `SignalsMapEvent` and
+  `SignalsMapEvents` types are removed from `@nano_kit/store`, and `SignalsMap` is a class to
+  create with `new`, not a type over a plain `Map`. The `cache` of a query client context is
+  a `ShardedSignalsMap`: its `has`, `set` and `delete` take a sharded key.
+* the packages require Node.js 24 or newer.
+* the tasks pool is gone — `TasksPool$`, `TasksRunner$`, `tasksRunner`, `addTask`,
+  `waitCurrentTasks` and `taskPromise` are removed, `waitTasks` takes a signal instead of a pool, and
+  the `tasks()` and `ssr()` query settings are removed: `hydratable()` is the whole SSR setting.
+
+### Features
+
+* add development diagnostics with separate development and production builds ([#236](https://github.com/TrigenSoftware/nano_kit/issues/236)) ([39be996](https://github.com/TrigenSoftware/nano_kit/commit/39be99600aa5c5066b8eb5205431740986df3dee))
+* attach tasks to the signals they fill ([#222](https://github.com/TrigenSoftware/nano_kit/issues/222)) ([841acd1](https://github.com/TrigenSoftware/nano_kit/commit/841acd12fcb3c2bd6c494f9ff47dfe998c962457))
+* replace the signals map functions with the `SignalsMap` and `IndexedSignalsMap` classes ([#261](https://github.com/TrigenSoftware/nano_kit/issues/261)) ([c062f06](https://github.com/TrigenSoftware/nano_kit/commit/c062f068a65f3869ec907175f0e1cc14e96d54a8))
+* require Node.js 24 ([#268](https://github.com/TrigenSoftware/nano_kit/issues/268)) ([c6ed062](https://github.com/TrigenSoftware/nano_kit/commit/c6ed0627e0e76785941ede1bb8f280c5d80896a0))
+
 ## [1.2.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0...v1.2.0) (2026-08-30)
 
 ### Features
