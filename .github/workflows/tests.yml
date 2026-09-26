@@ -86,6 +86,9 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
+      # The examples take the kit from its sources, and the devtools from the build that inlines their styles
+      - name: Build the devtools
+        run: pnpm --filter @nano_kit/devtools build
       - name: Install Chrome for headless testing
         run: pnpm test:install-deps
       - name: Restore integration test cache
