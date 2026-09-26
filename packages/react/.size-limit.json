@@ -4,12 +4,12 @@
     "gzip": true,
     "path": "dist/index.js",
     "import": "*",
-    "limit": "1.05 kB"
+    "limit": "1.1 kB"
   },
   {
     "name": "All publics (Brotli)",
     "path": "dist/index.js",
     "import": "*",
-    "limit": "950 B"
+    "limit": "1.05 kB"
   }
 ]

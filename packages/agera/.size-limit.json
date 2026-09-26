@@ -10,14 +10,14 @@
     "name": "All publics (Brotli)",
     "path": "dist/index.production.js",
     "import": "*",
-    "limit": "3.2 kB"
+    "limit": "3.15 kB"
   },
   {
     "name": "Signal (Gzip)",
     "gzip": true,
     "path": "dist/index.production.js",
     "import": "{ signal }",
-    "limit": "1.45 kB"
+    "limit": "1.4 kB"
   },
   {
     "name": "Signal (Brotli)",
@@ -30,13 +30,13 @@
     "gzip": true,
     "path": "dist/index.production.js",
     "import": "{ signal, computed, effect }",
-    "limit": "1.65 kB"
+    "limit": "1.55 kB"
   },
   {
     "name": "Minimal set (Brotli)",
     "path": "dist/index.production.js",
     "import": "{ signal, computed, effect }",
-    "limit": "1.55 kB"
+    "limit": "1.5 kB"
   },
   {
     "name": "Popular set (Gzip)",
@@ -49,6 +49,6 @@
     "name": "Popular set (Brotli)",
     "path": "dist/index.production.js",
     "import": "{ signal, computed, effect, mountable, onMounted }",
-    "limit": "1.95 kB"
+    "limit": "1.9 kB"
   }
 ]

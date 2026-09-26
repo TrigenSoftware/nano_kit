@@ -1,8 +1,10 @@
-function modifyEsbuildConfig(config) {
+function modifyRolldownConfig(config) {
   return {
     ...config,
-    define: {
-      'import.meta.env.DEV': 'false'
+    transform: {
+      define: {
+        'import.meta.env.DEV': 'false'
+      }
     }
   }
 }
@@ -13,44 +15,44 @@ export default [
     gzip: true,
     path: 'dist/index.production.js',
     import: '*',
-    limit: '6.75 kB',
-    modifyEsbuildConfig
+    limit: '6.6 kB',
+    modifyRolldownConfig
   },
   {
     name: 'All publics (Brotli)',
     path: 'dist/index.production.js',
     import: '*',
-    limit: '6.2 kB',
-    modifyEsbuildConfig
+    limit: '6.1 kB',
+    modifyRolldownConfig
   },
   {
     name: 'Signal (Gzip)',
     gzip: true,
     path: 'dist/index.production.js',
     import: '{ signal }',
-    limit: '1.45 kB',
-    modifyEsbuildConfig
+    limit: '1.4 kB',
+    modifyRolldownConfig
   },
   {
     name: 'Signal (Brotli)',
     path: 'dist/index.production.js',
     import: '{ signal }',
-    limit: '1.4 kB',
-    modifyEsbuildConfig
+    limit: '1.35 kB',
+    modifyRolldownConfig
   },
   {
     name: 'Popular set (Gzip)',
     gzip: true,
     path: 'dist/index.production.js',
     import: '{ signal, record, computed, effect, mountable, onMount }',
-    limit: '2.4 kB',
-    modifyEsbuildConfig
+    limit: '2.35 kB',
+    modifyRolldownConfig
   },
   {
     name: 'Popular set (Brotli)',
     path: 'dist/index.production.js',
     import: '{ signal, record, computed, effect, mountable, onMount }',
-    limit: '2.25 kB',
-    modifyEsbuildConfig
+    limit: '2.2 kB',
+    modifyRolldownConfig
   }
 ]
