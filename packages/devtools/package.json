@@ -44,6 +44,8 @@
     "clear:package": "del ./package",
     "clear:dist": "del ./dist",
     "clear": "del ./package ./dist ./coverage ./storybook-static",
+    "prepublishOnly": "run build clear:package clean-publish",
+    "postpublish": "pnpm clear:package",
     "emitDeclarations": "tsc -p ./tsconfig.build.json --emitDeclarationOnly",
     "build:sprite": "node ./scripts/svg-sprite.js",
     "build:dist": "run -p emitDeclarations [ vite build ]",
