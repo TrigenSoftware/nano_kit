@@ -3,7 +3,7 @@ import {
   dedupeTime,
   infinites,
   mutations,
-  ssr
+  hydratable
 } from '@nano_kit/query'
 
 export function Client$() {
@@ -11,6 +11,6 @@ export function Client$() {
     dedupeTime(5 * 60 * 1000),
     infinites(),
     mutations(),
-    ssr()
+    hydratable()
   )
 }

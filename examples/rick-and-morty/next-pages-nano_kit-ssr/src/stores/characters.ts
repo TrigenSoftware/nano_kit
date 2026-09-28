@@ -14,6 +14,10 @@ import {
 } from './query'
 import { Params$ } from './router'
 
+const CharactersKey = queryKey<[page: number], Page<Character>>('characters')
+const CharacterKey = queryKey<[id: number | null], Character | null>('character')
+const ResidentsKey = queryKey<[locationId: number | null, episodeId: number | null], Character[]>('residents')
+
 export function Characters$() {
   const { query } = inject(Client$)
   const { $charactersPage } = inject(Params$)
@@ -21,8 +25,8 @@ export function Characters$() {
     $characters,
     $charactersError,
     $charactersLoading
-  ] = query<[page: number], Page<Character>>(
-    queryKey('characters'),
+  ] = query(
+    CharactersKey,
     [$charactersPage],
     async (page) => {
       if (page === 0) {
@@ -61,8 +65,8 @@ export function Character$() {
     $character,
     $characterError,
     $characterLoading
-  ] = query<[id: number | null], Character | null>(
-    queryKey('character'),
+  ] = query(
+    CharacterKey,
     [$characterId],
     async (id) => {
       if (id === null) {
@@ -96,8 +100,8 @@ export function Residents$() {
     $residents,
     $residentsError,
     $residentsLoading
-  ] = query<[locationId: number | null, episodeId: number | null], Character[]>(
-    queryKey('residents'),
+  ] = query(
+    ResidentsKey,
     [
       $locationId,
       $episodeId

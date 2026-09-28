@@ -13,6 +13,10 @@ import {
 } from './query'
 import { Params$ } from './router'
 
+const EpisodesKey = queryKey<[page: number], Page<Episode>>('episodes')
+const EpisodeKey = queryKey<[id: number | null], Episode | null>('episode')
+const CharacterEpisodesKey = queryKey<[characterId: number | null], Episode[]>('characterEpisodes')
+
 export function Episodes$() {
   const { query } = inject(Client$)
   const { $episodesPage } = inject(Params$)
@@ -20,8 +24,8 @@ export function Episodes$() {
     $episodes,
     $episodesError,
     $episodesLoading
-  ] = query<[page: number], Page<Episode>>(
-    queryKey('episodes'),
+  ] = query(
+    EpisodesKey,
     [$episodesPage],
     async (page) => {
       if (page === 0) {
@@ -60,8 +64,8 @@ export function Episode$() {
     $episode,
     $episodeError,
     $episodeLoading
-  ] = query<[id: number | null], Episode | null>(
-    queryKey('episode'),
+  ] = query(
+    EpisodeKey,
     [$episodeId],
     async (id) => {
       if (id === null) {
@@ -92,8 +96,8 @@ export function CharacterEpisodes$() {
     $characterEpisodes,
     $characterEpisodesError,
     $characterEpisodesLoading
-  ] = query<[characterId: number | null], Episode[]>(
-    queryKey('characterEpisodes'),
+  ] = query(
+    CharacterEpisodesKey,
     [$characterId],
     async (characterId) => {
       if (!characterId) {
