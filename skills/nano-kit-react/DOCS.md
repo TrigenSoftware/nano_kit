@@ -152,7 +152,7 @@ import { User$ } from './stores'
 function Stores$() {
   const { $user } = inject(User$)
 
-  /* Will execute store logic, wait for all async tasks to complete, and extract the dehydrated snapshot */
+  /* Will execute store logic, wait for the async tasks of these stores to complete, and extract the dehydrated snapshot */
   return [$user]
 }
 
@@ -179,7 +179,7 @@ import { User$ } from './stores'
 function Stores$() {
   const { $user } = inject(User$)
 
-  /* Will execute store logic, wait for all async tasks to complete, and extract the dehydrated snapshot */
+  /* Will execute store logic, wait for the async tasks of these stores to complete, and extract the dehydrated snapshot */
   return [$user]
 }
 
@@ -218,7 +218,7 @@ import { User$ } from './stores'
 function Stores$() {
   const { $user } = inject(User$)
 
-  /* Will execute store logic, wait for all async tasks to complete, and extract the dehydrated snapshot */
+  /* Will execute store logic, wait for the async tasks of these stores to complete, and extract the dehydrated snapshot */
   return [$user]
 }
 

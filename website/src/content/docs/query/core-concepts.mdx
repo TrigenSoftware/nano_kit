@@ -272,6 +272,8 @@ SearchKey('react', 2)
 
 This allows different page requests to share the same cache entry.
 
+The filter is also the place to drop or map a parameter that does not serialize, such as a function or a symbol: it would become `null` in the key, and the development build warns about it.
+
 ### Using Cache Keys with Client Methods
 
 #### Reading and Writing Data

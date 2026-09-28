@@ -69,4 +69,4 @@ Open the panel with the pill at the bottom edge of the page, or with Alt+Shift+D
 
 ## Documentation
 
-For guides and API reference, visit the [documentation website](https://nano-kit.js.org/devtools).
+For guides and API reference, visit the [documentation website](https://nano-kit.js.org/store/devtools/).

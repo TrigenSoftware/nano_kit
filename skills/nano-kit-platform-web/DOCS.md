@@ -327,7 +327,7 @@ const context = [
 ]
 ```
 
-`parseLocales` sorts languages by `q` quality and keeps declaration order when qualities are equal. Empty headers fall back to `{ language: 'en', languages: ['en'] }`.
+`parseLocales` sorts languages by `q` quality and keeps declaration order when qualities are equal. An empty or missing header (`null` or `undefined`) falls back to `{ language: 'en', languages: ['en'] }`.
 
 ## User Agent
 

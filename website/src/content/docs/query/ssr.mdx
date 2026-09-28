@@ -7,53 +7,32 @@ sidebar:
 
 Server-side rendering in `@nano_kit/query` is built around two pieces: task tracking and cache dehydration.
 
-Queries started during server render should be awaited before HTML is returned, and the resulting cache state should be transferred to the client for hydration.
+Queries started during server render should be awaited before HTML is returned, and the resulting cache state should be transferred to the client for hydration. Task tracking is built in: every query attaches its request as a [task](/store/ssr/#working-with-tasks) to its data signal, so there is nothing to set up for it. Cache dehydration is the [`hydratable()`](#hydratable) setting.
 
 ## `hydratable`
 
-Use `hydratable()` when query cache should be dehydrated on the server and rehydrated on the client.
+Use `hydratable()` when query cache should be dehydrated on the server and rehydrated on the client. It is the whole SSR setting of a query client.
 
 Without arguments, it reads hydration dependencies from the current injection context. Outside DI, pass them explicitly.
-
-In a manual setup, it is typically paired with `tasks()`, which works the same way: without arguments it reads `TasksRunner$` from the current injection context, and outside DI you can pass the runner explicitly.
 
 If the client uses [`codec(...)`](/query/advanced/#codec), `hydratable()` encodes cached data before dehydration and decodes it during hydration.
 
 ```ts
-import { client, tasks, hydratable } from '@nano_kit/query'
-
-const { query } = client(
-  tasks(),
-  hydratable()
-)
-```
-
-Use this when you want to customize task handling or hydration setup independently.
-
-## `ssr`
-
-`ssr()` is a convenience setting that combines `tasks()` and `hydratable()`.
-
-Inside an SSR injection context, it reads the task runner and hydration dependencies automatically. If you need explicit control instead, use `tasks(...)` and `hydratable(...)` directly.
-
-Because `ssr()` uses `hydratable()` internally, it also respects the current [`codec(...)`](/query/advanced/#codec) setting.
-
-```ts
-import { client, dedupeTime, ssr } from '@nano_kit/query'
+import { client, dedupeTime, hydratable } from '@nano_kit/query'
 
 const DEDUPE_TIME = 300_000 // 5 minutes
 
 export function Client$() {
   return client(
     dedupeTime(DEDUPE_TIME),
-    ssr()
+    hydratable()
   )
 }
 ```
 
 This enables the usual SSR flow:
 
-1. Queries started during server render are tracked as tasks.
-2. The renderer waits for those tasks to finish.
+1. Queries started during server render attach their requests as tasks to their data signals.
+2. The renderer waits for the tasks of the signals the page returns from [`Stores$`](/router/ssr#stores-data-dehydration), and of everything they depend on.
 3. Query cache state is dehydrated into the hydration payload.
 4. The client rehydrates the cache and reuses the prefetched data.

@@ -269,33 +269,95 @@ Additional object helpers:
 
 ### Signals Map
 
-`SignalsMap` is a reactive `Map` where each entry's value is a signal.
+`SignalsMap` is a `Map` whose values are reactive: every value lives in a signal of its own, and the signals never leave the map. It is a class created with `new`, where `get` reads a value without tracking, `$get` reads it and tracks it, and `set`, `delete`, `clear`, `has`, `keys` and `size` work as they do on a `Map`.
 
 ```ts
-import { type SignalsMap, $getMapKey, setMapKey, deleteMapKey, clearMap } from '@nano_kit/store'
+import { SignalsMap, effect } from '@nano_kit/store'
 
-const userMap: SignalsMap<number, User> = new Map()
+interface User {
+  id: number
+  name: string
+}
+
+const users = new SignalsMap<number, User>()
 
 /* Set entry */
-setMapKey(userMap, 1, { name: 'Dan', age: 30 })
+users.set(1, { id: 1, name: 'Dan' })
 
 /* Get entry reactively */
 effect(() => {
-  console.log('User:', $getMapKey(userMap, 1))
+  console.log('User:', users.$get(1))
 })
 
+/* Update entry with a reducer, as with a writable signal */
+users.set(1, user => user && { ...user, name: 'Alice' })
+
+/* Get entry without tracking */
+users.get(1)
+
 /* Delete entry */
-deleteMapKey(userMap, 1)
+users.delete(1)
 
 /* Clear all */
-clearMap(userMap)
+users.clear()
+```
+
+A reader of a key that is in the map runs again only when its value changes, not when other keys are set. A reader of a missing key runs again when a key is added or removed, so it gets the value as soon as the key is set.
+
+`IndexedSignalsMap` adds `$index`, a computed list of the keys: it changes when a key is added or removed, not when a value is set. `$index` also stands for the whole map in the lifecycle: mark it `mountable` right after the map is created, and every reader of the map mounts it, the readers of `$get` included.
+
+```ts
+import { IndexedSignalsMap, mountable, onMount, effect } from '@nano_kit/store'
+
+const users = new IndexedSignalsMap<number, User>()
+
+/* Mark the index mountable before anything reads the map */
+onMount(mountable(users.$index), () => {
+  /* Runs when the first reader of the map appears */
+  const socket = new WebSocket('wss://example.com/users')
+
+  socket.onmessage = (event) => {
+    const user: User = JSON.parse(event.data)
+
+    users.set(user.id, user)
+  }
+
+  return () => socket.close()
+})
+
+/* Runs again when a key is added or removed, not when a value is set */
+effect(() => {
+  console.log('User ids:', users.$index())
+})
+
+/* Runs again when user 1 changes, and keeps the map mounted as well */
+effect(() => {
+  console.log('User 1:', users.$get(1))
+})
 ```
 
 ## Functional Operators
 
-Functional operators (fops) are pure functions that create accessors from other accessors or values. Unlike `computed`, they don't memoize results — they recalculate on every access. For memoization, wrap them in `computed`.
+Functional operators (fops) are pure functions that combine accessors and plain values. Every operator checks its operands: with an accessor among them the result is an accessor, and with none it is the plain value, so a binding made of static values costs no effect. Unlike `computed`, a returned accessor does not memoize: it recalculates on every access. For memoization, wrap it in `computed`.
 
-These operators accept either static values or accessors, making them flexible for building derived state without immediate caching.
+```ts
+import { type Signalish, signal, is } from '@nano_kit/store'
+
+const $variant = signal('primary')
+
+/* Accessor<boolean>: an accessor is among the operands */
+const $isPrimary = is($variant, 'primary')
+
+/* boolean: every operand is static */
+const isPrimary = is('primary', 'primary')
+
+/* Signalish<boolean>: the operand may turn out either way */
+function isPrimaryVariant(variant: Signalish<string>) {
+  return is(variant, 'primary')
+}
+```
+
+The `Fop` type describes the result of an operator: an accessor when an operand is an accessor, the plain value when none can be, and `Signalish` of the value when an operand may be either.
 
 ### Logical Operations
 
@@ -360,6 +422,48 @@ const $greeting = when(
 console.log($greeting()) /* "Hello, Alice" */
 ```
 
+### Lookup
+
+**`pick`** looks a value up in a collection by key. The collection is an object or an array, and both it and the key can be static or accessors. An empty key (`null` or `undefined`) picks `undefined`, which suits an optional prop.
+
+```ts
+import { signal, pick } from '@nano_kit/store'
+
+const styles = {
+  primary: 'button_primary',
+  secondary: 'button_secondary'
+}
+const $variant = signal<'primary' | 'secondary'>('primary')
+const $className = pick(styles, $variant)
+
+console.log($className()) /* "button_primary" */
+
+$variant('secondary')
+console.log($className()) /* "button_secondary" */
+
+/* Static operands give the value itself */
+pick(styles, 'primary') /* "button_primary" */
+```
+
+### Text
+
+**`text`** is a template tag that builds a string from a template literal. The values in it are strings, numbers, booleans or bigints, static or accessors, and an empty value (`null` or `undefined`) adds nothing.
+
+```ts
+import { signal, text } from '@nano_kit/store'
+
+const $name = signal('Dan')
+const $greeting = text`Hello, ${$name}!`
+
+console.log($greeting()) /* "Hello, Dan!" */
+
+$name('Alice')
+console.log($greeting()) /* "Hello, Alice!" */
+
+/* Static values give the string itself */
+text`Step ${1} of ${3}` /* "Step 1 of 3" */
+```
+
 ### Memoization
 
 Since fops don't cache results, wrap them in `computed` for expensive operations:
@@ -417,7 +521,7 @@ The library provides a set of utility functions for common tasks like rate limit
 
 ### Async State
 
-**`resolved`** unwraps a promise accessor into a `[$result, $error, $pending]` tuple of signals. Stale data is preserved while a new promise is pending, and falsy values reset the state.
+**`resolved`** unwraps a promise accessor into a `[$result, $error, $pending]` tuple of signals. Stale data is preserved while a new promise is pending.
 
 ```ts
 import { signal, computed, resolved } from '@nano_kit/store'
@@ -434,7 +538,21 @@ const [$position, $error, $pending] = resolved(
 )
 ```
 
-A falsy source resets all signals to their initial state (`result: undefined`, `error: undefined`, `pending: false`).
+A source value that is not a promise becomes the result as it is, a falsy one included, so an empty state is expressed by the type itself, for example `User | null`.
+
+```ts
+import { signal, resolved } from '@nano_kit/store'
+
+const $userId = signal<number | null>(null)
+const [$user] = resolved(() => {
+  const id = $userId()
+
+  /* The result is null until there is a user to fetch */
+  return id === null ? null : fetchUser(id)
+})
+```
+
+Each promise from the source is attached as a task, so [`waitTasks`](/store/ssr/#working-with-tasks) of any of the three signals waits until it settles. A signal of the tuple links the source on its first read, so read or mount it before waiting.
 
 <Aside>
   For remote data fetching with caching, request deduplication, cancellation, refetching, and other advanced features, consider using [`@nano_kit/query`](/query) instead.
@@ -552,6 +670,30 @@ $count(2) /* Changed from 1 to 2 */
 $count(3) /* Changed from 2 to 3 */
 ```
 
+### Latest Value
+
+**`latest`** merges several sources into one computed that carries the value of the source that changed last. It fits a local cell paired with a read-only source: typing wins over the URL, and navigation wins over what was typed. Where `previous` looks back through a single source, `latest` picks the freshest value across several.
+
+```ts
+import { signal, latest, effect } from '@nano_kit/store'
+
+/* Stands for a read-only source, such as a search param of the URL */
+const $searchParam = signal('shoes')
+/* The local cell the search field writes */
+const $searchQuery = signal('')
+const $search = latest($searchQuery, $searchParam)
+
+effect(() => {
+  console.log('Search:', $search())
+})
+/* Search: shoes */
+
+$searchQuery('boots') /* Search: boots */
+$searchParam('hats') /* Search: hats */
+```
+
+On the first read the last source wins, and when several sources changed since the previous read, as with writes inside one `batch`, the last of them in argument order wins. Only a new value counts as a change: writing a value equal to the current one leaves the result as it is.
+
 ### Computed Properties
 
 **`length`** creates a computed for the `length` property of arrays or strings.
@@ -576,22 +718,6 @@ const $hasUser = boolean($user)
 console.log($hasUser()) /* false */
 $user({ name: 'Dan' })
 console.log($hasUser()) /* true */
-```
-
-**`concat`** concatenates multiple values or accessors into a string.
-
-```ts
-import { signal, concat, effect } from '@nano_kit/store'
-
-const $firstName = signal('John')
-const $lastName = signal('Doe')
-const $fullName = concat($firstName, ' ', $lastName)
-
-effect(() => {
-  console.log($fullName())
-})
-
-$firstName('Jane') /* Jane Doe */
 ```
 
 ### Type Checking
