@@ -310,15 +310,15 @@ The Dependency Injection system enables modular architecture and makes testing e
 Use an injectable function or class with `inject` to retrieve dependencies. For example, in React, use `InjectionContextProvider` to create a context and `useInject` to access dependencies.
 
 ```tsx
-import { inject, signal, mountable, onMountEffect, action, effect, TasksRunner$ } from '@nano_kit/store'
+import { signal, mountable, onMountEffect, action, task } from '@nano_kit/store'
 import { InjectionContextProvider, useInject, useSignal } from '@nano_kit/react'
 
 /* Injectable function that defines a user store */
 function User$() {
-  const task = inject(TasksRunner$)
   const $userId = signal(null)
   const $user = mountable(signal(null))
-  const fetchUser = action((id) => task(async () => {
+  /* Attach the request to $user, so SSR and tests can wait for it */
+  const fetchUser = action((id) => task($user, async () => {
     if (typeof id !== 'number') {
       $user(null)
       return
@@ -445,14 +445,15 @@ const value = $get($count)
 Injectable tokens that start with an uppercase letter and end with `$` are Dependency Injection tokens.
 
 ```ts
-import { Injectable$, TasksRunner$, inject } from '@nano_kit/store'
+import { Injectable$, inject } from '@nano_kit/store'
+import { CookieStore$ } from '@nano_kit/platform-web'
 
 function User$() {
-  const task = inject(TasksRunner$)
+  const cookieStore = inject(CookieStore$)
   /* ... */
 }
 
 class UserService$ extends Injectable$ {
-  task = inject(TasksRunner$)
+  cookieStore = inject(CookieStore$)
 }
 ```
