@@ -27,7 +27,7 @@ This page puts Nano Kit next to the libraries it is usually weighed against, one
 | Data fetching | [`@nano_kit/query`](/query/), same reactive core | `@nanostores/query` | Bring your own | `jotai-tanstack-query` |
 | Router | [`@nano_kit/router`](/router/), same reactive core | `@nanostores/router` | No | No |
 | i18n | [`@nano_kit/intl`](/intl/), same reactive core | `@nanostores/i18n` | No | No |
-| DevTools | [`@nano_kit/devtools`](https://github.com/TrigenSoftware/nano_kit/tree/main/packages/devtools): a panel on the page with every signal, its value and links, and a log of transactions | Logger, Vue Devtools plugin | Redux DevTools middleware | `jotai-devtools` |
+| DevTools | [`@nano_kit/devtools`](/store/devtools/): a panel on the page with every signal, its value and links, and a log of transactions | Logger, Vue Devtools plugin | Redux DevTools middleware | `jotai-devtools` |
 
 ### Size
 
@@ -115,7 +115,7 @@ effect(() => console.log($double()))
 $count(1)
 ```
 
-The numbers follow: the [effect benchmark](/getting-started/#performance) puts Jotai at about 0.12M updates per second against 3.3M for `@nano_kit/store`, and its vanilla core is also the larger of the two at 2.41 kB against 2.12 kB. Jotai gives you async atoms with Suspense and a large utils collection. Nano Kit gives you the same atomic model with a faster and smaller core, [`onMount`](/store/core-concepts/#mountable-stores) with a delayed unmount, [dependency injection](/store/core-concepts/#dependency-injection) instead of a `Provider`, adapters for Preact and Svelte next to React, [query](/query/), [router](/router/) and [intl](/intl/) built on the same signals, and a [DevTools panel](https://github.com/TrigenSoftware/nano_kit/tree/main/packages/devtools) that shows all of them in one graph.
+The numbers follow: the [effect benchmark](/getting-started/#performance) puts Jotai at about 0.12M updates per second against 3.3M for `@nano_kit/store`, and its vanilla core is also the larger of the two at 2.41 kB against 2.12 kB. Jotai gives you async atoms with Suspense and a large utils collection. Nano Kit gives you the same atomic model with a faster and smaller core, [`onMount`](/store/core-concepts/#mountable-stores) with a delayed unmount, [dependency injection](/store/core-concepts/#dependency-injection) instead of a `Provider`, adapters for Preact and Svelte next to React, [query](/query/), [router](/router/) and [intl](/intl/) built on the same signals, and a [DevTools panel](/store/devtools/) that shows all of them in one graph.
 
 ## Query Layer
 
@@ -132,7 +132,7 @@ The numbers follow: the [effect benchmark](/getting-started/#performance) puts J
 | Persistence | [`persistence()`](/query/advanced/#persistence) with [`indexedDbStorage()`](/query/advanced/#indexeddbstorage) | Not built in | `@tanstack/query-persist-client-core` |
 | SSR hydration | [`hydratable()`](/query/ssr/#hydratable) setting: tracked, awaited, dehydrated | Manual | `dehydrate` and `hydrate` |
 | Retry, abort, revalidate on focus or reconnect | [`retryOnError()`](/query/advanced/#retryonerror), [`abortable()`](/query/advanced/#abortable), [`revalidateOn()`](/query/advanced/#revalidateon) | Built in | Built in |
-| DevTools | [`@nano_kit/devtools`](https://github.com/TrigenSoftware/nano_kit/tree/main/packages/devtools): the cache as signals, every update in the log | No | Yes |
+| DevTools | [`@nano_kit/devtools`](/store/devtools/): the cache as signals, every update in the log | No | Yes |
 
 ### Size
 
