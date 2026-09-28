@@ -2,8 +2,6 @@
 
 ## Agera/Kida/Store
 
-- devtools: promised as "planned for an upcoming release" on the comparison page
-
 ## 🔥🔥🔥 Query 🔥🔥🔥
 
 - optimize using ai
@@ -21,7 +19,7 @@
 
 ## ssr
 
-- client and server contexts extendsers file for plugin - no need to eject entrypoints
+- client and server contexts extenders file for plugin - no need to eject entrypoints
 
 - cache handler
 - prerender / ssg

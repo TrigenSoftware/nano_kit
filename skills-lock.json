@@ -29,13 +29,13 @@
       "source": "TrigenSoftware/nanoviews",
       "sourceType": "github",
       "skillPath": "skills/nanoviews/SKILL.md",
-      "computedHash": "811e91b3b7156a6209bcbcb9aa6ca74cc93014de7e1265e9055133ff368f2ba0"
+      "computedHash": "a8b5f4fbf913cf355938f87ed35ef49d48567d55cd8a2af028a589546084e8bb"
     },
     "nanoviews-component": {
       "source": "TrigenSoftware/scripts",
       "sourceType": "github",
       "skillPath": "skills/nanoviews-component/SKILL.md",
-      "computedHash": "ee4ff21487e965df1c3f3163e53fbfed8af4e11681c22c41fc355bb5019a9c9f"
+      "computedHash": "4d052065b130fbe3b3d0f1a265557c0ec17369733457876c5f66cddb9e9ff22f"
     },
     "nanoviews-storybook": {
       "source": "TrigenSoftware/nanoviews",
@@ -47,7 +47,7 @@
       "source": "TrigenSoftware/nanoviews",
       "sourceType": "github",
       "skillPath": "skills/nanoviews-testing/SKILL.md",
-      "computedHash": "8f3d2f173597ce53332f9d58d3cb462eb1e611eeb08d8154f75a71c6e2a22dd8"
+      "computedHash": "27a3797b5aff831a74218c4d56f8e85cd927730b2881c5a458da4b6781915cb3"
     },
     "simple-release-action": {
       "source": "TrigenSoftware/simple-release",
