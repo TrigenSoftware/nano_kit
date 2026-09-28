@@ -12,6 +12,9 @@ import {
 } from './query'
 import { Params$ } from './router'
 
+const LocationsKey = queryKey<[page: number], Page<Location>>('locations')
+const LocationKey = queryKey<[id: number | null], Location | null>('location')
+
 export function Locations$() {
   const { query } = inject(Client$)
   const { $locationsPage } = inject(Params$)
@@ -19,8 +22,8 @@ export function Locations$() {
     $locations,
     $locationsError,
     $locationsLoading
-  ] = query<[page: number], Page<Location>>(
-    queryKey('locations'),
+  ] = query(
+    LocationsKey,
     [$locationsPage],
     async (page) => {
       if (page === 0) {
@@ -59,8 +62,8 @@ export function Location$() {
     $location,
     $locationError,
     $locationLoading
-  ] = query<[id: number | null], Location | null>(
-    queryKey('location'),
+  ] = query(
+    LocationKey,
     [$locationId],
     async (id) => {
       if (id === null) {
