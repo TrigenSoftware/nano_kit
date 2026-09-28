@@ -3,8 +3,6 @@ title: Comparison
 description: "How Nano Kit compares with Nano Stores, Zustand, Jotai, TanStack Query, TanStack Router and the @nanostores packages, with measured sizes and what you get for every trade-off."
 sidebar:
   order: 2
-next:
-  label: Store
 ---
 
 import { Aside } from '@astrojs/starlight/components'
@@ -132,7 +130,7 @@ The numbers follow: the [effect benchmark](/getting-started/#performance) puts J
 | Normalized entities | [`entities()`](/query/advanced/#entities): one entity shared by every query that references it | Not built in | Not built in |
 | Infinite queries | [`infinites()`](/query/advanced/#infinite) extension | Pagination recipe | `InfiniteQueryObserver` |
 | Persistence | [`persistence()`](/query/advanced/#persistence) with [`indexedDbStorage()`](/query/advanced/#indexeddbstorage) | Not built in | `@tanstack/query-persist-client-core` |
-| SSR hydration | [`ssr()`](/query/ssr/#ssr) setting: tracked, awaited, dehydrated | Manual | `dehydrate` and `hydrate` |
+| SSR hydration | [`hydratable()`](/query/ssr/#hydratable) setting: tracked, awaited, dehydrated | Manual | `dehydrate` and `hydrate` |
 | Retry, abort, revalidate on focus or reconnect | [`retryOnError()`](/query/advanced/#retryonerror), [`abortable()`](/query/advanced/#abortable), [`revalidateOn()`](/query/advanced/#revalidateon) | Built in | Built in |
 | DevTools | [`@nano_kit/devtools`](https://github.com/TrigenSoftware/nano_kit/tree/main/packages/devtools): the cache as signals, every update in the log | No | Yes |
 
@@ -148,7 +146,7 @@ The numbers follow: the [effect benchmark](/getting-started/#performance) puts J
 
 ### Nano Kit vs @nanostores/query
 
-`@nanostores/query` is the same idea one generation earlier: a fetcher store with stale-while-revalidate, dedupe, revalidation on focus, reconnect and interval, and a mutator store with `getCacheUpdater` for optimistic changes. Keys are strings or arrays of strings and stores, so the type of the cached data is not attached to the key. Nano Kit keeps the shape and adds what the atom API could not carry: [typed keys](/query/core-concepts/#cache-keys), [`entities()`](/query/advanced/#entities), [`persistence()`](/query/advanced/#persistence), an [`ssr()`](/query/ssr/#ssr) setting that tracks, awaits and dehydrates queries on the server, and a router whose [URL params](/router/core-concepts/#route-parameters) are signals a query can take directly. `@nanostores/query` measures 2.94 kB against 3.85 kB, and the gap is the reactive core underneath, not the features: everything past `client` and `queryKey` is tree-shaken until imported, and the query layer itself weighs about the same on both cores.
+`@nanostores/query` is the same idea one generation earlier: a fetcher store with stale-while-revalidate, dedupe, revalidation on focus, reconnect and interval, and a mutator store with `getCacheUpdater` for optimistic changes. Keys are strings or arrays of strings and stores, so the type of the cached data is not attached to the key. Nano Kit keeps the shape and adds what the atom API could not carry: [typed keys](/query/core-concepts/#cache-keys), [`entities()`](/query/advanced/#entities), [`persistence()`](/query/advanced/#persistence), server rendering that awaits queries as tasks and dehydrates them with one [`hydratable()`](/query/ssr/#hydratable) setting, and a router whose [URL params](/router/core-concepts/#route-parameters) are signals a query can take directly. `@nanostores/query` measures 2.94 kB against 3.85 kB, and the gap is the reactive core underneath, not the features: everything past `client` and `queryKey` is tree-shaken until imported, and the query layer itself weighs about the same on both cores.
 
 ### Nano Kit vs TanStack Query
 
