@@ -333,6 +333,8 @@ SearchKey('react', 2)
 
 This allows different page requests to share the same cache entry.
 
+The filter is also the place to drop or map a parameter that does not serialize, such as a function or a symbol: it would become `null` in the key, and the development build warns about it.
+
 ### Using Cache Keys with Client Methods
 
 #### Reading and Writing Data
@@ -672,22 +674,24 @@ You do not need this for ordinary in-memory browser cache usage. While the app i
 
 Use it when serialized cache entries contain values that need custom encoding, such as `Date`, `Map`, `Set`, class instances, or encrypted/compact payloads.
 
-`hydratable()`, `ssr()`, and [`persistence()`](#persistence) use the codec when they dehydrate data, hydrate it back, write it to persistent storage, or read it back.
+`hydratable()` and [`persistence()`](#persistence) use the codec when they dehydrate data, hydrate it back, write it to persistent storage, or read it back.
 
 ```ts
 import type { Codec } from '@nano_kit/store'
 import { parse, stringify } from 'devalue'
-import { client, codec, ssr } from '@nano_kit/query'
+import { client, codec, hydratable } from '@nano_kit/query'
 
 const DevalueCodec: Codec<unknown, string> = {
   encode: stringify,
   decode: value => value === null ? null : parse(value)
 }
 
-const { query } = client(
-  codec(DevalueCodec),
-  ssr()
-)
+export function Client$() {
+  return client(
+    codec(DevalueCodec),
+    hydratable()
+  )
+}
 ```
 
 With a codec like this, data containing values such as `Date`, `Map`, or `Set` can be dehydrated on the server and restored on the client without losing those types.
@@ -757,6 +761,8 @@ keys(invalidate)
 ```
 
 This is useful after broad application changes, such as sign in, sign out, locale changes, or any mutation that can affect several query domains at once.
+
+The name of a builder is its cache shard: two builders with one name share one cache, and the development build warns when a name is registered twice.
 
 ## Cache Mutation Helpers
 
@@ -1224,31 +1230,6 @@ The `capture` helper stores each entity in the shared entity cache and returns a
 
 **When to use:** Complex applications where the same data (e.g., a "User" or "Product") appears in multiple places or lists and needs to stay synchronized.
 
-### `tasks`
-
-Integrates with `@nano_kit/store`'s task tracking system. This is mainly used for server-side rendering (SSR) to wait for all data fetches to complete before rendering the HTML.
-
-```ts
-import { tasksRunner, waitTasks } from '@nano_kit/store'
-import { client, tasks } from '@nano_kit/query'
-
-const tasksPool = new Set()
-const runTask = tasksRunner(tasksPool)
-
-const { query } = client(
-  tasks(runTask)
-)
-
-/* ... application runs ... */
-
-/* Wait for all queries to finish */
-await waitTasks(tasksPool)
-```
-
-Without arguments, `tasks()` reads `TasksRunner$` from the current injection context. Outside DI, pass the runner explicitly.
-
-**When to use:** SSR setups where the server should send a fully populated page to the client.
-
 ---
 
 # SSR
@@ -1257,54 +1238,33 @@ Learn how to use @nano_kit/query for server-side rendering (SSR).
 
 Server-side rendering in `@nano_kit/query` is built around two pieces: task tracking and cache dehydration.
 
-Queries started during server render should be awaited before HTML is returned, and the resulting cache state should be transferred to the client for hydration.
+Queries started during server render should be awaited before HTML is returned, and the resulting cache state should be transferred to the client for hydration. Task tracking is built in: every query attaches its request as a task to its data signal, so there is nothing to set up for it. Cache dehydration is the [`hydratable()`](#hydratable) setting.
 
 ## `hydratable`
 
-Use `hydratable()` when query cache should be dehydrated on the server and rehydrated on the client.
+Use `hydratable()` when query cache should be dehydrated on the server and rehydrated on the client. It is the whole SSR setting of a query client.
 
 Without arguments, it reads hydration dependencies from the current injection context. Outside DI, pass them explicitly.
-
-In a manual setup, it is typically paired with `tasks()`, which works the same way: without arguments it reads `TasksRunner$` from the current injection context, and outside DI you can pass the runner explicitly.
 
 If the client uses `codec(...)`, `hydratable()` encodes cached data before dehydration and decodes it during hydration.
 
 ```ts
-import { client, tasks, hydratable } from '@nano_kit/query'
-
-const { query } = client(
-  tasks(),
-  hydratable()
-)
-```
-
-Use this when you want to customize task handling or hydration setup independently.
-
-## `ssr`
-
-`ssr()` is a convenience setting that combines `tasks()` and `hydratable()`.
-
-Inside an SSR injection context, it reads the task runner and hydration dependencies automatically. If you need explicit control instead, use `tasks(...)` and `hydratable(...)` directly.
-
-Because `ssr()` uses `hydratable()` internally, it also respects the current `codec(...)` setting.
-
-```ts
-import { client, dedupeTime, ssr } from '@nano_kit/query'
+import { client, dedupeTime, hydratable } from '@nano_kit/query'
 
 const DEDUPE_TIME = 300_000 // 5 minutes
 
 export function Client$() {
   return client(
     dedupeTime(DEDUPE_TIME),
-    ssr()
+    hydratable()
   )
 }
 ```
 
 This enables the usual SSR flow:
 
-1. Queries started during server render are tracked as tasks.
-2. The renderer waits for those tasks to finish.
+1. Queries started during server render attach their requests as tasks to their data signals.
+2. The renderer waits for the tasks of the signals the page returns from `Stores$`, and of everything they depend on.
 3. Query cache state is dehydrated into the hydration payload.
 4. The client rehydrates the cache and reuses the prefetched data.
 
@@ -1324,28 +1284,23 @@ Please refer to the Store Testing documentation for general guidelines on:
 
 ## Waiting for Queries
 
-Tests often need to wait for asynchronous data fetching to resolve. The `tasks` extension provides a reliable way to await all pending operations in your query client, ensuring your assertions run only after data is loaded.
+Tests often need to wait for asynchronous data fetching to resolve. Every query attaches its request as a task to its data signal, so `waitTasks` of that signal awaits the request with no extra setup, ensuring your assertions run only after data is loaded.
 
 ```ts
 import { describe, it, expect, vi } from 'vitest'
-import { tasksRunner, waitTasks, start } from '@nano_kit/store'
-import { client, tasks, queryKey } from '@nano_kit/query'
+import { waitTasks, start } from '@nano_kit/store'
+import { client, queryKey } from '@nano_kit/query'
 
 const TestKey = queryKey('test')
 
 it('should fetch and update state', async () => {
-  /* 1. Create a pool to track active tasks */
-  const tasksPool = new Set()
-
-  /* 2. Configure client with tasks extension */
-  const { query } = client(
-    tasks(tasksRunner(tasksPool))
-  )
+  /* 1. Create a client, no task setup is needed */
+  const { query } = client()
 
   /* Mock fetcher */
   const fetcher = vi.fn().mockResolvedValue('success')
 
-  /* 3. Start the query */
+  /* 2. Start the query */
   const [$data, $error, $loading] = query(TestKey, [], fetcher)
 
   /* Mount the signal to trigger the fetch */
@@ -1353,13 +1308,15 @@ it('should fetch and update state', async () => {
 
   expect($loading()).toBe(true)
 
-  /* 4. Wait for all fetch tasks to complete */
-  await waitTasks(tasksPool)
+  /* 3. Wait for the request of $data to complete */
+  await waitTasks($data)
 
-  /* 5. Assert final state */
+  /* 4. Assert final state */
   expect($loading()).toBe(false)
   expect($data()).toBe('success')
 
   stop()
 })
 ```
+
+`waitTasks` of any signal computed from `$data` waits for the request as well. Infinite queries and operations attach their requests to `$data` too. A mutation attaches each request to all of its signals, so waiting for any of them works, as does awaiting the promise returned by `mutate`.

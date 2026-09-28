@@ -52,10 +52,10 @@ yarn add @nano_kit/store
 Here is a minimal example demonstrating signals, computed values, and effects in action:
 
 ```ts
-import { signal, onMount, computed, effect } from '@nano_kit/store'
+import { signal, mountable, onMount, computed, effect } from '@nano_kit/store'
 
-/* Create independent atomic stores */
-const $count = signal(1)
+/* Create independent mountable atomic store */
+const $count = mountable(signal(1))
 
 /* Mountable: Run logic only when store has listeners */
 onMount($count, () => {
@@ -76,6 +76,7 @@ const unsub = effect(() => {
   console.log(`Count: ${$count()}, Double: ${$double()}`)
 })
 // Output: Count: 1, Double: 2
+// Output: Mounted: Store is active
 
 /* Update triggers granular propagation */
 $count(2)

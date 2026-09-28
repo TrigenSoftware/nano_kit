@@ -86,22 +86,35 @@ expect(mounted).toHaveBeenCalledTimes(1)
 
 ## Waiting for Async Operations
 
-Tasks are useful not only for SSR but also in tests to wait for async operations inside effects. Use tasks pool with `waitTasks` to ensure all async work completes before assertions.
+[Tasks](/store/ssr/#working-with-tasks) are useful not only for SSR but also in tests to wait for async operations inside effects. Pass the signal under test to `waitTasks` to ensure its async work completes before assertions.
 
 ```ts
-import { type TasksPool, waitTasks, tasksRunner } from '@nano_kit/store'
-import { client, tasks } from '@nano_kit/query'
+import { expect, vi } from 'vitest'
+import { mountable, signal, computed, onMount, start, task, waitTasks } from '@nano_kit/store'
 
-const tasksPool: TasksPool = new Set()
-const { query } = client(tasks(tasksRunner(tasksPool)))
+const fetchName = vi.fn().mockResolvedValue('John')
+const $name = mountable(signal<string | null>(null))
+const $greeting = computed(() => `Hello, ${$name() ?? 'guest'}`)
 
-/* ... trigger async operations ... */
+/* The store attaches its request to the signal it fills */
+onMount($name, () => {
+  void task($name, async () => {
+    $name(await fetchName())
+  })
+})
 
-/* Wait for all tasks to complete */
-await waitTasks(tasksPool)
+/* Mount $greeting and the $name it reads */
+const stop = start($greeting)
+
+/* Wait for the tasks of $greeting and of every signal it depends on */
+await waitTasks($greeting)
+
+expect($greeting()).toBe('Hello, John')
+
+stop()
 ```
 
-The `waitTasks` function waits for all tasks in the pool to complete, including tasks that spawn new tasks. For simpler cases, use `waitCurrentTasks` to wait only for currently running tasks.
+The `waitTasks` function waits until neither the signal nor anything it depends on has tasks left, including tasks that spawn new tasks. It follows the links the graph already has, so start the signal before waiting: a computed links its dependencies on its first read. Queries, mutations and `resolved` attach their tasks by themselves. `waitTasks` resolves even when a task fails, so assert the error state after it.
 
 ## Mocking Dependencies
 

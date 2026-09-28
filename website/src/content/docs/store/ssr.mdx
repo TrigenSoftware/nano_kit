@@ -80,17 +80,16 @@ function User$() {
 
 ## Working with Tasks
 
-SSR requires waiting for all async operations to complete before dehydrating. Use `TasksRunner$` to create a task runner that automatically tracks async operations in `TasksPool$`.
+SSR requires waiting for all async operations to complete before dehydrating. Use `task` to attach an async operation to the signal it fills: until the operation settles, `waitTasks` of that signal, and of every signal that depends on it, waits for it.
 
 ```ts
-import { inject, signal, hydratable, mountable, onMountEffect, action, TasksRunner$ } from '@nano_kit/store'
+import { signal, hydratable, mountable, onMountEffect, action, task } from '@nano_kit/store'
 
 function User$() {
-  const task = inject(TasksRunner$)
   const $userId = hydratable('userId', signal(null))
   const $user = hydratable('user', mountable(signal(null)))
 
-  const fetchUser = action((id) => task(async () => {
+  const fetchUser = action((id) => task($user, async () => {
     if (typeof id !== 'number') {
       $user(null)
       return
@@ -110,7 +109,9 @@ function User$() {
 }
 ```
 
-The `task` function wraps async operations and adds them to the tasks pool. The `dehydrate` function waits for all tasks in the pool to complete before extracting signal values.
+`task` takes the signal the operation fills (or an array of signals) and a promise or a function that returns one, and returns that promise. `waitTasks($signal)` walks the dependency graph of the signal and waits, wave by wave, until neither the signal nor anything it depends on has tasks left, so a task started by another task and a dependency read only after a value settles are awaited too.
+
+There is no pool to create or provide: tasks live on the signals they fill, so `dehydrate` waits for exactly the stores it starts, and a test waits for exactly the signal it checks. Queries of [`@nano_kit/query`](/query/ssr) and [`resolved`](/store/advanced/#async-state) attach their tasks by themselves, so stores built on them need no `task` call.
 
 ## Manual Hydration Flow
 
@@ -120,7 +121,7 @@ The `task` function wraps async operations and adds them to the tasks pool. The 
 
 ### Server-Side Dehydration
 
-On the server, use `dehydrate` to execute your store logic, wait for all async tasks to complete, and extract the dehydrated key-value pairs.
+On the server, use `dehydrate` to execute your store logic, wait for its async tasks to complete, and extract the dehydrated key-value pairs.
 
 ```ts
 import { dehydrate, inject } from '@nano_kit/store'
@@ -140,10 +141,10 @@ const dehydrated = await dehydrate(() => {
 ```
 
 The `dehydrate` function:
-1. Creates an injection context with a task pool, or uses the context passed as the second argument
+1. Creates an injection context, or uses the context passed as the second argument
 2. Runs your store factories within that context
 3. Starts effects to trigger `onMount` callbacks (which start async tasks)
-4. Waits for all tasks in `TasksPool$` to complete
+4. Waits for the tasks of the returned signals and of every signal they depend on
 5. Collects all signals marked with `hydratable`
 6. Returns the dehydrated key-value pairs
 
@@ -187,3 +188,5 @@ function UserProfile() {
 ```
 
 `StaticHydrator` is a one-shot hydrator: it applies values from the initial dehydrated snapshot and discards them after use. For streaming SSR where chunks of dehydrated data arrive after the initial render, use `ActiveHydrator` instead — it exposes a `push(dehydrated)` method to feed additional data reactively.
+
+In the development build, `StaticHydrator` warns about an id that has no value in the snapshot: the signal was not dehydrated on the server, or the same id is hydrated twice.

@@ -68,7 +68,7 @@ An adapter consists of three parts: a **renderer**, a **client entry**, and a **
 
    ```js
    // src/renderer/index.js
-   import { Renderer, headDescriptorToHtml, ROOT_ID } from '@nano_kit/ssr/renderer'
+   import { Renderer, escapeHtml, headDescriptorToHtml, ROOT_ID } from '@nano_kit/ssr/renderer'
    import { compose } from 'your-framework-router'
    import { get } from '@nano_kit/store'
 
@@ -87,14 +87,16 @@ An adapter consists of three parts: a **renderer**, a **client entry**, and a **
          else head += headDescriptorToHtml(descriptor)
        })
 
-       if (title) head = `<title>${title}</title>${head}`
+       if (title) head = `<title>${escapeHtml(title)}</title>${head}`
 
        const body = yourFrameworkRenderToString(data.context)
 
-       return `<html lang="${lang}" dir="${dir}"><head>${head}</head><body><div id="${ROOT_ID}">${body}</div><script>${this.dehydratedScript(data.dehydrated)}</script></body></html>`
+       return `<html${lang ? ` lang="${escapeHtml(lang)}"` : ''}${dir ? ` dir="${escapeHtml(dir)}"` : ''}><head>${head}</head><body><div id="${ROOT_ID}">${body}</div><script>${this.dehydratedScript(data.dehydrated)}</script></body></html>`
      }
    }
    ```
+
+   `headDescriptorToHtml` escapes the attribute values of the tags it renders and `dehydratedScript` escapes the snapshot, so `escapeHtml` is needed only for the values the renderer interpolates itself: `title`, `lang` and `dir`.
 
    Also provide a **default renderer template** that the Vite plugin uses when the user does not supply a custom one:
 
