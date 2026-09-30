@@ -112,7 +112,12 @@ describe('devtools', () => {
           now: performance.now()
         }
 
+        // No step of the application takes any time, however busy the machine running the test is
+        vi.spyOn(performance, 'now').mockImplementation(() => clock.now)
+
         await tick(context)
+
+        vi.restoreAllMocks()
 
         expect(groupRows()[0].textContent).not.toMatch(/slowest/)
 
