@@ -56,15 +56,6 @@ export function queryKey<P extends unknown[], R>(
     params
   })) as CacheKeyBuilder<P, R>
 
-  if (import.meta.env.DEV) {
-    for (const registered of keysSet) {
-      if (registered.shard === name) {
-        console.warn(`[nano_kit/query] Cache key shard "${name}" is already registered: two builders with one name share one cache`)
-        break
-      }
-    }
-  }
-
   key.shard = name
   key.key = undefined
 
