@@ -51,7 +51,7 @@ A store test builds an [`InjectionContext`](/store/testing#mocking-dependencies)
 
 ```ts title="test/events.spec.ts"
 import { describe, it, expect } from 'vitest'
-import { InjectionContext, TasksPool$, inject, provide, start, waitTasks } from '@nano_kit/store'
+import { InjectionContext, inject, provide, start, waitTasks } from '@nano_kit/store'
 import { LocationNavigation$, virtualNavigation } from '@nano_kit/router'
 import { ApiService$ } from '#src/services/api'
 import { EventsList$ } from '#src/stores/events'
@@ -69,7 +69,7 @@ describe('stores', () => {
         const { $events } = inject(EventsList$, context)
         const stop = start($events)
 
-        await waitTasks(inject(TasksPool$, context))
+        await waitTasks($events)
 
         expect($events()!.pages[0].events.length).toBeGreaterThan(0)
 
@@ -82,7 +82,7 @@ describe('stores', () => {
 
 [`start`](/store/testing#triggering-mount-events) keeps `$events` mounted the way a rendered component would, so the query actually runs.
 
-Waiting works through query tasks. The client is created with `ssr()`, which tracks every in-flight query as a task in the context's `TasksPool$`. The test pulls that pool out of the same context and [`waitTasks`](/query/advanced#tasks) awaits it — the same mechanism the SSR renderer uses to wait for page data. The store graph created inside the context is fully isolated: its own query client, its own transport, its own navigation.
+Waiting works through query tasks. A query attaches every request it starts as a task to the signal it fills, and [`waitTasks`](/store/testing#waiting-for-async-operations) awaits the tasks of `$events` and of everything it depends on: the same mechanism the SSR renderer uses to wait for page data. The store graph created inside the context is fully isolated: its own query client, its own transport, its own navigation.
 
 Cookie-dependent stores get the same treatment with [`VirtualCookieStore`](/ssr/cookies#low-level-usage). Provide one with a `Cookie` header string, and the locale store reads it like a browser cookie:
 

@@ -364,15 +364,15 @@ The Dependency Injection system enables modular architecture and makes testing e
 Use an injectable function or class with `inject` to retrieve dependencies. For example, in React, use `InjectionContextProvider` to create a context and `useInject` to access dependencies.
 
 ```tsx
-import { inject, signal, mountable, onMountEffect, action, effect, TasksRunner$ } from '@nano_kit/store'
+import { signal, mountable, onMountEffect, action, task } from '@nano_kit/store'
 import { InjectionContextProvider, useInject, useSignal } from '@nano_kit/react'
 
 /* Injectable function that defines a user store */
 function User$() {
-  const task = inject(TasksRunner$)
   const $userId = signal(null)
   const $user = mountable(signal(null))
-  const fetchUser = action((id) => task(async () => {
+  /* Attach the request to $user, so SSR and tests can wait for it */
+  const fetchUser = action((id) => task($user, async () => {
     if (typeof id !== 'number') {
       $user(null)
       return
@@ -499,15 +499,16 @@ const value = $get($count)
 Injectable tokens that start with an uppercase letter and end with `$` are Dependency Injection tokens.
 
 ```ts
-import { Injectable$, TasksRunner$, inject } from '@nano_kit/store'
+import { Injectable$, inject } from '@nano_kit/store'
+import { CookieStore$ } from '@nano_kit/platform-web'
 
 function User$() {
-  const task = inject(TasksRunner$)
+  const cookieStore = inject(CookieStore$)
   /* ... */
 }
 
 class UserService$ extends Injectable$ {
-  task = inject(TasksRunner$)
+  cookieStore = inject(CookieStore$)
 }
 ```
 
@@ -779,33 +780,95 @@ Additional object helpers:
 
 ### Signals Map
 
-`SignalsMap` is a reactive `Map` where each entry's value is a signal.
+`SignalsMap` is a `Map` whose values are reactive: every value lives in a signal of its own, and the signals never leave the map. It is a class created with `new`, where `get` reads a value without tracking, `$get` reads it and tracks it, and `set`, `delete`, `clear`, `has`, `keys` and `size` work as they do on a `Map`.
 
 ```ts
-import { type SignalsMap, $getMapKey, setMapKey, deleteMapKey, clearMap } from '@nano_kit/store'
+import { SignalsMap, effect } from '@nano_kit/store'
 
-const userMap: SignalsMap<number, User> = new Map()
+interface User {
+  id: number
+  name: string
+}
+
+const users = new SignalsMap<number, User>()
 
 /* Set entry */
-setMapKey(userMap, 1, { name: 'Dan', age: 30 })
+users.set(1, { id: 1, name: 'Dan' })
 
 /* Get entry reactively */
 effect(() => {
-  console.log('User:', $getMapKey(userMap, 1))
+  console.log('User:', users.$get(1))
 })
 
+/* Update entry with a reducer, as with a writable signal */
+users.set(1, user => user && { ...user, name: 'Alice' })
+
+/* Get entry without tracking */
+users.get(1)
+
 /* Delete entry */
-deleteMapKey(userMap, 1)
+users.delete(1)
 
 /* Clear all */
-clearMap(userMap)
+users.clear()
+```
+
+A reader of a key that is in the map runs again only when its value changes, not when other keys are set. A reader of a missing key runs again when a key is added or removed, so it gets the value as soon as the key is set.
+
+`IndexedSignalsMap` adds `$index`, a computed list of the keys: it changes when a key is added or removed, not when a value is set. `$index` also stands for the whole map in the lifecycle: mark it `mountable` right after the map is created, and every reader of the map mounts it, the readers of `$get` included.
+
+```ts
+import { IndexedSignalsMap, mountable, onMount, effect } from '@nano_kit/store'
+
+const users = new IndexedSignalsMap<number, User>()
+
+/* Mark the index mountable before anything reads the map */
+onMount(mountable(users.$index), () => {
+  /* Runs when the first reader of the map appears */
+  const socket = new WebSocket('wss://example.com/users')
+
+  socket.onmessage = (event) => {
+    const user: User = JSON.parse(event.data)
+
+    users.set(user.id, user)
+  }
+
+  return () => socket.close()
+})
+
+/* Runs again when a key is added or removed, not when a value is set */
+effect(() => {
+  console.log('User ids:', users.$index())
+})
+
+/* Runs again when user 1 changes, and keeps the map mounted as well */
+effect(() => {
+  console.log('User 1:', users.$get(1))
+})
 ```
 
 ## Functional Operators
 
-Functional operators (fops) are pure functions that create accessors from other accessors or values. Unlike `computed`, they don't memoize results — they recalculate on every access. For memoization, wrap them in `computed`.
+Functional operators (fops) are pure functions that combine accessors and plain values. Every operator checks its operands: with an accessor among them the result is an accessor, and with none it is the plain value, so a binding made of static values costs no effect. Unlike `computed`, a returned accessor does not memoize: it recalculates on every access. For memoization, wrap it in `computed`.
 
-These operators accept either static values or accessors, making them flexible for building derived state without immediate caching.
+```ts
+import { type Signalish, signal, is } from '@nano_kit/store'
+
+const $variant = signal('primary')
+
+/* Accessor<boolean>: an accessor is among the operands */
+const $isPrimary = is($variant, 'primary')
+
+/* boolean: every operand is static */
+const isPrimary = is('primary', 'primary')
+
+/* Signalish<boolean>: the operand may turn out either way */
+function isPrimaryVariant(variant: Signalish<string>) {
+  return is(variant, 'primary')
+}
+```
+
+The `Fop` type describes the result of an operator: an accessor when an operand is an accessor, the plain value when none can be, and `Signalish` of the value when an operand may be either.
 
 ### Logical Operations
 
@@ -870,6 +933,48 @@ const $greeting = when(
 console.log($greeting()) /* "Hello, Alice" */
 ```
 
+### Lookup
+
+**`pick`** looks a value up in a collection by key. The collection is an object or an array, and both it and the key can be static or accessors. An empty key (`null` or `undefined`) picks `undefined`, which suits an optional prop.
+
+```ts
+import { signal, pick } from '@nano_kit/store'
+
+const styles = {
+  primary: 'button_primary',
+  secondary: 'button_secondary'
+}
+const $variant = signal<'primary' | 'secondary'>('primary')
+const $className = pick(styles, $variant)
+
+console.log($className()) /* "button_primary" */
+
+$variant('secondary')
+console.log($className()) /* "button_secondary" */
+
+/* Static operands give the value itself */
+pick(styles, 'primary') /* "button_primary" */
+```
+
+### Text
+
+**`text`** is a template tag that builds a string from a template literal. The values in it are strings, numbers, booleans or bigints, static or accessors, and an empty value (`null` or `undefined`) adds nothing.
+
+```ts
+import { signal, text } from '@nano_kit/store'
+
+const $name = signal('Dan')
+const $greeting = text`Hello, ${$name}!`
+
+console.log($greeting()) /* "Hello, Dan!" */
+
+$name('Alice')
+console.log($greeting()) /* "Hello, Alice!" */
+
+/* Static values give the string itself */
+text`Step ${1} of ${3}` /* "Step 1 of 3" */
+```
+
 ### Memoization
 
 Since fops don't cache results, wrap them in `computed` for expensive operations:
@@ -927,7 +1032,7 @@ The library provides a set of utility functions for common tasks like rate limit
 
 ### Async State
 
-**`resolved`** unwraps a promise accessor into a `[$result, $error, $pending]` tuple of signals. Stale data is preserved while a new promise is pending, and falsy values reset the state.
+**`resolved`** unwraps a promise accessor into a `[$result, $error, $pending]` tuple of signals. Stale data is preserved while a new promise is pending.
 
 ```ts
 import { signal, computed, resolved } from '@nano_kit/store'
@@ -944,7 +1049,21 @@ const [$position, $error, $pending] = resolved(
 )
 ```
 
-A falsy source resets all signals to their initial state (`result: undefined`, `error: undefined`, `pending: false`).
+A source value that is not a promise becomes the result as it is, a falsy one included, so an empty state is expressed by the type itself, for example `User | null`.
+
+```ts
+import { signal, resolved } from '@nano_kit/store'
+
+const $userId = signal<number | null>(null)
+const [$user] = resolved(() => {
+  const id = $userId()
+
+  /* The result is null until there is a user to fetch */
+  return id === null ? null : fetchUser(id)
+})
+```
+
+Each promise from the source is attached as a task, so `waitTasks` of any of the three signals waits until it settles. A signal of the tuple links the source on its first read, so read or mount it before waiting.
 
 > Note: For remote data fetching with caching, request deduplication, cancellation, refetching, and other advanced features, consider using `@nano_kit/query` instead.
 
@@ -1060,6 +1179,30 @@ $count(2) /* Changed from 1 to 2 */
 $count(3) /* Changed from 2 to 3 */
 ```
 
+### Latest Value
+
+**`latest`** merges several sources into one computed that carries the value of the source that changed last. It fits a local cell paired with a read-only source: typing wins over the URL, and navigation wins over what was typed. Where `previous` looks back through a single source, `latest` picks the freshest value across several.
+
+```ts
+import { signal, latest, effect } from '@nano_kit/store'
+
+/* Stands for a read-only source, such as a search param of the URL */
+const $searchParam = signal('shoes')
+/* The local cell the search field writes */
+const $searchQuery = signal('')
+const $search = latest($searchQuery, $searchParam)
+
+effect(() => {
+  console.log('Search:', $search())
+})
+/* Search: shoes */
+
+$searchQuery('boots') /* Search: boots */
+$searchParam('hats') /* Search: hats */
+```
+
+On the first read the last source wins, and when several sources changed since the previous read, as with writes inside one `batch`, the last of them in argument order wins. Only a new value counts as a change: writing a value equal to the current one leaves the result as it is.
+
 ### Computed Properties
 
 **`length`** creates a computed for the `length` property of arrays or strings.
@@ -1084,22 +1227,6 @@ const $hasUser = boolean($user)
 console.log($hasUser()) /* false */
 $user({ name: 'Dan' })
 console.log($hasUser()) /* true */
-```
-
-**`concat`** concatenates multiple values or accessors into a string.
-
-```ts
-import { signal, concat, effect } from '@nano_kit/store'
-
-const $firstName = signal('John')
-const $lastName = signal('Doe')
-const $fullName = concat($firstName, ' ', $lastName)
-
-effect(() => {
-  console.log($fullName())
-})
-
-$firstName('Jane') /* Jane Doe */
 ```
 
 ### Type Checking
@@ -1327,17 +1454,16 @@ function User$() {
 
 ## Working with Tasks
 
-SSR requires waiting for all async operations to complete before dehydrating. Use `TasksRunner$` to create a task runner that automatically tracks async operations in `TasksPool$`.
+SSR requires waiting for all async operations to complete before dehydrating. Use `task` to attach an async operation to the signal it fills: until the operation settles, `waitTasks` of that signal, and of every signal that depends on it, waits for it.
 
 ```ts
-import { inject, signal, hydratable, mountable, onMountEffect, action, TasksRunner$ } from '@nano_kit/store'
+import { signal, hydratable, mountable, onMountEffect, action, task } from '@nano_kit/store'
 
 function User$() {
-  const task = inject(TasksRunner$)
   const $userId = hydratable('userId', signal(null))
   const $user = hydratable('user', mountable(signal(null)))
 
-  const fetchUser = action((id) => task(async () => {
+  const fetchUser = action((id) => task($user, async () => {
     if (typeof id !== 'number') {
       $user(null)
       return
@@ -1357,7 +1483,9 @@ function User$() {
 }
 ```
 
-The `task` function wraps async operations and adds them to the tasks pool. The `dehydrate` function waits for all tasks in the pool to complete before extracting signal values.
+`task` takes the signal the operation fills (or an array of signals) and a promise or a function that returns one, and returns that promise. `waitTasks($signal)` walks the dependency graph of the signal and waits, wave by wave, until neither the signal nor anything it depends on has tasks left, so a task started by another task and a dependency read only after a value settles are awaited too.
+
+There is no pool to create or provide: tasks live on the signals they fill, so `dehydrate` waits for exactly the stores it starts, and a test waits for exactly the signal it checks. Queries of `@nano_kit/query` and `resolved` attach their tasks by themselves, so stores built on them need no `task` call.
 
 ## Manual Hydration Flow
 
@@ -1365,7 +1493,7 @@ The `task` function wraps async operations and adds them to the tasks pool. The 
 
 ### Server-Side Dehydration
 
-On the server, use `dehydrate` to execute your store logic, wait for all async tasks to complete, and extract the dehydrated key-value pairs.
+On the server, use `dehydrate` to execute your store logic, wait for its async tasks to complete, and extract the dehydrated key-value pairs.
 
 ```ts
 import { dehydrate, inject } from '@nano_kit/store'
@@ -1386,10 +1514,10 @@ const dehydrated = await dehydrate(() => {
 
 The `dehydrate` function:
 
-1. Creates an injection context with a task pool, or uses the context passed as the second argument
+1. Creates an injection context, or uses the context passed as the second argument
 2. Runs your store factories within that context
 3. Starts effects to trigger `onMount` callbacks (which start async tasks)
-4. Waits for all tasks in `TasksPool$` to complete
+4. Waits for the tasks of the returned signals and of every signal they depend on
 5. Collects all signals marked with `hydratable`
 6. Returns the dehydrated key-value pairs
 
@@ -1433,6 +1561,8 @@ function UserProfile() {
 ```
 
 `StaticHydrator` is a one-shot hydrator: it applies values from the initial dehydrated snapshot and discards them after use. For streaming SSR where chunks of dehydrated data arrive after the initial render, use `ActiveHydrator` instead — it exposes a `push(dehydrated)` method to feed additional data reactively.
+
+In the development build, `StaticHydrator` warns about an id that has no value in the snapshot: the signal was not dehydrated on the server, or the same id is hydrated twice.
 
 ---
 
@@ -1521,22 +1651,35 @@ expect(mounted).toHaveBeenCalledTimes(1)
 
 ## Waiting for Async Operations
 
-Tasks are useful not only for SSR but also in tests to wait for async operations inside effects. Use tasks pool with `waitTasks` to ensure all async work completes before assertions.
+Tasks are useful not only for SSR but also in tests to wait for async operations inside effects. Pass the signal under test to `waitTasks` to ensure its async work completes before assertions.
 
 ```ts
-import { type TasksPool, waitTasks, tasksRunner } from '@nano_kit/store'
-import { client, tasks } from '@nano_kit/query'
+import { expect, vi } from 'vitest'
+import { mountable, signal, computed, onMount, start, task, waitTasks } from '@nano_kit/store'
 
-const tasksPool: TasksPool = new Set()
-const { query } = client(tasks(tasksRunner(tasksPool)))
+const fetchName = vi.fn().mockResolvedValue('John')
+const $name = mountable(signal<string | null>(null))
+const $greeting = computed(() => `Hello, ${$name() ?? 'guest'}`)
 
-/* ... trigger async operations ... */
+/* The store attaches its request to the signal it fills */
+onMount($name, () => {
+  void task($name, async () => {
+    $name(await fetchName())
+  })
+})
 
-/* Wait for all tasks to complete */
-await waitTasks(tasksPool)
+/* Mount $greeting and the $name it reads */
+const stop = start($greeting)
+
+/* Wait for the tasks of $greeting and of every signal it depends on */
+await waitTasks($greeting)
+
+expect($greeting()).toBe('Hello, John')
+
+stop()
 ```
 
-The `waitTasks` function waits for all tasks in the pool to complete, including tasks that spawn new tasks. For simpler cases, use `waitCurrentTasks` to wait only for currently running tasks.
+The `waitTasks` function waits until neither the signal nor anything it depends on has tasks left, including tasks that spawn new tasks. It follows the links the graph already has, so start the signal before waiting: a computed links its dependencies on its first read. Queries, mutations and `resolved` attach their tasks by themselves. `waitTasks` resolves even when a task fails, so assert the error state after it.
 
 ## Mocking Dependencies
 
@@ -1562,3 +1705,53 @@ const context = new InjectionContext([
 /* Inject store with mocked context */
 const { $episodes } = inject(Episodes$, context)
 ```
+
+---
+
+# DevTools
+
+Learn how to inspect the stores of a running app with @nano_kit/devtools.
+
+`@nano_kit/devtools` is an in-page DevTools panel for @nano_kit/store: the reactive graph of your app, its values, its lifecycle and a log of every transaction, right on the page.
+
+- **On the page**. A panel over your app in its own shadow root: no browser extension, no bundler plugin, and a strict Content Security Policy does not stop it.
+- **Free in production**. The guarded call folds away with the whole package, and the core reports to the panel in its [development build](#development-builds) alone.
+- **Named for you**. Every signal gets a readable name, the place it was created and its owner, the store factory, the component or the file, straight from the call stack.
+- **Transactions, not events**. The log groups what happened by flush, with the time of every run and the slowest one called out.
+- **Live values**. Pick any node to see its value as a tree, what it reads, what reads it, and its last lines in the log.
+
+## Installation
+
+Install the package as a dev dependency using your favorite package manager:
+
+```bash
+pnpm add -D @nano_kit/devtools
+```
+
+## Quick Start
+
+Call `devtools()` once, behind the development flag of your bundler, and import it before the modules that create your stores, so their signals are named from the start:
+
+```ts title="src/devtools.ts"
+import { devtools } from '@nano_kit/devtools'
+
+if (import.meta.env.DEV) {
+  devtools()
+}
+```
+
+```ts title="src/main.ts"
+/* First of all, before the modules that create stores */
+import './devtools'
+import { App } from './App'
+```
+
+Open the panel with the pill at the bottom edge of the page, or with Alt+Shift+D / ⌥⇧D:
+
+- **Signals**. Every signal, computed and child signal, grouped by the factory, component or file it was created in, with its value, state and links.
+- **Log**. Every transaction: a write and all it caused, down to the effects that ran and how long each took.
+- **Inspector**. The node you picked: its value, what it reads and what reads it, and its recent history.
+
+## Development Builds
+
+`@nano_kit/store`, `@nano_kit/query`, `@nano_kit/router`, `@nano_kit/intl` and the core under them, `kida` and `agera`, ship two builds: `dist/index.development.js` and `dist/index.production.js`. Their `exports` pick one through the `development` and `production` conditions, and `default` is the production build. Bundlers that resolve the `development` condition during development, Vite among them, serve the development build with no setup, while production bundles get the production build.

@@ -386,10 +386,10 @@ console.log($atId4()) // John
 
 $atId4('Bob')
 
-console.log($atId4()) // { 2: 'Dan', 4: 'Bob', 6: 'Alice' }
+console.log($users()) // { 2: 'Dan', 4: 'Bob', 6: 'Alice' }
 ```
 
-`atKey` supports dynamic indexes.
+`atKey` supports dynamic keys.
 
 ```ts
 import { signal, atKey } from 'kida'
@@ -404,7 +404,7 @@ const $user = atKey($users, $id)
 
 console.log($user()) // John
 
-$index(6)
+$id(6)
 
 console.log($user()) // Alice
 ```
@@ -413,6 +413,21 @@ There are also other methods to work with object maps:
 
 - `setKey($object, key, value)` - set value by key to the object signal.
 - `deleteKey($object, key)` - delete item by key from the object signal.
+
+### `child`
+
+`child` method creates a signal for a property of a parent signal with a custom writer: `atIndex` and `atKey` are built on it. The writer gets the parent value, the key and the new value, and returns the new parent value. The child is writable when the parent is writable, and read-only otherwise.
+
+```ts
+import { signal, child, assignKey } from 'kida'
+
+const $user = signal({ name: 'Dan', age: 30 })
+const $name = child($user, 'name', assignKey)
+
+$name('Alice')
+
+console.log($user()) // { name: 'Alice', age: 30 }
+```
 
 ## Dependency injection
 
@@ -544,6 +559,30 @@ const $user = signal(null)
 const $hasUser = boolean($user)
 ```
 
+### `latest`
+
+`latest` method creates a signal with the value of the source that changed last. For example, a search field paired with a URL parameter: typing wins over the URL, navigation wins over what was typed.
+
+```ts
+import { signal, latest } from 'kida'
+
+const $searchQuery = signal('') // search field
+const $searchParam = signal('kida') // URL parameter
+const $search = latest($searchQuery, $searchParam)
+
+console.log($search()) // kida
+
+$searchQuery('agera')
+
+console.log($search()) // agera
+
+$searchParam('nano')
+
+console.log($search()) // nano
+```
+
+On the first read, and when several sources changed since the previous read (e.g. inside a `batch`), the last source in the argument list wins. Writing a value equal to the current one is not a change.
+
 ### `$get`
 
 `$get` method gets the value from the signal or returns the given value.
@@ -611,7 +650,9 @@ const [$position, $error, $pending] = resolved(
 )
 ```
 
-A falsy source resets all signals to their initial state (`data: undefined`, `error: undefined`, `pending: false`).
+A source value that is not a promise, a falsy one included, becomes the result as is. Express an empty state with the type, e.g. `T | null`.
+
+Each promise from the source is attached as a task, so `waitTasks` of any of the three signals waits until it settles. Like any computed, a signal of the tuple links the source only on its first read: read it before waiting.
 
 > [!NOTE]
 > For remote data fetching with caching, request deduplication, cancellation, refetching, and other advanced features, consider using [`@nano_kit/query`](https://github.com/TrigenSoftware/nano_kit/tree/main/packages/query) instead.
@@ -626,6 +667,6 @@ Nano Stores is a great library with wonderful idea of stores with lifecycles. Bu
 
 | Benchmark<br>Throughput avg (ops/s) | Kida / Agera | Alien Signals | Nano Stores |
 | ------- | --------- | ------- | ------ |
-| [signal](../benchmarks/atom.js) | 17 670 321 ± 0.01% | 19 160 348 ± 0.00% | 1 364 731 ± 0.03% |
-| [computed](../benchmarks/computed.js) | 1 193 380 ± 0.02% | 1 307 870 ± 0.02% | 229 406 ± 0.14% |
-| [effect](../benchmarks/effect.js) | 3 309 252 ± 0.01% | 3 441 332 ± 0.01% | 922 683 ± 0.04% |
+| [signal](../benchmarks/atom.js) | 15 048 243 ± 0.01% | 18 967 631 ± 0.00% | 1 389 555 ± 0.02% |
+| [computed](../benchmarks/computed.js) | 1 208 888 ± 0.02% | 1 331 229 ± 0.02% | 187 524 ± 0.15% |
+| [effect](../benchmarks/effect.js) | 3 257 518 ± 0.01% | 3 463 918 ± 0.01% | 955 623 ± 0.03% |
