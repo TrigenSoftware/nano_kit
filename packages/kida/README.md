@@ -514,6 +514,56 @@ run(context, () => {
 })
 ```
 
+### Nested contexts
+
+Pass a parent as the second argument of `InjectionContext` to create a child context. A child sees everything provided above it, and its own providers override the ones above.
+
+A dependency that is not provided is created once and shared as widely as its inputs allow: it lives in the deepest context that provides something it reads, directly or through the dependencies it injects, and in the top context when it reads nothing provided. Every context below takes it from there:
+
+```ts
+import { InjectionContext, provide, inject } from 'kida'
+
+function Theme$() {
+  return 'light'
+}
+
+function Palette$() {
+  return { theme: inject(Theme$) }
+}
+
+function Session$() {
+  return { user: null }
+}
+
+const app = new InjectionContext()
+const dark = new InjectionContext([provide(Theme$, 'dark')], app)
+
+inject(Session$, dark) === inject(Session$, app) // true, Session$ reads nothing that dark provides
+inject(Palette$, dark) === inject(Palette$, app) // false, dark has its own Palette$ for its Theme$
+```
+
+### `provideAs`
+
+`provideAs` resolves a token as another injectable. Unlike `provide`, which takes a ready value, it takes an injectable: the alias is created on first use, injects its own dependencies, and the token and the alias share one instance:
+
+```ts
+import { InjectionContext, provideAs, inject } from 'kida'
+
+function Api$() {
+  return { getUser: (id: number) => fetch(`/user/${id}`).then(response => response.json()) }
+}
+
+function MockApi$() {
+  return { getUser: (id: number) => Promise.resolve({ id, name: 'Test User' }) }
+}
+
+const context = new InjectionContext([provideAs(Api$, MockApi$)])
+
+inject(Api$, context) === inject(MockApi$, context) // true
+```
+
+When a token is provided twice in one array, the last provider wins, for values and aliases alike.
+
 ## Utils
 
 ### `isSignal`
