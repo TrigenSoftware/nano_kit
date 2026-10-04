@@ -30,7 +30,15 @@ export default defineConfig({
     environment: 'happy-dom',
     exclude: [...configDefaults.exclude, './package', './dist'],
     coverage: {
-      reporter: ['lcovonly', 'text'],
+      reporter: [
+        [
+          'lcovonly',
+          {
+            projectRoot: '../..'
+          }
+        ],
+        'text'
+      ],
       include: ['src/**/*']
     }
   }
