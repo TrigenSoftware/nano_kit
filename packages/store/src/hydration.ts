@@ -177,7 +177,7 @@ export async function dehydrate(
     : new InjectionContext(context)
   const hydratables = new Map<string, AnyAccessor>()
 
-  finalContext.set(Hydratables$, hydratables)
+  finalContext.deps.set(Hydratables$, hydratables)
 
   const stores = run(finalContext, runner)
   const $root = computed(() => stores.forEach(store => store() as void))
