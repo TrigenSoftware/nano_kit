@@ -52,7 +52,7 @@ export function setDehydrationContext(context: InjectionProvider[] | undefined) 
     const dehydrationContext = getDehydrationContext()
 
     for (const [token, value] of context) {
-      dehydrationContext.set(token, value)
+      dehydrationContext.deps.set(token, value)
     }
   }
 }

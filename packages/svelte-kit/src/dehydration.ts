@@ -83,7 +83,7 @@ export function setDehydrationContext(context?: InjectionProvider[]) {
 
   if (context) {
     for (const [token, value] of context) {
-      dehydrationContext.set(token, value)
+      dehydrationContext.deps.set(token, value)
     }
   }
 
@@ -147,7 +147,7 @@ export function setHydrationContext(
   sharedContexts.delete(dehydrationContextRef)
 
   for (const [token, value] of context) {
-    dehydrationContext.set(token, value)
+    dehydrationContext.deps.set(token, value)
   }
 
   setInjectionContext(dehydrationContext)
