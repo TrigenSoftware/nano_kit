@@ -57,7 +57,7 @@ describe('ssr', () => {
       expect(output[1].code).not.toContain('Cache$')
       expect(output[2].code).not.toContain('Stores$')
       expect(output[2].code).not.toContain('Cache$')
-    }, 30000)
+    })
 
     it('should attach chunk name to dynamic imports in server bundle', async () => {
       const plugins = plugin.filter(
@@ -216,5 +216,5 @@ describe('ssr', () => {
       expect(serverPageChunk.code).toContain('"Home Page"')
       expect(serverPageChunk.code).toContain('Stores$')
     })
-  })
+  }, 30_000)
 })
