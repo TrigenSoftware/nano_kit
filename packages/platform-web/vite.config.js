@@ -43,7 +43,15 @@ export default defineConfig({
     exclude: [...configDefaults.exclude, './package', './dist'],
     coverage: {
       provider: 'v8',
-      reporter: ['lcovonly', 'text'],
+      reporter: [
+        [
+          'lcovonly',
+          {
+            projectRoot: '../..'
+          }
+        ],
+        'text'
+      ],
       include: ['src/**/*']
     }
   }

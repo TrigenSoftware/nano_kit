@@ -81,7 +81,15 @@ export default defineConfig({
     exclude: [...configDefaults.exclude, './package', './dist', './storybook-static'],
     coverage: {
       provider: 'v8',
-      reporter: ['lcovonly', 'text'],
+      reporter: [
+        [
+          'lcovonly',
+          {
+            projectRoot: '../..'
+          }
+        ],
+        'text'
+      ],
       include: ['src/**/*'],
       // The entry imports the styles only the library build makes: no spec loads it
       exclude: ['src/**/*.stories.ts', 'src/devtools.ts']

@@ -37,7 +37,15 @@ export default defineConfig({
     setupFiles: ['@testing-library/jest-dom/vitest'],
     exclude: [...configDefaults.exclude, './package', './dist'],
     coverage: {
-      reporter: ['lcovonly', 'text'],
+      reporter: [
+        [
+          'lcovonly',
+          {
+            projectRoot: '../..'
+          }
+        ],
+        'text'
+      ],
       include: ['src/**/*']
     }
   }
