@@ -55,6 +55,8 @@ To use the Dependency Injection system within Svelte, initialize an injection co
 
 You can provide an existing instance or an array of providers/values.
 
+Called with providers under another context, `setInjectionContext` creates a child context of it. Which context a store is created in is explained in [Nested Contexts](/store/core-concepts#nested-contexts).
+
 ```svelte
 <script lang="ts">
   import { provide } from '@nano_kit/store'

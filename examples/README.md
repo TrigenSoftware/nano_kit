@@ -10,7 +10,7 @@ This document contains bundle size information for various examples in the proje
 | Svelte + Nano Stores | 56.08 kB | 21.72 kB |
 | React + Nano Stores | 206.71 kB | 65.53 kB |
 | React + nano_kit | 211.39 kB | 66.91 kB |
-| React + nano_kit + DI | 212.48 kB | 67.28 kB |
+| React + nano_kit + DI | 212.92 kB | 67.47 kB |
 | React + Reatom | 228.10 kB | 72.57 kB |
 | React + TanStack Query | 232.56 kB | 71.97 kB 🪨 |
 
