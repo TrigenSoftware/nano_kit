@@ -34,6 +34,9 @@ export class Manifest {
     return Object.values(this.manifest).find(chunk => chunk.isEntry)!.src!
   }
 
+  // Imported chunks come before the chunk that imports them, as Vite links them and as the
+  // modules run: a chunk's styles must load after those of the chunks it imports, so they
+  // win at equal specificity.
   #resolveKeys(
     keys: string[],
     visited = new Set<string>(),
@@ -56,11 +59,11 @@ export class Manifest {
         continue
       }
 
-      out.push(chunk)
-
       if (chunk.imports) {
         this.#resolveKeys(chunk.imports, visited, out)
       }
+
+      out.push(chunk)
     }
 
     return out
@@ -77,6 +80,7 @@ export class Manifest {
   /**
    * Gets the asset tags for the given entries.
    * The main entry is automatically included, so it should not be included in the `entries` argument.
+   * Stylesheets are linked in dependency order: a chunk's after those of the chunks it imports.
    * @param entries - The list of entry points to get the asset tags for.
    * @returns The list of asset tags for the given entries.
    */

@@ -46,14 +46,14 @@ describe('ssr', () => {
           tag: 'link',
           props: {
             rel: 'stylesheet',
-            href: '/assets/main.css'
+            href: '/assets/store.css'
           }
         })
         expect(cssLinks[1]).toMatchObject({
           tag: 'link',
           props: {
             rel: 'stylesheet',
-            href: '/assets/store.css'
+            href: '/assets/main.css'
           }
         })
 
@@ -74,14 +74,14 @@ describe('ssr', () => {
           tag: 'link',
           props: {
             rel: 'modulepreload',
-            href: '/assets/router-def456.js'
+            href: '/assets/utils-jkl012.js'
           }
         })
         expect(modulepreloadLinks[1]).toMatchObject({
           tag: 'link',
           props: {
             rel: 'modulepreload',
-            href: '/assets/utils-jkl012.js'
+            href: '/assets/router-def456.js'
           }
         })
         expect(modulepreloadLinks[2]).toMatchObject({
@@ -91,6 +91,52 @@ describe('ssr', () => {
             href: '/assets/store-ghi789.js'
           }
         })
+      })
+
+      it('should link the styles of imported chunks before the styles of the chunk importing them', () => {
+        const manifest = new Manifest()
+
+        manifest.manifest = {
+          'src/index.ts': {
+            src: 'src/index.ts',
+            file: 'assets/index-abc123.js',
+            isEntry: true,
+            css: ['assets/main.css']
+          },
+          'src/pages/progress.ts': {
+            src: 'src/pages/progress.ts',
+            file: 'assets/progress-def456.js',
+            isDynamicEntry: true,
+            css: ['assets/progress.css'],
+            imports: ['src/shared/track.ts']
+          },
+          'src/shared/track.ts': {
+            src: 'src/shared/track.ts',
+            file: 'assets/track-ghi789.js',
+            css: ['assets/track.css']
+          }
+        }
+
+        const cssLinks = manifest.getAssetsTags(['src/pages/progress.ts'])
+          .filter(tag => tag.tag === 'link' && tag.props?.rel === 'stylesheet')
+
+        expect(cssLinks).toMatchObject([
+          {
+            props: {
+              href: '/assets/main.css'
+            }
+          },
+          {
+            props: {
+              href: '/assets/track.css'
+            }
+          },
+          {
+            props: {
+              href: '/assets/progress.css'
+            }
+          }
+        ])
       })
     })
   })
