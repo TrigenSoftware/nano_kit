@@ -68,3 +68,4 @@ packageExtensions:
   '@sveltejs/package':
     peerDependencies:
       typescript: '*'
+workspaceConcurrency: 0
