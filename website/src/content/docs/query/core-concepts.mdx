@@ -334,7 +334,7 @@ revalidate(PostKey)
 /* All active post queries will refetch */
 ```
 
-**What happens**: Revalidation doesn't remove data from cache, it just marks it as stale. Active queries (those with listeners) will automatically refetch.
+**What happens**: Revalidation doesn't remove data from cache, it just marks it as stale. Active queries (those with listeners) will automatically refetch. If an active query still has a request in flight, the revalidation restarts it, and only the response of the restarted request reaches the cache.
 
 #### Invalidating Cache
 
