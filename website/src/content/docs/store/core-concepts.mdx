@@ -310,15 +310,15 @@ The Dependency Injection system enables modular architecture and makes testing e
 Use an injectable function or class with `inject` to retrieve dependencies. For example, in React, use `InjectionContextProvider` to create a context and `useInject` to access dependencies.
 
 ```tsx
-import { inject, signal, mountable, onMountEffect, action, effect, TasksRunner$ } from '@nano_kit/store'
+import { signal, mountable, onMountEffect, action, task } from '@nano_kit/store'
 import { InjectionContextProvider, useInject, useSignal } from '@nano_kit/react'
 
 /* Injectable function that defines a user store */
 function User$() {
-  const task = inject(TasksRunner$)
   const $userId = signal(null)
   const $user = mountable(signal(null))
-  const fetchUser = action((id) => task(async () => {
+  /* Attach the request to $user, so SSR and tests can wait for it */
+  const fetchUser = action((id) => task($user, async () => {
     if (typeof id !== 'number') {
       $user(null)
       return
@@ -422,6 +422,89 @@ function App() {
 }
 ```
 
+### Aliases
+
+`provideAs` resolves a token as another injectable. Unlike `provide`, which takes a ready value, it takes an injectable: the alias is created on first use, injects its own dependencies, and the token and the alias share one instance. It suits implementations swapped per environment, such as a mock API in stories and tests.
+
+```tsx
+import { provideAs } from '@nano_kit/store'
+import { InjectionContextProvider } from '@nano_kit/react'
+
+function Api$() {
+  return {
+    getUser: (id: number) => fetch(`/user/${id}`).then(response => response.json())
+  }
+}
+
+function MockApi$() {
+  return {
+    getUser: (id: number) => Promise.resolve({ id, name: 'Test User' })
+  }
+}
+
+function Preview({ children }) {
+  return (
+    <InjectionContextProvider context={[provideAs(Api$, MockApi$)]}>
+      {children}
+    </InjectionContextProvider>
+  )
+}
+```
+
+Inside `Preview`, every store that injects `Api$` gets the `MockApi$` instance, and `useInject(MockApi$)` returns that same instance. When a token is provided twice in one array, for example defaults followed by overrides, the last provider wins, for values and aliases alike.
+
+### Nested Contexts
+
+Providers nest. A provider with its own values inside another one creates a child context: its subtree sees everything provided above, and its own providers override the ones above.
+
+A dependency that is not provided is created once and shared as widely as its inputs allow. It lives in the deepest context that provides something it reads, directly or through the dependencies it injects, and in the top context when it reads nothing provided. Every context below takes it from there. So a nested provider gets its own instances of exactly the stores that depend on what it overrides, and everything else stays shared.
+
+```tsx
+import { DependencyNotFound, inject, provide, signal } from '@nano_kit/store'
+import { InjectionContextProvider, useInject, useSignal } from '@nano_kit/react'
+
+function TodoId$(): number {
+  throw new DependencyNotFound('TodoId$')
+}
+
+/* Reads nothing provided: one list for the whole app */
+function Todos$() {
+  const $todos = signal([{ id: 1, title: 'Write docs' }])
+
+  return { $todos }
+}
+
+/* Reads TodoId$: one editor for every provider of TodoId$ */
+function TodoEditor$() {
+  const id = inject(TodoId$)
+  const $draft = signal('')
+
+  return { id, $draft }
+}
+
+function TodoList() {
+  const { $todos } = useInject(Todos$)
+  const todos = useSignal($todos)
+
+  return todos.map(todo => (
+    <InjectionContextProvider key={todo.id} context={[provide(TodoId$, todo.id)]}>
+      <TodoItem />
+    </InjectionContextProvider>
+  ))
+}
+
+function TodoItem() {
+  /* The editor of this item, created in its provider */
+  const { id, $draft } = useInject(TodoEditor$)
+  /* The list TodoList reads, created in the top context and shared */
+  const { $todos } = useInject(Todos$)
+
+  /* ... */
+}
+```
+
+To start a subtree from scratch, with new instances of every store, wrap it in [`Isolate`](/store-integrations/react#isolate).
+
 ## Naming Convention
 
 The library follows consistent naming conventions to distinguish between different types of reactive entities. Highly recommended to follow these conventions in your own code to maintain consistency, improve readability and make reactive dependencies immediately recognizable:
@@ -445,14 +528,15 @@ const value = $get($count)
 Injectable tokens that start with an uppercase letter and end with `$` are Dependency Injection tokens.
 
 ```ts
-import { Injectable$, TasksRunner$, inject } from '@nano_kit/store'
+import { Injectable$, inject } from '@nano_kit/store'
+import { CookieStore$ } from '@nano_kit/platform-web'
 
 function User$() {
-  const task = inject(TasksRunner$)
+  const cookieStore = inject(CookieStore$)
   /* ... */
 }
 
 class UserService$ extends Injectable$ {
-  task = inject(TasksRunner$)
+  cookieStore = inject(CookieStore$)
 }
 ```

@@ -3,8 +3,6 @@ title: Introduction
 description: An introduction to the Nano Kit ecosystem, exploring its unified architecture, high performance, and lightweight footprint.
 sidebar:
   order: 1
-next:
-  label: Store
 ---
 
 import { Aside } from '@astrojs/starlight/components'
@@ -53,6 +51,7 @@ unsub()
 | [@nano_kit/query](/query) | Data fetching and caching library, built on @nano_kit/store. |
 | [@nano_kit/router](/router) | Routing library, built on @nano_kit/store. |
 | [@nano_kit/ssr](/ssr) | Base package for building framework-specific SSR adapters. |
+| [@nano_kit/devtools](/store/devtools) | In-page DevTools panel for @nano_kit/store. |
 
 ### Framework Adapters
 
@@ -143,20 +142,20 @@ The [benchmark results below](https://github.com/TrigenSoftware/nano_kit/tree/ma
 
 | Library | Latency avg&nbsp;(ns) | Latency med&nbsp;(ns) | Throughput avg&nbsp;(ops/s) | Throughput med&nbsp;(ops/s) | Samples |
 |---------|------------------|------------------|------------------------|------------------------|---------|
-| alien-signals | 308.59<br/>±&nbsp;1.78% | 280.00<br/>±&nbsp;0.00 | 3441332<br/>±&nbsp;0.01% | 3571429<br/>±&nbsp;0 | 3240532 |
-| **@nano_kit/store** | **320.68<br/>±&nbsp;1.94%** | **290.00<br/>±&nbsp;10.00** | **3309252<br/>±&nbsp;0.01%** | **3448276<br/>±&nbsp;107527** | **3118402** |
-| @preact/signals-core | 338.61<br/>±&nbsp;1.72% | 310.00<br/>±&nbsp;0.00 | 3199314<br/>±&nbsp;0.01% | 3225806<br/>±&nbsp;0 | 2953273 |
-| svelte/store | 465.27<br/>±&nbsp;1.90% | 390.00<br/>±&nbsp;10.00 | 2407386<br/>±&nbsp;0.02% | 2564103<br/>±&nbsp;67476 | 2149277 |
-| rxjs | 494.07<br/>±&nbsp;1.64% | 440.00<br/>±&nbsp;10.00 | 2171288<br/>±&nbsp;0.02% | 2272727<br/>±&nbsp;52854 | 2023990 |
-| zustand, subscribeWithSelector | 949.00<br/>±&nbsp;11.36% | 540.00<br/>±&nbsp;10.00 | 1759331<br/>±&nbsp;0.03% | 1851852<br/>±&nbsp;34941 | 1061940 |
-| nanostores | 1301.5<br/>±&nbsp;3.82% | 1010.0<br/>±&nbsp;30.00 | 922683<br/>±&nbsp;0.04% | 990099<br/>±&nbsp;26959 | 768344 |
-| mobx | 3523.9<br/>±&nbsp;1.97% | 3170.0<br/>±&nbsp;40.00 | 308802<br/>±&nbsp;0.03% | 315457<br/>±&nbsp;3858 | 283777 |
-| valtio | 8159.3<br/>±&nbsp;42.88% | 4160.0<br/>±&nbsp;270.00 | 224079<br/>±&nbsp;0.10% | 240385<br/>±&nbsp;16186 | 136709 |
-| jotai | 12324<br/>±&nbsp;18.25% | 6780.0<br/>±&nbsp;260.00 | 140186<br/>±&nbsp;0.11% | 147493<br/>±&nbsp;5760 | 81699 |
-| effector | 26075<br/>±&nbsp;12.65% | 15950<br/>±&nbsp;310.00 | 60217<br/>±&nbsp;0.16% | 62696<br/>±&nbsp;1495 | 38808 |
-| @reatom/core | 76343<br/>±&nbsp;18.57% | 50400<br/>±&nbsp;7410.0 | 19224<br/>±&nbsp;0.38% | 19841<br/>±&nbsp;2952 | 13108 |
+| alien-signals | 300.36<br/>±&nbsp;0.42% | 290.00<br/>±&nbsp;0.00 | 3463918<br/>±&nbsp;0.01% | 3448276<br/>±&nbsp;0 | 3329289 |
+| **@nano_kit/store** | **322.67<br/>±&nbsp;1.53%** | **300.00<br/>±&nbsp;0.00** | **3257518<br/>±&nbsp;0.01%** | **3333333<br/>±&nbsp;0** | **3099179** |
+| @preact/signals-core | 337.18<br/>±&nbsp;1.48% | 310.00<br/>±&nbsp;0.00 | 3163533<br/>±&nbsp;0.01% | 3225806<br/>±&nbsp;0 | 2965757 |
+| svelte/store | 420.22<br/>±&nbsp;1.75% | 380.00<br/>±&nbsp;10.00 | 2571799<br/>±&nbsp;0.01% | 2631579<br/>±&nbsp;64103 | 2379856 |
+| rxjs | 500.02<br/>±&nbsp;1.62% | 430.00<br/>±&nbsp;10.00 | 2208408<br/>±&nbsp;0.02% | 2325581<br/>±&nbsp;50505 | 1999907 |
+| zustand, subscribeWithSelector | 978.18<br/>±&nbsp;9.82% | 530.00<br/>±&nbsp;10.00 | 1785767<br/>±&nbsp;0.03% | 1886792<br/>±&nbsp;36284 | 1025340 |
+| nanostores | 1278.6<br/>±&nbsp;3.83% | 990.00<br/>±&nbsp;20.00 | 955623<br/>±&nbsp;0.03% | 1010101<br/>±&nbsp;20002 | 782092 |
+| mobx | 2682.5<br/>±&nbsp;2.55% | 2310.0<br/>±&nbsp;30.00 | 419932<br/>±&nbsp;0.03% | 432900<br/>±&nbsp;5456 | 372782 |
+| valtio | 5777.0<br/>±&nbsp;29.19% | 3680.0<br/>±&nbsp;100.00 | 257516<br/>±&nbsp;0.07% | 271739<br/>±&nbsp;7590 | 173967 |
+| jotai | 11425<br/>±&nbsp;9.54% | 7720.0<br/>±&nbsp;160.00 | 120417<br/>±&nbsp;0.11% | 129534<br/>±&nbsp;2727 | 87825 |
+| effector | 25789<br/>±&nbsp;9.66% | 15940<br/>±&nbsp;590.50 | 59164<br/>±&nbsp;0.17% | 62735<br/>±&nbsp;2366 | 38776 |
+| @reatom/core | 67429<br/>±&nbsp;12.44% | 44810<br/>±&nbsp;3630.0 | 20913<br/>±&nbsp;0.33% | 22316<br/>±&nbsp;1929 | 14842 |
 
-*Median of 11 rounds, each library measured in a fresh Node.js process in shuffled order. Run on AMD Ryzen 5 PRO 3400G with Node.js v24.14.1.*
+*Median of 11 rounds, each library measured in a fresh Node.js process in shuffled order. Run on AMD Ryzen 5 PRO 3400G with Node.js v26.10.0.*
 
 ## Bundle Sizes
 
@@ -166,11 +165,11 @@ Comparison of bundle sizes for various implementations of the [weather example](
 
 | Stack | Raw&nbsp;Size | Gzipped&nbsp;Size |
 |-------|----------|--------------|
-| React +&nbsp;Nano&nbsp;Stores | 206.77&nbsp;kB | 65.90&nbsp;kB |
-| React +&nbsp;**Nano&nbsp;Kit** | **211.32&nbsp;kB** | **67.25&nbsp;kB** |
-| React +&nbsp;**Nano&nbsp;Kit +&nbsp;DI** | **212.49&nbsp;kB** | **67.60&nbsp;kB** |
-| React +&nbsp;Reatom | 228.16&nbsp;kB | 73.00&nbsp;kB |
-| React +&nbsp;TanStack&nbsp;Query | 232.63&nbsp;kB | 72.42&nbsp;kB |
+| React +&nbsp;Nano&nbsp;Stores | 206.71&nbsp;kB | 65.53&nbsp;kB |
+| React +&nbsp;**Nano&nbsp;Kit** | **211.40&nbsp;kB** | **66.91&nbsp;kB** |
+| React +&nbsp;**Nano&nbsp;Kit +&nbsp;DI** | **212.94&nbsp;kB** | **67.48&nbsp;kB** |
+| React +&nbsp;Reatom | 228.10&nbsp;kB | 72.57&nbsp;kB |
+| React +&nbsp;TanStack&nbsp;Query | 232.56&nbsp;kB | 71.97&nbsp;kB |
 
 *Bundled with Vite 8*
 
@@ -180,9 +179,9 @@ Comparison of **frontend** bundle sizes for various SSR implementations of the [
 
 | Stack | Raw&nbsp;Size | Gzipped&nbsp;Size | Raw&nbsp;Size<br/>`/characters` page |
 |-------|----------|--------------|------------------------------|
-| React +&nbsp;**Nano&nbsp;Kit&nbsp;SSR** | **236.62&nbsp;kB** | **78.01&nbsp;kB** | **223.87&nbsp;kB** |
-| React +&nbsp;TanStack&nbsp;Start | 374.95&nbsp;kB | 117.43&nbsp;kB | 364.59&nbsp;kB |
-| Next.js Pages&nbsp;Router +&nbsp;Nano&nbsp;Kit | 509.29&nbsp;kB | 161.25&nbsp;kB | 367.60&nbsp;kB |
-| Next.js App&nbsp;Router +&nbsp;Nano&nbsp;Kit | 946.14&nbsp;kB | 292.69&nbsp;kB | 470.21&nbsp;kB |
+| React +&nbsp;**Nano&nbsp;Kit&nbsp;SSR** | **237.02&nbsp;kB** | **77.45&nbsp;kB** | **224.17&nbsp;kB** |
+| React +&nbsp;TanStack&nbsp;Start | 374.87&nbsp;kB | 116.02&nbsp;kB | 364.48&nbsp;kB |
+| Next.js Pages&nbsp;Router +&nbsp;Nano&nbsp;Kit | 509.49&nbsp;kB | 160.96&nbsp;kB | 367.69&nbsp;kB |
+| Next.js App&nbsp;Router +&nbsp;Nano&nbsp;Kit | 946.33&nbsp;kB | 291.77&nbsp;kB | 470.30&nbsp;kB |
 
 *Bundled with Vite 8 / Next.js 16*
