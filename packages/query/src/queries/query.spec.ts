@@ -156,6 +156,39 @@ describe('query', () => {
         offEditorPost()
       })
 
+      it('should refetch when revalidated while loading', async () => {
+        const { query, revalidate } = client()
+        const $id = signal(1)
+        const fetcher = vi.fn()
+          .mockResolvedValueOnce({
+            id: 1,
+            title: 'Stale Post',
+            content: 'Stale content'
+          })
+          .mockResolvedValueOnce({
+            id: 1,
+            title: 'Fresh Post',
+            content: 'Fresh content'
+          })
+        const [$data, , $loading] = query(PostKey, [$id], fetcher)
+        const off = effect(() => {
+          $data()
+        })
+
+        expect($loading()).toBe(true)
+
+        revalidate(PostKey($id()))
+
+        expect(fetcher).toHaveBeenCalledTimes(2)
+
+        await waitTasks($data)
+
+        expect($data()?.title).toBe('Fresh Post')
+        expect($loading()).toBe(false)
+
+        off()
+      })
+
       it('should handle errors', async () => {
         const { query } = client()
         const $postId = signal(1)

@@ -92,7 +92,7 @@ export class CacheStorage {
 
   mute(entry: CacheEntry, loadingDedupe = true, timeDedupe = true) {
     return (
-      loadingDedupe && entry.loading
+      loadingDedupe && entry.loading && entry.rev !== UNSET_REV
       || timeDedupe && entry.dedupes > Date.now()
       || revLocked(entry.rev)
     )
