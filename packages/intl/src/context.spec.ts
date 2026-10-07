@@ -333,6 +333,24 @@ describe('intl', () => {
         })()).toBe('Hallo, Ada!')
       })
 
+      it('should subscribe a param shortcut of a formatter message to a signal', () => {
+        const ctx = new IntlContext(
+          () => 'en-US',
+          resolved(staticTranslations)
+        )
+        const [$t] = ctx.messages('settings', {
+          number: format(number())
+        })
+        const $value = signal(1234.5)
+        const $number = $t.number($value)
+
+        expect($number()).toBe('1,234.5')
+
+        $value(42)
+
+        expect($number()).toBe('42')
+      })
+
       it('should react to locale changes in message formats', () => {
         const $locale = signal('en-US')
         const ctx = new IntlContext(

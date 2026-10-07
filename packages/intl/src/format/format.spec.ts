@@ -40,12 +40,27 @@ describe('intl', () => {
         expect(formatter(1234.5)).toBe('1.234,5')
       })
 
+      it('should format signal and accessor values', () => {
+        const $value = signal(1234.5)
+        const formatter = format(number())(ctx)
+
+        expect(formatter($value)).toBe('1,234.5')
+        expect(formatter(() => $value() * 2)).toBe('2,469')
+      })
+
       it('should preserve wrapped format output type at runtime', () => {
         const formatText = format(text('Fallback'))
         const formatter = formatText(ctx)
 
         expect(formatter(undefined)).toBe('Fallback')
         expect(formatter('Hello')).toBe('Hello')
+      })
+
+      it('should format a null value as a missing one', () => {
+        const formatter = format(text('Fallback'))(ctx)
+
+        expect(formatter(null)).toBe('Fallback')
+        expect(formatter(signal<string | null>(null))).toBe('Fallback')
       })
     })
   })
