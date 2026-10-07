@@ -226,6 +226,21 @@ describe('intl', () => {
         warn.mockRestore()
       })
 
+      it('should not warn about a formatter message', () => {
+        const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        const ctx = new IntlContext(
+          () => 'en-US',
+          resolved(staticTranslations)
+        )
+        const [$t] = ctx.messages('settings', {
+          number: format(number())
+        })
+
+        expect($t().number(1234.5)).toBe('1,234.5')
+        expect(warn).not.toHaveBeenCalled()
+        warn.mockRestore()
+      })
+
       it('should expose raw messages from partial scheme', () => {
         const ctx = new IntlContext(
           () => 'en-US',

@@ -123,7 +123,8 @@ export class IntlContext<
         }
 
         for (const [key, format] of entries) {
-          if (import.meta.env.DEV && data && !(key in data)) {
+          // Formats taking only the context, like those of `format()`, read no translation
+          if (import.meta.env.DEV && data && format.length > 1 && !(key in data)) {
             console.warn(`[nano_kit/intl] Missing message "${String(namespace)}.${key}" for locale "${untracked(this.$locale)}"`)
           }
 
