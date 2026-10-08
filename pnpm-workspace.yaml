@@ -24,7 +24,7 @@ catalog:
   '@vitest/coverage-v8': ^5.0.0
   '@size-limit/preset-small-lib': ^14.0.1
   happy-dom: ^20.0.0
-  preact: ^10.27.1
+  preact: ^11.0.0
   preact-render-to-string: ^6.6.1
   playwright: ^1.60.0
   react: ^19.2.8
