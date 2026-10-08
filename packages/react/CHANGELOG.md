@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0...v2.0.0) (2026-10-08)
+
+### ⚠ BREAKING CHANGES
+
+* `InjectionContext` no longer extends `Map`: its values are in the public `deps`
+  map, so `context.set(token, value)` becomes `context.deps.set(token, value)`. A dependency that
+  is not provided is no longer created in the context that injects it first, and a context no
+  longer takes a dependency from above when it overrides what that dependency reads.
+* the packages require Node.js 24 or newer.
+
+### Features
+
+* create a dependency in the deepest context that provides what it reads, and add `provideAs` ([#279](https://github.com/TrigenSoftware/nano_kit/issues/279)) ([5052174](https://github.com/TrigenSoftware/nano_kit/commit/50521746f15cd1e6641160784cbfa0b662319faf))
+* require Node.js 24 ([#268](https://github.com/TrigenSoftware/nano_kit/issues/268)) ([c6ed062](https://github.com/TrigenSoftware/nano_kit/commit/c6ed0627e0e76785941ede1bb8f280c5d80896a0))
+
 ## [1.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0-alpha.1...v1.0.0) (2026-07-22)
 
 ### Nano Kit 1.0 🎉
