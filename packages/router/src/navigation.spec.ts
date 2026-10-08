@@ -2,7 +2,8 @@ import {
   beforeEach,
   describe,
   it,
-  expect
+  expect,
+  vi
 } from 'vitest'
 import {
   browserNavigation,
@@ -469,6 +470,23 @@ describe('router', () => {
 
           expect($pathname()).toBe('/new-path')
           expect($search()).toBe('?param=value')
+        })
+
+        it('should navigate back and forward in browser history', () => {
+          const [, navigation] = browserNavigation()
+          const back = vi.spyOn(window.history, 'back').mockImplementation(() => {})
+          const forward = vi.spyOn(window.history, 'forward').mockImplementation(() => {})
+
+          navigation.back()
+          navigation.forward()
+
+          expect(back).toHaveBeenCalledTimes(1)
+          expect(back.mock.contexts[0]).toBe(window.history)
+          expect(forward).toHaveBeenCalledTimes(1)
+          expect(forward.mock.contexts[0]).toBe(window.history)
+
+          back.mockRestore()
+          forward.mockRestore()
         })
       })
 

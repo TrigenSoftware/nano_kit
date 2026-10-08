@@ -174,10 +174,10 @@ export function browserNavigation<const R extends Routes = {}>(
       return history.length
     },
     back: action(() => {
-      navigation.transition(history.back, null, $location())
+      navigation.transition(() => history.back(), null, $location())
     }),
     forward: action(() => {
-      navigation.transition(history.forward, null, $location())
+      navigation.transition(() => history.forward(), null, $location())
     }),
     push: action((to) => {
       maybeUpdate(
