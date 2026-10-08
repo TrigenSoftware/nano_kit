@@ -17,10 +17,24 @@ interface MaybeVirtualCookieStore {
   peek?(name: string): string | null
 }
 
-function getCookie(name: string) {
-  const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`))
+/* Values are percent-encoded on write, so every read path decodes. A value an older version
+   wrote raw may hold a stray `%`, so it comes back as it is */
+function decode(value: string | null) {
+  try {
+    return value && decodeURIComponent(value)
+  } catch {
+    return value
+  }
+}
 
-  return match ? decodeURIComponent(match[2]) : null
+function getCookie(name: string) {
+  for (const cookie of document.cookie.split('; ')) {
+    if (cookie.startsWith(`${name}=`)) {
+      return cookie.slice(name.length + 1)
+    }
+  }
+
+  return null
 }
 
 class CookieStorage implements Storage<string> {
@@ -38,9 +52,11 @@ class CookieStorage implements Storage<string> {
   get(key: string) {
     const { store } = this
 
-    return store.peek
-      ? store.peek(key)
-      : getCookie(key)
+    return decode(
+      store.peek
+        ? store.peek(key)
+        : getCookie(key)
+    )
   }
 
   set(key: string, value: string) {
@@ -53,7 +69,7 @@ class CookieStorage implements Storage<string> {
     void this.store.set({
       ...options,
       name: key,
-      value,
+      value: encodeURIComponent(value),
       expires: maxAge === undefined
         ? expires
         // oxlint-disable-next-line eslint/no-magic-numbers
@@ -83,7 +99,7 @@ class SyncedCookieStorage extends CookieStorage implements SyncedStorage<string>
     const forEach = (list: readonly CookieListItem[]) => {
       for (const cookie of list) {
         if (cookie.name === key) {
-          callback(cookie.value ?? null)
+          callback(decode(cookie.value ?? null))
           return true
         }
       }

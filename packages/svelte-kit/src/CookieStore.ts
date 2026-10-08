@@ -1,4 +1,12 @@
 import type { Cookies } from '@sveltejs/kit'
+import { identity } from '@nano_kit/store'
+
+/* Like the native `CookieStore`, values go in and out as they are: SvelteKit would encode
+   them on write and decode them on read, and the cookie storage of `@nano_kit/platform-web`
+   does that itself */
+const raw = {
+  decode: identity
+}
 
 class ServerCookieStore implements CookieStore {
   readonly #cookies: Cookies
@@ -44,7 +52,7 @@ class ServerCookieStore implements CookieStore {
     nameOrOptions: string | CookieStoreGetOptions = {}
   ): Promise<CookieListItem | null> {
     const name = getCookieName(nameOrOptions)!
-    const value = this.#cookies.get(name)
+    const value = this.#cookies.get(name, raw)
 
     return value === undefined
       ? null
@@ -62,7 +70,7 @@ class ServerCookieStore implements CookieStore {
   peek(name: string): string | null
 
   peek(name: string): string | null {
-    return this.#cookies.get(name) ?? null
+    return this.#cookies.get(name, raw) ?? null
   }
 
   /**
@@ -83,7 +91,7 @@ class ServerCookieStore implements CookieStore {
     nameOrOptions: string | CookieStoreGetOptions = {}
   ): Promise<CookieList> {
     const name = getCookieName(nameOrOptions)
-    const cookies = this.#cookies.getAll()
+    const cookies = this.#cookies.getAll(raw)
 
     return name
       ? cookies.filter(cookie => cookie.name === name)
@@ -153,6 +161,7 @@ function toCookieOptions(
 ): Parameters<Cookies['set']>[2] {
   return {
     domain: options.domain ?? undefined,
+    encode: identity,
     expires: typeof options.expires === 'number'
       ? new Date(options.expires)
       : undefined,

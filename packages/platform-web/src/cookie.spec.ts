@@ -7,14 +7,29 @@ import {
 } from 'vitest'
 import {
   BooleanCodec,
+  JsonCodec,
   debounce,
   effect
 } from '@nano_kit/store'
 import { waitFor } from '../test/utils.js'
+import { VirtualCookieStore } from './cookieStore/index.js'
 import {
   cookieStored,
   syncedCookieStored
 } from './cookie.js'
+
+const values = [
+  '{"discount":"50%"}',
+  'a%41b',
+  'a;b',
+  '{"name":"Сад"}',
+  'a, "b" c'
+]
+const profile = {
+  name: 'Сад',
+  discount: '50%',
+  note: 'a; b, "c"'
+}
 
 async function clearCookies() {
   const cookies = await cookieStore.getAll()
@@ -245,6 +260,99 @@ describe('platform-web', () => {
       })
 
       off()
+    })
+
+    it('should round-trip values through the browser cookie store', async () => {
+      for (const value of values) {
+        cookieStored(cookieStore, 'value')(value)
+
+        await waitFor(() => {
+          expect(cookieStored(cookieStore, 'value')()).toBe(value)
+        })
+      }
+    })
+
+    it('should pass values to synced signals on cookie store changes', async () => {
+      const $value = syncedCookieStored(cookieStore, 'value')
+      const off = effect(() => {
+        $value()
+      })
+
+      for (const value of values) {
+        cookieStored(cookieStore, 'value')(value)
+
+        await waitFor(() => {
+          expect($value()).toBe(value)
+        })
+      }
+
+      off()
+    })
+
+    it('should round-trip values through a virtual cookie store', () => {
+      const store = new VirtualCookieStore()
+
+      for (const value of values) {
+        cookieStored(store, 'value')(value)
+
+        expect(cookieStored(store, 'value')()).toBe(value)
+      }
+    })
+
+    it('should write valid Set-Cookie headers to a virtual cookie store', () => {
+      const store = new VirtualCookieStore()
+
+      for (const value of values) {
+        cookieStored(store, 'value')(value)
+
+        for (const header of store.getSetCookieHeaders()) {
+          expect(() => new Headers([['Set-Cookie', header]])).not.toThrow()
+        }
+      }
+    })
+
+    it('should read a JSON value written on the server', () => {
+      const store = new VirtualCookieStore()
+
+      cookieStored(store, 'profile', JsonCodec)(profile)
+      document.cookie = store.getSetCookieHeaders()[0]
+
+      expect(cookieStored(cookieStore, 'profile', JsonCodec)()).toEqual(profile)
+    })
+
+    it('should pass a JSON value written on the server to synced signals', async () => {
+      const store = new VirtualCookieStore()
+      const $profile = syncedCookieStored(cookieStore, 'profile', JsonCodec)
+      const off = effect(() => {
+        $profile()
+      })
+
+      cookieStored(store, 'profile', JsonCodec)(profile)
+      document.cookie = store.getSetCookieHeaders()[0]
+
+      await waitFor(() => {
+        expect($profile()).toEqual(profile)
+      })
+
+      off()
+    })
+
+    it('should read a value that is not valid percent-encoding as it is', () => {
+      document.cookie = 'value=50%; path=/'
+
+      expect(cookieStored(cookieStore, 'value')()).toBe('50%')
+    })
+
+    it('should read an empty cookie value', () => {
+      document.cookie = 'value=; path=/'
+
+      expect(cookieStored(cookieStore, 'value')()).toBe('')
+    })
+
+    it('should not read a cookie whose name only looks alike', () => {
+      document.cookie = 'aXb=1; path=/'
+
+      expect(cookieStored(cookieStore, 'a.b')()).toBeUndefined()
     })
   })
 })
