@@ -2,14 +2,18 @@ import {
   vi,
   describe,
   it,
-  expect
+  expect,
+  expectTypeOf
 } from 'vitest'
 import {
+  type ReadableSignal,
+  type WritableSignal,
   effect,
   computed,
   signal,
   isSignal
 } from 'agera'
+import type { Signalish } from './types.js'
 import {
   record,
   deepRecord
@@ -171,6 +175,37 @@ describe('kida', () => {
           location: 'Batumi'
         })
         expect($record.$name()).toBe('Daniil Onoshko')
+      })
+
+      it('should create readable record store from signalish', () => {
+        const view = (user: Signalish<{ name: string }>) => record(user)
+        const $fromValue = view({
+          name: 'Dan'
+        })
+        const $fromAccessor = view(() => ({
+          name: 'Dan'
+        }))
+
+        expectTypeOf($fromValue()).toEqualTypeOf<{ name: string }>()
+        expectTypeOf($fromValue.$name).toEqualTypeOf<ReadableSignal<string>>()
+        expect($fromValue.$name()).toBe('Dan')
+        expect($fromAccessor.$name()).toBe('Dan')
+      })
+
+      it('should create writable record store from value or writable signal', () => {
+        const view = (user: { name: string } | WritableSignal<{ name: string }>) => record(user)
+        const $user = signal({
+          name: 'Dan'
+        })
+        const $record = view($user)
+
+        expectTypeOf($record.$name).toEqualTypeOf<WritableSignal<string>>()
+
+        $record.$name('Daniil')
+
+        expect($user()).toEqual({
+          name: 'Daniil'
+        })
       })
     })
 
@@ -380,6 +415,24 @@ describe('kida', () => {
           }
         })
         expect($record.$location.$city()).toBe('ბათუმი')
+      })
+
+      it('should create readable deep record store from signalish', () => {
+        const view = (user: Signalish<{ location: { city: string } }>) => deepRecord(user)
+        const $fromValue = view({
+          location: {
+            city: 'Batumi'
+          }
+        })
+        const $fromAccessor = view(() => ({
+          location: {
+            city: 'Batumi'
+          }
+        }))
+
+        expectTypeOf($fromValue.$location.$city).toEqualTypeOf<ReadableSignal<string>>()
+        expect($fromValue.$location.$city()).toBe('Batumi')
+        expect($fromAccessor.$location.$city()).toBe('Batumi')
       })
     })
   })

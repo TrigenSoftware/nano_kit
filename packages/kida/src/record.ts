@@ -1,8 +1,11 @@
 import type {
+  Accessor,
   AccessorValue,
   AnyAccessor,
+  AnyFn,
   AnyWritableSignal,
   ReadableSignal,
+  SignalishValue,
   WritableSignal
 } from 'agera'
 import type {
@@ -95,7 +98,9 @@ export function record<T>(source: T) {
     ? WritableRecord<T>
     : [T] extends [AnyAccessor]
       ? ReadableRecord<T>
-      : WritableRecord<WritableSignal<T>>
+      : [Extract<T, AnyFn>] extends [AnyWritableSignal]
+        ? WritableRecord<WritableSignal<SignalishValue<T>>>
+        : ReadableRecord<Accessor<SignalishValue<T>>>
 }
 
 const deepHandler = /* @__PURE__ */ createProxyHandler(deepRecord)
@@ -112,5 +117,7 @@ export function deepRecord<T>(source: T) {
     ? WritableDeepRecord<T>
     : [T] extends [AnyAccessor]
       ? ReadableDeepRecord<T>
-      : WritableDeepRecord<WritableSignal<T>>
+      : [Extract<T, AnyFn>] extends [AnyWritableSignal]
+        ? WritableDeepRecord<WritableSignal<SignalishValue<T>>>
+        : ReadableDeepRecord<Accessor<SignalishValue<T>>>
 }
