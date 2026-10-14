@@ -204,7 +204,7 @@ export class IndexedSignalsMap<K, V> extends SignalsMap<K, V> {
     // node away for the anchor's. The function stays bound to the computed it
     // was made for, so reading it is what it was.
     // The index is linked under the anchor at its first read, and a computed
-    // linked under a node that is not mountable yet does not relay later:
+    // linked under a node before `mountable` marks it does not relay later:
     // this is why the index has to be marked before anybody reads it
     this.$index.node = this.#$anchor.node
   }

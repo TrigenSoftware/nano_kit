@@ -290,6 +290,165 @@ describe('agera', () => {
         expect(dListener.mock.calls).toEqual([[true], [false]])
       })
 
+      it('should mount a source linked on a re-run of a computed read through another computed', () => {
+        const $a = mountable(signal(1))
+        const $flag = signal(false)
+        const $inner = computed(() => ($flag() ? $a() : 0))
+        const $outer = computed(() => [$inner()])
+        const listener = vi.fn()
+
+        onMounted($a, listener)
+
+        const stop = effect(() => {
+          $outer()
+        })
+
+        expect(listener).not.toHaveBeenCalled()
+
+        $flag(true)
+
+        expect(isMounted($a)).toBe(true)
+        expect(listener.mock.calls).toEqual([[true]])
+
+        stop()
+
+        expect(isMounted($a)).toBe(false)
+        expect(listener.mock.calls).toEqual([[true], [false]])
+      })
+
+      it('should keep a source linked on a re-run mounted while a second computed reading its reader is live', () => {
+        const $a = mountable(signal(1))
+        const $flag = signal(false)
+        const $inner = computed(() => ($flag() ? $a() : 0))
+        const $first = computed(() => [$inner()])
+        const $second = computed(() => [$inner()])
+        const listener = vi.fn()
+
+        onMounted($a, listener)
+
+        const stop1 = effect(() => {
+          $first()
+        })
+        const stop2 = effect(() => {
+          $second()
+        })
+
+        $flag(true)
+        stop1()
+
+        expect(isMounted($a)).toBe(true)
+        expect(listener.mock.calls).toEqual([[true]])
+
+        stop2()
+
+        expect(isMounted($a)).toBe(false)
+        expect(listener.mock.calls).toEqual([[true], [false]])
+      })
+
+      it('should mount a source linked on a re-run of a computed whose value does not change when it is read through a chain of computeds', () => {
+        const $a = mountable(signal(0))
+        const $flag = signal(false)
+        const $inner = computed(() => ($flag() ? $a() : 0))
+        const $middle = computed(() => $inner() + 1)
+        const $outer = computed(() => $middle() + 1)
+        const listener = vi.fn()
+
+        onMounted($a, listener)
+
+        const stop = effect(() => {
+          $outer()
+        })
+
+        $flag(true)
+
+        expect(isMounted($a)).toBe(true)
+        expect(listener.mock.calls).toEqual([[true]])
+
+        stop()
+
+        expect(isMounted($a)).toBe(false)
+        expect(listener.mock.calls).toEqual([[true], [false]])
+      })
+
+      it('should unmount a source linked on a re-run when a cold computed still reads its reader', () => {
+        const $a = mountable(signal(1))
+        const $flag = signal(false)
+        const $inner = computed(() => ($flag() ? $a() : 0))
+        const $cold = computed(() => $inner())
+        const listener = vi.fn()
+
+        onMounted($a, listener)
+        $cold()
+
+        const stop = effect(() => {
+          $inner()
+        })
+
+        $flag(true)
+
+        expect(listener.mock.calls).toEqual([[true]])
+
+        stop()
+
+        expect(isMounted($a)).toBe(false)
+        expect(listener.mock.calls).toEqual([[true], [false]])
+      })
+
+      it('should unmount a source linked on a re-run when a cold computed still reads a computed reading its reader', () => {
+        const $a = mountable(signal(1))
+        const $flag = signal(false)
+        const $inner = computed(() => ($flag() ? $a() : 0))
+        const $outer = computed(() => [$inner()])
+        const $cold = computed(() => $outer())
+        const listener = vi.fn()
+
+        onMounted($a, listener)
+        $cold()
+
+        const stop = effect(() => {
+          $outer()
+        })
+
+        $flag(true)
+
+        expect(listener.mock.calls).toEqual([[true]])
+
+        stop()
+
+        expect(isMounted($a)).toBe(false)
+        expect(listener.mock.calls).toEqual([[true], [false]])
+      })
+
+      it('should unmount a source linked on a re-run when its mount listener drops the only live reader', () => {
+        const $a = mountable(signal(1))
+        const $show = signal(true)
+        const $flag = signal(false)
+        const $inner = computed(() => ($flag() ? $a() : 0))
+        const $outer = computed(() => [$inner()])
+        const $cold = computed(() => $outer().length)
+        const listener = vi.fn((mounted: boolean) => {
+          if (mounted) {
+            $show(false)
+          }
+        })
+
+        onMounted($a, listener)
+        $cold()
+
+        const stop = effect(() => {
+          if ($show()) {
+            $outer()
+          }
+        })
+
+        $flag(true)
+
+        expect(isMounted($a)).toBe(false)
+        expect(listener.mock.calls).toEqual([[true], [false]])
+
+        stop()
+      })
+
       it('should handle different subscribers types', () => {
         const $value = mountable(signal(1))
         const $coldUse = signal(true)
