@@ -52,7 +52,7 @@ export default [
     name: 'Popular set (Brotli)',
     path: 'dist/index.production.js',
     import: '{ signal, record, computed, effect, mountable, onMount }',
-    limit: '2.2 kB',
+    limit: '2.25 kB',
     modifyRolldownConfig
   }
 ]

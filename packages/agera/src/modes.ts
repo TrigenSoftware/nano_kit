@@ -14,7 +14,8 @@ import {
 import { touchLifecycle } from './internals/system.js'
 
 // Over-approximate on purpose: contagion marks every computed that ever
-// linked a mountable dep, and the mark is a permanent latch
+// linked a mountable dep, as well as every computed already reading a
+// computed it marks, and the mark is a permanent latch
 /* @__NO_SIDE_EFFECTS__ */
 export function isMountable<T extends Mountable<AnySignal> = Mountable<AnySignal>>(value: AnyAccessor): value is T {
   return ((value as AnyWritableSignal).node?.modes & MountableMode) > 0

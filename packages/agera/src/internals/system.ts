@@ -1620,18 +1620,19 @@ export function boundDeferScope() {
 // of the graph itself: does this node have a live path upward to an
 // effect? `present` walks the node's subs, short-circuiting on the first
 // live effect and relaying through mountable computeds (contagion marks
-// every computed that ever linked a mountable dep). A state that is never
+// every computed that ever linked a mountable dep, as well as every
+// computed already reading a computed it marks). A state that is never
 // stored cannot go stale, whenever the links were made; the walk itself is
 // memoized (`lcs`/`lcv`), and the memo dies with any edge edit (`stamp`).
 //
 // LEVEL - mount and unmount are one event, a level change.
-// Graph edits only enqueue the touched node as worth asking about. The
-// drain compares the actual level against the last delivered one; equal
-// means silence. Churn inside one turn is therefore invisible, and both
-// directions travel the same road: sources mount before their dependents
-// and unmount after them. A late listener joins with the settled level as
-// its baseline - the `lcf` watermark tracks how much of the listener list
-// the level was already delivered to.
+// Graph edits only enqueue the touched node, and any computed they mark,
+// as worth asking about. The drain compares the actual level against the
+// last delivered one; equal means silence. Churn inside one turn is
+// therefore invisible, and both directions travel the same road: sources
+// mount before their dependents and unmount after them. A late listener
+// joins with the settled level as its baseline - the `lcf` watermark
+// tracks how much of the listener list the level was already delivered to.
 //
 // BOUNDARY - listeners run only on a consistent graph.
 // The drain runs when the core is quiescent (no running subscriber, no
@@ -1651,14 +1652,31 @@ let stamp = 0
 let draining = 0
 let fireCtx: ReactiveNode | undefined
 
+// Contagion: a computed that links a mountable dep relays liveness, and so
+// must every computed already reading it: `onEdge` is handed the reader of
+// a link only when the link is made, and their links predate the mark.
+// The mark is a latch, so the walk stops where relaying already holds. A
+// marked node is queued, because a relay whose level was never derived
+// does not walk down when it loses its path
+function infect(node: ReactiveNode | undefined): void {
+  if ((node as ComputedNode | undefined)?.compute && !(node!.modes & MountableMode)) {
+    node!.modes |= MountableMode
+    ;(node as ReadableNode).lcq = pending.push(node as ReadableNode)
+
+    for (let link = node!.subs; link; link = link.nextSub) {
+      infect(link.sub)
+    }
+  }
+}
+
 // A node handed to itself is a freshly created effect, not an edge: the
 // two hooks share one slot
 function onEdge(dep: ReactiveNode, sub?: ReactiveNode): void {
   if (dep !== sub) {
-    // Contagion: a computed that links a mountable dep relays liveness
-    if ((sub as ComputedNode | undefined)?.compute) {
-      sub!.modes |= MountableMode
-    }
+    // Relays are queued ahead of the dep: the dep mounts through the walk
+    // of the lowest one, and its own later turn still sees a reader its
+    // mount listener took away
+    infect(sub)
 
     // The presence memo goes stale exactly when an edge changes
     ++stamp
