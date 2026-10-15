@@ -71,7 +71,7 @@
     "@nano_kit/preact": "workspace:^",
     "@nano_kit/router": "workspace:^",
     "@nano_kit/store": "workspace:^",
-    "preact": "^10.0.0"
+    "preact": "^11.0.0"
   },
   "devDependencies": {
     "@nano_kit/preact": "workspace:^",
