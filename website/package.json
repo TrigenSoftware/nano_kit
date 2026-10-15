@@ -33,6 +33,6 @@
   },
   "devDependencies": {
     "sharp": "^0.35.0",
-    "typescript": "^6.0.0"
+    "typescript": "^7.0.0"
   }
 }
