@@ -1408,8 +1408,8 @@ importers:
         version: 1.0.0-prerelease.20260923175652(csstype@3.2.3)
     devDependencies:
       '@nanoviews/storybook':
-        specifier: 1.0.0-prerelease.20260923175652
-        version: 1.0.0-prerelease.20260923175652(nanoviews@1.0.0-prerelease.20260923175652(csstype@3.2.3))(storybook@10.6.0(@types/react@19.2.17)(prettier@3.8.1)(react@19.2.8))
+        specifier: 1.0.0-prerelease.20261014205934
+        version: 1.0.0-prerelease.20261014205934(nanoviews@1.0.0-prerelease.20260923175652(csstype@3.2.3))(storybook@10.6.0(@types/react@19.2.17)(prettier@3.8.1)(react@19.2.8))
       '@nanoviews/storybook-vite':
         specifier: 1.0.0-prerelease.20260923175652
         version: 1.0.0-prerelease.20260923175652(nanoviews@1.0.0-prerelease.20260923175652(csstype@3.2.3))(storybook@10.6.0(@types/react@19.2.17)(prettier@3.8.1)(react@19.2.8))(vite@8.2.1(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))
@@ -3441,11 +3441,11 @@ packages:
       storybook: ^10.5.10
       vite: ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0
 
-  '@nanoviews/storybook@1.0.0-prerelease.20260923175652':
-    resolution: {integrity: sha512-+vwJ0CMWRbahRuHfF+dEWCQ2pkosfx69gDyiPMSO76MUlmxXNNlgN40cFkIPo20i7naZKpqWLrkKIZkoZ9nCdw==}
-    engines: {node: '>=20.6'}
+  '@nanoviews/storybook@1.0.0-prerelease.20261014205934':
+    resolution: {integrity: sha512-3oMrIpTuo9fY3IufNiq29P3XohJE9uwEgYext4DQypu1QIav08DXVY0gzRmJ9hlpbH8t6ZvAIcUt2SsgD1bd4Q==}
+    engines: {node: '>=24'}
     peerDependencies:
-      nanoviews: ^1.0.0-prerelease.20260923175652
+      nanoviews: ^1.0.0-prerelease.20261014205934
       storybook: ^10.5.10
 
   '@nanoviews/testing-library@1.0.0-prerelease.20260923175652':
@@ -9880,14 +9880,14 @@ snapshots:
 
   '@nanoviews/storybook-vite@1.0.0-prerelease.20260923175652(nanoviews@1.0.0-prerelease.20260923175652(csstype@3.2.3))(storybook@10.6.0(@types/react@19.2.17)(prettier@3.8.1)(react@19.2.8))(vite@8.2.1(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))':
     dependencies:
-      '@nanoviews/storybook': 1.0.0-prerelease.20260923175652(nanoviews@1.0.0-prerelease.20260923175652(csstype@3.2.3))(storybook@10.6.0(@types/react@19.2.17)(prettier@3.8.1)(react@19.2.8))
+      '@nanoviews/storybook': 1.0.0-prerelease.20261014205934(nanoviews@1.0.0-prerelease.20260923175652(csstype@3.2.3))(storybook@10.6.0(@types/react@19.2.17)(prettier@3.8.1)(react@19.2.8))
       '@storybook/builder-vite': 10.6.0(storybook@10.6.0(@types/react@19.2.17)(prettier@3.8.1)(react@19.2.8))(vite@8.2.1(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))
       storybook: 10.6.0(@types/react@19.2.17)(prettier@3.8.1)(react@19.2.8)
       vite: 8.2.1(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0)
     transitivePeerDependencies:
       - nanoviews
 
-  '@nanoviews/storybook@1.0.0-prerelease.20260923175652(nanoviews@1.0.0-prerelease.20260923175652(csstype@3.2.3))(storybook@10.6.0(@types/react@19.2.17)(prettier@3.8.1)(react@19.2.8))':
+  '@nanoviews/storybook@1.0.0-prerelease.20261014205934(nanoviews@1.0.0-prerelease.20260923175652(csstype@3.2.3))(storybook@10.6.0(@types/react@19.2.17)(prettier@3.8.1)(react@19.2.8))':
     dependencies:
       nanoviews: 1.0.0-prerelease.20260923175652(csstype@3.2.3)
       storybook: 10.6.0(@types/react@19.2.17)(prettier@3.8.1)(react@19.2.8)
