@@ -65,7 +65,7 @@
     "nanoviews": "1.0.0-prerelease.20260923175652"
   },
   "devDependencies": {
-    "@nanoviews/storybook": "1.0.0-prerelease.20260923175652",
+    "@nanoviews/storybook": "1.0.0-prerelease.20261014205934",
     "@nanoviews/storybook-vite": "1.0.0-prerelease.20260923175652",
     "@nanoviews/testing-library": "1.0.0-prerelease.20260923175652",
     "@testing-library/dom": "catalog:",
