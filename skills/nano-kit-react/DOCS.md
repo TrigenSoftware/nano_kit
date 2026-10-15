@@ -45,6 +45,8 @@ To use the Dependency Injection system within React, wrap your application (or p
 
 You can provide an existing context instance or an array of providers/values.
 
+Inside another provider, one with an array of providers creates a child context, and one without `context` reuses the parent. Which context a store is created in is explained in Nested Contexts.
+
 ```tsx
 import { provide } from '@nano_kit/store'
 import { InjectionContextProvider } from '@nano_kit/react'
@@ -152,7 +154,7 @@ import { User$ } from './stores'
 function Stores$() {
   const { $user } = inject(User$)
 
-  /* Will execute store logic, wait for all async tasks to complete, and extract the dehydrated snapshot */
+  /* Will execute store logic, wait for the async tasks of these stores to complete, and extract the dehydrated snapshot */
   return [$user]
 }
 
@@ -179,7 +181,7 @@ import { User$ } from './stores'
 function Stores$() {
   const { $user } = inject(User$)
 
-  /* Will execute store logic, wait for all async tasks to complete, and extract the dehydrated snapshot */
+  /* Will execute store logic, wait for the async tasks of these stores to complete, and extract the dehydrated snapshot */
   return [$user]
 }
 
@@ -218,7 +220,7 @@ import { User$ } from './stores'
 function Stores$() {
   const { $user } = inject(User$)
 
-  /* Will execute store logic, wait for all async tasks to complete, and extract the dehydrated snapshot */
+  /* Will execute store logic, wait for the async tasks of these stores to complete, and extract the dehydrated snapshot */
   return [$user]
 }
 

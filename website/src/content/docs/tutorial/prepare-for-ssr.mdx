@@ -14,18 +14,18 @@ Before adding SSR, move shared stores into injectable tokens. Nano Kit uses Depe
 The query client becomes an injectable factory first:
 
 ```ts title="src/stores/query.ts"
-import { client, infinites, mutations, ssr } from '@nano_kit/query'
+import { client, infinites, mutations, hydratable } from '@nano_kit/query'
 
 export function Client$() {
   return client(
     infinites(),
     mutations(),
-    ssr()
+    hydratable()
   )
 }
 ```
 
-The query client now includes [`ssr()`](/query/ssr#ssr). This setting lets query cache data be prepared during server rendering and reused during hydration.
+The query client now includes [`hydratable()`](/query/ssr#hydratable). This setting lets query cache data be prepared during server rendering and reused during hydration.
 
 Router-derived state moves into an injectable factory too. The router integration provides [`Location$`](/router/ssr#setting-up-ssr), and the factory derives params from it:
 

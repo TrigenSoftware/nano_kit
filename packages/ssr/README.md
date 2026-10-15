@@ -45,7 +45,7 @@ Subclass `Renderer` and implement the abstract `renderToString` method. The cons
 
 ```js
 // src/renderer/index.js
-import { Renderer, headDescriptorToHtml, ROOT_ID } from '@nano_kit/ssr/renderer'
+import { Renderer, headDescriptorToHtml, escapeHtml, ROOT_ID } from '@nano_kit/ssr/renderer'
 import { compose } from 'your-framework-router'
 import { get } from '@nano_kit/store'
 
@@ -64,12 +64,12 @@ export class FrameworkRenderer extends Renderer {
       else head += headDescriptorToHtml(descriptor)
     })
 
-    if (title) head = `<title>${title}</title>${head}`
+    if (title) head = `<title>${escapeHtml(title)}</title>${head}`
 
     // render to string using your framework, wrapping with data.context
     const body = yourFrameworkRenderToString(data.context)
 
-    return `<html lang="${lang}" dir="${dir}"><head>${head}</head><body><div id="${ROOT_ID}">${body}</div><script>${this.dehydratedScript(data.dehydrated)}</script></body></html>`
+    return `<html${lang ? ` lang="${escapeHtml(lang)}"` : ''}${dir ? ` dir="${escapeHtml(dir)}"` : ''}><head>${head}</head><body><div id="${ROOT_ID}">${body}</div><script>${this.dehydratedScript(data.dehydrated)}</script></body></html>`
   }
 }
 ```

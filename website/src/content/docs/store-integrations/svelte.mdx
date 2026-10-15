@@ -4,6 +4,8 @@ description: "Integrate @nano_kit/store with Svelte using @nano_kit/svelte."
 sidebar:
   label: Svelte
   order: 3
+next:
+  label: Query
 ---
 
 import { Tabs, TabItem, Code, Aside } from '@astrojs/starlight/components'
@@ -52,6 +54,8 @@ Writable signals also get a Svelte-compatible `set` method.
 To use the Dependency Injection system within Svelte, initialize an injection context in a component with `setInjectionContext`. Child components can then read dependencies from that context.
 
 You can provide an existing instance or an array of providers/values.
+
+Called with providers under another context, `setInjectionContext` creates a child context of it. Which context a store is created in is explained in [Nested Contexts](/store/core-concepts#nested-contexts).
 
 ```svelte
 <script lang="ts">
