@@ -127,10 +127,10 @@ const [$post, $error, $loading] = query(PostKey, [$postId], (id) => fetch(`/api/
 
 The `query()` function accepts:
 
-1. **Cache key builder** — identifies the data in cache
-2. **Parameter signals** — reactive parameters that trigger refetch when changed
-3. **Fetcher function** — async function that fetches the data
-4. **Settings** (optional) — query-specific settings
+1.  **Cache key builder** — identifies the data in cache
+2.  **Parameter signals** — reactive parameters that trigger refetch when changed
+3.  **Fetcher function** — async function that fetches the data
+4.  **Settings** (optional) — query-specific settings
 
 It returns a tuple with:
 
@@ -472,8 +472,8 @@ const [updatePost, $result, $error, $loading] = mutation<[params: UpdatePostPara
 
 The `mutation()` function accepts:
 
-1. **Mutator function** — async function that performs the modification
-2. **Settings** (optional) — mutation-specific settings
+1.  **Mutator function** — async function that performs the modification
+2.  **Settings** (optional) — mutation-specific settings
 
 It returns a tuple with:
 
@@ -1216,9 +1216,9 @@ const [updatePost] = mutation<[params: UpdatePostParams], Post>(
 
 With this setup:
 
-1. `$post` (individual post) and `$posts` (list of posts) share the same data source for the post entities.
-2. Fetching specific post via `$post` updates the entity in `$posts` as well.
-3. `updatePost` optimistically updates the entity, instantly reflecting changes in both `$post` and `$posts`.
+1.  `$post` (individual post) and `$posts` (list of posts) share the same data source for the post entities.
+2.  Fetching specific post via `$post` updates the entity in `$posts` as well.
+3.  `updatePost` optimistically updates the entity, instantly reflecting changes in both `$post` and `$posts`.
 
 The `capture` helper stores each entity in the shared entity cache and returns a reference for the query result. Passing `entities(PostEntity)` is the shorthand for a single entity result.
 
@@ -1303,10 +1303,10 @@ export function Client$() {
 
 This enables the usual SSR flow:
 
-1. Queries started during server render are tracked as tasks.
-2. The renderer waits for those tasks to finish.
-3. Query cache state is dehydrated into the hydration payload.
-4. The client rehydrates the cache and reuses the prefetched data.
+1.  Queries started during server render are tracked as tasks.
+2.  The renderer waits for those tasks to finish.
+3.  Query cache state is dehydrated into the hydration payload.
+4.  The client rehydrates the cache and reuses the prefetched data.
 
 ---
 

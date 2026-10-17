@@ -1386,12 +1386,12 @@ const dehydrated = await dehydrate(() => {
 
 The `dehydrate` function:
 
-1. Creates an injection context with a task pool, or uses the context passed as the second argument
-2. Runs your store factories within that context
-3. Starts effects to trigger `onMount` callbacks (which start async tasks)
-4. Waits for all tasks in `TasksPool$` to complete
-5. Collects all signals marked with `hydratable`
-6. Returns the dehydrated key-value pairs
+1.  Creates an injection context with a task pool, or uses the context passed as the second argument
+2.  Runs your store factories within that context
+3.  Starts effects to trigger `onMount` callbacks (which start async tasks)
+4.  Waits for all tasks in `TasksPool$` to complete
+5.  Collects all signals marked with `hydratable`
+6.  Returns the dehydrated key-value pairs
 
 If your stores need preconfigured dependencies, pass them as the second argument. It can be an `InjectionContext` instance or an array of providers for a new context.
 

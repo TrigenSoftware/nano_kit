@@ -736,9 +736,9 @@ navigation.transition = (proceed, nextLocation, prevLocation) => {
 
 The arguments are:
 
-1. `proceed`: A function that must be called to complete the navigation. Pass `nextLocation` to it.
-2. `nextLocation`: The target location object (or `null` if unknown).
-3. `prevLocation`: The current location object before navigation.
+1.  `proceed`: A function that must be called to complete the navigation. Pass `nextLocation` to it.
+2.  `nextLocation`: The target location object (or `null` if unknown).
+3.  `prevLocation`: The current location object before navigation.
 
 ## Utils
 

@@ -31,7 +31,14 @@ const STRINGIFY_OPTIONS = {
   rule: '-',
   handlers: {
     // Underscores inside words (`@nano_kit`) stay readable; the other escapes are kept
-    text: (node, parent, state, info) => defaultHandlers.text(node, parent, state, info).replace(/(?<=\w)\\_(?=\w)/g, '_')
+    text: (node, parent, state, info) => defaultHandlers.text(node, parent, state, info).replace(/(?<=\w)\\_(?=\w)/g, '_'),
+    // An ordered item indents its content to 4 columns, `1.  text`, as `1. ` would leave 3: every indentation
+    // stays a multiple of the 2 spaces of the editorconfig. The default handler reads the option first thing
+    listItem: (node, parent, state, info) => {
+      state.options.listItemIndent = parent.ordered ? 'tab' : 'one'
+
+      return defaultHandlers.listItem(node, parent, state, info)
+    }
   }
 }
 const mdx = unified().use(remarkParse).use(remarkGfm).use(remarkMdx).use(remarkStringify, STRINGIFY_OPTIONS)

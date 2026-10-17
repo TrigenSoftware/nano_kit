@@ -14,86 +14,86 @@ pnpm add @nano_kit/store @nano_kit/router @nano_kit/react @nano_kit/react-router
 
 ## Quick Start
 
-1. **Define your app**
+1.  **Define your app**
 
-   Create an index file that exports `routes` and `pages`. This file is the single source of truth consumed by both the server renderer and the Vite plugin.
+    Create an index file that exports `routes` and `pages`. This file is the single source of truth consumed by both the server renderer and the Vite plugin.
 
-   ```ts
-   // src/index.ts
-   import { page, layout, loadable } from '@nano_kit/router'
-   import * as Layout from './Layout.jsx'
+    ```ts
+    // src/index.ts
+    import { page, layout, loadable } from '@nano_kit/router'
+    import * as Layout from './Layout.jsx'
 
-   export const routes = {
-     home: '/',
-     about: '/about'
-   } as const
+    export const routes = {
+      home: '/',
+      about: '/about'
+    } as const
 
-   export const pages = [
-     layout(Layout, [
-       page('home', loadable(() => import('./pages/Home.jsx'))),
-       page('about', loadable(() => import('./pages/About.jsx')))
-     ])
-   ]
+    export const pages = [
+      layout(Layout, [
+        page('home', loadable(() => import('./pages/Home.jsx'))),
+        page('about', loadable(() => import('./pages/About.jsx')))
+      ])
+    ]
 
-   declare module '@nano_kit/router' {
-     interface AppContext {
-       routes: typeof routes
-     }
-   }
-   ```
+    declare module '@nano_kit/router' {
+      interface AppContext {
+        routes: typeof routes
+      }
+    }
+    ```
 
-2. **Set up the Vite plugin**
+2.  **Set up the Vite plugin**
 
-   Add `@nano_kit/react-ssr/vite-plugin` to your Vite config. No extra configuration is needed for a standard setup — the plugin uses built-in client and renderer templates automatically.
+    Add `@nano_kit/react-ssr/vite-plugin` to your Vite config. No extra configuration is needed for a standard setup — the plugin uses built-in client and renderer templates automatically.
 
-   ```js
-   // vite.config.js
-   import { defineConfig } from 'vite'
-   import react from '@vitejs/plugin-react'
-   import ssr from '@nano_kit/react-ssr/vite-plugin'
+    ```js
+    // vite.config.js
+    import { defineConfig } from 'vite'
+    import react from '@vitejs/plugin-react'
+    import ssr from '@nano_kit/react-ssr/vite-plugin'
 
-   export default defineConfig({
-     plugins: [
-       react(),
-       ssr({ index: 'src/index.ts' })
-     ]
-   })
-   ```
+    export default defineConfig({
+      plugins: [
+        react(),
+        ssr({ index: 'src/index.ts' })
+      ]
+    })
+    ```
 
-   - **`vite dev`** — starts the development server with SSR rendering handled in-process.
-   - **`vite build`** — produces `dist/client/` (browser assets) and `dist/renderer/` (SSR renderer bundle).
+    - **`vite dev`** — starts the development server with SSR rendering handled in-process.
+    - **`vite build`** — produces `dist/client/` (browser assets) and `dist/renderer/` (SSR renderer bundle).
 
-3. **Write your production HTTP server**
+3.  **Write your production HTTP server**
 
-   For production, write your own HTTP server that imports the built renderer and calls `renderer.render(url)` for every incoming request:
+    For production, write your own HTTP server that imports the built renderer and calls `renderer.render(url)` for every incoming request:
 
-   ```js
-   // server.js
-   import { renderer } from './dist/renderer/index.js'
+    ```js
+    // server.js
+    import { renderer } from './dist/renderer/index.js'
 
-   // Express example
-   app.get('*', async (req, res) => {
-     const result = await renderer.render(req.url, {
-       cookie: req.headers.cookie,
-       acceptLanguage: req.headers['accept-language'],
-       userAgent: req.headers['user-agent']
-     })
+    // Express example
+    app.get('*', async (req, res) => {
+      const result = await renderer.render(req.url, {
+        cookie: req.headers.cookie,
+        acceptLanguage: req.headers['accept-language'],
+        userAgent: req.headers['user-agent']
+      })
 
-     if (result.setCookieHeaders) {
-       res.setHeader('Set-Cookie', result.setCookieHeaders)
-     }
+      if (result.setCookieHeaders) {
+        res.setHeader('Set-Cookie', result.setCookieHeaders)
+      }
 
-     if (result.redirect) {
-       return res.redirect(result.statusCode, result.redirect)
-     }
+      if (result.redirect) {
+        return res.redirect(result.statusCode, result.redirect)
+      }
 
-     if (result.html !== null) {
-       return res.status(result.statusCode).send(result.html)
-     }
+      if (result.html !== null) {
+        return res.status(result.statusCode).send(result.html)
+      }
 
-     res.status(result.statusCode).send('Not Found')
-   })
-   ```
+      res.status(result.statusCode).send('Not Found')
+    })
+    ```
 
 ## SSR Options
 
