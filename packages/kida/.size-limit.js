@@ -15,14 +15,14 @@ export default [
     gzip: true,
     path: 'dist/index.production.js',
     import: '*',
-    limit: '5.5 kB',
+    limit: '5.45 kB',
     modifyRolldownConfig
   },
   {
     name: 'All publics (Brotli)',
     path: 'dist/index.production.js',
     import: '*',
-    limit: '5.1 kB',
+    limit: '5.05 kB',
     modifyRolldownConfig
   },
   {
