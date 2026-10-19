@@ -1,4 +1,5 @@
 import { onMount } from 'svelte'
+import { VERSION } from '@sveltejs/kit'
 import {
   action,
   computed,
@@ -23,6 +24,20 @@ import {
   goto
 } from '$app/navigation'
 import { page } from '$app/state'
+
+/* SvelteKit 3 renamed the `replaceState` option of `goto` to `replace`, and rejects a URL
+   that does not resolve to a route, so fall back to a full page load like its links do */
+function kitGoto(href: string, replace?: boolean) {
+  const options = VERSION < '3'
+    ? {
+      replaceState: replace
+    }
+    : {
+      replace
+    }
+
+  goto(href, options).catch(() => location[replace ? 'replace' : 'assign'](href))
+}
 
 /**
  * Creates a navigation for SvelteKit components based on the current SvelteKit page.
@@ -72,7 +87,7 @@ export function getKitNavigation<const R extends Routes = Routes>(
 
       navigation.transition((location) => {
         if (location !== null) {
-          void goto(location.href)
+          kitGoto(location.href)
         }
       }, nextLocation, prevLocation)
     }),
@@ -82,9 +97,7 @@ export function getKitNavigation<const R extends Routes = Routes>(
 
       navigation.transition((location) => {
         if (location !== null) {
-          void goto(location.href, {
-            replaceState: true
-          })
+          kitGoto(location.href, true)
         }
       }, nextLocation, prevLocation)
     })

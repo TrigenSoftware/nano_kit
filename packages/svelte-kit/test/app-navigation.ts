@@ -5,6 +5,7 @@ import {
 } from './app-state.js'
 
 interface GotoOptions {
+  replace?: boolean
   replaceState?: boolean
 }
 

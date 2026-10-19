@@ -80,7 +80,7 @@ The main SvelteKit integration point is store dehydration in `+page.server.ts` a
          dehydrate,
          isFlight
        } from '@nano_kit/svelte-kit'
-       import { Stores$ } from '$lib/pages/Characters.svelte'
+       import { Stores$ } from '#lib/pages/Characters.svelte'
        import type { PageServerLoad } from './$types'
 
        export const load: PageServerLoad = async () => ({
@@ -96,7 +96,7 @@ The main SvelteKit integration point is store dehydration in `+page.server.ts` a
        ```ts
        // src/routes/characters/+page.server.ts
        import { dehydrate } from '@nano_kit/svelte-kit'
-       import { Stores$ } from '$lib/pages/Characters.svelte'
+       import { Stores$ } from '#lib/pages/Characters.svelte'
        import type { PageServerLoad } from './$types'
 
        export const load: PageServerLoad = async ({ parent }) => {
@@ -121,7 +121,7 @@ The main SvelteKit integration point is store dehydration in `+page.server.ts` a
    <!-- src/routes/characters/+page.svelte -->
    <script lang="ts">
      import { setHydrationContext } from '@nano_kit/svelte-kit'
-     import CharactersPage from '$lib/pages/Characters.svelte'
+     import CharactersPage from '#lib/pages/Characters.svelte'
 
      let { data } = $props()
 
@@ -150,7 +150,7 @@ import {
   serverNavigation,
   setDehydrationContext
 } from '@nano_kit/svelte-kit'
-import { routes } from '$lib/stores/router'
+import { routes } from '#lib/stores/router.js'
 import type { LayoutServerLoad } from './$types'
 
 export const load: LayoutServerLoad = () => {
@@ -177,7 +177,7 @@ In the root layout component, provide browser navigation.
     getKitNavigation,
     setHydrationContext
   } from '@nano_kit/svelte-kit'
-  import { routes } from '$lib/stores/router'
+  import { routes } from '#lib/stores/router.js'
 
   let { data, children } = $props()
 
