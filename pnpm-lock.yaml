@@ -1414,8 +1414,8 @@ importers:
         specifier: 1.0.0-prerelease.20260923175652
         version: 1.0.0-prerelease.20260923175652(nanoviews@1.0.0-prerelease.20260923175652(csstype@3.2.3))(storybook@10.6.0(@types/react@19.2.17)(prettier@3.8.1)(react@19.2.8))(vite@8.2.1(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))
       '@nanoviews/testing-library':
-        specifier: 1.0.0-prerelease.20260923175652
-        version: 1.0.0-prerelease.20260923175652(@testing-library/dom@10.4.1)(nanoviews@1.0.0-prerelease.20260923175652(csstype@3.2.3))(vitest@5.0.0)
+        specifier: 1.0.0-prerelease.20261014205934
+        version: 1.0.0-prerelease.20261014205934(@testing-library/dom@10.4.1)(nanoviews@1.0.0-prerelease.20260923175652(csstype@3.2.3))(vitest@5.0.0)
       '@testing-library/dom':
         specifier: 'catalog:'
         version: 10.4.1
@@ -3448,12 +3448,12 @@ packages:
       nanoviews: ^1.0.0-prerelease.20260923175652
       storybook: ^10.5.10
 
-  '@nanoviews/testing-library@1.0.0-prerelease.20260923175652':
-    resolution: {integrity: sha512-s29EAo54YKdIBXTHXaZzh54miLefiy8+gj2HbB+OlcPzKy5MJY+QMl6uVzg/AJ6mbYgI+e5o7JAiF0kiJgu6XA==}
-    engines: {node: '>=20'}
+  '@nanoviews/testing-library@1.0.0-prerelease.20261014205934':
+    resolution: {integrity: sha512-IFMONE/OOIyebSRtlRkGElh7AHZFgYjgLb1L+x0KGC83fAlZpoxaehDb/CM3bokv8pyXEYS6q1eXKC9kEMZOCA==}
+    engines: {node: '>=24'}
     peerDependencies:
       '@testing-library/dom': '>=7'
-      nanoviews: ^1.0.0-prerelease.20260923175652
+      nanoviews: ^1.0.0-prerelease.20261014205934
       vitest: '>=1'
     peerDependenciesMeta:
       vitest:
@@ -9885,7 +9885,7 @@ snapshots:
       storybook: 10.6.0(@types/react@19.2.17)(prettier@3.8.1)(react@19.2.8)
       type-fest: 5.9.0
 
-  '@nanoviews/testing-library@1.0.0-prerelease.20260923175652(@testing-library/dom@10.4.1)(nanoviews@1.0.0-prerelease.20260923175652(csstype@3.2.3))(vitest@5.0.0)':
+  '@nanoviews/testing-library@1.0.0-prerelease.20261014205934(@testing-library/dom@10.4.1)(nanoviews@1.0.0-prerelease.20260923175652(csstype@3.2.3))(vitest@5.0.0)':
     dependencies:
       '@testing-library/dom': 10.4.1
       nanoviews: 1.0.0-prerelease.20260923175652(csstype@3.2.3)
