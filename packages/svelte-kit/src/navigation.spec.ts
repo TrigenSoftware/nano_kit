@@ -23,10 +23,21 @@ import {
   resetNavigationState
 } from '../test/navigation-state.js'
 
+const kit = vi.hoisted(() => ({
+  version: ''
+}))
+
+vi.mock('@sveltejs/kit', () => ({
+  get VERSION() {
+    return kit.version
+  }
+}))
+
 describe('svelte-kit', () => {
   describe('navigation', () => {
     describe('getNavigation', () => {
       beforeEach(() => {
+        kit.version = '3.0.0'
         resetNavigation()
         resetNavigationState()
       })
@@ -72,10 +83,25 @@ describe('svelte-kit', () => {
 
         navigation.push('/about')
 
-        expect(goto).toHaveBeenCalledWith('/about')
+        expect(goto).toHaveBeenCalledWith('/about', {
+          replace: undefined
+        })
       })
 
-      it('should call goto with replaceState on navigation.replace', () => {
+      it('should call goto with replace on navigation.replace', () => {
+        render(NavigationFixture)
+
+        const [, navigation] = getNavigationState()
+
+        navigation.replace('/about')
+
+        expect(goto).toHaveBeenCalledWith('/about', {
+          replace: true
+        })
+      })
+
+      it('should call goto with replaceState on navigation.replace with SvelteKit 2', () => {
+        kit.version = '2.70.0'
         render(NavigationFixture)
 
         const [, navigation] = getNavigationState()
@@ -84,6 +110,36 @@ describe('svelte-kit', () => {
 
         expect(goto).toHaveBeenCalledWith('/about', {
           replaceState: true
+        })
+      })
+
+      it('should load the page when goto rejects on navigation.push', async () => {
+        const assign = vi.spyOn(location, 'assign').mockImplementation(() => undefined)
+
+        goto.mockRejectedValueOnce(new Error('Route is missing'))
+        render(NavigationFixture)
+
+        const [, navigation] = getNavigationState()
+
+        navigation.push('/about')
+
+        await vi.waitFor(() => {
+          expect(assign).toHaveBeenCalledWith('/about')
+        })
+      })
+
+      it('should replace the page when goto rejects on navigation.replace', async () => {
+        const replace = vi.spyOn(location, 'replace').mockImplementation(() => undefined)
+
+        goto.mockRejectedValueOnce(new Error('Route is missing'))
+        render(NavigationFixture)
+
+        const [, navigation] = getNavigationState()
+
+        navigation.replace('/about')
+
+        await vi.waitFor(() => {
+          expect(replace).toHaveBeenCalledWith('/about')
         })
       })
 
@@ -118,7 +174,9 @@ describe('svelte-kit', () => {
 
         navigation.push('/user/42')
 
-        expect(goto).toHaveBeenCalledWith('/user/42')
+        expect(goto).toHaveBeenCalledWith('/user/42', {
+          replace: undefined
+        })
       })
     })
   })

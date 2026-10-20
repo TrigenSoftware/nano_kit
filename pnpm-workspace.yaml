@@ -30,7 +30,7 @@ catalog:
   react: ^19.2.8
   react-dom: ^19.2.8
   size-limit: ^14.0.1
-  svelte: ^5.56.7
+  svelte: ^5.57.1
   svelte-check: ^4.7.3
   typescript: ^7.0.2
   vite: ^8.2.1
@@ -61,11 +61,4 @@ overrides:
   '@nano_kit/svelte-kit@*': workspace:^
   '@nano_kit/svelte-router@*': workspace:^
   '@nano_kit/svelte-ssr@*': workspace:^
-packageExtensions:
-  # @sveltejs/package uses the TypeScript JS API but does not declare a
-  # typescript peer, so it resolves the hoisted TS. Declare the peer so it
-  # picks up svelte-router's TS 6 (the native TS 7 has no `ts.sys` JS API).
-  '@sveltejs/package':
-    peerDependencies:
-      typescript: '*'
 workspaceConcurrency: 0

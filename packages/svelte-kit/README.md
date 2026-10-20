@@ -49,7 +49,7 @@ import {
   serverNavigation,
   setDehydrationContext
 } from '@nano_kit/svelte-kit'
-import { routes } from '$lib/routes'
+import { routes } from '#lib/routes.js'
 import type { LayoutServerLoad } from './$types'
 
 export const load: LayoutServerLoad = () => {
@@ -75,7 +75,7 @@ Set up browser navigation and hydration in the root layout:
     getKitNavigation,
     setHydrationContext
   } from '@nano_kit/svelte-kit'
-  import { routes } from '$lib/routes'
+  import { routes } from '#lib/routes.js'
 
   let { data, children } = $props()
 
@@ -103,7 +103,7 @@ import {
   dehydrate,
   isFlight
 } from '@nano_kit/svelte-kit'
-import { Stores$ } from '$lib/pages/Characters.svelte'
+import { Stores$ } from '#lib/pages/Characters.svelte'
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async () => ({
@@ -118,7 +118,7 @@ If you want to dehydrate stores on every navigation, wait for the parent layout 
 ```ts
 // src/routes/characters/+page.server.ts
 import { dehydrate } from '@nano_kit/svelte-kit'
-import { Stores$ } from '$lib/pages/Characters.svelte'
+import { Stores$ } from '#lib/pages/Characters.svelte'
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ parent }) => {
@@ -134,7 +134,7 @@ export const load: PageServerLoad = async ({ parent }) => {
 <!-- src/routes/characters/+page.svelte -->
 <script lang="ts">
   import { setHydrationContext } from '@nano_kit/svelte-kit'
-  import CharactersPage from '$lib/pages/Characters.svelte'
+  import CharactersPage from '#lib/pages/Characters.svelte'
 
   let { data } = $props()
 
@@ -152,7 +152,7 @@ Use `Stores$` in the page view to declare stores that should run during SSR:
 <!-- src/lib/pages/Characters.svelte -->
 <script module lang="ts">
   import { inject } from '@nano_kit/store'
-  import { Characters$ } from '$lib/stores/characters'
+  import { Characters$ } from '#lib/stores/characters.js'
 
   export function Stores$() {
     const { $characters } = inject(Characters$)
