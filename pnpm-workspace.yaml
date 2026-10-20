@@ -39,6 +39,7 @@ catalog:
 minimumReleaseAgeExclude:
   - nanoviews
   - '@nanoviews/*'
+  - '@trigen/*'
 overrides:
   # nanoviews depends on published kida snapshots; the workspace core is the one instance every graph shares
   agera: workspace:^
