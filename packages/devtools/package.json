@@ -62,7 +62,7 @@
   "dependencies": {
     "@nano_kit/platform-web": "workspace:^",
     "@nano_kit/store": "workspace:^",
-    "nanoviews": "1.0.0-prerelease.20260923175652"
+    "nanoviews": "1.0.0-prerelease.20261014205934"
   },
   "devDependencies": {
     "@nanoviews/storybook": "1.0.0-prerelease.20260923175652",
