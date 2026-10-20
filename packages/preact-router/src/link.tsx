@@ -69,6 +69,7 @@ function createLinkComponent<R extends Routes>(
 
     return (
       <a
+        // @ts-expect-error - Preact 11 types `<a>` props as a union that ties `role` to `href`, forwarded props are checked by `LinkProps`
         href={href}
         onClick={onClickCallback}
         {...elementProps}
