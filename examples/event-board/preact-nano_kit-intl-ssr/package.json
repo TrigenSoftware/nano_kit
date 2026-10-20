@@ -25,8 +25,8 @@
     "@nano_kit/router": "*",
     "@nano_kit/store": "*",
     "hono": "^4.12.1",
-    "preact": "^10.27.1",
-    "preact-render-to-string": "^6.6.1"
+    "preact": "^11.0.1",
+    "preact-render-to-string": "^6.8.1"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.10.2",
