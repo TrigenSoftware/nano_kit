@@ -25,7 +25,7 @@ export interface UseAriaCurrentSettings<R extends Routes> extends LinkSettings {
 }
 
 export interface UseAriaCurrentProps {
-  'href'?: AnchorHTMLAttributes['href']
+  href?: AnchorHTMLAttributes['href']
   'aria-current'?: AriaAttributes['aria-current']
 }
 

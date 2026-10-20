@@ -22,7 +22,7 @@ export interface UseAriaCurrentSettings<R extends Routes> extends LinkSettings {
 }
 
 export interface UseAriaCurrentProps {
-  'href'?: string
+  href?: string
   'aria-current'?: boolean | 'false' | 'true' | 'page' | 'step' | 'location' | 'date' | 'time' | undefined
 }
 

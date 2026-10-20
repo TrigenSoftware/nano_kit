@@ -58,8 +58,8 @@ describe('intl', () => {
           greeting: 'Welcome to our website.'
         },
         B: {
-          'title': 'Goodbye, {name}!',
-          'farewell': 'Thank you for visiting.',
+          title: 'Goodbye, {name}!',
+          farewell: 'Thank you for visiting.',
           'guests.one': 'You have {count} guest.',
           'guests.other': 'You have {count} guests.'
         }
@@ -127,8 +127,8 @@ describe('intl', () => {
           greeting: 'Welcome to our website.'
         },
         B: {
-          'title': 'Goodbye, {name}!',
-          'farewell': 'Thank you for visiting.',
+          title: 'Goodbye, {name}!',
+          farewell: 'Thank you for visiting.',
           'guests.one': 'You have {count} guest.',
           'guests.other': 'You have {count} guests.'
         }
