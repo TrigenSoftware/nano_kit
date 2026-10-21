@@ -3,6 +3,64 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.2.0...v2.0.0) (2026-10-21)
+
+### Nano Kit 2.0 🎉
+
+#### What's new
+
+- **DevTools.** [`@nano_kit/devtools`](https://nano-kit.js.org/store/devtools/) is a panel right on the page to inspect your stores: your signals, their values and a log of every change.
+- **Development warnings.** In development, the packages warn about common mistakes, like a missing route parameter or a missing translation.
+- **Tasks on signals.** SSR and tests wait only for the data they need, not for every request in flight.
+- **Smarter dependency injection.** Stores are shared between nested contexts unless a context overrides what they depend on. The new `provideAs` swaps an implementation, like a mock API in tests.
+- **`SignalsMap` class.** The reactive map now has the familiar `Map` API.
+- **Operators.** With static operands they return a plain value, and `pick`, `text` and `latest` are new.
+- **intl.** `relativetime()` picks the unit by itself, from "5 minutes ago" to "yesterday", and `format()` messages accept signals.
+- **Preact 11 and SvelteKit 3** are supported.
+
+#### Upgrading from 1.x
+
+The breaking changes below list everything. The usual edits:
+
+- Node.js 24 or newer is required.
+- `inject(TasksRunner$)` with `task(fn)` becomes `task($signal, fn)`, `waitTasks(pool)` becomes `waitTasks($signal)`, and `client(ssr())` or `client(tasks(), hydratable())` becomes `client(hydratable())`.
+- `context.set(token, value)` becomes `context.deps.set(token, value)`. To keep a store per context, provide it in that context.
+- `$getMapKey(map, key)`, `setMapKey`, `deleteMapKey` and `clearMap` become `map.$get(key)`, `map.set`, `map.delete` and `map.clear` of a `new SignalsMap()`.
+- An operator with static operands returns the value, not an accessor, and `concat($first, ' ', $last)` becomes `` text`${$first} ${$last}` `` (the `f` tag in the notes below shipped as `text`).
+- `resolved` keeps a falsy value as data: express an empty state with the type, such as `User | null`.
+- An `effect` created in a deferred scope body no longer defers: use `deferEffect` there.
+- `relativetime()` takes a moment instead of a count, and its `unit` option is gone: set `largestUnit` and `smallestUnit` to one unit to format in it.
+
+#### Where to start
+
+- 📚 [Documentation](https://nano-kit.js.org): guides for every package
+- 🛠️ [DevTools](https://nano-kit.js.org/store/devtools/): install the panel and open it with Alt+Shift+D
+- 🤖 [Agent Skills](https://nano-kit.js.org/getting-started/agent-skills/): teach your coding agent the Nano Kit API
+
+### ⚠ BREAKING CHANGES
+
+* `effect` no longer defers when created inside a deferred scope body: use
+  `deferEffect` there. `subscribe`, `listen`, `observe` and `subscribeAny` no longer accept the
+  `noDefer` argument.
+* the packages require Node.js 24 or newer.
+
+### Features
+
+* add `deferEffect` for effects owned by a deferred scope ([#257](https://github.com/TrigenSoftware/nano_kit/issues/257)) ([12cb14b](https://github.com/TrigenSoftware/nano_kit/commit/12cb14b4ca39645dbd2899e8e2b79738d387c854))
+* add `inspect` to report graph events in the development build ([#237](https://github.com/TrigenSoftware/nano_kit/issues/237)) ([07e4290](https://github.com/TrigenSoftware/nano_kit/commit/07e4290790f7c2b75864fa0e82e2fa7acd0ed76c))
+* add `uninspected` to keep the nodes of a listener out of `inspect`, and the old value to `UpdateEvent` ([#262](https://github.com/TrigenSoftware/nano_kit/issues/262)) ([83384ce](https://github.com/TrigenSoftware/nano_kit/commit/83384ce8e61f37d27bf8989df91c503f0ec3200e))
+* add development diagnostics with separate development and production builds ([#236](https://github.com/TrigenSoftware/nano_kit/issues/236)) ([39be996](https://github.com/TrigenSoftware/nano_kit/commit/39be99600aa5c5066b8eb5205431740986df3dee))
+* call the `inspect` listener with one event object ([#264](https://github.com/TrigenSoftware/nano_kit/issues/264)) ([f49ec73](https://github.com/TrigenSoftware/nano_kit/commit/f49ec734647dee7bd97ee3ffc908232e2f095ccb))
+* enclose the lifecycle listeners of a node between `FireEvent` and `FireEndEvent` ([#267](https://github.com/TrigenSoftware/nano_kit/issues/267)) ([ef084b7](https://github.com/TrigenSoftware/nano_kit/commit/ef084b7d898f21c70d96bec8702ffd490ff3cf15))
+* report the end of a run with `RunEndEvent`, and leave `oldValue` out of a first evaluation ([#265](https://github.com/TrigenSoftware/nano_kit/issues/265)) ([61186e0](https://github.com/TrigenSoftware/nano_kit/commit/61186e07a5f6e8ff77fb782c1d177b5534d4462a))
+* require Node.js 24 ([#268](https://github.com/TrigenSoftware/nano_kit/issues/268)) ([c6ed062](https://github.com/TrigenSoftware/nano_kit/commit/c6ed0627e0e76785941ede1bb8f280c5d80896a0))
+
+### Bug Fixes
+
+* drop the development warning about a signal written inside a computed ([#266](https://github.com/TrigenSoftware/nano_kit/issues/266)) ([21e269b](https://github.com/TrigenSoftware/nano_kit/commit/21e269b0f4aab003f3559229d8146e3b67bfe8eb))
+* mount a mountable first read on a re-run of a computed that another computed reads ([#294](https://github.com/TrigenSoftware/nano_kit/issues/294)) ([df898de](https://github.com/TrigenSoftware/nano_kit/commit/df898de41257bf7b5725b88c8891157e7fb88d19))
+* queue `batch` and `trigger` writes onto a running flush instead of draining it ([#256](https://github.com/TrigenSoftware/nano_kit/issues/256)) ([d6afbdd](https://github.com/TrigenSoftware/nano_kit/commit/d6afbdd0dcd8dd02ecf8172698b9cca9f4d290c5))
+
 ## [1.2.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0...v1.2.0) (2026-08-30)
 
 ### Features
