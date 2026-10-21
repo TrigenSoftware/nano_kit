@@ -43,7 +43,7 @@ metadata:
 - Group translation data by namespace (a page, a layout, a feature) and bind each namespace with `messages(namespace, scheme)` in a small injectable factory next to the page that uses it. Components read `$t` through the framework hook.
 - Choose the loader by bundle shape: a full-data loader (`resolved` or a query) for small translations shipped together, a namespace loader when translations should split by route or feature. With a namespace loader the context `$loading` is meaningless; use the `$pending` returned per namespace.
 - A scheme entry is needed only where a key needs a format: parameters, plural forms, cases, Intl formatting. Keys without a format come back raw and typed from the translation data.
-- `format(...)` messages format application values and take a value argument; `params(...)` messages fill placeholders in translated text and take an object of parameters. Do not mix them up.
+- `format(...)` messages format application values and take a value argument; `params(...)` messages fill placeholders in translated text and take an object of parameters. Do not mix them up. Pass application state to a `format()` message as the signal itself, `$t.eventDate($startsAt)`: the message follows it, and `null` formats like a missing value while the data loads.
 
 ## Locale
 

@@ -73,23 +73,28 @@ export class Api$ extends Injectable$ {
 
 - React to state with `effect` in stores and with the framework hooks in components. The callback subscriptions (`subscribe`, `listen`, `observe`) exist for adapters and bindings; in app code `effect` and `onMountEffect` track and clean up for you.
 - Wrap every store action in `action`, including one that only writes today. An effect that calls the action then never subscribes to what the action reads, now or after the next refactor.
-- "Fetch when the parameters change while someone is looking" is `onMountEffect` on a mountable result signal: read the parameters inside the effect, do the request in an `action`.
+- "Fetch when the parameters change while someone is looking" is `onMountEffect` on a mountable result signal: read the parameters inside the effect, do the request in an `action`, and attach it to the result signal with `task`, so SSR and tests wait for it.
 - `computed` for anything derived, and keep it pure; side effects belong in `effect` or `onMount`.
 - One-off async values: `resolved`. Remote data that needs caching, deduplication and invalidation: `@nano_kit/query` (skill `nano-kit-query`).
+- A keyed collection read one entry at a time (records by id, a list fed by a socket): `SignalsMap`, whose readers wake only for their own entry; `IndexedSignalsMap` when something lists the keys or the first reader should start loading the whole map.
+- A local value that must also follow a read-only source (a search field that starts from the URL): `latest` over both, so typing wins over the URL and navigation wins over typing.
 - Many consumers asking the same question about one value (which row is selected): `selector` instead of a computed per consumer.
 - Rate limiting: `paced` when the signal itself should be written at a limited rate, `pace` inside a `computed` for a limited read of another signal.
-- The low-level exports (raw lifecycle hooks `onStart`, `onStop`, `onMounted`; `subscribe`, `listen`, `observe`; `start`, `exec`; `readonly`; `SignalsMap`; `getContext`; `external` and `stored`) are for adapters, framework bindings and tests. Reaching for them inside an app store is a sign that the design is off. `start` and `exec` are how a test mounts a store.
+- The low-level exports (raw lifecycle hooks `onStart`, `onStop`, `onMounted`; `subscribe`, `listen`, `observe`; `start`, `exec`; `readonly`; `getContext`; `external` and `stored`) are for adapters, framework bindings and tests. Reaching for them inside an app store is a sign that the design is off. `start` and `exec` are how a test mounts a store.
 
 ## Dependency injection
 
 - Prefer injectable factories over module-level singletons as soon as the app has SSR or tests: module state is shared by every request of a server process, a context is per request and per test.
 - Inject stores into stores and components; provide services (transport, cookies, navigation) at the root, so a test replaces them with `provide(Token$, mock)` instead of module mocking.
+- Swap an implementation for stories and tests with `provideAs(Api$, MockApi$)`: the mock is an injectable like any store and injects what it needs.
+- A store nobody provides is shared as widely as its inputs allow: it lives in the deepest context that provides something it reads. For an instance per subtree (an editor per list item), provide the item's token in a nested context: the stores that read it get their own instance there, everything else stays shared.
 - A token without a sensible default should throw `DependencyNotFound`, so misconfiguration is loud.
 - Keep `inject()` inside factories, `run(context, fn)` or framework hooks; outside a context it throws.
 
 ## SSR
 
 - Register the signals the server must ship with `hydratable`; pass a codec only for values that do not survive JSON.
+- The server waits for the tasks of the signals a page returns and of everything they depend on, and for nothing else: a request that no returned signal leads to is not awaited and renders in its loading state.
 - `isHydrated` is cleared by the signal's own next change and knows nothing about parameters. A guard that skips a fetch after hydration must remember which input the hydrated value belongs to, otherwise the first parameter change after hydration fetches nothing.
 - Hydration ids are global to the snapshot, not per store: prefix them with the store name (`user.profile`), two signals with one id overwrite each other.
 

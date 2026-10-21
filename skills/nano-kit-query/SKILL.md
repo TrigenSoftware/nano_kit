@@ -44,7 +44,7 @@ metadata:
 - `mutation`: a write on demand with the last result, error and loading state.
 - `operation`: manual work whose result deserves the cache (AI generation, reports, explicit search submits, lazy loading that must not start on mount).
 - `infinite`: pages behind a cursor; a parameter change restarts from the first page.
-- Create the client once per app as an injectable `Client$()` factory with the extensions the app needs (`mutations()`, `infinites()`, `operations()`) and, when the app renders on the server, the SSR settings from the SSR section of `DOCS.md`.
+- Create the client once per app as an injectable `Client$()` factory with the extensions the app needs (`mutations()`, `infinites()`, `operations()`) and `hydratable()` when the app renders on the server.
 
 ## Keys and parameters
 
@@ -65,8 +65,8 @@ metadata:
 
 ## SSR
 
-- Configure the client for server rendering exactly as the SSR section of `DOCS.md` shows; that setup is what makes the renderer wait for the requests and dehydrate the cache, and what restores it in the browser.
-- Return the query data signals from page-level `Stores$` factories (see the `nano-kit-react-ssr` skill).
+- `hydratable()` is the whole SSR setup of the client: it dehydrates the cache on the server and restores it in the browser. Waiting needs no setup, every query attaches its request to its data signal.
+- Return the query data signals, or computeds over them, from page-level `Stores$` factories (see the `nano-kit-react-ssr` skill): the renderer waits only for what the returned signals depend on.
 
 ## Testing
 
