@@ -86,11 +86,11 @@ export default defineConfig({
         isProduction && {
           tag: 'script',
           attrs: {
-            'src': 'https://cloud.umami.is/script.js',
+            src: 'https://cloud.umami.is/script.js',
             'data-website-id': '6b792c30-fae6-48d2-95fa-c1d39706f328',
-            'defer': true,
+            defer: true,
             // Required to pass the COEP require-corp check
-            'crossorigin': 'anonymous'
+            crossorigin: 'anonymous'
           }
         },
         {
