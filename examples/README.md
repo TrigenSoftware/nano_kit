@@ -6,7 +6,9 @@ This document contains bundle size information for various examples in the proje
 
 | Stack | Raw Size | Gzipped Size |
 |-------|----------|--------------|
-| Solid + Nano Stores | 36.41 kB | 13.92 kB 🪶 |
+| [Nanoviews + nano_kit](https://github.com/TrigenSoftware/nanoviews/tree/main/examples/weather/nano_kit) | 28.11 kB | 10.77 kB 🪶 |
+| [Nanoviews + nano_kit + DI](https://github.com/TrigenSoftware/nanoviews/tree/main/examples/weather/nano_kit-di) | 29.44 kB | 11.23 kB |
+| Solid + Nano Stores | 36.41 kB | 13.92 kB |
 | Svelte + Nano Stores | 57.55 kB | 22.20 kB |
 | React + Nano Stores | 206.71 kB | 65.53 kB |
 | React + nano_kit | 211.50 kB | 66.93 kB |
@@ -18,5 +20,6 @@ This document contains bundle size information for various examples in the proje
 
 | Stack | Raw Size | Gzipped Size |
 |-------|----------|--------------|
-| React + nano_kit query + nano_kit router | 218.76 kB | 73.34 kB 🪶 |
+| [Nanoviews + nano_kit query + nano_kit router](https://github.com/TrigenSoftware/nanoviews/tree/main/examples/rick-and-morty/nano_kit) | 35.26 kB | 17.66 kB 🪶 |
+| React + nano_kit query + nano_kit router | 218.76 kB | 73.34 kB |
 | React + TanStack Query + TanStack Router | 319.97 kB | 101.70 kB 🪨 |
