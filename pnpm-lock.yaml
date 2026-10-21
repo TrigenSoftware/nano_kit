@@ -1402,18 +1402,18 @@ importers:
         specifier: workspace:^
         version: link:../store
       nanoviews:
-        specifier: 1.0.0-prerelease.20260923175652
-        version: 1.0.0-prerelease.20260923175652(csstype@3.2.3)
+        specifier: ^1.0.0
+        version: 1.0.0
     devDependencies:
       '@nanoviews/storybook':
-        specifier: 1.0.0-prerelease.20260923175652
-        version: 1.0.0-prerelease.20260923175652(nanoviews@1.0.0-prerelease.20260923175652(csstype@3.2.3))(storybook@10.6.0(@types/react@19.2.17)(prettier@3.8.1)(react@19.2.8))
+        specifier: ^1.0.0
+        version: 1.0.0(nanoviews@1.0.0)(storybook@10.6.0(@types/react@19.2.17)(prettier@3.8.1)(react@19.2.8))
       '@nanoviews/storybook-vite':
-        specifier: 1.0.0-prerelease.20260923175652
-        version: 1.0.0-prerelease.20260923175652(nanoviews@1.0.0-prerelease.20260923175652(csstype@3.2.3))(storybook@10.6.0(@types/react@19.2.17)(prettier@3.8.1)(react@19.2.8))(vite@8.2.1(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))
+        specifier: ^1.0.0
+        version: 1.0.0(nanoviews@1.0.0)(storybook@10.6.0(@types/react@19.2.17)(prettier@3.8.1)(react@19.2.8))(vite@8.2.1(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))
       '@nanoviews/testing-library':
-        specifier: 1.0.0-prerelease.20260923175652
-        version: 1.0.0-prerelease.20260923175652(@testing-library/dom@10.4.1)(nanoviews@1.0.0-prerelease.20260923175652(csstype@3.2.3))(vitest@5.0.0)
+        specifier: ^1.0.0
+        version: 1.0.0(@testing-library/dom@10.4.1)(nanoviews@1.0.0)(vitest@5.0.0)
       '@testing-library/dom':
         specifier: 'catalog:'
         version: 10.4.1
@@ -3435,26 +3435,26 @@ packages:
       nanostores: '>=0.9.0 <2.0.0'
       solid-js: ^1.6.0
 
-  '@nanoviews/storybook-vite@1.0.0-prerelease.20260923175652':
-    resolution: {integrity: sha512-MoDkQB1iy4KDEBkJk6pZuRqGa4Y1KKnXz6sqyunHsWL7/IoohYnVwWAfwKiNg+KViKBDsUPmlzwcEOVzoape5w==}
-    engines: {node: '>=20.6'}
+  '@nanoviews/storybook-vite@1.0.0':
+    resolution: {integrity: sha512-qgy97hV0dhTAi3cJdIS1x5iaW5lLXSBxFdamg3KXYt8VqJa+kgEYOcRxgb405q/WQiDvfExWzLvpPmYtJ8V0Gw==}
+    engines: {node: '>=24'}
     peerDependencies:
       storybook: ^10.5.10
       vite: ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0
 
-  '@nanoviews/storybook@1.0.0-prerelease.20260923175652':
-    resolution: {integrity: sha512-+vwJ0CMWRbahRuHfF+dEWCQ2pkosfx69gDyiPMSO76MUlmxXNNlgN40cFkIPo20i7naZKpqWLrkKIZkoZ9nCdw==}
-    engines: {node: '>=20.6'}
+  '@nanoviews/storybook@1.0.0':
+    resolution: {integrity: sha512-k7oPKqW5SwaZ9Z+7Jbeqbvnq15h4teuBTjqig/Wufvl356pno7heJCTTM1NB3c7o4ZNRnIIyFoyo1vvoAcYwjw==}
+    engines: {node: '>=24'}
     peerDependencies:
-      nanoviews: ^1.0.0-prerelease.20260923175652
+      nanoviews: ^1.0.0
       storybook: ^10.5.10
 
-  '@nanoviews/testing-library@1.0.0-prerelease.20260923175652':
-    resolution: {integrity: sha512-s29EAo54YKdIBXTHXaZzh54miLefiy8+gj2HbB+OlcPzKy5MJY+QMl6uVzg/AJ6mbYgI+e5o7JAiF0kiJgu6XA==}
-    engines: {node: '>=20'}
+  '@nanoviews/testing-library@1.0.0':
+    resolution: {integrity: sha512-y5o/XXwIfJC3cJnZCc7XTV34V7jaXrwqfoQrhrx0YJX9grDeQjpN8i8CpRHKmP6Y74Ry/BV7humxf62C6F6NaQ==}
+    engines: {node: '>=24'}
     peerDependencies:
       '@testing-library/dom': '>=7'
-      nanoviews: ^1.0.0-prerelease.20260923175652
+      nanoviews: ^1.0.0
       vitest: '>=1'
     peerDependenciesMeta:
       vitest:
@@ -7135,14 +7135,9 @@ packages:
     resolution: {integrity: sha512-PGd3uPojJB9Z07d5NX3Db/SOSBbyy3wLMUGq0GpnEEJfVzY9mq7daPMAZ3jObV5D3Jn+YKND636eI5ULg7F80Q==}
     engines: {node: ^20.0.0 || >=22.0.0}
 
-  nanoviews@1.0.0-prerelease.20260923175652:
-    resolution: {integrity: sha512-yiPJgvc3vw7cdA9lP6M8jAXf+jiygVjMhh6CLdx8rQQCEYZYucAOgqf8r5/og/f0rkDIV5HlEcdraLl46asdcg==}
-    engines: {node: '>=20'}
-    peerDependencies:
-      csstype: ^3.1.3
-    peerDependenciesMeta:
-      csstype:
-        optional: true
+  nanoviews@1.0.0:
+    resolution: {integrity: sha512-tIRzlI4ff+RtTZ1PZ1bwLfGN4FS3KyyHb47O2z1iS4STAPZ5qFzqPrgaquSYwMROP1pp4ygWqFoz20gLzIYdNg==}
+    engines: {node: '>=24'}
 
   neotraverse@1.0.1:
     resolution: {integrity: sha512-WmmLty1YWwJl9yZi77v2dVIV6X2kuYV8YYBI/G3LWGKdGHmHUvL1z7FW0iDvEvGAwNEoc5x1tOOOyDnf5jJw/w==}
@@ -9902,25 +9897,25 @@ snapshots:
       nanostores: 1.4.1
       solid-js: 1.9.14
 
-  '@nanoviews/storybook-vite@1.0.0-prerelease.20260923175652(nanoviews@1.0.0-prerelease.20260923175652(csstype@3.2.3))(storybook@10.6.0(@types/react@19.2.17)(prettier@3.8.1)(react@19.2.8))(vite@8.2.1(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))':
+  '@nanoviews/storybook-vite@1.0.0(nanoviews@1.0.0)(storybook@10.6.0(@types/react@19.2.17)(prettier@3.8.1)(react@19.2.8))(vite@8.2.1(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))':
     dependencies:
-      '@nanoviews/storybook': 1.0.0-prerelease.20260923175652(nanoviews@1.0.0-prerelease.20260923175652(csstype@3.2.3))(storybook@10.6.0(@types/react@19.2.17)(prettier@3.8.1)(react@19.2.8))
+      '@nanoviews/storybook': 1.0.0(nanoviews@1.0.0)(storybook@10.6.0(@types/react@19.2.17)(prettier@3.8.1)(react@19.2.8))
       '@storybook/builder-vite': 10.6.0(storybook@10.6.0(@types/react@19.2.17)(prettier@3.8.1)(react@19.2.8))(vite@8.2.1(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))
       storybook: 10.6.0(@types/react@19.2.17)(prettier@3.8.1)(react@19.2.8)
       vite: 8.2.1(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0)
     transitivePeerDependencies:
       - nanoviews
 
-  '@nanoviews/storybook@1.0.0-prerelease.20260923175652(nanoviews@1.0.0-prerelease.20260923175652(csstype@3.2.3))(storybook@10.6.0(@types/react@19.2.17)(prettier@3.8.1)(react@19.2.8))':
+  '@nanoviews/storybook@1.0.0(nanoviews@1.0.0)(storybook@10.6.0(@types/react@19.2.17)(prettier@3.8.1)(react@19.2.8))':
     dependencies:
-      nanoviews: 1.0.0-prerelease.20260923175652(csstype@3.2.3)
+      nanoviews: 1.0.0
       storybook: 10.6.0(@types/react@19.2.17)(prettier@3.8.1)(react@19.2.8)
       type-fest: 5.9.0
 
-  '@nanoviews/testing-library@1.0.0-prerelease.20260923175652(@testing-library/dom@10.4.1)(nanoviews@1.0.0-prerelease.20260923175652(csstype@3.2.3))(vitest@5.0.0)':
+  '@nanoviews/testing-library@1.0.0(@testing-library/dom@10.4.1)(nanoviews@1.0.0)(vitest@5.0.0)':
     dependencies:
       '@testing-library/dom': 10.4.1
-      nanoviews: 1.0.0-prerelease.20260923175652(csstype@3.2.3)
+      nanoviews: 1.0.0
     optionalDependencies:
       vitest: 5.0.0(@types/node@24.13.2)(@vitest/browser-playwright@5.0.0)(@vitest/coverage-v8@5.0.0)(@vitest/ui@5.0.0)(happy-dom@21.0.1)(vite@8.2.1(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))
 
@@ -13705,11 +13700,10 @@ snapshots:
 
   nanostores@1.4.1: {}
 
-  nanoviews@1.0.0-prerelease.20260923175652(csstype@3.2.3):
+  nanoviews@1.0.0:
     dependencies:
-      kida: link:packages/kida
-    optionalDependencies:
       csstype: 3.2.3
+      kida: link:packages/kida
 
   neotraverse@1.0.1: {}
 

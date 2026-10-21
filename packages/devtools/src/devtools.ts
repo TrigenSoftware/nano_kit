@@ -1,7 +1,9 @@
 import {
   InjectionContext,
+  UninspectedMode,
   inject,
   provide,
+  signal,
   uninspected,
   start
 } from '@nano_kit/store'
@@ -59,6 +61,12 @@ export interface DevtoolsOptions {
  * ```
  */
 export function devtools({ library }: DevtoolsOptions = {}) {
+  // A production core marks no node of the panel: the panel would hear its own nodes without end
+  if (!(uninspected(() => signal()).node.modes & UninspectedMode)) {
+    console.warn('[nano_kit/devtools] The core is a production build, which reports nothing to the panel: call devtools() in development alone, with the `development` condition resolved for @nano_kit/store')
+    return
+  }
+
   // Whatever the DevTools create is theirs and never shows among the nodes of the application
   uninspected(() => {
     const context = new InjectionContext(library && [

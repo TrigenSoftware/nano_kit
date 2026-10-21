@@ -41,7 +41,7 @@ minimumReleaseAgeExclude:
   - '@nanoviews/*'
   - '@trigen/*'
 overrides:
-  # nanoviews depends on published kida snapshots; the workspace core is the one instance every graph shares
+  # nanoviews depends on the published kida; the workspace core is the one instance every graph shares
   agera: workspace:^
   kida: workspace:^
   '@nano_kit/devtools@*': workspace:^
