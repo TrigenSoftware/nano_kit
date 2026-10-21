@@ -1,0 +1,71 @@
+---
+title: DevTools
+description: "Learn how to inspect the stores of a running app with @nano_kit/devtools."
+sidebar:
+  order: 6
+---
+
+import { Image } from 'astro:assets'
+import { Tabs, TabItem, Code } from '@astrojs/starlight/components'
+import signalsLight from '../../../assets/devtools-signals_light.png'
+import signalsDark from '../../../assets/devtools-signals_dark.png'
+import logLight from '../../../assets/devtools-log_light.png'
+import logDark from '../../../assets/devtools-log_dark.png'
+
+`@nano_kit/devtools` is an in-page DevTools panel for [@nano_kit/store](/store): the reactive graph of your app, its values, its lifecycle and a log of every transaction, right on the page.
+
+- **On the page**. A panel over your app in its own shadow root: no browser extension, no bundler plugin, and a strict Content Security Policy does not stop it.
+- **Free in production**. The guarded call folds away with the whole package, and the core reports to the panel in its [development build](#development-builds) alone.
+- **Named for you**. Every signal gets a readable name, the place it was created and its owner, the store factory, the component or the file, straight from the call stack.
+- **Transactions, not events**. The log groups what happened by flush, with the time of every run and the slowest one called out.
+- **Live values**. Pick any node to see its value as a tree, what it reads, what reads it, and its last lines in the log.
+
+<Image src={signalsLight} alt='The Signals tab: the signals of a weather app grouped by the stores they were created in, and the inspector of a selected computed' class='dark:sl-hidden' />
+<Image src={signalsDark} alt='The Signals tab: the signals of a weather app grouped by the stores they were created in, and the inspector of a selected computed' class='light:sl-hidden' />
+
+## Installation
+
+Install the package as a dev dependency using your favorite package manager:
+
+<Tabs syncKey='pkg'>
+  <TabItem label='pnpm' icon='pnpm'>
+    <Code frame='none' lang='bash' code='pnpm add -D @nano_kit/devtools' />
+  </TabItem>
+  <TabItem label='Yarn' icon='seti:yarn'>
+    <Code frame='none' lang='bash' code='yarn add -D @nano_kit/devtools' />
+  </TabItem>
+  <TabItem label='npm' icon='seti:npm'>
+    <Code frame='none' lang='bash' code='npm install -D @nano_kit/devtools' />
+  </TabItem>
+</Tabs>
+
+## Quick Start
+
+Call `devtools()` once, behind the development flag of your bundler, and import it before the modules that create your stores, so their signals are named from the start:
+
+```ts title="src/devtools.ts"
+import { devtools } from '@nano_kit/devtools'
+
+if (import.meta.env.DEV) {
+  devtools()
+}
+```
+
+```ts title="src/main.ts"
+/* First of all, before the modules that create stores */
+import './devtools'
+import { App } from './App'
+```
+
+Open the panel with the pill at the bottom edge of the page, or with Alt+Shift+D / ⌥⇧D:
+
+- **Signals**. Every signal, computed and child signal, grouped by the factory, component or file it was created in, with its value, state and links.
+- **Log**. Every transaction: a write and all it caused, down to the effects that ran and how long each took.
+- **Inspector**. The node you picked: its value, what it reads and what reads it, and its recent history.
+
+<Image src={logLight} alt='The Log tab: a transaction opened into the writes, computeds and effects it ran, with their owners and durations' class='dark:sl-hidden' />
+<Image src={logDark} alt='The Log tab: a transaction opened into the writes, computeds and effects it ran, with their owners and durations' class='light:sl-hidden' />
+
+## Development Builds
+
+`@nano_kit/store`, `@nano_kit/query`, `@nano_kit/router`, `@nano_kit/intl` and the core under them, `kida` and `agera`, ship two builds: `dist/index.development.js` and `dist/index.production.js`. Their `exports` pick one through the `development` and `production` conditions, and `default` is the production build. Bundlers that resolve the `development` condition during development, Vite among them, serve the development build with no setup, while production bundles get the production build.

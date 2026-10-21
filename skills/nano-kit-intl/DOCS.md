@@ -283,7 +283,7 @@ const [$t, $pending, $error] = messages('common', {
 })
 ```
 
-Use `$t()` to read the whole namespace. Messages are also available as signal properties like `$t.$title`. For parameterized messages, `$t.key(params)` creates a computed signal. If params contain signals, the computed message subscribes to them.
+Use `$t()` to read the whole namespace. Messages are also available as signal properties like `$t.$title`. For parameterized messages, `$t.key(params)` creates a computed signal. If params contain signals, the computed message subscribes to them, and the value of a `format()` message can be a signal or an accessor itself.
 
 ```ts
 $t().title
@@ -483,6 +483,20 @@ $t().eventDate(new Date('2024-01-02T00:00:00.000Z'))
 
 This is useful for dates, numbers, and other UI values that come from app state.
 
+The formatter reads a signal or an accessor passed as the value, so the `$t.eventDate($startsAt)` shortcut is a computed message that follows `$startsAt`. A `null` value formats like a missing one, so data that is still loading needs no guard:
+
+```ts
+const $startsAt = signal<Date | null>(null)
+const $eventDate = $t.eventDate($startsAt)
+
+$eventDate()
+// undefined
+
+$startsAt(new Date('2024-01-02T00:00:00.000Z'))
+$eventDate()
+// 'Jan 2, 2024'
+```
+
 ## Intl Formats
 
 Intl formats can be used inside `params(...)` for translated templates, or wrapped with `format(...)` when the value comes from runtime state, API data, or a database.
@@ -522,19 +536,34 @@ $t().formatDate(new Date('2024-01-02T00:00:00.000Z'))
 
 ### `relativetime(fallback?, options?)`
 
-Formats relative time values with `Intl.RelativeTimeFormat`.
+Formats the distance from now to a date, a timestamp or a date string with `Intl.RelativeTimeFormat`, in the largest unit the distance fills: years, months, weeks, days, hours, minutes or seconds.
 
 ```ts
 const [$t] = messages('event', {
   formatStartsIn: format(relativetime({
-    unit: 'day',
     numeric: 'auto'
   }))
 })
 
-$t().formatStartsIn(1)
-// 'tomorrow'
+$t().formatStartsIn(event.startsAt)
+// 'tomorrow' for an event that starts in 30 hours
 ```
+
+`largestUnit` and `smallestUnit` bound the unit, and both set to one unit format in that unit only. With `numeric: 'auto'`, a distance below the smallest unit reads as "now" when that unit is an hour or less, and as "today" or "this week" for calendar units, so a feed with `smallestUnit: 'minute'` shows "now" for anything newer than a minute:
+
+```ts
+const [$t] = messages('activity', {
+  formatTime: format(relativetime({
+    numeric: 'auto',
+    smallestUnit: 'minute'
+  }))
+})
+
+$t().formatTime(comment.createdAt)
+// 'now', then '5 minutes ago', 'yesterday', 'last week'
+```
+
+`relativeTo` sets the moment to count from instead of the current time. It takes a signal or an accessor as well, so a message follows a ticking clock, for example one built on `interval()`. A month counts as 30 days and a year as 365: the unit comes from the distance, not from the calendar.
 
 ### `duration(fallback?, options?)`
 

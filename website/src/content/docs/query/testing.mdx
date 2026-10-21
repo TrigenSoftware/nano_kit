@@ -17,28 +17,23 @@ Please refer to the [Store Testing](/store/testing) documentation for general gu
 
 ## Waiting for Queries
 
-Tests often need to wait for asynchronous data fetching to resolve. The `tasks` extension provides a reliable way to await all pending operations in your query client, ensuring your assertions run only after data is loaded.
+Tests often need to wait for asynchronous data fetching to resolve. Every query attaches its request as a task to its data signal, so [`waitTasks`](/store/testing#waiting-for-async-operations) of that signal awaits the request with no extra setup, ensuring your assertions run only after data is loaded.
 
 ```ts
 import { describe, it, expect, vi } from 'vitest'
-import { tasksRunner, waitTasks, start } from '@nano_kit/store'
-import { client, tasks, queryKey } from '@nano_kit/query'
+import { waitTasks, start } from '@nano_kit/store'
+import { client, queryKey } from '@nano_kit/query'
 
 const TestKey = queryKey('test')
 
 it('should fetch and update state', async () => {
-  /* 1. Create a pool to track active tasks */
-  const tasksPool = new Set()
-
-  /* 2. Configure client with tasks extension */
-  const { query } = client(
-    tasks(tasksRunner(tasksPool))
-  )
+  /* 1. Create a client, no task setup is needed */
+  const { query } = client()
 
   /* Mock fetcher */
   const fetcher = vi.fn().mockResolvedValue('success')
 
-  /* 3. Start the query */
+  /* 2. Start the query */
   const [$data, $error, $loading] = query(TestKey, [], fetcher)
 
   /* Mount the signal to trigger the fetch */
@@ -46,13 +41,15 @@ it('should fetch and update state', async () => {
 
   expect($loading()).toBe(true)
 
-  /* 4. Wait for all fetch tasks to complete */
-  await waitTasks(tasksPool)
+  /* 3. Wait for the request of $data to complete */
+  await waitTasks($data)
 
-  /* 5. Assert final state */
+  /* 4. Assert final state */
   expect($loading()).toBe(false)
   expect($data()).toBe('success')
 
   stop()
 })
 ```
+
+`waitTasks` of any signal computed from `$data` waits for the request as well. Infinite queries and operations attach their requests to `$data` too. A mutation attaches each request to all of its signals, so waiting for any of them works, as does awaiting the promise returned by `mutate`.

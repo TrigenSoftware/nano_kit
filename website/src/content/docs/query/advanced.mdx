@@ -101,22 +101,24 @@ You do not need this for ordinary in-memory browser cache usage. While the app i
 
 Use it when serialized cache entries contain values that need custom encoding, such as `Date`, `Map`, `Set`, class instances, or encrypted/compact payloads.
 
-[`hydratable()`](/query/ssr/#hydratable), [`ssr()`](/query/ssr/#ssr), and [`persistence()`](#persistence) use the codec when they dehydrate data, hydrate it back, write it to persistent storage, or read it back.
+[`hydratable()`](/query/ssr/#hydratable) and [`persistence()`](#persistence) use the codec when they dehydrate data, hydrate it back, write it to persistent storage, or read it back.
 
 ```ts
 import type { Codec } from '@nano_kit/store'
 import { parse, stringify } from 'devalue'
-import { client, codec, ssr } from '@nano_kit/query'
+import { client, codec, hydratable } from '@nano_kit/query'
 
 const DevalueCodec: Codec<unknown, string> = {
   encode: stringify,
   decode: value => value === null ? null : parse(value)
 }
 
-const { query } = client(
-  codec(DevalueCodec),
-  ssr()
-)
+export function Client$() {
+  return client(
+    codec(DevalueCodec),
+    hydratable()
+  )
+}
 ```
 
 With a codec like this, data containing values such as `Date`, `Map`, or `Set` can be dehydrated on the server and restored on the client without losing those types.
@@ -186,6 +188,8 @@ keys(invalidate)
 ```
 
 This is useful after broad application changes, such as sign in, sign out, locale changes, or any mutation that can affect several query domains at once.
+
+The name of a builder is its cache shard: two builders with one name share one cache.
 
 ## Cache Mutation Helpers
 
@@ -652,28 +656,3 @@ With this setup:
 The `capture` helper stores each entity in the shared entity cache and returns a reference for the query result. Passing `entities(PostEntity)` is the shorthand for a single entity result.
 
 **When to use:** Complex applications where the same data (e.g., a "User" or "Product") appears in multiple places or lists and needs to stay synchronized.
-
-### `tasks`
-
-Integrates with `@nano_kit/store`'s task tracking system. This is mainly used for server-side rendering (SSR) to wait for all data fetches to complete before rendering the HTML.
-
-```ts
-import { tasksRunner, waitTasks } from '@nano_kit/store'
-import { client, tasks } from '@nano_kit/query'
-
-const tasksPool = new Set()
-const runTask = tasksRunner(tasksPool)
-
-const { query } = client(
-  tasks(runTask)
-)
-
-/* ... application runs ... */
-
-/* Wait for all queries to finish */
-await waitTasks(tasksPool)
-```
-
-Without arguments, `tasks()` reads `TasksRunner$` from the current injection context. Outside DI, pass the runner explicitly.
-
-**When to use:** SSR setups where the server should send a fully populated page to the client.

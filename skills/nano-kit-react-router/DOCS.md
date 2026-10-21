@@ -611,6 +611,18 @@ export function Head$() {
 }
 ```
 
+### `toHtmlAttribute`
+
+Descriptor props are camelCase, like `httpEquiv` or `crossOrigin`. `toHtmlAttribute` maps a prop name to its HTML attribute name, the same way `syncHead` and the SSR renderer do. Use it when a custom adapter turns descriptor props into attributes itself.
+
+```ts
+import { toHtmlAttribute } from '@nano_kit/router'
+
+toHtmlAttribute('httpEquiv')   // 'http-equiv'
+toHtmlAttribute('crossOrigin') // 'crossorigin'
+toHtmlAttribute('content')     // 'content'
+```
+
 ## Scroll Management
 
 Since scroll restoration and behavior can vary significantly between applications, the library provides a set of "Do It Yourself" (DIY) utilities instead of a one-size-fits-all solution. You can combine these tools to implement the exact scrolling behavior your app needs.

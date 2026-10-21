@@ -43,10 +43,10 @@ Was created as reactivity system for [Nanoviews](https://github.com/TrigenSoftwa
 import { signal, computed, effect } from 'agera'
 
 const $count = signal(1)
-const $doubleCount = computed(() => count() * 2)
+const $doubleCount = computed(() => $count() * 2)
 
 effect(() => {
-  console.log(`Count is: ${$count()}`);
+  console.log(`Count is: ${$count()}`)
 }) // Console: Count is: 1
 
 console.log($doubleCount()) // 2
@@ -275,8 +275,6 @@ effect(() => {
 
   untracked(() => {
     const b = $b()
-
-    resumeTracking()
 
     console.log('Sum:', a + b)
   })
