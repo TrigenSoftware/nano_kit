@@ -19,6 +19,7 @@ import logDark from '../../../assets/devtools-log_dark.png'
 - **Named for you**. Every signal gets a readable name, the place it was created and its owner, the store factory, the component or the file, straight from the call stack.
 - **Transactions, not events**. The log groups what happened by flush, with the time of every run and the slowest one called out.
 - **Live values**. Pick any node to see its value as a tree, what it reads, what reads it, and its last lines in the log.
+- **Built with the kit**. The panel is itself an app on `@nano_kit/store`, with its views written in [Nanoviews](https://nanoviews.js.org), a Direct DOM library built on the same core.
 
 <Image src={signalsLight} alt='The Signals tab: the signals of a weather app grouped by the stores they were created in, and the inspector of a selected computed' class='dark:sl-hidden' />
 <Image src={signalsDark} alt='The Signals tab: the signals of a weather app grouped by the stores they were created in, and the inspector of a selected computed' class='light:sl-hidden' />
