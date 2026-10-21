@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.1](https://github.com/TrigenSoftware/nano_kit/compare/v2.0.0...v2.0.1) (2026-10-21)
+
+### Bug Fixes
+
+* **devtools:** depend on the stable nanoviews and keep the panel off with a production core ([#304](https://github.com/TrigenSoftware/nano_kit/issues/304)) ([c599764](https://github.com/TrigenSoftware/nano_kit/commit/c599764f4d1292718e1f400b287e2df2972bd5cf))
+
 ## [2.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.2.0...v2.0.0) (2026-10-21)
 
 ### Nano Kit 2.0 🎉
