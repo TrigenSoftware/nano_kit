@@ -1802,6 +1802,7 @@ Learn how to inspect the stores of a running app with @nano_kit/devtools.
 - **Named for you**. Every signal gets a readable name, the place it was created and its owner, the store factory, the component or the file, straight from the call stack.
 - **Transactions, not events**. The log groups what happened by flush, with the time of every run and the slowest one called out.
 - **Live values**. Pick any node to see its value as a tree, what it reads, what reads it, and its last lines in the log.
+- **Built with the kit**. The panel is itself an app on `@nano_kit/store`, with its views written in [Nanoviews](https://nanoviews.js.org), a Direct DOM library built on the same core.
 
 ## Installation
 
