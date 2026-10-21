@@ -3,6 +3,79 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.2.0...v2.0.0) (2026-10-21)
+
+### Nano Kit 2.0 🎉
+
+#### What's new
+
+- **DevTools.** [`@nano_kit/devtools`](https://nano-kit.js.org/store/devtools/) is a panel right on the page to inspect your stores: your signals, their values and a log of every change.
+- **Development warnings.** In development, the packages warn about common mistakes, like a missing route parameter or a missing translation.
+- **Tasks on signals.** SSR and tests wait only for the data they need, not for every request in flight.
+- **Smarter dependency injection.** Stores are shared between nested contexts unless a context overrides what they depend on. The new `provideAs` swaps an implementation, like a mock API in tests.
+- **`SignalsMap` class.** The reactive map now has the familiar `Map` API.
+- **Operators.** With static operands they return a plain value, and `pick`, `text` and `latest` are new.
+- **intl.** `relativetime()` picks the unit by itself, from "5 minutes ago" to "yesterday", and `format()` messages accept signals.
+- **Preact 11 and SvelteKit 3** are supported.
+
+#### Upgrading from 1.x
+
+The breaking changes below list everything. The usual edits:
+
+- Node.js 24 or newer is required.
+- `inject(TasksRunner$)` with `task(fn)` becomes `task($signal, fn)`, `waitTasks(pool)` becomes `waitTasks($signal)`, and `client(ssr())` or `client(tasks(), hydratable())` becomes `client(hydratable())`.
+- `context.set(token, value)` becomes `context.deps.set(token, value)`. To keep a store per context, provide it in that context.
+- `$getMapKey(map, key)`, `setMapKey`, `deleteMapKey` and `clearMap` become `map.$get(key)`, `map.set`, `map.delete` and `map.clear` of a `new SignalsMap()`.
+- An operator with static operands returns the value, not an accessor, and `concat($first, ' ', $last)` becomes `` text`${$first} ${$last}` `` (the `f` tag in the notes below shipped as `text`).
+- `resolved` keeps a falsy value as data: express an empty state with the type, such as `User | null`.
+- An `effect` created in a deferred scope body no longer defers: use `deferEffect` there.
+- `relativetime()` takes a moment instead of a count, and its `unit` option is gone: set `largestUnit` and `smallestUnit` to one unit to format in it.
+
+#### Where to start
+
+- 📚 [Documentation](https://nano-kit.js.org): guides for every package
+- 🛠️ [DevTools](https://nano-kit.js.org/store/devtools/): install the panel and open it with Alt+Shift+D
+- 🤖 [Agent Skills](https://nano-kit.js.org/getting-started/agent-skills/): teach your coding agent the Nano Kit API
+
+### ⚠ BREAKING CHANGES
+
+* `effect` no longer defers when created inside a deferred scope body: use
+  `deferEffect` there. `subscribe`, `listen`, `observe` and `subscribeAny` no longer accept the
+  `noDefer` argument.
+* `InjectionContext` no longer extends `Map`: its values are in the public `deps`
+  map, so `context.set(token, value)` becomes `context.deps.set(token, value)`. A dependency that
+  is not provided is no longer created in the context that injects it first, and a context no
+  longer takes a dependency from above when it overrides what that dependency reads.
+* `resolved` hands values through verbatim - a falsy source value is data, not a
+  reset to `undefined`: emptiness is expressed by `T` itself (e.g. `T | null`), and the input type
+  drops the falsy arm.
+* an operator called with static operands returns the value, not an accessor.
+  `concat` is removed, the `f` tag takes its place.
+* the packages require Node.js 24 or newer.
+* the tasks pool is gone — `TasksPool$`, `TasksRunner$`, `tasksRunner`, `addTask`,
+  `waitCurrentTasks` and `taskPromise` are removed, `waitTasks` takes a signal instead of a pool, and
+  the `tasks()` and `ssr()` query settings are removed: `hydratable()` is the whole SSR setting.
+
+### Features
+
+* add `deferEffect` for effects owned by a deferred scope ([#257](https://github.com/TrigenSoftware/nano_kit/issues/257)) ([12cb14b](https://github.com/TrigenSoftware/nano_kit/commit/12cb14b4ca39645dbd2899e8e2b79738d387c854))
+* add `latest` for the value of the source that changed last ([#231](https://github.com/TrigenSoftware/nano_kit/issues/231)) ([84efaed](https://github.com/TrigenSoftware/nano_kit/commit/84efaed2453ab10542afad83958fdea2f709c899))
+* add `uninspected` to keep the nodes of a listener out of `inspect`, and the old value to `UpdateEvent` ([#262](https://github.com/TrigenSoftware/nano_kit/issues/262)) ([83384ce](https://github.com/TrigenSoftware/nano_kit/commit/83384ce8e61f37d27bf8989df91c503f0ec3200e))
+* add development diagnostics with separate development and production builds ([#236](https://github.com/TrigenSoftware/nano_kit/issues/236)) ([39be996](https://github.com/TrigenSoftware/nano_kit/commit/39be99600aa5c5066b8eb5205431740986df3dee))
+* attach tasks to the signals they fill ([#222](https://github.com/TrigenSoftware/nano_kit/issues/222)) ([841acd1](https://github.com/TrigenSoftware/nano_kit/commit/841acd12fcb3c2bd6c494f9ff47dfe998c962457))
+* attach the `resolved` promise as a task and hand values through verbatim ([#223](https://github.com/TrigenSoftware/nano_kit/issues/223)) ([8fabbeb](https://github.com/TrigenSoftware/nano_kit/commit/8fabbeb80f6462ac32c90a8b1ac523c8086971e7))
+* create a dependency in the deepest context that provides what it reads, and add `provideAs` ([#279](https://github.com/TrigenSoftware/nano_kit/issues/279)) ([5052174](https://github.com/TrigenSoftware/nano_kit/commit/50521746f15cd1e6641160784cbfa0b662319faf))
+* export `child` to build custom child signals ([#250](https://github.com/TrigenSoftware/nano_kit/issues/250)) ([8794697](https://github.com/TrigenSoftware/nano_kit/commit/8794697145e338684cf90e91fc6ceb81eb4e9adb))
+* move `latest` from `kida` to `@nano_kit/store` ([#296](https://github.com/TrigenSoftware/nano_kit/issues/296)) ([f503e28](https://github.com/TrigenSoftware/nano_kit/commit/f503e2876e20f4bc78838a9c48f602d378a1c46a))
+* rename the template tag `f` to `text` ([505d947](https://github.com/TrigenSoftware/nano_kit/commit/505d9479b4d75b4008d11718606392322cec1e89))
+* require Node.js 24 ([#268](https://github.com/TrigenSoftware/nano_kit/issues/268)) ([c6ed062](https://github.com/TrigenSoftware/nano_kit/commit/c6ed0627e0e76785941ede1bb8f280c5d80896a0))
+* return a plain result from the operators when every operand is static ([#260](https://github.com/TrigenSoftware/nano_kit/issues/260)) ([3a8b32f](https://github.com/TrigenSoftware/nano_kit/commit/3a8b32f674e045cc42fd422803983f604b5cb4f9))
+
+### Bug Fixes
+
+* keep `onMount` subscribed when a signal remounts within the unmount delay ([#229](https://github.com/TrigenSoftware/nano_kit/issues/229)) ([b911d4c](https://github.com/TrigenSoftware/nano_kit/commit/b911d4ce7657e67e47427f4863e0ab4b90212949))
+* type `record()` and `deepRecord()` of a `Signalish` source as readable ([#295](https://github.com/TrigenSoftware/nano_kit/issues/295)) ([ffe5453](https://github.com/TrigenSoftware/nano_kit/commit/ffe5453a8c64bc8b0b716988796000685ee6d839))
+
 ## [1.2.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.0.0...v1.2.0) (2026-08-30)
 
 ### Features

@@ -3,6 +3,61 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.2.0...v2.0.0) (2026-10-21)
+
+### Nano Kit 2.0 🎉
+
+#### What's new
+
+- **DevTools.** [`@nano_kit/devtools`](https://nano-kit.js.org/store/devtools/) is a panel right on the page to inspect your stores: your signals, their values and a log of every change.
+- **Development warnings.** In development, the packages warn about common mistakes, like a missing route parameter or a missing translation.
+- **Tasks on signals.** SSR and tests wait only for the data they need, not for every request in flight.
+- **Smarter dependency injection.** Stores are shared between nested contexts unless a context overrides what they depend on. The new `provideAs` swaps an implementation, like a mock API in tests.
+- **`SignalsMap` class.** The reactive map now has the familiar `Map` API.
+- **Operators.** With static operands they return a plain value, and `pick`, `text` and `latest` are new.
+- **intl.** `relativetime()` picks the unit by itself, from "5 minutes ago" to "yesterday", and `format()` messages accept signals.
+- **Preact 11 and SvelteKit 3** are supported.
+
+#### Upgrading from 1.x
+
+The breaking changes below list everything. The usual edits:
+
+- Node.js 24 or newer is required.
+- `inject(TasksRunner$)` with `task(fn)` becomes `task($signal, fn)`, `waitTasks(pool)` becomes `waitTasks($signal)`, and `client(ssr())` or `client(tasks(), hydratable())` becomes `client(hydratable())`.
+- `context.set(token, value)` becomes `context.deps.set(token, value)`. To keep a store per context, provide it in that context.
+- `$getMapKey(map, key)`, `setMapKey`, `deleteMapKey` and `clearMap` become `map.$get(key)`, `map.set`, `map.delete` and `map.clear` of a `new SignalsMap()`.
+- An operator with static operands returns the value, not an accessor, and `concat($first, ' ', $last)` becomes `` text`${$first} ${$last}` `` (the `f` tag in the notes below shipped as `text`).
+- `resolved` keeps a falsy value as data: express an empty state with the type, such as `User | null`.
+- An `effect` created in a deferred scope body no longer defers: use `deferEffect` there.
+- `relativetime()` takes a moment instead of a count, and its `unit` option is gone: set `largestUnit` and `smallestUnit` to one unit to format in it.
+
+#### Where to start
+
+- 📚 [Documentation](https://nano-kit.js.org): guides for every package
+- 🛠️ [DevTools](https://nano-kit.js.org/store/devtools/): install the panel and open it with Alt+Shift+D
+- 🤖 [Agent Skills](https://nano-kit.js.org/getting-started/agent-skills/): teach your coding agent the Nano Kit API
+
+### ⚠ BREAKING CHANGES
+
+* `relativetime()` takes a moment, a date, a timestamp or a date string,
+  instead of a count of units, and its `unit` option is gone, so a call that passes it no
+  longer compiles. Format in one unit with `largestUnit` and `smallestUnit` set to it, and
+  format a count of units with `Intl.RelativeTimeFormat` or a `plural()` message.
+* the packages require Node.js 24 or newer.
+
+### Features
+
+* accept a signal, an accessor or `null` as the value of a `format()` message ([#286](https://github.com/TrigenSoftware/nano_kit/issues/286)) ([4010477](https://github.com/TrigenSoftware/nano_kit/commit/4010477f8da7aa5de3e758a31a11c6bdc984934d))
+* add development diagnostics with separate development and production builds ([#236](https://github.com/TrigenSoftware/nano_kit/issues/236)) ([39be996](https://github.com/TrigenSoftware/nano_kit/commit/39be99600aa5c5066b8eb5205431740986df3dee))
+* make `relativetime()` take a moment and pick the unit by the distance ([#287](https://github.com/TrigenSoftware/nano_kit/issues/287)) ([cdf1238](https://github.com/TrigenSoftware/nano_kit/commit/cdf12388cc3cb310145cd5d1be1f43b0d1f8614f))
+* require Node.js 24 ([#268](https://github.com/TrigenSoftware/nano_kit/issues/268)) ([c6ed062](https://github.com/TrigenSoftware/nano_kit/commit/c6ed0627e0e76785941ede1bb8f280c5d80896a0))
+* use a plain string translation for every plural form and match case ([#246](https://github.com/TrigenSoftware/nano_kit/issues/246)) ([82d45cf](https://github.com/TrigenSoftware/nano_kit/commit/82d45cfaf2c9008a6a1bc23841343eb25982c301))
+
+### Bug Fixes
+
+* do not warn that a `format()` message is missing from the translations ([#285](https://github.com/TrigenSoftware/nano_kit/issues/285)) ([3c12504](https://github.com/TrigenSoftware/nano_kit/commit/3c1250469f147248e9268e8abfc4c72c6f610cf0))
+* require explicit options next to a fallback in the Intl formatters ([#245](https://github.com/TrigenSoftware/nano_kit/issues/245)) ([6b3d44e](https://github.com/TrigenSoftware/nano_kit/commit/6b3d44e26df8d26e455912c43ad6f47835b3ea0e))
+
 ## [1.2.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.1.0...v1.2.0) (2026-08-30)
 
 ### Features
