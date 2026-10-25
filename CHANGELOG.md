@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.1.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.0.1...v2.1.0) (2026-10-25)
+
+### Features
+
+* **agera:** export `createScope` to stop a deferred scope whose body threw ([#309](https://github.com/TrigenSoftware/nano_kit/issues/309)) ([6402337](https://github.com/TrigenSoftware/nano_kit/commit/6402337a7b23aaed2ed14f0b957ea6a75c8bee05))
+
 ## [2.0.1](https://github.com/TrigenSoftware/nano_kit/compare/v2.0.0...v2.0.1) (2026-10-21)
 
 ### Bug Fixes
