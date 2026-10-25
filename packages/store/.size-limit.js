@@ -22,7 +22,7 @@ export default [
     name: 'All publics (Brotli)',
     path: 'dist/index.production.js',
     import: '*',
-    limit: '6.3 kB',
+    limit: '6.35 kB',
     modifyRolldownConfig
   },
   {

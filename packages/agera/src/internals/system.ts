@@ -1304,7 +1304,14 @@ export function selector<T, U = T, R = boolean>(
 // state of that site, so they follow the parent's start and stop.
 //
 
-function createScope(parent: ReactiveNode | undefined): ReactiveNode {
+/**
+ * Create an empty scope to create scopes under. Stopping it stops all of
+ * them, even one whose body threw before `deferScope` returned its handle.
+ * @internal
+ * @param parent - Optional parent scope to link the created scope to.
+ * @returns Scope handle.
+ */
+export function createScope(parent?: DeferredScope): DeferredScope {
   const e: ReactiveNode = {
     deps: undefined,
     depsTail: undefined,
@@ -1319,24 +1326,24 @@ function createScope(parent: ReactiveNode | undefined): ReactiveNode {
   }
 
   if (parent !== undefined) {
-    link(e, parent, 0)
+    link(e, parent as unknown as ReactiveNode, 0)
     // Inherit the state of the position, exactly as `effectScope` does, so
     // a subtree defers and starts as one
-    e.modes |= parent.modes & LazyMode
+    e.modes |= (parent as unknown as ReactiveNode).modes & LazyMode
   }
 
-  return e
+  return e as unknown as DeferredScope
 }
 
 /**
  * Defer scope creation to delay its effects execution.
  * @internal
  * @param fn - The deferred scope function to run.
- * @param parent - Optional parent scope node to link the created scope to.
+ * @param parent - Optional parent scope to link the created scope to.
  * @returns Deferred scope handle.
  */
-export function deferScope(fn: () => void, parent?: ReactiveNode): DeferredScope {
-  const e = createScope(parent)
+export function deferScope(fn: () => void, parent?: DeferredScope): DeferredScope {
+  const e = createScope(parent) as unknown as ReactiveNode
   const prevSub = pushActiveSub(e)
 
   // The single mint of the token: a deferred scope is lazy wherever it is
@@ -1595,7 +1602,7 @@ export function resumeScope(scope: DeferredScope): void {
  * @returns Function to create linked deferred scopes.
  */
 export function boundDeferScope() {
-  const anchor = createScope(activeSub)
+  const anchor = createScope(activeSub as unknown as DeferredScope | undefined)
 
   return (fn: () => void, replace?: DeferredScope): DeferredScope => {
     if (replace !== undefined) {

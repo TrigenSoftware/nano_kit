@@ -16,6 +16,7 @@ import {
   trigger,
   mountable,
   onMounted,
+  createScope,
   deferScope,
   boundDeferScope,
   startScope,
@@ -2204,6 +2205,35 @@ describe('agera', () => {
 
       stopScope(loopScope)
       itemsDestroy()
+    })
+  })
+
+  describe('createScope', () => {
+    it('should stop a scope created under it whose body threw', () => {
+      const $count = signal(1)
+      const scope = createScope()
+
+      expect(() => deferScope(() => {
+        computed(() => $count() * 2)()
+        throw new Error('Failed')
+      }, scope)).toThrow('Failed')
+      expect($count.node.subs).toBeDefined()
+
+      stopScope(scope)
+
+      expect($count.node.subs).toBeUndefined()
+    })
+
+    it('should be stopped with its parent', () => {
+      const $count = signal(1)
+      const parent = createScope()
+
+      deferScope(() => {
+        computed(() => $count() * 2)()
+      }, createScope(parent))
+      stopScope(parent)
+
+      expect($count.node.subs).toBeUndefined()
     })
   })
 
