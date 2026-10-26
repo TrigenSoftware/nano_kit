@@ -1,6 +1,6 @@
 ---
 name: nano-kit-intl
-description: How to internationalize a Nano Kit app with @nano_kit/intl, the reactive, type-safe message layer built on @nano_kit/store. Covers translation data and namespaces, full-data and namespace loaders, the intl context and messages tuples, message schemes composed from formats (text, params, plural, match, number, datetime, relativetime, duration, list, range, rich, markup), typed and anonymous translation data, locale direction, deflat, SSR loading through @nano_kit/query with cookie and Accept-Language locale detection, and testing. Apply when adding translations, formatting locale-aware values or wiring locale selection in a Nano Kit app. For signals, stores and DI see the nano-kit-store skill.
+description: How to internationalize a Nano Kit app with @nano_kit/intl, the reactive, type-safe message layer built on @nano_kit/store. Covers translation data and namespaces, full-data and namespace loaders, the intl context and messages tuples, message schemes composed from formats (text, params, wrap, plural, match, number, datetime, relativetime, duration, list, range, rich, markup), typed and anonymous translation data, locale direction, deflat, SSR loading through @nano_kit/query with cookie and Accept-Language locale detection, and testing. Apply when adding translations, formatting locale-aware values or wiring locale selection in a Nano Kit app. For signals, stores and DI see the nano-kit-store skill.
 license: MIT
 compatibility:
   - Claude Code
@@ -43,6 +43,7 @@ metadata:
 - Group translation data by namespace (a page, a layout, a feature) and bind each namespace with `messages(namespace, scheme)` in a small injectable factory next to the page that uses it. Components read `$t` through the framework hook.
 - Choose the loader by bundle shape: a full-data loader (`resolved` or a query) for small translations shipped together, a namespace loader when translations should split by route or feature. With a namespace loader the context `$loading` is meaningless; use the `$pending` returned per namespace.
 - A scheme entry is needed only where a key needs a format: parameters, plural forms, cases, Intl formatting. Keys without a format come back raw and typed from the translation data.
+- Logic deciding how a message renders from its parameters, like a template that applies only when every part is present, belongs in the scheme through `wrap(...)`, not in helpers at the call sites: every call site then renders the same and keeps the inferred message type. Variants that translators word differently stay `match` or `plural` cases.
 - `format(...)` messages format application values and take a value argument; `params(...)` messages fill placeholders in translated text and take an object of parameters. Do not mix them up. Pass application state to a `format()` message as the signal itself, `$t.eventDate($startsAt)`: the message follows it, and `null` formats like a missing value while the data loads.
 
 ## Locale

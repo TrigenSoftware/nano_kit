@@ -331,6 +331,7 @@ Formats are checked against the translation value type when translation data is 
 - **`plural`** - selects an LDML plural form with `Intl.PluralRules`.
 - **`match`** - selects a case by parameter value.
 - **`rich`** and **`markup`** - map lightweight tags inside translated strings.
+- **`wrap`** - wraps any message with a function that decides what it renders.
 
 See API for format signatures, callable formatter messages, and composition patterns.
 
@@ -803,6 +804,78 @@ const [$t] = messages('docs', {
 
 $t().message
 // 'Read <strong>the docs</strong>'
+```
+
+## Wrapping Messages
+
+### `wrap(format, fn)`
+
+Wraps a message with a function that decides what it renders. The function receives the message as the wrapped format returns it and the active locale. This keeps the logic of how a message renders in the scheme, so every call site renders the same.
+
+```ts
+const translations = {
+  post: {
+    title: 'Garden of the week'
+  }
+}
+
+const [$t] = messages('post', {
+  title: wrap(text(), (message, locale) => message?.toLocaleUpperCase(locale))
+})
+
+$t().title
+// 'GARDEN OF THE WEEK'
+```
+
+A message function, like one of `params`, `plural` or `match`, is passed as is, after the values of the call read from signals and accessors. The function calls the message with the values it chooses, or returns something else instead. When the message is called with the value itself, the function receives that value.
+
+```ts
+const translations = {
+  garden: {
+    location: '{city}, {country}'
+  }
+}
+
+const [$t] = messages('garden', {
+  location: wrap(params({
+    city: text(),
+    country: text()
+  }), (place, message) => (place.city && place.country ? message(place) : place.city || place.country))
+})
+
+$t().location({
+  city: 'Kyoto',
+  country: 'Japan'
+})
+// 'Kyoto, Japan'
+
+$t().location({
+  city: 'Kyoto',
+  country: ''
+})
+// 'Kyoto'
+```
+
+The wrapped message renders only when the function calls it, and a value returned instead is used as is, without placeholder replacement. The values can also change before rendering:
+
+```ts
+const [$t] = messages('garden', {
+  greeting: wrap(params({
+    name: text()
+  }), (values, message) => message({
+    name: values.name?.trim()
+  }))
+})
+```
+
+For a `format()` message, wrap the format inside it, as with `capitalize`:
+
+```ts
+const [$t] = messages('event', {
+  eventDate: format(wrap(datetime({
+    dateStyle: 'medium'
+  }), (message, locale) => message?.toLocaleUpperCase(locale)))
+})
 ```
 
 ## Utilities
