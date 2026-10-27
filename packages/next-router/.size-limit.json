@@ -10,6 +10,6 @@
     "name": "All publics (Brotli)",
     "path": "dist/index.js",
     "import": "*",
-    "limit": "2.7 kB"
+    "limit": "2.65 kB"
   }
 ]

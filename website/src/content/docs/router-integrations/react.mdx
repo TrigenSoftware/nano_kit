@@ -370,7 +370,7 @@ function Breadcrumb() {
 }
 ```
 
-With DI, use `useTitle` and let it read `Page$` from the current injection context:
+With DI, use `useTitle` and let it read the [`Title$`](/router/advanced#tokens) token from the current injection context:
 
 ```tsx
 import { useTitle } from '@nano_kit/react-router'

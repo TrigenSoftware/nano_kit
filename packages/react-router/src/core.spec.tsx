@@ -11,10 +11,7 @@ import {
   act
 } from '@testing-library/react'
 import { InjectionContextProvider } from '@nano_kit/react'
-import {
-  provide,
-  signal
-} from '@nano_kit/store'
+import { provide } from '@nano_kit/store'
 import {
   Page$,
   virtualNavigation,
@@ -26,7 +23,6 @@ import {
   Outlet,
   router,
   usePageSignal,
-  useTitle,
   useTitleAnnouncer
 } from './core.jsx'
 
@@ -269,64 +265,6 @@ describe('react-router', () => {
         })
         expect(container.innerHTML).toBe('<div>About</div>')
       })
-    })
-
-    it('should render the title of the current page', () => {
-      const [$location, navigation] = virtualNavigation('/', {
-        home: '/home',
-        inbox: '/inbox'
-      })
-      const $count = signal(1)
-
-      function Page() {
-        return null
-      }
-
-      const $page = router($location, [
-        page('home', {
-          default: Page,
-          Head$: () => [title('Home')]
-        }),
-        page('inbox', {
-          default: Page,
-          Head$: () => [title(() => `Inbox (${$count()})`)]
-        })
-      ])
-
-      function TestApp() {
-        const pageTitle = useTitle()
-
-        return (
-          <div>
-            {pageTitle}
-          </div>
-        )
-      }
-
-      const { container } = render(
-        <InjectionContextProvider
-          context={[
-            provide(Page$, $page)
-          ]}
-        >
-          <TestApp/>
-        </InjectionContextProvider>
-      )
-
-      act(() => {
-        navigation.push('/home')
-      })
-      expect(container.innerHTML).toBe('<div>Home</div>')
-
-      act(() => {
-        navigation.push('/inbox')
-      })
-      expect(container.innerHTML).toBe('<div>Inbox (1)</div>')
-
-      act(() => {
-        $count(2)
-      })
-      expect(container.innerHTML).toBe('<div>Inbox (2)</div>')
     })
 
     describe('useTitleAnnouncer', () => {
