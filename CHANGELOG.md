@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.3.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.2.0...v2.3.0) (2026-10-27)
+
+### Features
+
+* **router,react-router,preact-router,svelte-router:** read and announce the page title ([#313](https://github.com/TrigenSoftware/nano_kit/issues/313)) ([06436c0](https://github.com/TrigenSoftware/nano_kit/commit/06436c036fc7f90323da6d9fc31154979ca18d4a))
+
 ## [2.2.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.1.0...v2.2.0) (2026-10-26)
 
 ### Features
