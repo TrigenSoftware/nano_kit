@@ -512,6 +512,8 @@ export const $page = router($location, [
 ])
 ```
 
+While the module loads, the page ref has `loading: true`, inside a layout as well, so code reading `$page()` can tell the fallback from the page.
+
 ### `loadPage`
 
 Forces the loading of a specific page's code by its route name. This is useful for preloading the next likely page (e.g., on link hover).
@@ -622,6 +624,41 @@ toHtmlAttribute('httpEquiv')   // 'http-equiv'
 toHtmlAttribute('crossOrigin') // 'crossorigin'
 toHtmlAttribute('content')     // 'content'
 ```
+
+### `pageTitle`
+
+`pageTitle` creates a signal of the current page title: the value of the first `title()` descriptor in the head of the page, the page's own before its layouts'. It reads the same `Head$` factories as `syncHead` and never touches `document`, so it works on the server too.
+
+```ts
+import { pageTitle } from '@nano_kit/router'
+
+const $title = pageTitle($page)
+
+$title()
+// 'User 42'
+```
+
+Like `syncHead`, it takes an optional `InjectionContext` as the second argument to resolve `Head$` factories with DI. While a lazy page loads, the signal holds the title of its layout, as the document does.
+
+### `titleAnnouncer`
+
+A client-side navigation swaps the page without loading a document, so screen readers have nothing to announce. `titleAnnouncer` closes the gap: it announces each new title of the current page through a polite live region. Call it once during app initialization: it returns a function that stops it.
+
+```ts
+import { titleAnnouncer } from '@nano_kit/router'
+
+const stop = titleAnnouncer($page)
+```
+
+- The title the document opened with is not announced, as screen readers announce a loaded document themselves.
+- A lazy page is announced once it has loaded, so the title of its layout is never announced in between.
+- A title is announced once it has held for 100 ms, so a title the page refines right after it renders is announced refined.
+- A page without a title is announced by its first `h1`.
+- The live region lives in a shadow root at the end of the body, out of reach of the styles and queries of the page: a test looking up its own `role="status"` element finds no second one.
+
+The announcer follows the title, so give every view a distinct title: moving between two pages with the same title announces nothing. Every new title is announced, a title that changes on its own included: an unread counter announces each new message, which may be just what the user needs, while a timer announces every tick. Keep values that change often, like timers and progress, out of titles. Like `syncHead`, it takes an optional `InjectionContext` as the second argument.
+
+> Note: Next.js and SvelteKit announce route changes themselves: do not add the announcer with `@nano_kit/next-router` or `@nano_kit/svelte-kit`.
 
 ## Scroll Management
 
@@ -1344,6 +1381,66 @@ function App() {
   const Page = usePage()
 
   useSyncHead()
+
+  return Page ? <Page /> : null
+}
+```
+
+### `usePageTitle` & `useTitle`
+
+These hooks return the current page title, see `pageTitle`, and re-render the component when it changes.
+
+Without DI, use `usePageTitle` with an explicit `$page` accessor:
+
+```tsx
+import { usePageTitle } from '@nano_kit/react-router'
+
+function Breadcrumb() {
+  const title = usePageTitle($page)
+
+  return <span>{title}</span>
+}
+```
+
+With DI, use `useTitle` and let it read `Page$` from the current injection context:
+
+```tsx
+import { useTitle } from '@nano_kit/react-router'
+
+function Breadcrumb() {
+  const title = useTitle()
+
+  return <span>{title}</span>
+}
+```
+
+### `usePageTitleAnnouncer` & `useTitleAnnouncer`
+
+These hooks announce each new title of the current page to screen readers while the component is mounted, see `titleAnnouncer`. Use one of them once, in the root component.
+
+Without DI, use `usePageTitleAnnouncer` with an explicit `$page` accessor:
+
+```tsx
+import { usePageTitleAnnouncer } from '@nano_kit/react-router'
+
+function App() {
+  const Page = usePageSignal($page)
+
+  usePageTitleAnnouncer($page)
+
+  return Page ? <Page /> : null
+}
+```
+
+With DI, use `useTitleAnnouncer` and let it read `Page$` from the current injection context:
+
+```tsx
+import { useTitleAnnouncer } from '@nano_kit/react-router'
+
+function App() {
+  const Page = usePage()
+
+  useTitleAnnouncer()
 
   return Page ? <Page /> : null
 }

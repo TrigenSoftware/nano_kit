@@ -348,6 +348,60 @@ With DI, use `syncHead` and let it read `Page$` from the current injection conte
 </script>
 ```
 
+### `getPageTitle` & `getTitle`
+
+These functions return a signal of the current page title, see [`pageTitle`](/router/advanced#pagetitle).
+
+Without DI, use `getPageTitle` with an explicit page accessor:
+
+```svelte
+<script lang="ts">
+  import { getPageTitle } from '@nano_kit/svelte-router'
+  import { page } from './router'
+
+  const title = getPageTitle(page)
+</script>
+
+<span>{$title}</span>
+```
+
+With DI, use `getTitle` and let it read `Page$` from the current injection context:
+
+```svelte
+<script lang="ts">
+  import { getTitle } from '@nano_kit/svelte-router'
+
+  const title = getTitle()
+</script>
+
+<span>{$title}</span>
+```
+
+### `pageTitleAnnouncer` & `titleAnnouncer`
+
+These functions announce each new title of the current page to screen readers while the component is mounted, see [`titleAnnouncer`](/router/advanced#titleannouncer). Call one of them once, in the root component.
+
+Without DI, use `pageTitleAnnouncer` with an explicit page accessor:
+
+```svelte
+<script lang="ts">
+  import { pageTitleAnnouncer } from '@nano_kit/svelte-router'
+  import { page } from './router'
+
+  pageTitleAnnouncer(page)
+</script>
+```
+
+With DI, use `titleAnnouncer` and let it read `Page$` from the current injection context:
+
+```svelte
+<script lang="ts">
+  import { titleAnnouncer } from '@nano_kit/svelte-router'
+
+  titleAnnouncer()
+</script>
+```
+
 ### `getLocation`
 
 `getLocation` returns the current route location from the injection context.

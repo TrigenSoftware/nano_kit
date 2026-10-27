@@ -354,6 +354,66 @@ function App() {
 }
 ```
 
+### `usePageTitle` & `useTitle`
+
+These hooks return the current page title, see [`pageTitle`](/router/advanced#pagetitle), and re-render the component when it changes.
+
+Without DI, use `usePageTitle` with an explicit `$page` accessor:
+
+```tsx
+import { usePageTitle } from '@nano_kit/preact-router'
+
+function Breadcrumb() {
+  const title = usePageTitle($page)
+
+  return <span>{title}</span>
+}
+```
+
+With DI, use `useTitle` and let it read `Page$` from the current injection context:
+
+```tsx
+import { useTitle } from '@nano_kit/preact-router'
+
+function Breadcrumb() {
+  const title = useTitle()
+
+  return <span>{title}</span>
+}
+```
+
+### `usePageTitleAnnouncer` & `useTitleAnnouncer`
+
+These hooks announce each new title of the current page to screen readers while the component is mounted, see [`titleAnnouncer`](/router/advanced#titleannouncer). Use one of them once, in the root component.
+
+Without DI, use `usePageTitleAnnouncer` with an explicit `$page` accessor:
+
+```tsx
+import { usePageTitleAnnouncer } from '@nano_kit/preact-router'
+
+function App() {
+  const Page = usePageSignal($page)
+
+  usePageTitleAnnouncer($page)
+
+  return Page ? <Page /> : null
+}
+```
+
+With DI, use `useTitleAnnouncer` and let it read `Page$` from the current injection context:
+
+```tsx
+import { useTitleAnnouncer } from '@nano_kit/preact-router'
+
+function App() {
+  const Page = usePage()
+
+  useTitleAnnouncer()
+
+  return Page ? <Page /> : null
+}
+```
+
 ### `useLocation`
 
 `useLocation` subscribes to the current route location from the injection context.

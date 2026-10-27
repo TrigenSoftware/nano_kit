@@ -10,6 +10,8 @@ import { Steps, Tabs, TabItem, Code } from '@astrojs/starlight/components'
 
 The `@nano_kit/svelte-kit` package integrates Nano Kit with SvelteKit. It re-exports everything from `@nano_kit/svelte` and `@nano_kit/svelte-router`, and adds SvelteKit-specific helpers for store dehydration, client hydration, navigation, router-aware links, and server cookies.
 
+SvelteKit announces route changes to screen readers itself, so the re-exported [title announcer](/router/advanced#titleannouncer) is not needed.
+
 ## Installation
 
 Install the package using your favorite package manager:

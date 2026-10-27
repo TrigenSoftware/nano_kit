@@ -1,15 +1,22 @@
 import {
+  vi,
   describe,
   it,
   expect,
   beforeEach
 } from 'vitest'
 import {
+  InjectionContext,
   signal,
   computed
 } from '@nano_kit/store'
+import type {
+  ComposedPageRef,
+  PageRef
+} from './router.types.js'
 import {
   type Dir,
+  pageTitle,
   syncHead,
   title,
   lang,
@@ -966,6 +973,97 @@ describe('router', () => {
 
         expect(document.head.querySelector('meta[charset]')).toBe(metaCharset)
         expect(document.head.querySelector('link[rel="stylesheet"][href="common.css"]')).toBe(commonStyle)
+
+        stop()
+      })
+    })
+
+    describe('pageTitle', () => {
+      it('should return the title of the page', () => {
+        const $title = pageTitle(() => ({
+          default: null,
+          Head$: () => [title('Page Title')]
+        }))
+
+        expect($title()).toBe('Page Title')
+      })
+
+      it('should prefer the title of the page over the title of its layout', () => {
+        const $title = pageTitle((): ComposedPageRef<null> => ({
+          default: null,
+          Head$: () => [title('Layout Title')],
+          r: {
+            default: null,
+            Head$: () => [title('Page Title')]
+          }
+        }))
+
+        expect($title()).toBe('Page Title')
+      })
+
+      it('should return the title of the layout while the page has none', () => {
+        const $title = pageTitle((): ComposedPageRef<null> => ({
+          default: null,
+          Head$: () => [title('Layout Title')],
+          r: {
+            default: null,
+            loading: true
+          }
+        }))
+
+        expect($title()).toBe('Layout Title')
+      })
+
+      it('should return an empty string without a title', () => {
+        expect(pageTitle(() => null)()).toBe('')
+        expect(pageTitle(() => ({
+          default: null,
+          Head$: () => [lang('en')]
+        }))()).toBe('')
+      })
+
+      it('should follow the title value', () => {
+        const $count = signal(1)
+        const $title = pageTitle(() => ({
+          default: null,
+          Head$: () => [title(() => `Messages count: ${$count()}`)]
+        }))
+
+        expect($title()).toBe('Messages count: 1')
+
+        $count(2)
+
+        expect($title()).toBe('Messages count: 2')
+      })
+
+      it('should follow the page', () => {
+        const $page = signal<PageRef<null>>({
+          default: null,
+          Head$: () => [title('Home')]
+        })
+        const $title = pageTitle($page)
+
+        expect($title()).toBe('Home')
+
+        $page({
+          default: null,
+          Head$: () => [title('About')]
+        })
+
+        expect($title()).toBe('About')
+      })
+
+      it('should share head factories with syncHead within injection context', () => {
+        const Head$ = vi.fn(() => [title('Page Title')])
+        const context = new InjectionContext()
+        const $page = () => ({
+          default: null,
+          Head$
+        })
+        const stop = syncHead($page, context)
+
+        expect(pageTitle($page, context)()).toBe('Page Title')
+        expect(Head$).toHaveBeenCalledTimes(1)
 
         stop()
       })

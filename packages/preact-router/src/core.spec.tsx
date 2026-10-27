@@ -1,21 +1,33 @@
 import {
+  vi,
   describe,
   it,
-  expect
+  expect,
+  beforeEach,
+  afterEach
 } from 'vitest'
 import {
   render,
   act
 } from '@testing-library/preact'
+import { InjectionContextProvider } from '@nano_kit/preact'
 import {
+  provide,
+  signal
+} from '@nano_kit/store'
+import {
+  Page$,
   virtualNavigation,
   page,
-  layout
+  layout,
+  title
 } from '@nano_kit/router'
 import {
   Outlet,
   router,
-  usePageSignal
+  usePageSignal,
+  useTitle,
+  useTitleAnnouncer
 } from './core.jsx'
 
 describe('preact-router', () => {
@@ -256,6 +268,125 @@ describe('preact-router', () => {
           navigation.push('/about')
         })
         expect(container.innerHTML).toBe('<div>About</div>')
+      })
+    })
+
+    it('should render the title of the current page', () => {
+      const [$location, navigation] = virtualNavigation('/', {
+        home: '/home',
+        inbox: '/inbox'
+      })
+      const $count = signal(1)
+
+      function Page() {
+        return null
+      }
+
+      const $page = router($location, [
+        page('home', {
+          default: Page,
+          Head$: () => [title('Home')]
+        }),
+        page('inbox', {
+          default: Page,
+          Head$: () => [title(() => `Inbox (${$count()})`)]
+        })
+      ])
+
+      function TestApp() {
+        const pageTitle = useTitle()
+
+        return (
+          <div>
+            {pageTitle}
+          </div>
+        )
+      }
+
+      const { container } = render(
+        <InjectionContextProvider
+          context={[
+            provide(Page$, $page)
+          ]}
+        >
+          <TestApp/>
+        </InjectionContextProvider>
+      )
+
+      act(() => {
+        navigation.push('/home')
+      })
+      expect(container.innerHTML).toBe('<div>Home</div>')
+
+      act(() => {
+        navigation.push('/inbox')
+      })
+      expect(container.innerHTML).toBe('<div>Inbox (1)</div>')
+
+      act(() => {
+        $count(2)
+      })
+      expect(container.innerHTML).toBe('<div>Inbox (2)</div>')
+    })
+
+    describe('useTitleAnnouncer', () => {
+      beforeEach(() => {
+        vi.useFakeTimers()
+      })
+
+      afterEach(() => {
+        vi.useRealTimers()
+      })
+
+      it('should announce the title of the page navigation arrives at', () => {
+        const [$location, navigation] = virtualNavigation('/home', {
+          home: '/home',
+          inbox: '/inbox'
+        })
+
+        function Page() {
+          return null
+        }
+
+        const $page = router($location, [
+          page('home', {
+            default: Page,
+            Head$: () => [title('Home')]
+          }),
+          page('inbox', {
+            default: Page,
+            Head$: () => [title('Inbox')]
+          })
+        ])
+
+        function TestApp() {
+          useTitleAnnouncer()
+
+          return null
+        }
+
+        const { unmount } = render(
+          <InjectionContextProvider
+            context={[
+              provide(Page$, $page)
+            ]}
+          >
+            <TestApp/>
+          </InjectionContextProvider>
+        )
+        const region = document.querySelector('body > nano-kit-title-announcer')?.shadowRoot?.querySelector('[role="status"]')
+
+        act(() => {
+          navigation.push('/inbox')
+          vi.advanceTimersByTime(100)
+        })
+        expect(region?.textContent).toBe('Inbox')
+
+        // Preact runs passive cleanups of an unmount after paint, act flushes them
+        act(() => {
+          unmount()
+        })
+        expect(region?.isConnected).toBe(false)
       })
     })
   })

@@ -1,5 +1,7 @@
 import {
+  vi,
   afterEach,
+  beforeEach,
   describe,
   expect,
   it
@@ -10,12 +12,21 @@ import {
 } from '@testing-library/svelte'
 import { tick } from 'svelte'
 import {
+  provide,
+  signal
+} from '@nano_kit/store'
+import {
+  Page$,
   layout,
   page,
+  title,
   virtualNavigation
 } from '@nano_kit/router'
 import { router } from './core.js'
+import TitleAnnouncerFixture from '../test/TitleAnnouncerFixture.svelte'
 import RouterAppFixture from '../test/RouterAppFixture.svelte'
+import PageTitleFixture from '../test/PageTitleFixture.svelte'
+import TitleFixture from '../test/TitleFixture.svelte'
 import HomePage from '../test/pages/HomePage.svelte'
 import AboutPage from '../test/pages/AboutPage.svelte'
 import LoginPage from '../test/pages/LoginPage.svelte'
@@ -176,6 +187,126 @@ describe('svelte-router', () => {
         await tick()
 
         expect(getHtml(container)).toBe('<div>About</div>')
+      })
+    })
+
+    describe('getPageTitle', () => {
+      it('should return the title signal of the current page', async () => {
+        const [$location, navigation] = virtualNavigation('/', {
+          home: '/home',
+          about: '/about'
+        })
+        const $page = router($location, [
+          page('home', {
+            default: HomePage,
+            Head$: () => [title('Home')]
+          }),
+          page('about', {
+            default: AboutPage,
+            Head$: () => [title('About')]
+          })
+        ])
+        const { getByTestId } = render(PageTitleFixture, {
+          props: {
+            page: $page
+          }
+        })
+
+        navigation.push('/home')
+        await tick()
+
+        expect(getByTestId('title').textContent).toBe('Home')
+
+        navigation.push('/about')
+        await tick()
+
+        expect(getByTestId('title').textContent).toBe('About')
+      })
+    })
+
+    describe('getTitle', () => {
+      it('should return the title signal of the current page from the injection context', async () => {
+        const [$location, navigation] = virtualNavigation('/', {
+          home: '/home',
+          inbox: '/inbox'
+        })
+        const $count = signal(1)
+        const $page = router($location, [
+          page('home', {
+            default: HomePage,
+            Head$: () => [title('Home')]
+          }),
+          page('inbox', {
+            default: AboutPage,
+            Head$: () => [title(() => `Inbox (${$count()})`)]
+          })
+        ])
+        const { getByTestId } = render(TitleFixture, {
+          props: {
+            context: [
+              provide(Page$, $page)
+            ]
+          }
+        })
+
+        navigation.push('/home')
+        await tick()
+
+        expect(getByTestId('title').textContent).toBe('Home')
+
+        navigation.push('/inbox')
+        await tick()
+
+        expect(getByTestId('title').textContent).toBe('Inbox (1)')
+
+        $count(2)
+        await tick()
+
+        expect(getByTestId('title').textContent).toBe('Inbox (2)')
+      })
+    })
+
+    describe('titleAnnouncer', () => {
+      beforeEach(() => {
+        vi.useFakeTimers()
+      })
+
+      afterEach(() => {
+        vi.useRealTimers()
+      })
+
+      it('should announce the title of the page navigation arrives at', () => {
+        const [$location, navigation] = virtualNavigation('/home', {
+          home: '/home',
+          inbox: '/inbox'
+        })
+        const $page = router($location, [
+          page('home', {
+            default: HomePage,
+            Head$: () => [title('Home')]
+          }),
+          page('inbox', {
+            default: AboutPage,
+            Head$: () => [title('Inbox')]
+          })
+        ])
+        const { unmount } = render(TitleAnnouncerFixture, {
+          props: {
+            context: [
+              provide(Page$, $page)
+            ]
+          }
+        })
+        const region = document.querySelector('body > nano-kit-title-announcer')?.shadowRoot?.querySelector('[role="status"]')
+
+        navigation.push('/inbox')
+        vi.advanceTimersByTime(100)
+
+        expect(region?.textContent).toBe('Inbox')
+
+        unmount()
+
+        expect(region?.isConnected).toBe(false)
       })
     })
   })

@@ -2,7 +2,8 @@ import type { Accessor } from '@nano_kit/store'
 import { createContext } from 'preact'
 import {
   useContext,
-  useEffect
+  useEffect,
+  useMemo
 } from 'preact/hooks'
 import { memo } from 'preact/compat'
 import {
@@ -17,6 +18,8 @@ import {
   type Routes,
   type PageRef,
   Page$,
+  pageTitle,
+  titleAnnouncer,
   syncHead,
   router as vanillaRouter
 } from '@nano_kit/router'
@@ -117,4 +120,49 @@ export function useSyncHead() {
   const $page = useInject(Page$)
 
   useEffect(() => syncHead($page, context), [$page, context])
+}
+
+/**
+ * Get the title of the current page from its head configuration.
+ * @param $page - Signal containing the current page match reference
+ * @returns Current page title, or an empty string while the head has none
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function usePageTitle($page: Accessor<PageRef<unknown> | null>) {
+  const $title = useMemo(() => pageTitle($page), [$page])
+
+  return useSignal($title)
+}
+
+/**
+ * Get the title of the current page from its head configuration within injection context.
+ * Should be used inside injection context with page provided.
+ * @returns Current page title, or an empty string while the head has none
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function useTitle() {
+  const context = useInjectionContext()
+  const $page = useInject(Page$)
+  const $title = useMemo(() => pageTitle($page, context), [$page, context])
+
+  return useSignal($title)
+}
+
+/**
+ * Announces each new title of the current page to assistive technologies.
+ * @param $page - Signal containing the current page match reference
+ */
+export function usePageTitleAnnouncer($page: Accessor<PageRef<unknown> | null>) {
+  useEffect(() => titleAnnouncer($page), [$page])
+}
+
+/**
+ * Announces each new title of the current page to assistive technologies within injection context.
+ * Should be used inside injection context with page provided.
+ */
+export function useTitleAnnouncer() {
+  const context = useInjectionContext()
+  const $page = useInject(Page$)
+
+  useEffect(() => titleAnnouncer($page, context), [$page, context])
 }
