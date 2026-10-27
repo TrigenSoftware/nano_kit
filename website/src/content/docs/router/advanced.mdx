@@ -155,7 +155,7 @@ $title()
 // 'User 42'
 ```
 
-Like `syncHead`, it takes an optional `InjectionContext` as the second argument to resolve `Head$` factories with DI. While a lazy page loads, the signal holds the title of its layout, as the document does.
+Like `syncHead`, it takes an optional `InjectionContext` as the second argument to resolve `Head$` factories with DI. With DI, the [`Title$`](#tokens) token gives the same signal, so stores and components share it. While a lazy page loads, the signal holds the title of its layout, as the document does.
 
 ### `titleAnnouncer`
 
@@ -405,6 +405,7 @@ The router provides global injection tokens for navigation state. Use them in st
 - **`Pages$`** - provides the array of page definitions passed to the router. Should be provided by the app.
 - **`Paths$`** - provides typed path builder functions derived from the navigation. Depends on `Navigation$`.
 - **`CanGoBack$`** - provides a boolean signal indicating if back navigation is possible. Depends on `Location$` and `Navigation$`.
+- **`Title$`** - provides a signal of the title of the current page, see [`pageTitle`](#pagetitle). Depends on `Page$`, and resolves the `Head$` factories in the injection context it is first injected in.
 
 Not every token needs to be provided — it depends on your app's needs. For example, if you don't use path builders, you can skip providing `Paths$`.
 

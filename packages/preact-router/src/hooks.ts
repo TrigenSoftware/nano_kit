@@ -6,7 +6,8 @@ import {
   CanGoBack$,
   Location$,
   Navigation$,
-  Paths$
+  Paths$,
+  Title$
 } from '@nano_kit/router'
 
 /**
@@ -32,3 +33,9 @@ export const usePaths = /* @__PURE__ */ injectHook(Paths$)
  * @returns Accessor that returns true if back navigation is possible, false otherwise.
  */
 export const useCanGoBack = /* @__PURE__ */ signalHook(injectHook(CanGoBack$))
+
+/**
+ * Subscribe to the title of the current page from the injection context.
+ * @returns Current page title, or an empty string while the head has none
+ */
+export const useTitle = /* @__PURE__ */ signalHook(injectHook(Title$))

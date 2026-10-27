@@ -4,7 +4,8 @@ import {
   CanGoBack$,
   Location$,
   Navigation$,
-  Paths$
+  Paths$,
+  Title$
 } from '@nano_kit/router'
 
 /**
@@ -37,4 +38,12 @@ export function getPaths() {
  */
 export function getCanGoBack() {
   return toSignal(getInject(CanGoBack$))
+}
+
+/**
+ * Get the title signal of the current page from the injection context.
+ * @returns Signal containing the current page title, or an empty string while the head has none.
+ */
+export function getTitle() {
+  return getInject(Title$)
 }

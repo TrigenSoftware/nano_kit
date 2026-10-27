@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { InjectionProvider } from '@nano_kit/store'
   import { setInjectionContext } from '@nano_kit/svelte'
-  import { getTitle } from '../src/core.js'
+  import { getTitle } from '../src/hooks.js'
 
   interface Props {
     context: InjectionProvider[]

@@ -11,10 +11,7 @@ import {
   render
 } from '@testing-library/svelte'
 import { tick } from 'svelte'
-import {
-  provide,
-  signal
-} from '@nano_kit/store'
+import { provide } from '@nano_kit/store'
 import {
   Page$,
   layout,
@@ -26,7 +23,6 @@ import { router } from './core.js'
 import TitleAnnouncerFixture from '../test/TitleAnnouncerFixture.svelte'
 import RouterAppFixture from '../test/RouterAppFixture.svelte'
 import PageTitleFixture from '../test/PageTitleFixture.svelte'
-import TitleFixture from '../test/TitleFixture.svelte'
 import HomePage from '../test/pages/HomePage.svelte'
 import AboutPage from '../test/pages/AboutPage.svelte'
 import LoginPage from '../test/pages/LoginPage.svelte'
@@ -221,48 +217,6 @@ describe('svelte-router', () => {
         await tick()
 
         expect(getByTestId('title').textContent).toBe('About')
-      })
-    })
-
-    describe('getTitle', () => {
-      it('should return the title signal of the current page from the injection context', async () => {
-        const [$location, navigation] = virtualNavigation('/', {
-          home: '/home',
-          inbox: '/inbox'
-        })
-        const $count = signal(1)
-        const $page = router($location, [
-          page('home', {
-            default: HomePage,
-            Head$: () => [title('Home')]
-          }),
-          page('inbox', {
-            default: AboutPage,
-            Head$: () => [title(() => `Inbox (${$count()})`)]
-          })
-        ])
-        const { getByTestId } = render(TitleFixture, {
-          props: {
-            context: [
-              provide(Page$, $page)
-            ]
-          }
-        })
-
-        navigation.push('/home')
-        await tick()
-
-        expect(getByTestId('title').textContent).toBe('Home')
-
-        navigation.push('/inbox')
-        await tick()
-
-        expect(getByTestId('title').textContent).toBe('Inbox (1)')
-
-        $count(2)
-        await tick()
-
-        expect(getByTestId('title').textContent).toBe('Inbox (2)')
       })
     })
 

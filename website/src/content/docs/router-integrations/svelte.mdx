@@ -365,7 +365,7 @@ Without DI, use `getPageTitle` with an explicit page accessor:
 <span>{$title}</span>
 ```
 
-With DI, use `getTitle` and let it read `Page$` from the current injection context:
+With DI, use `getTitle` and let it read the [`Title$`](/router/advanced#tokens) token from the current injection context:
 
 ```svelte
 <script lang="ts">

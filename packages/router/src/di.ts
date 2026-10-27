@@ -1,7 +1,9 @@
 import {
   type Accessor,
+  type ReadableSignal,
   DependencyNotFound,
-  inject
+  inject,
+  getContext
 } from '@nano_kit/store'
 import type {
   AppRoutes,
@@ -20,6 +22,7 @@ import {
   type Paths,
   buildPaths
 } from './paths.js'
+import { pageTitle } from './head.js'
 
 export type * from './di.types.js'
 
@@ -79,4 +82,16 @@ export function CanGoBack$(): Accessor<boolean> {
   const navigation = inject(Navigation$)
 
   return canGoBack($location, navigation)
+}
+
+/**
+ * Global injection token for the title of the current page.
+ * The head factories are resolved within the injection context the token is first injected in.
+ * @returns Signal of the title, or of an empty string while the head has none.
+ */
+export function Title$(): ReadableSignal<string> {
+  const context = getContext()
+  const $page = inject(Page$)
+
+  return pageTitle($page, context)
 }

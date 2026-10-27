@@ -135,20 +135,6 @@ export function usePageTitle($page: Accessor<PageRef<unknown> | null>) {
 }
 
 /**
- * Get the title of the current page from its head configuration within injection context.
- * Should be used inside injection context with page provided.
- * @returns Current page title, or an empty string while the head has none
- */
-/* @__NO_SIDE_EFFECTS__ */
-export function useTitle() {
-  const context = useInjectionContext()
-  const $page = useInject(Page$)
-  const $title = useMemo(() => pageTitle($page, context), [$page, context])
-
-  return useSignal($title)
-}
-
-/**
  * Announces each new title of the current page to assistive technologies.
  * @param $page - Signal containing the current page match reference
  */

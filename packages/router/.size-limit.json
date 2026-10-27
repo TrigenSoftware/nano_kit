@@ -10,7 +10,7 @@
     "name": "All publics (Brotli)",
     "path": "dist/index.production.js",
     "import": "*",
-    "limit": "4 kB"
+    "limit": "4.05 kB"
   },
   {
     "name": "Minimal set (Gzip)",
