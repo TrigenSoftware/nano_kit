@@ -3,9 +3,12 @@ import {
   type InjectionContext,
   type AnySignalish,
   type EmptyValue,
+  type ReadableSignal,
+  computed,
   effect,
   inject,
   untracked,
+  $get,
   get,
   subscribeAny,
   isEmpty
@@ -315,5 +318,25 @@ export function syncHead(
     }
 
     current = next
+  })
+}
+
+/**
+ * Creates a signal of the current page title: the value of the first title descriptor in the head of the page, its own before its layouts'.
+ * @param $page - Accessor for the current page reference.
+ * @param context - Optional injection context to resolve head factories.
+ * @returns Signal of the title, or of an empty string while the head has none.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function pageTitle(
+  $page: Accessor<PageRef<unknown> | null>,
+  context?: InjectionContext
+): ReadableSignal<string> {
+  return computed(() => {
+    const page = $page()
+    const descriptor = untracked(() => getHeadDescriptors(page, context))
+      .find((tag): tag is TitlePropertyDescriptor => tag.tag === 'title')
+
+    return (descriptor && $get(descriptor.value)) || ''
   })
 }

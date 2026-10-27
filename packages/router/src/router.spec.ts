@@ -476,6 +476,37 @@ describe('router', () => {
         expect($page()).toBeNull()
         expect(stores()).toEqual([])
       })
+
+      it('should be loading while the page within layout loads', async () => {
+        const [$location, navigation] = virtualNavigation('/', {
+          home: '/home',
+          about: '/about'
+        })
+        const aboutPagePromise = Promise.resolve({
+          default: (): string => 'About'
+        })
+        const compose = ($outlet: Accessor<(() => string) | null>, layout: string) => () => `${layout}:${$outlet()?.()}`
+        const $page = router($location, [
+          page('home', (): string => 'Home'),
+          layout('Layout', [
+            page('about', loadable(() => aboutPagePromise, (): string => 'About Fallback'))
+          ])
+        ], compose)
+
+        navigation.push('/home')
+
+        expect($page()?.loading).toBeFalsy()
+
+        navigation.push('/about')
+
+        expect($page()?.default?.()).toBe('Layout:About Fallback')
+        expect($page()?.loading).toBe(true)
+
+        await aboutPagePromise
+
+        expect($page()?.default?.()).toBe('Layout:About')
+        expect($page()?.loading).toBe(false)
+      })
     })
   })
 })

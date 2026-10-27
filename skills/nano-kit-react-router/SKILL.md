@@ -1,6 +1,6 @@
 ---
 name: nano-kit-react-router
-description: How to route a React app with @nano_kit/react-router and the @nano_kit/router core it re-exports. Covers route tables, browser and virtual navigation, location and parameter signals, pages, layouts, code splitting, the DI tokens and hooks, typed Link components with preloading and aria-current, document head management, scroll utilities, page-level Stores$ and Head$ exports for SSR, and testing with virtual navigation. Apply when adding or changing routing, links or URL-derived state in a React app built on Nano Kit. For signals, stores and DI see the nano-kit-store skill.
+description: How to route a React app with @nano_kit/react-router and the @nano_kit/router core it re-exports. Covers route tables, browser and virtual navigation, location and parameter signals, pages, layouts, code splitting, the DI tokens and hooks, typed Link components with preloading and aria-current, document head management, page title announcements for screen readers, scroll utilities, page-level Stores$ and Head$ exports for SSR, and testing with virtual navigation. Apply when adding or changing routing, links or URL-derived state in a React app built on Nano Kit. For signals, stores and DI see the nano-kit-store skill.
 license: MIT
 compatibility:
   - Claude Code
@@ -46,7 +46,7 @@ metadata:
 
 - Declare the route table once, `as const`, and augment `AppContext.routes` exactly once, so `Location$`, `Navigation$`, `Paths$` and `Link` are typed by it.
 - Provide `LocationNavigation$` (from `browserNavigation(routes)`), `Page$` (from `router($location, pages)`) and `Pages$` together at the root; the derived tokens come for free.
-- Render with the ready-made `App`, let layouts render children through `Outlet`, and call `useSyncHead()`, `useLinkComponentPreload()` and `useLinkComponentAriaCurrent()` once in the root layout.
+- Render with the ready-made `App`, let layouts render children through `Outlet`, and call `useSyncHead()`, `useTitleAnnouncer()`, `useLinkComponentPreload()` and `useLinkComponentAriaCurrent()` once in the root layout.
 - Page modules export the component as `default` and, when needed, `Stores$` (what SSR awaits and dehydrates), `Head$` (head descriptors) and `statusCode`.
 
 ## URL-derived state
@@ -59,6 +59,7 @@ metadata:
 ## Pages and head
 
 - Split by route with `loadable(() => import(...), Fallback)`; preload on hover with the link preload hooks.
+- Give every view a distinct title in `Head$` and keep values that change often, like timers, out of it: the title announcer announces every new title, and moving between two pages with the same title announces nothing. Read the title in components with `useTitle()`, not `document.title`.
 - Scroll utilities touch `window`, and stores returned from `Stores$` are mounted on the server during dehydration: start scroll effects only in the browser.
 
 ## Testing
@@ -68,7 +69,8 @@ metadata:
 ## Pitfalls
 
 - Forgetting `as const` on the route table loses parameter typing for `params`, `paths` and `Link`.
-- `App`, `usePage` and `useSyncHead` need `Page$`; `useLinkComponentPreload` needs `Pages$`.
+- `App`, `usePage`, `useSyncHead`, `useTitle` and `useTitleAnnouncer` need `Page$`; `useLinkComponentPreload` needs `Pages$`.
+- Next.js announces route changes itself: with `@nano_kit/next-router`, do not add `useTitleAnnouncer`.
 - The `Link` built with `linkComponent` and the DI `Link` are different components; do not mix the hooks of one with the settings of the other.
 - `useSyncHead` belongs in the outermost layout, once; calling it per page re-syncs the same descriptors repeatedly.
 - Splat values are not encoded by the path builders; encode user input before building a splat path.

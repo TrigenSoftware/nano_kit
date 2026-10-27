@@ -283,9 +283,11 @@ function createComposed(compose: UnknownComposer | undefined): Composed {
       layoutRef.r.r(() => pageRef.default)
     }
 
+    // A loaded layout is loading as long as the page in it is
     pageRef.l ||= {
       ...layoutRef,
       default: layoutRef.r.l,
+      loading: pageRef.loading,
       r: pageRef
     }
 

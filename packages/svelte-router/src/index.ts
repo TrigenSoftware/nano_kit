@@ -4,7 +4,8 @@ export { default as App } from './App.svelte'
 export { default as Outlet } from './Outlet.svelte'
 export {
   router,
-  syncHead
+  syncHead,
+  titleAnnouncer
 } from './core.js'
 export * from './core.js'
 export { listenLinks } from './link.js'

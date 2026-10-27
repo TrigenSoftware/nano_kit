@@ -12,6 +12,8 @@ The `@nano_kit/next-router` package provides Next.js integration for `@nano_kit/
 
 For shared router APIs such as [`useLocation`](/router-integrations/react#uselocation), [`useNavigation`](/router-integrations/react#usenavigation), [`usePaths`](/router-integrations/react#usepaths), [`useListenLinks`](/router-integrations/react#usenavigationlistenlinks-uselistenlinks), see the [React Router integration](/router-integrations/react).
 
+Next.js announces route changes to screen readers itself, so the re-exported [title announcer](/router/advanced#titleannouncer) hooks are not needed.
+
 ## Installation
 
 Install the package using your favorite package manager:
