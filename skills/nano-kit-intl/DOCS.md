@@ -184,6 +184,8 @@ const { messages, $loading, $error } = intl(
 
 With a full-data loader, `$loading` and `$error` describe the current locale data load.
 
+When `$locale` changes, the context keeps showing the previous locale and its translations until the next locale loads, then switches messages and formats together. Meanwhile `$loading` is `true`, so a small indicator next to the language switch is enough: the page keeps its text. If the next locale fails to load, the previous one stays and `$error` holds the failure. The `$locale` returned by `intl()` is the locale shown, so feed it to `lang()` and `direction()` to switch the page language with the text.
+
 Since `resolved` keeps its factory unstarted until the first read, translation loading does not begin at `intl(...)` creation. It starts on the first read of `$t`, `$loading` or `$error`.
 
 ## Namespace Loader
