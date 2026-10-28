@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.4.1](https://github.com/TrigenSoftware/nano_kit/compare/v2.4.0...v2.4.1) (2026-10-28)
+
+### Bug Fixes
+
+* **intl:** keep the previous locale until the next one loads ([#317](https://github.com/TrigenSoftware/nano_kit/issues/317)) ([99cdb19](https://github.com/TrigenSoftware/nano_kit/commit/99cdb197b73f34dc696feeffcfcf02c00878688d))
+
 ## [2.4.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.3.0...v2.4.0) (2026-10-27)
 
 ### Features
