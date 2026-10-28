@@ -85,9 +85,12 @@ export class IntlContext<
     } else {
       const [$data, $error, $loading] = loader
       // The locale shown last with its translations: a new locale shows once it loads
-      const $shown = computed<readonly [L, T | EmptyValue]>(
-        prev => ((!$loading() && $data()) || !prev ? [$locale(), $data()] : prev)
-      )
+      const $shown = computed<readonly [L, T | EmptyValue]>((prev) => {
+        // Read on every run: a query loads, and SSR waits for the load, only through this dependency
+        const data = $data()
+
+        return (!$loading() && data) || !prev ? [$locale(), data] : prev
+      })
 
       this.$locale = computed(() => $shown()[0])
       this.$loading = $loading
