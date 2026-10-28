@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.4.2](https://github.com/TrigenSoftware/nano_kit/compare/v2.4.1...v2.4.2) (2026-10-28)
+
+### Bug Fixes
+
+* **intl:** restore SSR with a query loader ([#319](https://github.com/TrigenSoftware/nano_kit/issues/319)) ([94a4332](https://github.com/TrigenSoftware/nano_kit/commit/94a43326df26542ff9797fa0d3cb8cf418dbec22))
+
 ## [2.4.1](https://github.com/TrigenSoftware/nano_kit/compare/v2.4.0...v2.4.1) (2026-10-28)
 
 ### Bug Fixes
