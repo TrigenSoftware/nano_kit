@@ -56,6 +56,7 @@ export class IntlContext<
   readonly #loader: Loader<T>
   /**
    * Active locale accessor.
+   * With a full-data loader, it keeps the previous locale until the translations of the next one load.
    */
   readonly $locale: Accessor<L>
   /**
@@ -76,14 +77,22 @@ export class IntlContext<
     $locale: Accessor<L>,
     loader: Loader<T>
   ) {
-    this.$locale = $locale
-    this.#loader = loader
-
     if (isFunction(loader)) {
+      this.$locale = $locale
       this.$loading = signal(false)
       this.$error = signal(undefined)
+      this.#loader = loader
     } else {
-      [, this.$error, this.$loading] = loader
+      const [$data, $error, $loading] = loader
+      // The locale shown last with its translations: a new locale shows once it loads
+      const $shown = computed<readonly [L, T | EmptyValue]>(
+        prev => ((!$loading() && $data()) || !prev ? [$locale(), $data()] : prev)
+      )
+
+      this.$locale = computed(() => $shown()[0])
+      this.$loading = $loading
+      this.$error = $error
+      this.#loader = [computed(() => $shown()[1]), $error, $loading]
     }
   }
 

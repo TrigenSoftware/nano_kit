@@ -41,7 +41,7 @@ metadata:
 ## Structure
 
 - Group translation data by namespace (a page, a layout, a feature) and bind each namespace with `messages(namespace, scheme)` in a small injectable factory next to the page that uses it. Components read `$t` through the framework hook.
-- Choose the loader by bundle shape: a full-data loader (`resolved` or a query) for small translations shipped together, a namespace loader when translations should split by route or feature. With a namespace loader the context `$loading` is meaningless; use the `$pending` returned per namespace.
+- Choose the loader by bundle shape: a full-data loader (`resolved` or a query) for small translations shipped together, a namespace loader when translations should split by route or feature. With a namespace loader the context `$loading` is meaningless; use the `$pending` returned per namespace. A full-data loader keeps the previous locale on screen until the next one loads: show a small indicator from `$loading` next to the language switch rather than covering the page.
 - A scheme entry is needed only where a key needs a format: parameters, plural forms, cases, Intl formatting. Keys without a format come back raw and typed from the translation data.
 - Logic deciding how a message renders from its parameters, like a template that applies only when every part is present, belongs in the scheme through `wrap(...)`, not in helpers at the call sites: every call site then renders the same and keeps the inferred message type. Variants that translators word differently stay `match` or `plural` cases.
 - `format(...)` messages format application values and take a value argument; `params(...)` messages fill placeholders in translated text and take an object of parameters. Do not mix them up. Pass application state to a `format()` message as the signal itself, `$t.eventDate($startsAt)`: the message follows it, and `null` formats like a missing value while the data loads.
@@ -50,7 +50,7 @@ metadata:
 
 - Negotiate the initial locale from `Locales$` (`navigator` in the browser, the `Accept-Language` header on the server) and let a cookie-backed `$locale` override it, so the choice survives reloads and reaches the server.
 - Load translations through `@nano_kit/query` when the app has SSR: they are cached, deduplicated and dehydrated like any other data, and keep their key out of session-wide invalidation sweeps.
-- Feed `direction($locale)` to the router's `dir()` head descriptor and `$locale` to `lang()`.
+- Feed `direction()` of the `$locale` returned by `intl()`, the locale shown, to the router's `dir()` head descriptor and that `$locale` to `lang()`, so the page language switches with the text.
 
 ## SSR
 

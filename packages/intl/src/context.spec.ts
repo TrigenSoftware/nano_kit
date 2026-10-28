@@ -172,6 +172,111 @@ describe('intl', () => {
 
         expect($t().title).toBe('Profil')
       })
+
+      it('should use the given locale until the first translations load', () => {
+        const ctx = new IntlContext(
+          () => 'en-US',
+          resolved(Promise.withResolvers<Translations>().promise)
+        )
+
+        expect(ctx.$locale()).toBe('en-US')
+      })
+
+      it('should show cached translations read first while they revalidate', () => {
+        const ctx = new IntlContext(
+          () => 'en-US',
+          [signal(localeTranslations['en-US']), signal(undefined), signal(true)] as const
+        )
+        const [$t] = ctx.messages('user', {
+          title: text()
+        })
+
+        expect($t().title).toBe('Profile')
+      })
+
+      it('should keep the previous locale and translations while the next locale loads', () => {
+        const $locale = signal<keyof typeof localeTranslations>('en-US')
+        const $data = signal<Translations | null>(localeTranslations['en-US'])
+        const $loading = signal(false)
+        const ctx = new IntlContext(
+          $locale,
+          [$data, signal(undefined), $loading] as const
+        )
+        const [$user] = ctx.messages('user', {
+          title: text()
+        })
+        const [$stats] = ctx.messages('stats', {
+          count: number()
+        })
+
+        expect($user().title).toBe('Profile')
+        expect($stats().count).toBe('1,234.5')
+
+        $locale('de-DE')
+        $data(null)
+        $loading(true)
+
+        expect(ctx.$locale()).toBe('en-US')
+        expect($user().title).toBe('Profile')
+        expect($stats().count).toBe('1,234.5')
+
+        $data(localeTranslations['de-DE'])
+        $loading(false)
+
+        expect(ctx.$locale()).toBe('de-DE')
+        expect($user().title).toBe('Profil')
+        expect($stats().count).toBe('1.234,5')
+      })
+
+      it('should keep the previous locale while stale translations of the next one are pending', async () => {
+        const {
+          promise,
+          resolve
+        } = Promise.withResolvers<Translations>()
+        const $locale = signal<keyof typeof localeTranslations>('en-US')
+        const ctx = new IntlContext(
+          $locale,
+          resolved(() => ($locale() === 'en-US' ? localeTranslations['en-US'] : promise))
+        )
+        const [$t] = ctx.messages('stats', {
+          count: number()
+        })
+
+        expect($t().count).toBe('1,234.5')
+
+        $locale('de-DE')
+
+        expect(ctx.$loading()).toBe(true)
+        expect($t().count).toBe('1,234.5')
+
+        resolve(localeTranslations['de-DE'])
+        await promise
+
+        expect(ctx.$locale()).toBe('de-DE')
+        expect($t().count).toBe('1.234,5')
+      })
+
+      it('should keep the previous locale when the next one fails to load', () => {
+        const $locale = signal<keyof typeof localeTranslations>('en-US')
+        const $data = signal<Translations | null>(localeTranslations['en-US'])
+        const $error = signal<unknown>(undefined)
+        const ctx = new IntlContext(
+          $locale,
+          [$data, $error, signal(false)] as const
+        )
+        const [$t] = ctx.messages('user', {
+          title: text()
+        })
+
+        expect($t().title).toBe('Profile')
+
+        $locale('de-DE')
+        $data(null)
+        $error(new Error('translations failed'))
+
+        expect(ctx.$locale()).toBe('en-US')
+        expect($t().title).toBe('Profile')
+      })
     })
 
     describe('messages', () => {
