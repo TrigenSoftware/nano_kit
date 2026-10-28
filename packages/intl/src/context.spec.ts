@@ -6,7 +6,9 @@ import {
 } from 'vitest'
 import {
   resolved,
-  signal
+  signal,
+  task,
+  waitTasks
 } from '@nano_kit/store'
 import type { NamespaceLoader } from './types.js'
 import { IntlContext } from './context.js'
@@ -275,6 +277,35 @@ describe('intl', () => {
         $error(new Error('translations failed'))
 
         expect(ctx.$locale()).toBe('en-US')
+        expect($t().title).toBe('Profile')
+      })
+
+      it('should wait for the translations while they load', async () => {
+        const $data = signal<Translations | null>(null)
+        const $loading = signal(false)
+        const ctx = new IntlContext(
+          () => 'en-US',
+          [$data, signal(undefined), $loading] as const
+        )
+        const [$t] = ctx.messages('user', {
+          title: text()
+        })
+
+        expect($t().title).toBeUndefined()
+
+        $loading(true)
+        task($data, new Promise<void>((resolve) => {
+          setTimeout(() => {
+            $data(localeTranslations['en-US'])
+            $loading(false)
+            resolve()
+          })
+        }))
+
+        expect($t().title).toBeUndefined()
+
+        await waitTasks($t)
+
         expect($t().title).toBe('Profile')
       })
     })
