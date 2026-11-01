@@ -598,7 +598,8 @@ export function track<T>(tracker: ReactiveNode, fn: () => T): T {
 }
 
 /**
- * Run effect function and re-run it on dependency change.
+ * Run effect function and re-run it on dependency change. If the first run
+ * throws, the effect stops and the error is thrown on.
  * @param fn - The effect function to run.
  * @returns A function to stop the effect.
  */
@@ -643,7 +644,16 @@ export function effect(fn: EffectCallback, lcx?: ReactiveNode): Destroy {
     link(e, activeSub, 0)
   }
 
-  warmupEffect(e)
+  try {
+    warmupEffect(e)
+  } catch (error) {
+    // Nobody holds the stop function of an effect whose first run threw, the
+    // mount it set off included, so it stops itself: it would keep mounted
+    // what it read and run on
+    effectOper.call(e)
+
+    throw error
+  }
 
   return effectOper.bind(e)
 }

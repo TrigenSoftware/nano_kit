@@ -945,6 +945,7 @@ describe('agera', () => {
       it('should keep delivering to other nodes after a listener throws', () => {
         const $a = mountable(signal(0))
         const $b = mountable(signal(0))
+        const $on = signal(false)
         const bListener = vi.fn()
 
         onMounted($a, () => {
@@ -952,10 +953,16 @@ describe('agera', () => {
         })
         onMounted($b, bListener)
 
-        expect(() => effect(() => {
-          $a()
-          $b()
-        })).toThrow('boom')
+        // A re-run mounts them, so the effect lives on: one whose first run
+        // throws stops itself
+        effect(() => {
+          if ($on()) {
+            $a()
+            $b()
+          }
+        })
+
+        expect(() => $on(true)).toThrow('boom')
 
         // the tail of the queue survives the throw and is delivered
         // at the next boundary

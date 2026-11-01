@@ -1072,6 +1072,38 @@ describe('agera', () => {
       a(1)
       expect(outerRuns).toBe(2)
     })
+
+    it('should stop when its first run throws', () => {
+      const $a = signal(1)
+      let runs = 0
+
+      expect(() => effect(() => {
+        $a()
+
+        if (!runs++) {
+          throw new Error('fail')
+        }
+      })).toThrow('fail')
+
+      $a(2)
+
+      expect(runs).toBe(1)
+    })
+
+    it('should stop when a mount listener throws in its first run', () => {
+      const $a = mountable(signal(1))
+
+      onMounted($a, (mounted) => {
+        if (mounted) {
+          throw new Error('fail')
+        }
+      })
+
+      expect(() => effect(() => {
+        $a()
+      })).toThrow('fail')
+      expect(isMounted($a)).toBe(false)
+    })
   })
 
   describe('effectScope', () => {
