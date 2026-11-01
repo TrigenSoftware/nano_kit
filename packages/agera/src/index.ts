@@ -20,6 +20,8 @@ export {
 } from './internals/flags.js'
 export {
   untracked,
+  createTracker,
+  track,
   trigger,
   onSignal,
   createSignal,

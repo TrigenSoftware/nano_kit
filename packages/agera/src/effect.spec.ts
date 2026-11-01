@@ -24,7 +24,10 @@ import {
   pauseScope,
   resumeScope,
   observe,
-  isMounted
+  isMounted,
+  createTracker,
+  track,
+  noop
 } from './index.js'
 
 describe('agera', () => {
@@ -2263,6 +2266,73 @@ describe('agera', () => {
 
       src(1)
       expect(c()).toBe(0)
+    })
+  })
+
+  describe('track', () => {
+    it('should link the tracker to what the function reads and give its value', () => {
+      const $a = signal(1)
+      const $double = computed(() => $a() * 2)
+      const tracker = createTracker()
+
+      expect(track(tracker, () => $double() + 1)).toBe(3)
+      expect(tracker.deps?.dep).toBe($double.node)
+      expect(tracker.deps?.nextDep).toBeUndefined()
+    })
+
+    it('should let go of the links it did not read again', () => {
+      const $a = signal(1)
+      const $b = signal(2)
+      const tracker = createTracker()
+
+      track(tracker, () => $a() + $b())
+      track(tracker, () => $b())
+
+      expect(tracker.deps?.dep).toBe($b.node)
+      expect(tracker.deps?.nextDep).toBeUndefined()
+      expect($a.node.subs).toBeUndefined()
+    })
+
+    it('should let go of every link for a function that reads nothing', () => {
+      const $a = signal(1)
+      const $double = computed(() => $a() * 2)
+      const tracker = createTracker()
+
+      track(tracker, () => $double())
+      track(tracker, () => 0)
+
+      expect(tracker.deps).toBeUndefined()
+      expect($double.node.subs).toBeUndefined()
+    })
+
+    it('should mount nothing it reads, even once the lifecycle settles', () => {
+      const $a = mountable(signal(1))
+      const listener = vi.fn()
+
+      onMounted($a, listener)
+      track(createTracker(), () => $a())
+      // The warmup of an effect settles what `track` left queued
+      effect(noop)()
+
+      expect(isMounted($a)).toBe(false)
+      expect(listener).not.toHaveBeenCalledWith(true)
+    })
+
+    it('should give the subscriber back when the function throws', () => {
+      const $a = signal(1)
+      const runs = vi.fn()
+
+      effect(() => {
+        expect(() => track(createTracker(), () => {
+          throw new Error('fail')
+        })).toThrow('fail')
+
+        runs($a())
+      })
+
+      $a(2)
+
+      expect(runs).toHaveBeenCalledTimes(2)
     })
   })
 
