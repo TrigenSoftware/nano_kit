@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.5.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.0.0...v2.5.0) (2026-11-01)
+
+### Features
+
+* add `pendingTasks` to tell at once whether a signal has tasks to wait for ([#321](https://github.com/TrigenSoftware/nano_kit/issues/321)) ([3a1d53f](https://github.com/TrigenSoftware/nano_kit/commit/3a1d53f15f29e08bea243fb7e8f2a18f3ffaf124))
+
 ## [2.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.2.0...v2.0.0) (2026-10-21)
 
 ### Nano Kit 2.0 🎉
