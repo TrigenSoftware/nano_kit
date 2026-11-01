@@ -88,6 +88,8 @@ $count(prev => prev + 1)
 stop()
 ```
 
+If the first run of an effect throws, the effect stops at once and `effect` throws the error on: no stop function is returned, so the effect does not stay subscribed to what it read. An error in a later run is thrown from the update that caused the run, and the effect stays alive to run again on the next change.
+
 ### Effect Cleanup
 
 Effects can return a cleanup function. This function is executed before the effect re-runs (due to dependency changes) and when the effect is manually stopped. This is useful for clearing timers, event listeners, or other side effects.

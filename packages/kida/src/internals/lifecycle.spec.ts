@@ -9,13 +9,15 @@ import {
 import {
   signal,
   mountable,
-  effect
+  effect,
+  isMounted
 } from 'agera'
 import {
   STORE_UNMOUNT_DELAY,
   onStart,
   onStop,
-  onMount
+  onMount,
+  start
 } from './lifecycle.js'
 
 describe('kida', () => {
@@ -115,6 +117,19 @@ describe('kida', () => {
           off1()
 
           expect(listener).toHaveBeenCalledTimes(1)
+        })
+      })
+
+      describe('start', () => {
+        it('should leave the signal unmounted when a start listener throws', () => {
+          const $signal = mountable(signal(1))
+
+          onStart($signal, () => {
+            throw new Error('fail')
+          })
+
+          expect(() => start($signal)).toThrow('fail')
+          expect(isMounted($signal)).toBe(false)
         })
       })
 
