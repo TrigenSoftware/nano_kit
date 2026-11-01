@@ -275,6 +275,8 @@ const $count = signal(1)
 const $total = computed((sum = 0) => sum + $count())
 ```
 
+If the calculation throws, reading the computed throws the error, and nothing is cached: the next read runs the calculation again rather than returning an old value.
+
 ### Using `selector`
 
 When many things ask the same question about one value — which row is selected, which tab is open, which item is being dragged — a `computed` per asker subscribes them all to that value, and every change wakes all of them so that all but one can conclude that nothing changed. `selector` inverts that: the source gets one subscriber, and a change reaches only the keys whose answer actually moved.
