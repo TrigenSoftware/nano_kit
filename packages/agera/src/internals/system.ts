@@ -807,6 +807,11 @@ function updateComputed(c: ComputedNode): boolean {
     }
 
     return changed
+  } catch (error) {
+    // A compute that threw has no value to keep: the next read runs it again
+    c.flags |= DirtyFlag
+
+    throw error
   } finally {
     popActiveSub(prevSub)
     c.flags &= ~RecursedCheckFlag
@@ -990,6 +995,11 @@ export function computedOper<T>(this: ComputedNode<T>): T {
       if (import.meta.env.DEV) {
         report(UpdateEvent, this)
       }
+    } catch (error) {
+      // As in `updateComputed`: the next read runs a compute that threw again
+      this.flags |= DirtyFlag
+
+      throw error
     } finally {
       popActiveSub(prevSub)
       this.flags &= ~RecursedCheckFlag

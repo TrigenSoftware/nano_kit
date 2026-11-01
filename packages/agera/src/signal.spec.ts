@@ -175,6 +175,42 @@ describe('agera', () => {
         c1()
         expect(times).toBe(1)
       })
+
+      it('should run a compute that threw again on the next read', () => {
+        let fail = true
+        const c1 = computed(() => {
+          if (fail) {
+            throw new Error('fail')
+          }
+
+          return 1
+        })
+
+        expect(() => c1()).toThrow('fail')
+        expect(() => c1()).toThrow('fail')
+
+        fail = false
+
+        expect(c1()).toBe(1)
+      })
+
+      it('should not give the old value when the compute throws after a change', () => {
+        const src = signal(1)
+        const c1 = computed(() => {
+          if (src() > 1) {
+            throw new Error('fail')
+          }
+
+          return src()
+        })
+
+        expect(c1()).toBe(1)
+
+        src(2)
+
+        expect(() => c1()).toThrow('fail')
+        expect(() => c1()).toThrow('fail')
+      })
     })
 
     describe('selector', () => {

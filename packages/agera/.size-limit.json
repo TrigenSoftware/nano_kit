@@ -30,7 +30,7 @@
     "gzip": true,
     "path": "dist/index.production.js",
     "import": "{ signal, computed, effect }",
-    "limit": "1.55 kB"
+    "limit": "1.6 kB"
   },
   {
     "name": "Minimal set (Brotli)",
@@ -43,7 +43,7 @@
     "gzip": true,
     "path": "dist/index.production.js",
     "import": "{ signal, computed, effect, mountable, onMounted }",
-    "limit": "2.05 kB"
+    "limit": "2.1 kB"
   },
   {
     "name": "Popular set (Brotli)",
