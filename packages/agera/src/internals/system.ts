@@ -464,7 +464,7 @@ export function onSignal(callback: ($signal: AnySignal) => void) {
  * Create a signal function over a reactive node. The node is the operator's
  * `this`, so whatever a call site needs at read or write time lives on the
  * node and a signal costs one object and one bound function, nothing else.
- * @private
+ * @internal
  * @param constructor - The operator: called with no arguments to read, with one to write.
  * @param node - The node the signal is a face of.
  * @returns A signal.
@@ -527,6 +527,53 @@ export function computed<T>(compute: Compute<T>): ReadableSignal<T> {
     modes: NoneFlag,
     compute
   }) as ReadableSignal<T>
+}
+
+/**
+ * Create a node to track what a function reads with `track`. It is no
+ * signal, so no listener of `onSignal` sees it, and it never watches, so it
+ * mounts nothing it reads.
+ * @internal
+ * @returns A node with no links.
+ */
+export function createTracker(): ReactiveNode {
+  // The shape of a scope node, so a tracker adds no hidden class
+  return {
+    deps: undefined,
+    depsTail: undefined,
+    subs: undefined,
+    subsTail: undefined,
+    flags: NoneFlag,
+    modes: NoneFlag
+  }
+}
+
+/**
+ * Run a function with a tracker as the subscriber of what it reads, the way
+ * a computed runs its compute: the tracker is left linked to what the
+ * function read, for the caller to walk, and lets go of the links it had
+ * before and did not read again. A function that reads nothing lets go of
+ * every link.
+ * @internal
+ * @param tracker - The node to link what is read to, made by `createTracker`.
+ * @param fn - The function to run.
+ * @returns The result of the function.
+ */
+export function track<T>(tracker: ReactiveNode, fn: () => T): T {
+  // The core of `updateComputed` without its settle: the links of a tracker
+  // never change a mount level, and a render tracks so many reads that the
+  // settle costs it a few percent
+  ++cycle
+  tracker.depsTail = undefined
+
+  const prevSub = pushActiveSub(tracker)
+
+  try {
+    return fn()
+  } finally {
+    popActiveSub(prevSub)
+    purgeDeps(tracker)
+  }
 }
 
 /**
@@ -882,7 +929,7 @@ function flush(): void {
  * The read operator of a computed node. Exported so that a call site can put
  * its own operator in front of one: a writable computed is this one with a
  * write branch before it.
- * @private
+ * @internal
  * @returns The current value.
  */
 export function computedOper<T>(this: ComputedNode<T>): T {
