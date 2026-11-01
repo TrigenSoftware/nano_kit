@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.5.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.1.0...v2.5.0) (2026-11-01)
+
+### Features
+
+* add `createTracker` and `track` to collect what a function reads ([#322](https://github.com/TrigenSoftware/nano_kit/issues/322)) ([d1083d2](https://github.com/TrigenSoftware/nano_kit/commit/d1083d228788225e9362b33a4d39564935297cf0))
+* export `pushActiveSub` and `popActiveSub` to enter a scope made before ([#323](https://github.com/TrigenSoftware/nano_kit/issues/323)) ([11bdabd](https://github.com/TrigenSoftware/nano_kit/commit/11bdabdc61d323b2eac7b2e35434754100ea73dd))
+
+### Bug Fixes
+
+* run a compute that threw again on the next read ([#325](https://github.com/TrigenSoftware/nano_kit/issues/325)) ([96262ab](https://github.com/TrigenSoftware/nano_kit/commit/96262ab9a28f86a58ea436953d930eb987ffcabe))
+* stop an effect whose first run throws ([#326](https://github.com/TrigenSoftware/nano_kit/issues/326)) ([47c718a](https://github.com/TrigenSoftware/nano_kit/commit/47c718a3863c4278d75f0cbe50f6092e47ee7b30))
+
+### Performance Improvements
+
+* keep one link from a scope to a signal it reads again ([#324](https://github.com/TrigenSoftware/nano_kit/issues/324)) ([e181e13](https://github.com/TrigenSoftware/nano_kit/commit/e181e1331d26c36cd2007224ed008c91ad54eb09))
+
 ## [2.1.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.0.0...v2.1.0) (2026-10-25)
 
 ### Features
