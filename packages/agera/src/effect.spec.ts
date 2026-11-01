@@ -6,6 +6,7 @@ import {
 } from 'vitest'
 import {
   type DeferredScope,
+  type ReactiveNode,
   computed,
   effect,
   deferEffect,
@@ -27,6 +28,8 @@ import {
   isMounted,
   createTracker,
   track,
+  pushActiveSub,
+  popActiveSub,
   noop
 } from './index.js'
 
@@ -2235,6 +2238,66 @@ describe('agera', () => {
         computed(() => $count() * 2)()
       }, createScope(parent))
       stopScope(parent)
+
+      expect($count.node.subs).toBeUndefined()
+    })
+  })
+
+  describe('pushActiveSub', () => {
+    it('should make what is created in a deferred scope it enters defer and stop with the scope', () => {
+      const scope = deferScope(noop)
+      const log: string[] = []
+      const prevSub = pushActiveSub(scope as unknown as ReactiveNode)
+
+      deferEffect(() => {
+        log.push('run')
+
+        return () => log.push('destroy')
+      })
+      popActiveSub(prevSub)
+
+      expect(log).toEqual([])
+
+      startScope(scope)
+
+      expect(log).toEqual(['run'])
+
+      stopScope(scope)
+
+      expect(log).toEqual(['run', 'destroy'])
+    })
+
+    it('should add to what the scope holds each time it is entered', () => {
+      const scope = deferScope(noop)
+      const log: string[] = []
+      let prevSub = pushActiveSub(scope as unknown as ReactiveNode)
+
+      deferEffect(() => {
+        log.push('first')
+      })
+      popActiveSub(prevSub)
+      prevSub = pushActiveSub(scope as unknown as ReactiveNode)
+      deferEffect(() => {
+        log.push('second')
+      })
+      popActiveSub(prevSub)
+      startScope(scope)
+
+      expect(log).toEqual(['first', 'second'])
+    })
+
+    it('should let go of what was read in the scope it enters with the scope', () => {
+      const $count = signal(1)
+      const scope = deferScope(noop)
+      const prevSub = pushActiveSub(scope as unknown as ReactiveNode)
+
+      computed(() => $count() * 2)()
+      $count()
+      popActiveSub(prevSub)
+
+      expect($count.node.subs).toBeDefined()
+
+      stopScope(scope)
 
       expect($count.node.subs).toBeUndefined()
     })
