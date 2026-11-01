@@ -42,15 +42,15 @@ export function task<T = void>(
 }
 
 /**
- * Wait for the tasks of the signal and of every signal it depends on,
- * until none are left. The dependency graph is re-collected after every
- * wave, so a task spawned by a task and a dependency linked by a settled
- * value are awaited too.
+ * Get the tasks of the signal and of every signal it depends on as one
+ * promise, if any are pending. It settles when none are left, the tasks
+ * spawned by tasks included. Unlike `waitTasks`, it tells at once whether
+ * there is anything to wait for.
  * @param $of - The signal to wait for.
- * @returns Promise that resolves when no tasks are left.
+ * @returns Promise that resolves when no tasks are left, or nothing when no task is pending.
  */
 /* @__NO_SIDE_EFFECTS__ */
-export async function waitTasks($of: AnyReadableSignal): Promise<void> {
+export function pendingTasks($of: AnyReadableSignal): Promise<void> | undefined {
   const tasks: Promise<unknown>[] = []
   // Tasks of a signal are derived, never stored: a node holds only the
   // tasks attached to it, and the full set is collected by walking the
@@ -69,8 +69,20 @@ export async function waitTasks($of: AnyReadableSignal): Promise<void> {
     }
   }
 
-  if (tasks.length) {
-    await Promise.all(tasks)
-    await waitTasks($of)
-  }
+  // The graph is collected again after every wave, so a task spawned by a
+  // task and a dependency linked by a settled value are awaited too
+  return tasks.length ? Promise.all(tasks).then(() => waitTasks($of)) : undefined
+}
+
+/**
+ * Wait for the tasks of the signal and of every signal it depends on,
+ * until none are left. The dependency graph is re-collected after every
+ * wave, so a task spawned by a task and a dependency linked by a settled
+ * value are awaited too.
+ * @param $of - The signal to wait for.
+ * @returns Promise that resolves when no tasks are left.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export async function waitTasks($of: AnyReadableSignal): Promise<void> {
+  await pendingTasks($of)
 }

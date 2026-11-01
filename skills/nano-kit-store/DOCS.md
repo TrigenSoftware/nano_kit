@@ -1568,6 +1568,8 @@ function User$() {
 
 `task` takes the signal the operation fills (or an array of signals) and a promise or a function that returns one, and returns that promise. `waitTasks($signal)` walks the dependency graph of the signal and waits, wave by wave, until neither the signal nor anything it depends on has tasks left, so a task started by another task and a dependency read only after a value settles are awaited too.
 
+`pendingTasks($signal)` makes the same walk at once and tells whether there is anything to wait for. It returns a promise that settles as `waitTasks` does, or `undefined` when no task is pending. Use it where the answer is needed synchronously. For example, a render can write a value right away when its data is already in, and wait only when it is not.
+
 There is no pool to create or provide: tasks live on the signals they fill, so `dehydrate` waits for exactly the stores it starts, and a test waits for exactly the signal it checks. Queries of `@nano_kit/query` and `resolved` attach their tasks by themselves, so stores built on them need no `task` call.
 
 ## Manual Hydration Flow

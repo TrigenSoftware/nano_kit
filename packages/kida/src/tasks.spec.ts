@@ -15,6 +15,7 @@ import {
 import { record } from './record.js'
 import {
   task,
+  pendingTasks,
   waitTasks
 } from './tasks.js'
 
@@ -249,6 +250,72 @@ describe('kida', () => {
         await waitTasks($data)
 
         expect($data()).toBe(null)
+      })
+
+      it('should resolve at once when no task is pending', async () => {
+        const $a = signal(1)
+
+        await expect(waitTasks($a)).resolves.toBeUndefined()
+      })
+    })
+
+    describe('pendingTasks', () => {
+      it('should give nothing when no task is pending', () => {
+        const $a = signal(1)
+        const $double = computed(() => $a() * 2)
+
+        $double()
+
+        expect(pendingTasks($a)).toBeUndefined()
+        expect(pendingTasks($double)).toBeUndefined()
+      })
+
+      it('should give a promise of the tasks of the signal and of what it depends on', async () => {
+        const $a = signal<number | null>(null)
+        const $double = computed(() => ($a() ?? 0) * 2)
+
+        void task($a, async () => {
+          await Promise.resolve()
+
+          $a(21)
+        })
+
+        $double()
+
+        const pending = pendingTasks($double)
+
+        expect(pending).toBeInstanceOf(Promise)
+
+        await pending
+
+        expect($double()).toBe(42)
+      })
+
+      it('should wait a task spawned by a task', async () => {
+        const $data = mountable(signal(0))
+
+        onStart($data, () => {
+          void task($data, async () => {
+            await Promise.resolve()
+
+            $data(1)
+
+            void task($data, async () => {
+              await Promise.resolve()
+
+              $data(2)
+            })
+          })
+        })
+
+        const stop = start($data)
+
+        await pendingTasks($data)
+
+        expect($data()).toBe(2)
+        expect(pendingTasks($data)).toBeUndefined()
+
+        stop()
       })
     })
   })
