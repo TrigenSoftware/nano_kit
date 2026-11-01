@@ -423,7 +423,16 @@ function isValidLink(checkLink: Link, sub: ReactiveNode): boolean {
   return false
 }
 
-export function pushActiveSub(sub?: ReactiveNode) {
+/**
+ * Make a node the subscriber of what is read and created from here on, until
+ * `popActiveSub` gives the previous one back. A deferred scope made before is
+ * entered so: what the code creates is the scope's, as in the body of
+ * `deferScope`, and a scope entered again and again stays one node.
+ * @internal
+ * @param sub - The node to make active, or nothing to read untracked.
+ * @returns The subscriber that was active before.
+ */
+export function pushActiveSub(sub?: ReactiveNode): ReactiveNode | undefined {
   const prevSub = activeSub
 
   activeSub = sub
@@ -431,7 +440,13 @@ export function pushActiveSub(sub?: ReactiveNode) {
   return prevSub
 }
 
-export function popActiveSub(prevSub?: ReactiveNode) {
+/**
+ * Give back the subscriber that `pushActiveSub` replaced. Called in a
+ * `finally`, it keeps a throw from leaving the node active.
+ * @internal
+ * @param prevSub - The subscriber `pushActiveSub` returned.
+ */
+export function popActiveSub(prevSub?: ReactiveNode): void {
   activeSub = prevSub
 }
 

@@ -20,6 +20,8 @@ export {
 } from './internals/flags.js'
 export {
   untracked,
+  pushActiveSub,
+  popActiveSub,
   createTracker,
   track,
   trigger,
