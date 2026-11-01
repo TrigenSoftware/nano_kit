@@ -33,6 +33,18 @@ import {
   noop
 } from './index.js'
 
+function countLinks(dep: ReactiveNode, sub: ReactiveNode) {
+  let count = 0
+
+  for (let link = dep.subs; link; link = link.nextSub) {
+    if (link.sub === sub) {
+      count++
+    }
+  }
+
+  return count
+}
+
 describe('agera', () => {
   describe('effect', () => {
     it('should clear subscriptions when untracked by all subscribers', () => {
@@ -2212,6 +2224,24 @@ describe('agera', () => {
       stopScope(loopScope)
       itemsDestroy()
     })
+
+    it('should keep one link to a signal read again after a computed was updated', () => {
+      const $count = signal(1)
+      const $other = signal(1)
+      const $double = computed(() => $other() * 2)
+
+      $double()
+      $other(2)
+
+      const scope = deferScope(() => {
+        $count()
+        // The update moves the cycle, and the computed becomes the last link
+        $double()
+        $count()
+      })
+
+      expect(countLinks($count.node, scope as unknown as ReactiveNode)).toBe(1)
+    })
   })
 
   describe('createScope', () => {
@@ -2300,6 +2330,24 @@ describe('agera', () => {
       stopScope(scope)
 
       expect($count.node.subs).toBeUndefined()
+    })
+
+    it('should keep one link to a signal read in every entry of the scope', () => {
+      const $count = signal(1)
+      const $other = signal(1)
+      const scope = deferScope(noop) as unknown as ReactiveNode
+      const tracker = createTracker()
+
+      for (let i = 0; i < 3; i++) {
+        const prevSub = pushActiveSub(scope)
+
+        $count()
+        $other()
+        track(tracker, noop)
+        popActiveSub(prevSub)
+      }
+
+      expect(countLinks($count.node, scope)).toBe(1)
     })
   })
 

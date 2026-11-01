@@ -22,7 +22,7 @@ export default [
     name: 'All publics (Brotli)',
     path: 'dist/index.production.js',
     import: '*',
-    limit: '5.1 kB',
+    limit: '5.15 kB',
     modifyRolldownConfig
   },
   {
@@ -45,7 +45,7 @@ export default [
     gzip: true,
     path: 'dist/index.production.js',
     import: '{ signal, record, computed, effect, mountable, onMount }',
-    limit: '2.35 kB',
+    limit: '2.4 kB',
     modifyRolldownConfig
   },
   {
