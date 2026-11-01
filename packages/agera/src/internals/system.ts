@@ -159,7 +159,13 @@ function link(dep: ReactiveNode, sub: ReactiveNode, version: number): void {
 
   const prevSub = dep.subsTail
 
-  if (prevSub !== undefined && prevSub.version === version && prevSub.sub === sub) {
+  // A scope never runs again, so the link it already has is enough even from
+  // another cycle: reads around a computed or a `track` run add no link each
+  if (
+    prevSub !== undefined
+    && prevSub.sub === sub
+    && (prevSub.version === version || sub.modes & ScopeMode)
+  ) {
     return
   }
 
