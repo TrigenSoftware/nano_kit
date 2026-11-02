@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.6.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.5.0...v2.6.0) (2026-11-02)
+
+### Features
+
+* **agera:** add `createLazyScope` to make an empty deferred scope ([#329](https://github.com/TrigenSoftware/nano_kit/issues/329)) ([c54a72a](https://github.com/TrigenSoftware/nano_kit/commit/c54a72af1b20b84704e350d1a5668f814dd25d47))
+
 ## [2.5.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.4.2...v2.5.0) (2026-11-01)
 
 ### Features
