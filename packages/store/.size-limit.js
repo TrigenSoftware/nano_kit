@@ -15,7 +15,7 @@ export default [
     gzip: true,
     path: 'dist/index.production.js',
     import: '*',
-    limit: '7 kB',
+    limit: '7.05 kB',
     modifyRolldownConfig
   },
   {

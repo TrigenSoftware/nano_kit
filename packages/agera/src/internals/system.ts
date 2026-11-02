@@ -1424,6 +1424,24 @@ export function createScope(parent?: DeferredScope): DeferredScope {
 }
 
 /**
+ * Create an empty deferred scope: lazy, as the body of `deferScope` is,
+ * until `startScope` starts it. What code entered into it with
+ * `pushActiveSub` creates defers and stops with it.
+ * @internal
+ * @param parent - Optional parent scope to link the created scope to.
+ * @returns Deferred scope handle.
+ */
+export function createLazyScope(parent?: DeferredScope): DeferredScope {
+  const e = createScope(parent) as unknown as ReactiveNode
+
+  // The single mint of the token: a deferred scope is lazy wherever it is
+  // created, and everything created in it inherits that
+  e.modes |= LazyMode
+
+  return e as unknown as DeferredScope
+}
+
+/**
  * Defer scope creation to delay its effects execution.
  * @internal
  * @param fn - The deferred scope function to run.
@@ -1431,12 +1449,8 @@ export function createScope(parent?: DeferredScope): DeferredScope {
  * @returns Deferred scope handle.
  */
 export function deferScope(fn: () => void, parent?: DeferredScope): DeferredScope {
-  const e = createScope(parent) as unknown as ReactiveNode
+  const e = createLazyScope(parent) as unknown as ReactiveNode
   const prevSub = pushActiveSub(e)
-
-  // The single mint of the token: a deferred scope is lazy wherever it is
-  // created, and everything the body creates below it inherits that
-  e.modes |= LazyMode
 
   try {
     fn()

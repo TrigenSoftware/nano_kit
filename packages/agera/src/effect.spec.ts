@@ -18,6 +18,7 @@ import {
   mountable,
   onMounted,
   createScope,
+  createLazyScope,
   deferScope,
   boundDeferScope,
   startScope,
@@ -2305,9 +2306,30 @@ describe('agera', () => {
     })
   })
 
+  describe('createLazyScope', () => {
+    it('should not mount what an effect created in it reads', () => {
+      const $a = mountable(signal(1))
+      const log: string[] = []
+      const scope = createLazyScope()
+
+      onMounted($a, mounted => log.push(mounted ? 'mount' : 'unmount'))
+
+      const prevSub = pushActiveSub(scope as unknown as ReactiveNode)
+
+      effect(() => {
+        $a()
+      })
+      log.push('entered')
+      popActiveSub(prevSub)
+      stopScope(scope)
+
+      expect(log).toEqual(['entered'])
+    })
+  })
+
   describe('pushActiveSub', () => {
     it('should make what is created in a deferred scope it enters defer and stop with the scope', () => {
-      const scope = deferScope(noop)
+      const scope = createLazyScope()
       const log: string[] = []
       const prevSub = pushActiveSub(scope as unknown as ReactiveNode)
 
@@ -2330,7 +2352,7 @@ describe('agera', () => {
     })
 
     it('should add to what the scope holds each time it is entered', () => {
-      const scope = deferScope(noop)
+      const scope = createLazyScope()
       const log: string[] = []
       let prevSub = pushActiveSub(scope as unknown as ReactiveNode)
 
@@ -2350,7 +2372,7 @@ describe('agera', () => {
 
     it('should let go of what was read in the scope it enters with the scope', () => {
       const $count = signal(1)
-      const scope = deferScope(noop)
+      const scope = createLazyScope()
       const prevSub = pushActiveSub(scope as unknown as ReactiveNode)
 
       computed(() => $count() * 2)()
@@ -2367,7 +2389,7 @@ describe('agera', () => {
     it('should keep one link to a signal read in every entry of the scope', () => {
       const $count = signal(1)
       const $other = signal(1)
-      const scope = deferScope(noop) as unknown as ReactiveNode
+      const scope = createLazyScope() as unknown as ReactiveNode
       const tracker = createTracker()
 
       for (let i = 0; i < 3; i++) {
