@@ -793,6 +793,31 @@ $t().message
 // ['Read ', <a href='/docs'>the docs</a>, <br />, 'today']
 ```
 
+With a preformat, like `params`, `rich` fills values into the message. It formats each text piece between the tags before the tag handlers get it, so a value is never read as a tag: `<b>` in a name stays text.
+
+```ts
+const translations = {
+  home: {
+    welcome: 'Welcome back, <b>{name}</b>!'
+  }
+}
+
+const [$t] = messages('home', {
+  welcome: rich({
+    b: (chunks, i) => <b key={i}>{chunks}</b>
+  }, params({
+    name: text()
+  }))
+})
+
+$t().welcome({
+  name: 'Ada'
+})
+// ['Welcome back, ', <b>Ada</b>, '!']
+```
+
+The preformat sees one piece at a time, so `plural` and `match`, which choose from the whole message, do not fit there.
+
 ### `markup(tags)` / `markup(fallback, tags)`
 
 Maps lightweight tags to strings.
@@ -806,6 +831,23 @@ const [$t] = messages('docs', {
 
 $t().message
 // 'Read <strong>the docs</strong>'
+```
+
+`markup` takes a preformat the same way. The values land in the string as they are, so escape them in their formats when the string goes into HTML.
+
+```ts
+const [$t] = messages('home', {
+  welcome: markup({
+    b: chunks => `<b>${chunks}</b>`
+  }, params({
+    name: text()
+  }))
+})
+
+$t().welcome({
+  name: 'Ada'
+})
+// 'Welcome back, <b>Ada</b>!'
 ```
 
 ## Wrapping Messages
