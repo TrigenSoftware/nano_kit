@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.7.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.6.0...v2.7.0) (2026-11-05)
+
+### Features
+
+* **intl:** add `choose` to render a value with the format a function picks ([#333](https://github.com/TrigenSoftware/nano_kit/issues/333)) ([f31147e](https://github.com/TrigenSoftware/nano_kit/commit/f31147eb9246b0092b3e9a7fcd0d93497ce2dd1d))
+* **intl:** fill values into rich and markup messages through a preformat ([#331](https://github.com/TrigenSoftware/nano_kit/issues/331)) ([ae0b7cf](https://github.com/TrigenSoftware/nano_kit/commit/ae0b7cf0de88d092ccddc431bacda5ee8ca2c165))
+
 ## [2.6.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.5.0...v2.6.0) (2026-11-02)
 
 ### Features
