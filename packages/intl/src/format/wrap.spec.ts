@@ -107,6 +107,15 @@ describe('intl', () => {
           })).toBe('Ada has 2 plants')
         })
 
+        it('should pass a date of a call made with the value itself as is', () => {
+          const formatDate = wrap(format(datetime({
+            dateStyle: 'medium',
+            timeZone: 'UTC'
+          })), (date, message) => message(date))
+
+          expect(formatDate(ctx)(new Date('2024-01-02T00:00:00.000Z'))).toBe('Jan 2, 2024')
+        })
+
         it('should pass the active locale', () => {
           const format = wrap(params({
             city: text()

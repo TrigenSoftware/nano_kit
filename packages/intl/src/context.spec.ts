@@ -12,6 +12,7 @@ import {
 } from '@nano_kit/store'
 import type { NamespaceLoader } from './types.js'
 import { IntlContext } from './context.js'
+import { choose } from './format/choose.js'
 import { format } from './format/format.js'
 import { number } from './format/number.js'
 import { params } from './format/params.js'
@@ -373,6 +374,27 @@ describe('intl', () => {
         })
 
         expect($t().number(1234.5)).toBe('1,234.5')
+        expect(warn).not.toHaveBeenCalled()
+        warn.mockRestore()
+      })
+
+      it('should not warn about a chosen message', () => {
+        const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+        const ctx = new IntlContext(
+          () => 'en-US',
+          resolved(staticTranslations)
+        )
+        const [$t] = ctx.messages('settings', {
+          number: choose({
+            integer: number({
+              maximumFractionDigits: 0
+            }),
+            decimal: number()
+          }, (t, value: number) => (value > 1000 ? t.integer(value) : t.decimal(value)))
+        })
+
+        expect($t().number(1234.5)).toBe('1,235')
+        expect($t().number(12.5)).toBe('12.5')
         expect(warn).not.toHaveBeenCalled()
         warn.mockRestore()
       })
