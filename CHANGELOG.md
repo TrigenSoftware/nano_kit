@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.8.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.7.0...v2.8.0) (2026-11-05)
+
+### Features
+
+* **query:** add `previous` to run requests one after another ([#334](https://github.com/TrigenSoftware/nano_kit/issues/334)) ([657f856](https://github.com/TrigenSoftware/nano_kit/commit/657f856b38767cf3505c0bfd3c177cf3759ccf19))
+* **router:** support route parameters with listed values like `:tab(posts|plants)?` ([#336](https://github.com/TrigenSoftware/nano_kit/issues/336)) ([fbc8caf](https://github.com/TrigenSoftware/nano_kit/commit/fbc8caf50c5fcb629b894a7011140cec2bd1afe4))
+
 ## [2.7.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.6.0...v2.7.0) (2026-11-05)
 
 ### Features

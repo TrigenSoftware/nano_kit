@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.8.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.4.0...v2.8.0) (2026-11-05)
+
+### Features
+
+* support route parameters with listed values like `:tab(posts|plants)?` ([#336](https://github.com/TrigenSoftware/nano_kit/issues/336)) ([fbc8caf](https://github.com/TrigenSoftware/nano_kit/commit/fbc8caf50c5fcb629b894a7011140cec2bd1afe4))
+
 ## [2.4.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.3.0...v2.4.0) (2026-10-27)
 
 ### Features
