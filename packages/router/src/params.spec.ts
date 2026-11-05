@@ -90,7 +90,7 @@ describe('router', () => {
         expect($tags()).toEqual(['vue', 'angular'])
       })
 
-      it('should handle empty string parameters', () => {
+      it('should return undefined for a missing optional parameter', () => {
         const [$location, navigation] = virtualNavigation('/', {
           page: '/page/:optional?'
         })
@@ -99,7 +99,7 @@ describe('router', () => {
 
         const $optional = param($location, 'optional')
 
-        expect($optional()).toBe('')
+        expect($optional()).toBeUndefined()
       })
 
       it('should work with splat parameters', () => {

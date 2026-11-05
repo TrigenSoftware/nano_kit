@@ -290,5 +290,64 @@ describe('router', () => {
         section: 'settings'
       })).toBe('/users/123/profile/settings')
     })
+
+    it('should skip an optional parameter passed as undefined', () => {
+      const routes = {
+        post: '/posts/:id/:slug?'
+      } as const
+      const paths = buildPaths(routes)
+
+      expect(paths.post({
+        id: '42',
+        slug: undefined
+      })).toBe('/posts/42')
+    })
+
+    it('should build routes with parameters limited to listed values', () => {
+      const routes = {
+        about: '/:lang(en|ja)/about',
+        garden: '/pub/:gardenId/:tab(posts|plants)?'
+      } as const
+      const paths = buildPaths(routes)
+
+      expect(paths.about({
+        lang: 'ja'
+      })).toBe('/ja/about')
+      expect(paths.garden({
+        gardenId: '1'
+      })).toBe('/pub/1')
+      expect(paths.garden({
+        gardenId: '1',
+        tab: 'posts'
+      })).toBe('/pub/1/posts')
+    })
+
+    it('should type a parameter limited to listed values by those values', () => {
+      const routes = {
+        garden: '/pub/:gardenId/:tab(posts|plants)?'
+      } as const
+      const paths = buildPaths(routes)
+
+      expect(paths.garden({
+        gardenId: '1',
+        // @ts-expect-error `users` is not listed in the route
+        tab: 'users'
+      })).toBe('/pub/1/users')
+    })
+
+    it('should not warn when an optional parameter limited to listed values is missing', () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const routes = {
+        garden: '/pub/:gardenId/:tab(posts|plants)?'
+      } as const
+      const paths = buildPaths(routes)
+
+      expect(paths.garden({
+        gardenId: '1'
+      })).toBe('/pub/1')
+      expect(warn).not.toHaveBeenCalled()
+
+      warn.mockRestore()
+    })
   })
 })

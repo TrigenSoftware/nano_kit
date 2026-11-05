@@ -223,6 +223,24 @@ navigation.push('/posts/42/hello-world')
 console.log($slug()) // ['hello', 'world']
 ```
 
+An optional parameter missing from the path is `undefined`.
+
+A parameter can list its allowed values in parentheses, as in URLPattern. The route matches only these values, and the parameter is typed as their union, so one route can serve several paths:
+
+```ts
+const [$location, navigation] = browserNavigation({
+  garden: '/gardens/:id/:tab(posts|plants)?'
+})
+
+const $tab = param($location, 'tab') // 'posts' | 'plants' | undefined
+
+navigation.push('/gardens/1')        // $tab() === undefined
+navigation.push('/gardens/1/plants') // $tab() === 'plants'
+navigation.push('/gardens/1/users')  // no route matches
+```
+
+Values may contain letters, digits, `-` and `_`. Like the rest of the path, they match regardless of case, and the parameter holds the value as written in the address.
+
 ### Query Parameters
 
 #### searchParams
@@ -443,6 +461,7 @@ const routes = {
   about: '/about',
   user: '/users/:id',
   post: '/posts/:id/:slug?',
+  garden: '/gardens/:id/:tab(posts|plants)?',
   files: '/files/*'
 } as const
 
@@ -456,6 +475,11 @@ paths.about // '/about'
 paths.user({ id: '123' })                     // '/users/123'
 paths.post({ id: '42', slug: 'hello-world' }) // '/posts/42/hello-world'
 paths.post({ id: '42' })                      // '/posts/42' (optional slug omitted)
+paths.post({ id: '42', slug: undefined })     // '/posts/42' (undefined is omitted too)
+
+/* Parameters with listed values accept only these values */
+paths.garden({ id: '1', tab: 'plants' })      // '/gardens/1/plants'
+paths.garden({ id: '1' })                     // '/gardens/1'
 
 /* Splat routes */
 paths.files({ splat: 'docs/readme.md' })  // '/files/docs/readme.md'

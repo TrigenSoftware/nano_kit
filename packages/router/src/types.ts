@@ -39,15 +39,19 @@ type PathToParams<PathArray, Value = string, Params = {}> = PathArray extends [
   infer First,
   ...infer Rest
 ]
-  ? First extends `:${infer Param}`
-    ? First extends `:${infer Param}?`
-      ? PathToParams<Rest, Value, Params & Partial<Record<Param, Value>>>
-      : PathToParams<Rest, Value, Params & Record<Param, Value>>
-    : Rest extends []
-      ? First extends '*'
-        ? Params & { splat: Value }
+  ? First extends `:${infer Param}(${infer Values})${infer Modifier}`
+    ? Modifier extends '?'
+      ? PathToParams<Rest, Value, Params & Partial<Record<Param, Split<Values, '|'>[number]>>>
+      : PathToParams<Rest, Value, Params & Record<Param, Split<Values, '|'>[number]>>
+    : First extends `:${infer Param}`
+      ? First extends `:${infer Param}?`
+        ? PathToParams<Rest, Value, Params & Partial<Record<Param, Value>>>
+        : PathToParams<Rest, Value, Params & Record<Param, Value>>
+      : Rest extends []
+        ? First extends '*'
+          ? Params & { splat: Value }
+          : PathToParams<Rest, Value, Params>
         : PathToParams<Rest, Value, Params>
-      : PathToParams<Rest, Value, Params>
   : Params
 
 type Simplify<T> = {
