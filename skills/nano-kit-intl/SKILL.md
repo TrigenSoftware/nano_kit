@@ -45,6 +45,7 @@ metadata:
 - A scheme entry is needed only where a key needs a format: parameters, plural forms, cases, Intl formatting. Keys without a format come back raw and typed from the translation data.
 - Logic deciding how a message renders from its parameters, like a template that applies only when every part is present, belongs in the scheme through `wrap(...)`, not in helpers at the call sites: every call site then renders the same and keeps the inferred message type. Variants that translators word differently stay `match` or `plural` cases.
 - `format(...)` messages format application values and take a value argument; `params(...)` messages fill placeholders in translated text and take an object of parameters. Do not mix them up. Pass application state to a `format()` message as the signal itself, `$t.eventDate($startsAt)`: the message follows it, and `null` formats like a missing value while the data loads.
+- A rich message with values takes `params` as its preformat, `rich(tags, params({ ... }))`: each text piece is formatted before the tag handlers get it, so values never turn into tags. `params(..., rich(...))` does not work: `params` fills strings and `rich` returns chunks.
 
 ## Locale
 

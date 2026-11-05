@@ -8,6 +8,8 @@ import {
   mapTags,
   rich
 } from './rich.js'
+import { params } from './params.js'
+import { text } from './text.js'
 
 const ctx = {} as FormatContext
 
@@ -199,6 +201,77 @@ describe('intl', () => {
             children: ['second']
           }
         ])
+      })
+
+      it('should format text pieces with the given formatter', () => {
+        expect(mapTags('Read <link>guidelines</link>.', tags, piece => piece.toUpperCase())).toEqual([
+          'READ ',
+          {
+            type: 'link',
+            children: ['GUIDELINES']
+          },
+          '.'
+        ])
+      })
+
+      it('should format each text piece with the preformat', () => {
+        const format = rich(tags, params({
+          name: text(),
+          count: text()
+        }))
+
+        expect(format(ctx, '<strong>{name}</strong> leads with {count}')({
+          name: 'Rosa',
+          count: '3'
+        })).toEqual([
+          {
+            type: 'strong',
+            children: ['Rosa']
+          },
+          ' leads with 3'
+        ])
+      })
+
+      it('should keep tags in preformatted values as text', () => {
+        const format = rich(tags, params({
+          name: text()
+        }))
+
+        expect(format(ctx, 'By <strong>{name}</strong>')({
+          name: 'Tom <link>Jerry</link>'
+        })).toEqual([
+          'By ',
+          {
+            type: 'strong',
+            children: ['Tom <link>Jerry</link>']
+          }
+        ])
+      })
+
+      it('should format fallback messages with the preformat', () => {
+        const format = rich('By <strong>{name}</strong>', tags, params({
+          name: text()
+        }))
+
+        expect(format(ctx)({
+          name: 'Ada'
+        })).toEqual([
+          'By ',
+          {
+            type: 'strong',
+            children: ['Ada']
+          }
+        ])
+      })
+
+      it('should return undefined from the message of empty input without fallback', () => {
+        const format = rich(tags, params({
+          name: text()
+        }))
+
+        expect(format(ctx)({
+          name: 'Ada'
+        })).toBeUndefined()
       })
     })
   })

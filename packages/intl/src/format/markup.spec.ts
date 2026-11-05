@@ -5,6 +5,8 @@ import {
 } from 'vitest'
 import type { FormatContext } from '../types.js'
 import { markup } from './markup.js'
+import { params } from './params.js'
+import { text } from './text.js'
 
 const ctx = {} as FormatContext
 const tags = {
@@ -55,6 +57,36 @@ describe('intl', () => {
         const format = markup(tags)
 
         expect(format(ctx, 'Read <link>guidelines.')).toBe('Read guidelines.')
+      })
+
+      it('should format each text piece with the preformat', () => {
+        const format = markup(tags, params({
+          name: text()
+        }))
+
+        expect(format(ctx, 'By <strong>{name}</strong>.')({
+          name: 'Ada'
+        })).toBe('By <strong>Ada</strong>.')
+      })
+
+      it('should keep tags in preformatted values as text', () => {
+        const format = markup(tags, params({
+          name: text()
+        }))
+
+        expect(format(ctx, 'By <strong>{name}</strong>')({
+          name: '<link>Tom</link>'
+        })).toBe('By <strong><link>Tom</link></strong>')
+      })
+
+      it('should format fallback messages with the preformat', () => {
+        const format = markup('By <strong>{name}</strong>', tags, params({
+          name: text()
+        }))
+
+        expect(format(ctx)({
+          name: 'Ada'
+        })).toBe('By <strong>Ada</strong>')
       })
     })
   })
