@@ -43,10 +43,10 @@ function createPatternRegex(pattern: string) {
     removeTrailingSlash(pattern)
       // Escape all special regex characters
       .replace(/[\s!#$()+,.:<=?[\\\]^{|}]/g, '\\$&')
-      // /:param? -> (?:/(?<param>(?<=/)[^/]+))?
-      .replace(/\/\\:(\w+)\\\?/g, '(?:/(?<$1>(?<=/)[^/]+))?')
-      // /:param -> /(?<param>[^/]+)
-      .replace(/\/\\:(\w+)/g, '/(?<$1>[^/]+)')
+      // /:param -> (?:/(?<param>[^/]+)), /:param(a|b) -> (?:/(?<param>a|b)), with ? after the group when optional
+      .replace(/\/\\:(\w+)(?:\\\((.+?)\\\))?(\\\?)?/g, (_, param: string, values?: string, optional?: string) => `(?:/(?<${param}>${
+        values ? values.replace(/\\/g, '') : '[^/]+'
+      }))${optional ? '?' : ''}`)
       // /* - > (?:/(?<splat>.+))?$
       .replace(/\/\*$/g, '(?:/(?<splat>.+))?$')
   }/?$`, 'i')
@@ -63,9 +63,10 @@ function patternMatcher(this: RegExp, route: string, path: string) {
 
   if (matches.groups) {
     Object.entries(matches.groups).forEach(([key, value]) => {
-      params[key] = value
-        ? decodeURIComponent(value)
-        : ''
+      // An optional parameter missing from the path stays undefined
+      if (value) {
+        params[key] = decodeURIComponent(value)
+      }
     })
   }
 

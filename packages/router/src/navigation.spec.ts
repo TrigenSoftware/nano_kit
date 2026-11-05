@@ -80,10 +80,9 @@ describe('router', () => {
         navigation.push('/blog')
         expect($location()).toMatchObject({
           route: 'blog',
-          params: {
-            page: ''
-          }
+          params: {}
         })
+        expect($location().params).not.toHaveProperty('page')
 
         navigation.push('/blog/2')
         expect($location()).toMatchObject({
@@ -97,10 +96,10 @@ describe('router', () => {
         expect($location()).toMatchObject({
           route: 'category',
           params: {
-            slug: 'tech',
-            page: ''
+            slug: 'tech'
           }
         })
+        expect($location().params).not.toHaveProperty('page')
 
         navigation.push('/blog/category/tech/3')
         expect($location()).toMatchObject({
@@ -108,6 +107,65 @@ describe('router', () => {
           params: {
             slug: 'tech',
             page: '3'
+          }
+        })
+      })
+
+      it('should match routes with parameters limited to listed values', () => {
+        const [$location, navigation] = virtualNavigation('/', {
+          about: '/:lang(en|ja)/about'
+        })
+
+        navigation.push('/ja/about')
+        expect($location()).toMatchObject({
+          route: 'about',
+          params: {
+            lang: 'ja'
+          }
+        })
+
+        navigation.push('/de/about')
+        expect($location().route).toBe(null)
+      })
+
+      it('should match routes with optional parameters limited to listed values', () => {
+        const [$location, navigation] = virtualNavigation('/', {
+          garden: '/pub/:gardenId/:tab(posts|plants)?'
+        })
+
+        navigation.push('/pub/1')
+        expect($location()).toMatchObject({
+          route: 'garden',
+          params: {
+            gardenId: '1'
+          }
+        })
+        expect($location().params).not.toHaveProperty('tab')
+
+        navigation.push('/pub/1/plants')
+        expect($location()).toMatchObject({
+          route: 'garden',
+          params: {
+            gardenId: '1',
+            tab: 'plants'
+          }
+        })
+
+        navigation.push('/pub/1/users')
+        expect($location().route).toBe(null)
+      })
+
+      it('should match listed values regardless of case', () => {
+        const [$location, navigation] = virtualNavigation('/', {
+          garden: '/pub/:gardenId/:tab(posts|plants)?'
+        })
+
+        navigation.push('/pub/1/POSTS')
+        expect($location()).toMatchObject({
+          route: 'garden',
+          params: {
+            gardenId: '1',
+            tab: 'POSTS'
           }
         })
       })

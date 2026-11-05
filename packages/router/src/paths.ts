@@ -24,17 +24,17 @@ function partToFunction(this: string, part: string, i: number) {
             ? `/${params.splat}`
             : ''
         )
-        : (params: Record<string, string | number> = {}) => (
-          part in params
+        : (params: Record<string, string | number | undefined> = {}) => (
+          params[part] !== undefined
             ? `/${encodeURIComponent(params[part])}`
-            : (import.meta.env.DEV && !this.includes(`:${part}?`) && console.warn(`[nano_kit/router] Route parameter "${part}" is missing: the path is built without it`), '')
+            : (import.meta.env.DEV && !new RegExp(`:${part}\\b[^/]*\\?`).test(this) && console.warn(`[nano_kit/router] Route parameter "${part}" is missing: the path is built without it`), '')
         )
   )
 }
 
 function patternToFunction(pattern: string) {
   const parts = pattern
-    .split(/\/(?::(\w+)\??|\*)/g)
+    .split(/\/(?::(\w+)(?:\(.+?\))?\??|\*)/g)
     .map(partToFunction, pattern)
 
   return execPattern.bind(parts)
