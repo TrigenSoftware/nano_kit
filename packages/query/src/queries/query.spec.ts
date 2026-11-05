@@ -21,6 +21,7 @@ import {
   onEveryError
 } from '../ClientContext.js'
 import { client } from '../client.js'
+import { previous } from '../RequestContext.js'
 import {
   type Post,
   type PostsPage,
@@ -94,6 +95,42 @@ describe('query', () => {
         await waitTasks($data)
 
         expect(dataSpy).toHaveBeenCalledTimes(4)
+        expect($data()?.title).toBe('Second Post')
+
+        off()
+      })
+
+      it('should run requests one after another with previous', async () => {
+        const { query } = client()
+        const $postId = signal(1)
+        const calls: string[] = []
+        const [$data, , $loading] = query(PostKey, [$postId], async (id, ctx) => {
+          await previous(ctx)
+
+          calls.push(`start ${id}`)
+
+          await new Promise(resolve => setTimeout(resolve, id === 1 ? 20 : 0))
+
+          calls.push(`end ${id}`)
+
+          return getPost(id)
+        })
+        const off = effect(() => {
+          $data()
+        })
+
+        $postId(2)
+
+        expect($loading()).toBe(true)
+
+        await waitTasks($data)
+
+        expect(calls).toEqual([
+          'start 1',
+          'end 1',
+          'start 2',
+          'end 2'
+        ])
         expect($data()?.title).toBe('Second Post')
 
         off()

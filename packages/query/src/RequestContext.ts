@@ -12,12 +12,12 @@ export class RequestContext<T> {
   onError: OnError | undefined = undefined
   onSettled: OnSettled<T> | undefined = undefined
   stopErrorPropagation = false
-  prevCtx: RequestContext<T> | undefined = undefined
+  // Not typed by T: a field of T would make the context invariant
+  promise: Promise<unknown> | undefined = undefined
+  prevCtx: RequestContext<T> | undefined
 
   constructor(prevCtx?: RequestContext<T>) {
-    if (this.prevCtx = prevCtx) {
-      prevCtx.prevCtx = undefined
-    }
+    this.prevCtx = prevCtx
   }
 
   settled(data: T | undefined, error: unknown) {
@@ -84,4 +84,15 @@ export function onSettled<T>(ctx: RequestContext<T>, fn: OnSettled<T>) {
  */
 export function stopErrorPropagation<T>(ctx: RequestContext<T>) {
   ctx.stopErrorPropagation = true
+}
+
+/**
+ * Get the promise of the previous request to wait for it.
+ * It never rejects: it resolves with the result of the previous request, or with undefined if that request was aborted.
+ * @param ctx - The request context.
+ * @returns The promise of the previous request, or undefined if there is none.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function previous<T>(ctx: RequestContext<T>) {
+  return ctx.prevCtx?.promise as Promise<readonly [T | undefined, unknown] | undefined> | undefined
 }

@@ -9,13 +9,15 @@ import {
   dataCacheFacade
 } from './cache.js'
 import { CacheStorage } from './CacheStorage.js'
+import { ClientContext } from './ClientContext.js'
 import {
   RequestContext,
   QueryContext,
   onSuccess,
   onError,
   onSettled,
-  stopErrorPropagation
+  stopErrorPropagation,
+  previous
 } from './RequestContext.js'
 
 describe('query', () => {
@@ -185,6 +187,64 @@ describe('query', () => {
         stopErrorPropagation(ctx)
 
         expect(ctx.stopErrorPropagation).toBe(true)
+      })
+    })
+
+    describe('previous', () => {
+      it('should return undefined without a previous request', () => {
+        expect(previous(new RequestContext())).toBeUndefined()
+      })
+
+      it('should return the promise of the previous request', () => {
+        const clientCtx = new ClientContext<string>()
+        const prevCtx = new RequestContext<string>()
+        const promise = clientCtx.run(prevCtx, () => Promise.resolve('result'), () => {})
+
+        expect(previous(new RequestContext(prevCtx))).toBe(promise)
+      })
+
+      it('should resolve with the result of the previous request', async () => {
+        const clientCtx = new ClientContext<string>()
+        const prevCtx = new RequestContext<string>()
+
+        void clientCtx.run(prevCtx, () => Promise.resolve('result'), () => {})
+
+        expect(await previous(new RequestContext(prevCtx))).toEqual(['result', undefined])
+      })
+
+      it('should resolve with the error of the failed previous request', async () => {
+        const clientCtx = new ClientContext<string>()
+        const prevCtx = new RequestContext<string>()
+        const error = new Error('test error')
+
+        void clientCtx.run(prevCtx, () => Promise.reject(error), () => {})
+
+        expect(await previous(new RequestContext(prevCtx))).toEqual([undefined, error])
+      })
+
+      it('should keep the previous request when the next one starts', () => {
+        const clientCtx = new ClientContext<string>()
+        const firstCtx = new RequestContext<string>()
+        const firstPromise = clientCtx.run(firstCtx, () => Promise.resolve('first'), () => {})
+        const secondCtx = new RequestContext(firstCtx)
+        const secondPromise = clientCtx.run(secondCtx, () => Promise.resolve('second'), () => {})
+        const thirdCtx = new RequestContext(secondCtx)
+
+        expect(previous(secondCtx)).toBe(firstPromise)
+        expect(previous(thirdCtx)).toBe(secondPromise)
+      })
+
+      it('should drop the previous request once the request settles', async () => {
+        const clientCtx = new ClientContext<string>()
+        const prevCtx = new RequestContext<string>()
+
+        void clientCtx.run(prevCtx, () => Promise.resolve('first'), () => {})
+
+        const ctx = new RequestContext(prevCtx)
+
+        await clientCtx.run(ctx, () => Promise.resolve('second'), () => {})
+
+        expect(previous(ctx)).toBeUndefined()
       })
     })
 

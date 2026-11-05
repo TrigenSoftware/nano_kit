@@ -292,6 +292,7 @@ Query and mutation fetcher functions receive request context as last parameter. 
 - `onError(ctx, fn)` - register error callback
 - `onSettled(ctx, fn)` - register settled callback
 - `stopErrorPropagation(ctx)` - stop error propagation to global `onEveryError` handler
+- `previous(ctx)` - get the promise of the previous request to wait for it
 
 ```ts
 import { client, mutations, onSuccess, onError, onSettled, stopErrorPropagation } from '@nano_kit/query'
@@ -337,6 +338,35 @@ const [$tags, $tagsError] = query(TagsKey, [$postId], async (postId, ctx) => {
   return [...new Set(prevTags.concat(newTags))]
 })
 ```
+
+### Waiting for the Previous Request
+
+`previous(ctx)` returns the promise of the previous request of the same query, operation or mutation, or `undefined` if there is none. Await it to run requests one after another, for example to send autosaves in the order they were made:
+
+```ts
+import { client, mutations, dedupe, previous } from '@nano_kit/query'
+
+const { mutation } = client(mutations())
+/* ... */
+const [savePost] = mutation<[params: UpdatePostParams], Post>(
+  async (params, ctx) => {
+    /* Start once the previous save has settled */
+    await previous(ctx)
+
+    return PostsService.update(params)
+  },
+  [
+    /* Queue calls made during a save instead of dropping them */
+    dedupe(false)
+  ]
+)
+```
+
+The promise never rejects: it resolves with the `[data, error]` result of the previous request, or with `undefined` if that request was aborted, so a failed request does not stop the next ones.
+
+Mutations and operations drop a call made while a request is in flight, so disable deduplication by loading state with `dedupe(false)` to queue such calls. Queries and infinite queries need no extra settings: a request for new parameters is never dropped, and `$loading` stays `true` while it waits.
+
+With `abortable`, take `abortSignal(ctx)` before awaiting `previous(ctx)` to be able to abort a request that is still waiting.
 
 ## Operations
 

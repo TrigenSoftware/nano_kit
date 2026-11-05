@@ -15,6 +15,7 @@ import {
   client,
   infinites
 } from '../client.js'
+import { previous } from '../RequestContext.js'
 import type { InfinitePages } from './infinite.js'
 import {
   type PostsPage,
@@ -236,6 +237,48 @@ describe('query', () => {
 
         expect(dataSpy).toHaveBeenCalledTimes(4)
         expect(fetcher).toHaveBeenCalledTimes(2)
+        expect($data()?.pages).toHaveLength(1)
+
+        off()
+      })
+
+      it('should run requests one after another with previous', async () => {
+        const PostsWithCategoryKey = queryKey<[category: string], InfinitePages<PostsPage, number>>('posts-category')
+        const { infinite } = client(infinites())
+        const $category = signal('tech')
+        const calls: string[] = []
+        const [, $data, , $loading] = infinite(
+          PostsWithCategoryKey,
+          [$category],
+          page => page.nextCursor,
+          async (category, cursor, ctx) => {
+            await previous(ctx)
+
+            calls.push(`start ${category}`)
+
+            await new Promise(resolve => setTimeout(resolve, category === 'tech' ? 20 : 0))
+
+            calls.push(`end ${category}`)
+
+            return getPosts(cursor)
+          }
+        )
+        const off = effect(() => {
+          $data()
+        })
+
+        $category('sports')
+
+        expect($loading()).toBe(true)
+
+        await waitTasks($data)
+
+        expect(calls).toEqual([
+          'start tech',
+          'end tech',
+          'start sports',
+          'end sports'
+        ])
         expect($data()?.pages).toHaveLength(1)
 
         off()

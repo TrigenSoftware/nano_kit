@@ -62,7 +62,10 @@ export class ClientContext<T = unknown> extends CacheStorage {
       mapError
     } = this
 
-    return this.task(settle(start(), (data, error) => {
+    return requestCtx.promise = this.task(settle(start(), (data, error) => {
+      // Unlink the previous request: the chain holds only requests in flight
+      requestCtx.prevCtx = undefined
+
       if (error && interrupt?.(error)) {
         return
       }

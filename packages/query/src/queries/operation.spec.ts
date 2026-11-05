@@ -25,6 +25,7 @@ import {
   updatePost
 } from '../client.mock.js'
 import { dedupe } from '../ClientContext.js'
+import { previous } from '../RequestContext.js'
 
 const PostKey = queryKey<[id: number], Post | null>('post')
 const UpdatePostKey = operationKey<[id: number], [params: UpdatePostParams], Post | null>('updatePost')
@@ -226,6 +227,47 @@ describe('query', () => {
         expect($loading()).toBe(false)
 
         off()
+      })
+
+      it('should run requests one after another with previous', async () => {
+        const { operation } = client(operations())
+        const $postId = signal(1)
+        const calls: string[] = []
+        const [update, $data, , $loading] = operation(
+          UpdatePostKey,
+          [$postId],
+          async (id, params, ctx) => {
+            await previous(ctx)
+
+            calls.push(`start ${params.title}`)
+
+            await new Promise(resolve => setTimeout(resolve, params.title === 'First' ? 20 : 0))
+
+            calls.push(`end ${params.title}`)
+
+            return updatePost(id, params)
+          },
+          [dedupe(false)]
+        )
+        const promise = update({
+          title: 'First'
+        })
+        const promise2 = update({
+          title: 'Second'
+        })
+
+        expect($loading()).toBe(true)
+
+        await Promise.all([promise, promise2])
+
+        expect(calls).toEqual([
+          'start First',
+          'end First',
+          'start Second',
+          'end Second'
+        ])
+        expect($data()?.title).toBe('Second')
+        expect($loading()).toBe(false)
       })
     })
   })

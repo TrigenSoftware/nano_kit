@@ -16,9 +16,11 @@ import {
 } from '../ClientContext.js'
 import type { ClientSetting } from '../client.types.js'
 import {
+  type RequestContext,
   onSuccess,
   onError,
-  onSettled
+  onSettled,
+  previous
 } from '../RequestContext.js'
 import {
   client,
@@ -234,6 +236,46 @@ describe('query', () => {
         expect($data()?.title).toBe('Second')
 
         off()
+      })
+
+      it('should run mutations one after another with previous', async () => {
+        const { mutation } = client(mutations())
+        const calls: string[] = []
+        const [mutate, $data, , $loading] = mutation(
+          async (params: CreatePostParams, ctx: RequestContext<Post>) => {
+            await previous(ctx)
+
+            calls.push(`start ${params.title}`)
+
+            await new Promise(resolve => setTimeout(resolve, params.title === 'First' ? 20 : 0))
+
+            calls.push(`end ${params.title}`)
+
+            return createPost(params)
+          },
+          [dedupe(false)]
+        )
+        const promise = mutate({
+          title: 'First',
+          content: ''
+        })
+        const promise2 = mutate({
+          title: 'Second',
+          content: ''
+        })
+
+        expect($loading()).toBe(true)
+
+        await Promise.all([promise, promise2])
+
+        expect(calls).toEqual([
+          'start First',
+          'end First',
+          'start Second',
+          'end Second'
+        ])
+        expect($data()?.title).toBe('Second')
+        expect($loading()).toBe(false)
       })
 
       it('should call onSuccess callback', async () => {

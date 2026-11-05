@@ -99,6 +99,20 @@ describe('query', () => {
 
           expect(prevSignal.aborted).toBe(true)
         })
+
+        it('should abort previous RequestContext when the next one has started', () => {
+          const prevCtx = new RequestContext()
+          const ctx = new RequestContext(prevCtx)
+          const nextCtx = new RequestContext(ctx)
+          const prevSignal = abortSignal(prevCtx)
+          const signal = abortSignal(ctx)
+
+          abortPrevious(nextCtx)
+          abortPrevious(ctx)
+
+          expect(signal.aborted).toBe(true)
+          expect(prevSignal.aborted).toBe(true)
+        })
       })
 
       describe('abortable setting', () => {
