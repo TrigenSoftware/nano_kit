@@ -77,5 +77,6 @@ metadata:
 
 - A query without an observer never fetches. Return its data signal to the UI or `start` it; `await` on it does nothing.
 - `mutate` resolves to `undefined` when the call was muted (a call still loading, or the mutation disabled). Destructure with a fallback or check the loading state first.
+- To run calls one after another, `await previous(ctx)` in the fetcher and give mutations and operations `dedupe(false)`: otherwise a call made while one is in flight is dropped before it can wait.
 - Reading the cache with `$data(key)` inside an effect subscribes the effect to that entry; use an untracked read for one-off reads in actions.
 - Entities normalize only what the mapper captures; nested records that are not captured stay plain copies.
