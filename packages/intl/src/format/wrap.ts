@@ -1,9 +1,9 @@
 import {
   type Accessor,
   type SignalishValue,
-  $get,
   isFunction
 } from '@nano_kit/store'
+import { read } from '../utils.js'
 import type {
   AnyFormat,
   Format
@@ -11,12 +11,15 @@ import type {
 
 export type WrapValues<A> = A extends Accessor<infer V>
   ? V
-  : A extends object
+  : A extends Record<string, unknown>
     ? {
       [K in keyof A]: SignalishValue<A[K]>
     }
     : A
 
+/**
+ * @todo Pass the message first at the next major, `[message, values, locale]`, like the value form and `choose`
+ */
 export type WrapArgs<R> = [R] extends [(arg: infer A) => unknown]
   ? [values: WrapValues<A>, message: R, locale: string]
   : [message: R, locale: string]
@@ -24,20 +27,6 @@ export type WrapArgs<R> = [R] extends [(arg: infer A) => unknown]
 export type Wrapped<R, O> = [R] extends [(arg: infer A) => unknown]
   ? (arg: A) => O
   : O
-
-function read(arg: unknown) {
-  if (typeof arg !== 'object' || !arg) {
-    return $get(arg)
-  }
-
-  const values: Record<string, unknown> = {}
-
-  for (const key in arg) {
-    values[key] = $get((arg as Record<string, unknown>)[key])
-  }
-
-  return values
-}
 
 /**
  * Creates a formatter that wraps a message with a function deciding what it renders.

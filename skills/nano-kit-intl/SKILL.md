@@ -46,6 +46,7 @@ metadata:
 - Logic deciding how a message renders from its parameters, like a template that applies only when every part is present, belongs in the scheme through `wrap(...)`, not in helpers at the call sites: every call site then renders the same and keeps the inferred message type. Variants that translators word differently stay `match` or `plural` cases.
 - `format(...)` messages format application values and take a value argument; `params(...)` messages fill placeholders in translated text and take an object of parameters. Do not mix them up. Pass application state to a `format()` message as the signal itself, `$t.eventDate($startsAt)`: the message follows it, and `null` formats like a missing value while the data loads.
 - A rich message with values takes `params` as its preformat, `rich(tags, params({ ... }))`: each text piece is formatted before the tag handlers get it, so values never turn into tags. `params(..., rich(...))` does not work: `params` fills strings and `rich` returns chunks.
+- A value shown in one of several formats depending on the value itself, like a recent time as relative and an older one as a date, is `choose(formats, (t, value) => ...)`: the function calls the format it picks. `match` with a computed key does not fit: it reads translations and takes a `Date` for an object of parameters.
 
 ## Locale
 

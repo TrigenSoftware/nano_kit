@@ -162,9 +162,65 @@ $eventDate()
 // 'Jan 2, 2024'
 ```
 
+### `choose(formats, fn)`
+
+Use `choose()` when the format of a value depends on the value itself, like a recent time shown as relative and an older one as a date. The function receives the formats bound to the active locale, the value of the call and the active locale. It calls the format it picks, with the value that format needs, or returns something else.
+
+```ts
+const [$t] = messages('post', {
+  updated: choose({
+    time: relativetime({
+      numeric: 'auto',
+      smallestUnit: 'minute'
+    }),
+    date: datetime({
+      month: 'short',
+      day: 'numeric'
+    }),
+    year: datetime({
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    })
+  }, (t, date: Date) => {
+    const now = new Date()
+
+    if (now.getTime() - date.getTime() < 60 * 60 * 1000) {
+      return t.time(date)
+    }
+
+    return date.getFullYear() === now.getFullYear() ? t.date(date) : t.year(date)
+  })
+})
+
+$t().updated(post.updatedAt)
+// '5 minutes ago', 'Mar 4' or 'Mar 4, 2020'
+```
+
+Like `format()`, the message reads a signal or an accessor passed as the value, so `$t.updated($updatedAt)` follows `$updatedAt`. A plain object passed instead has each of its values read, for a function that needs several:
+
+```ts
+const [$t] = messages('post', {
+  updated: choose({
+    short: datetime({
+      month: 'short',
+      day: 'numeric'
+    }),
+    long: datetime({
+      dateStyle: 'long'
+    })
+  }, (t, values: { at: Date, compact: boolean }) => (values.compact ? t.short(values.at) : t.long(values.at)))
+})
+
+$t.updated({
+  at: $updatedAt,
+  compact: true
+})
+```
+
 ## Intl Formats
 
-Intl formats can be used inside `params(...)` for translated templates, or wrapped with `format(...)` when the value comes from runtime state, API data, or a database.
+Intl formats can be used inside `params(...)` for translated templates, or wrapped with `format(...)` or `choose(...)` when the value comes from runtime state, API data, or a database.
 
 A fallback is always passed together with options, for example `number(0, {})` or `datetime(fallback, false)`: a lone argument is always read as options.
 
