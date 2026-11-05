@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.8.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.0.0...v2.8.0) (2026-11-05)
+
+### Features
+
+* add `previous` to run requests one after another ([#334](https://github.com/TrigenSoftware/nano_kit/issues/334)) ([657f856](https://github.com/TrigenSoftware/nano_kit/commit/657f856b38767cf3505c0bfd3c177cf3759ccf19))
+
 ## [2.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v1.2.0...v2.0.0) (2026-10-21)
 
 ### Nano Kit 2.0 🎉
