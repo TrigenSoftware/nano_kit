@@ -373,6 +373,31 @@ $error(PostKey(1), 'Failed to load post')
 
 Both `$data(key, value)` and `$error(key, value)` return a function that restores the previous cached value. This is useful for optimistic updates: write the optimistic value immediately, then call the returned function in an error callback.
 
+Restoring the previous value also drops everything written after it. When other writes can reach the same entry in the meantime, such as a like pressed while a post is being saved, pass `$data` a third argument that undoes only this change. It receives the current and the previous data, either of which can be `null`:
+
+```ts
+const revert = $data(
+  PostKey(1),
+  post => post && ({ ...post, title: 'New title' }),
+  (current, prev) => current && ({ ...current, ...prev && { title: prev.title } })
+)
+
+/* Puts the title back, likes added since stay */
+revert()
+```
+
+Previous data is `null` when the entry had none at the time of the write, so whatever it holds now came later. The spread above keeps it, while `current && prev && { ... }` would clear it.
+
+A key of a whole shard writes to every entry, so there `undo` receives only the current data, which is enough for an inverse operation:
+
+```ts
+const revert = $data(
+  PostKey,
+  post => post && ({ ...post, views: post.views + 1 }),
+  post => post && ({ ...post, views: post.views - 1 })
+)
+```
+
 #### Revalidating Cache
 
 Use `revalidate()` to mark cache entries as stale, triggering active queries to refetch:

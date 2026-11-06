@@ -10,7 +10,8 @@ import type {
   CacheErrorFacade,
   CacheKey,
   ExtrasCacheKeyBuilder,
-  NewData
+  NewData,
+  RevertData
 } from './cache.types.js'
 import type {
   CacheEntry,
@@ -95,10 +96,10 @@ function cacheGetterSetter<F extends 'data' | 'error', P extends unknown[], R>(
   this: CacheStorage,
   field: F,
   key: CacheKey<P, R>,
-  ...value: [NewData<P, CacheEntry<P, R>[F]>]
+  ...value: [NewData<P, CacheEntry<P, R>[F]>, RevertData<CacheEntry[F]>?]
 ) {
   if (value.length) {
-    const newValue = value[0]
+    const [newValue, undo] = value
     let prevEntry: CacheEntry
 
     this.set(key, (entry = this.initial()) => {
@@ -113,7 +114,13 @@ function cacheGetterSetter<F extends 'data' | 'error', P extends unknown[], R>(
 
     return () => this.set(
       key,
-      (entry = prevEntry) => assignKey(entry, field, prevEntry[field])
+      (entry = prevEntry) => assignKey(
+        entry,
+        field,
+        undo
+          ? undo(entry[field], prevEntry[field])
+          : prevEntry[field]
+      )
     )
   }
 
