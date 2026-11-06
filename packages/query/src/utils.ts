@@ -74,6 +74,29 @@ export function drop<A extends unknown[] | EmptyValue>(
 }
 
 /**
+ * Put values removed with `drop` back at their previous indexes in the current array.
+ * It is the `undo` of a removal for `$data`: unlike a plain revert, it keeps what was written since.
+ * An array that holds a matching value again stays as it is, so nothing comes back twice.
+ * @param array - Current array or empty value.
+ * @param prev - Array before the removal or empty value.
+ * @param what - Predicate that returns true for removed values.
+ * @returns Array with the values back, or the input array when there is nothing to put back.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function restore<A extends unknown[] | EmptyValue>(
+  array: A,
+  prev: A,
+  what: (value: ArrayItem<A>) => boolean
+) {
+  return (array && prev && !(array as []).some(what)
+    ? (prev as []).reduce(
+      (next: unknown[], value, index) => (what(value) ? next.toSpliced(index, 0, value) : next),
+      array
+    )
+    : array) as A
+}
+
+/**
  * Map values in an array-like cache value.
  * @param array - Previous array or empty value.
  * @param callback - Value mapper.
@@ -215,4 +238,46 @@ export function sortPages<P extends InfinitePages<unknown, unknown> | EmptyValue
       )
     )
   } as P
+}
+
+/**
+ * Put items removed with `drop` back into the pages they stood in, in the current pages.
+ * It is the `undo` of a removal for `$data`: unlike a plain revert, it keeps what was written since.
+ * Pages stay as they are when a matching item is back on any of them, as a refetch can do,
+ * and a page that is no longer loaded gets nothing back.
+ * The callback adapts a page shape to the item list, as in `sortPages`.
+ * It is called first to read items, then again to write items back.
+ * @param pages - Current infinite pages data or empty value.
+ * @param prev - Infinite pages data before the removal or empty value.
+ * @param what - Predicate that returns true for removed items.
+ * @param callback - Page adapter that receives an item-list mapper and returns an updated page.
+ * @returns Infinite pages with the items back, or the input value when there is nothing to put back.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function restorePages<P extends InfinitePages<unknown, unknown> | EmptyValue, I>(
+  pages: P,
+  prev: P,
+  what: (item: I) => boolean,
+  callback: (
+    restore: (items: I[]) => I[],
+    page: PagesItem<P>
+  ) => PagesItem<P>
+) {
+  const read = (page: PagesItem<P>) => {
+    let items: I[]
+
+    callback(i => items = i, page)
+
+    return items!
+  }
+
+  return !prev || pages?.pages.some(page => read(page as PagesItem<P>).some(what))
+    ? pages
+    : mapPages(pages, (page, index) => {
+      const prevPage = prev.pages[index] as PagesItem<P> | undefined
+
+      return prevPage
+        ? callback(items => restore(items, read(prevPage), what), page)
+        : page
+    })
 }

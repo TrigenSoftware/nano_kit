@@ -58,6 +58,7 @@ metadata:
 - After a mutation, `revalidate` the affected keys: cached data stays visible while the refetch runs. `invalidate` blanks the entries and causes loading flashes; use it for session changes and hard resets.
 - Optimistic update: write the cache first, register the revert with the error callback of the request context, then send the request.
 - A plain revert puts back the whole value and drops what was written since. When other writes can reach the entry while the request is in flight, such as a second press or a change to another field, give `$data` the function that undoes only this change.
+- The function that undoes a `drop` is ready-made: `restore` for arrays, `restorePages` for infinite pages. They put items back at their previous index in the data as it is by now, and leave it alone when a refetch has already brought them back.
 - `keys(...)` sweeps every registered builder at once; on login, logout or locale change invalidate everything except keys that must survive, such as translations.
 
 ## Settings that matter

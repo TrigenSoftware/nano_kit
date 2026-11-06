@@ -388,6 +388,17 @@ revert()
 
 Previous data is `null` when the entry had none at the time of the write, so whatever it holds now came later. The spread above keeps it, while `current && prev && { ... }` would clear it.
 
+A removal from a list has a ready-made undo function: `restore` puts what `drop` took out back where it stood, among everything written since, and `restorePages` does the same for infinite pages:
+
+```ts
+const isRemoved = (post: Post) => post.id === postId
+const revert = $data(
+  PostsKey(),
+  posts => drop(posts, isRemoved),
+  (current, prev) => restore(current, prev, isRemoved)
+)
+```
+
 #### Revalidating Cache
 
 Use `revalidate()` to mark cache entries as stale, triggering active queries to refetch:
@@ -785,7 +796,7 @@ For comfortable cache mutations, use helpers that fit naturally into `$data` red
 
 ### Array Helpers
 
-Use `append`, `prepend`, `drop`, `map`, and `sort` for array cache values:
+Use `append`, `prepend`, `drop`, `restore`, `map`, and `sort` for array cache values:
 
 ```ts
 import {
@@ -795,6 +806,7 @@ import {
   map,
   prepend,
   queryKey,
+  restore,
   sort
 } from '@nano_kit/query'
 
@@ -810,6 +822,14 @@ $data(PostsKey(), posts => prepend(posts, pinnedPost))
 /* Remove matching items. */
 $data(PostsKey(), posts => drop(posts, post => post.id === removedPostId))
 
+/* Remove optimistically: if the request fails, revert() puts the items back. */
+const isRemoved = (post: Post) => post.id === removedPostId
+const revert = $data(
+  PostsKey(),
+  posts => drop(posts, isRemoved),
+  (current, prev) => restore(current, prev, isRemoved)
+)
+
 /* Transform items. */
 $data(PostsKey(), posts => map(posts, post => ({
   ...post,
@@ -822,18 +842,22 @@ $data(PostsKey(), posts => sort(posts, (a, b) => b.createdAt - a.createdAt))
 
 The helpers return the original empty value for operations where that makes sense, or create a new array when adding a value.
 
+`restore` undoes a `drop` as the third argument of `$data`. It puts removed values back at their previous indexes in the array as it is by now, so what was written since stays. An array that holds a matching value again, as after a refetch, stays as it is. A previous index can be off by what was added since, so when the client knows the order of the list, such as by date, wrap the result in `sort`.
+
 ### Infinite Page Helpers
 
-Use `mapPages`, `mapPageAt`, `mapFirstPage`, `mapLastPage`, and `sortPages` for [`InfinitePages`](#infinite) data:
+Use `mapPages`, `mapPageAt`, `mapFirstPage`, `mapLastPage`, `sortPages`, and `restorePages` for [`InfinitePages`](#infinite) data:
 
 ```ts
 import {
   type InfinitePages,
   client,
+  drop,
   mapFirstPage,
   mapPages,
   prepend,
   queryKey,
+  restorePages,
   sortPages
 } from '@nano_kit/query'
 
@@ -868,9 +892,25 @@ $data(FeedKey(), data => sortPages(
     posts: sort(page.posts)
   })
 ))
+
+/* Remove optimistically: if the request fails, revert() puts the items back. */
+const isRemoved = (post: Post) => post.id === removedPostId
+const revert = $data(
+  FeedKey(),
+  data => mapPages(data, page => ({
+    ...page,
+    posts: drop(page.posts, isRemoved)
+  })),
+  (current, prev) => restorePages(current, prev, isRemoved, (restore, page) => ({
+    ...page,
+    posts: restore(page.posts)
+  }))
+)
 ```
 
 `sortPages` collects items from every page, sorts the combined list, and writes items back into the original page chunks. Pagination metadata such as `next` and `more` stays intact.
+
+`restorePages` puts removed items back into the pages they stood in, and its callback adapts the page shape the same way. Pages stay as they are when a matching item is back on any page, as a refetch can do, and a page that is no longer loaded gets nothing back. As with `restore`, when the client knows the order of the list, wrap the result in `sortPages`.
 
 ## Request Context
 
