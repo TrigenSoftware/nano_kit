@@ -61,7 +61,7 @@ export class CacheStorage {
 
   set(
     key: CacheShardKey | CacheKey,
-    entry: NewValue<CacheEntry | undefined>
+    entry: NewValue<CacheEntry | undefined, string | undefined>
   ) {
     this.cache.set(key, entry)
   }

@@ -1,7 +1,8 @@
 import {
   type NewValue,
   SignalsMap,
-  batch
+  batch,
+  nextValue
 } from '@nano_kit/store'
 
 export interface ShardKey<S> {
@@ -74,7 +75,8 @@ export class ShardedSignalsMap<S, K, T> extends (Map as unknown as typeof Shards
 
   /**
    * Set the value by key.
-   * A key of a shard alone sets the value of every key of the shard.
+   * A key of a shard alone sets the value of every key of the shard,
+   * and a reducer gets that key as its second argument.
    * @param shardedKey - The sharded key.
    * @param value - The value or a reducer of the current one.
    */
@@ -83,17 +85,17 @@ export class ShardedSignalsMap<S, K, T> extends (Map as unknown as typeof Shards
       shard,
       key
     }: ShardKey<S> | ShardedKey<S, K>,
-    value: NewValue<T | undefined>
+    value: NewValue<T | undefined, K | undefined>
   ) {
     if (key !== undefined) {
-      this.#shard(shard).set(key, value)
+      this.#shard(shard).set(key, value as NewValue<T | undefined>)
     } else {
       const map = this.get(shard)
 
       if (map) {
         batch(() => {
           for (const each of map.keys()) {
-            map.set(each, value)
+            map.set(each, prev => nextValue(prev, value, each))
           }
         })
       }
