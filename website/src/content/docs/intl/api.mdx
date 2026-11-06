@@ -356,6 +356,21 @@ $t().attendees(3)
 // '3 going'
 ```
 
+The value goes into the text as it is. To format it, list it in `params` around `plural`: `plural` still picks the form by the value, and `params` fills in the placeholder. `match` works the same way.
+
+```ts
+const [$t] = messages('home', {
+  attendees: params({
+    count: number()
+  }, plural('count'))
+})
+
+$t().attendees({
+  count: 1284
+})
+// '1,284 going'
+```
+
 Use `forms(...)` when nested forms need their own formatters.
 
 ```ts

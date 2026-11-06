@@ -28,7 +28,8 @@ export type FormatsInput<T extends Partial<Record<PropertyKey, AnyFormat>>> = Pa
 
 export type FnWithParams<P> = (params: P) => string | undefined
 
-export type FnWithAnyParams = FnWithParams<any>
+// `formats` are the params a surrounding `params` fills in itself
+export type FnWithAnyParams = (params: any, formats?: Record<string, unknown>) => string | undefined
 
 export interface IntlFormat<T> {
   format(value: T, ...args: unknown[]): string

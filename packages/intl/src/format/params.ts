@@ -50,7 +50,7 @@ export function params<const P extends ParamsFormats>(
 /**
  * Creates a parameter interpolation formatter that first applies another formatter.
  * @param params - Parameter formatters keyed by placeholder name.
- * @param preformat - Formatter applied before replacing placeholders.
+ * @param preformat - Formatter applied before replacing placeholders. `match` and `plural` leave the placeholders of the parameters listed here to be replaced by these formatters.
  * @returns Formatter that replaces `{key}` placeholders using provided parameter values.
  */
 export function params<
@@ -104,14 +104,14 @@ export function params<
     const preformatted = (preformat ? preformat(ctx, input) : input) as PreformatOutput
 
     if (isFunction(preformatted)) {
-      return (params) => {
-        const text = preformatted(params)
+      return (values) => {
+        const text = preformatted(values, params)
 
         if (text === undefined || !replaceAll) {
           return text
         }
 
-        return replaceAll(ctx, text, params)
+        return replaceAll(ctx, text, values)
       }
     }
 
