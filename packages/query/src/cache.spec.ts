@@ -157,6 +157,65 @@ describe('query', () => {
         expect($cache(key)).toBe(42)
       })
 
+      it('should bring back an entry deleted after the write', () => {
+        const storage = new CacheStorage()
+        const $cache = dataCacheFacade(storage)
+        const key = queryKey<[string], number>('test')('a')
+
+        $cache(key, 42)
+
+        const revert = $cache(key, 100)
+
+        storage.invalidate(key)
+        revert()
+
+        expect($cache(key)).toBe(42)
+      })
+
+      it('should revert every entry of a shard to its own value', () => {
+        const $cache = dataCacheFacade(new CacheStorage())
+        const Key = queryKey<[string], number>('test')
+
+        $cache(Key('a'), 1)
+        $cache(Key('b'), 2)
+
+        const revert = $cache(Key, 100)
+
+        expect($cache(Key('a'))).toBe(100)
+        expect($cache(Key('b'))).toBe(100)
+
+        revert()
+
+        expect($cache(Key('a'))).toBe(1)
+        expect($cache(Key('b'))).toBe(2)
+      })
+
+      it('should not revert an entry added to a shard after the write', () => {
+        const $cache = dataCacheFacade(new CacheStorage())
+        const Key = queryKey<[string], number>('test')
+
+        $cache(Key('a'), 1)
+
+        const revert = $cache(Key, 100)
+
+        $cache(Key('b'), 2)
+        revert()
+
+        expect($cache(Key('a'))).toBe(1)
+        expect($cache(Key('b'))).toBe(2)
+      })
+
+      it('should revert a write to an empty shard', () => {
+        const $cache = dataCacheFacade(new CacheStorage())
+        const Key = queryKey<[string], number>('test')
+        const revert = $cache(Key, 100)
+
+        $cache(Key('a'), 1)
+        revert()
+
+        expect($cache(Key('a'))).toBe(1)
+      })
+
       it('should pass entry params to reducer', () => {
         const storage = new CacheStorage()
         const $cache = dataCacheFacade(storage)
@@ -330,12 +389,18 @@ describe('query', () => {
           expect($cache(CountKey('b'))).toBe(2)
         })
 
-        it('should not get previous data for a shard', () => {
+        it('should pass every entry of a shard its own previous data', () => {
           const $cache = dataCacheFacade(new CacheStorage())
-          // @ts-expect-error a write to a whole shard keeps one previous entry
-          const revert = $cache(CountKey, 1, (_, prev) => prev)
 
-          expect(revert).toBeTypeOf('function')
+          $cache(CountKey('a'), 1)
+          $cache(CountKey('b'), 2)
+
+          const revert = $cache(CountKey, 100, (_, prev) => prev)
+
+          revert()
+
+          expect($cache(CountKey('a'))).toBe(1)
+          expect($cache(CountKey('b'))).toBe(2)
         })
       })
     })
@@ -365,6 +430,21 @@ describe('query', () => {
         revert()
 
         expect($error(key)).toBe('first')
+      })
+
+      it('should revert every entry of a shard to its own error', () => {
+        const $error = errorCacheFacade(new CacheStorage())
+        const Key = queryKey<[string], number>('test')
+
+        $error(Key('a'), 'first')
+        $error(Key('b'), 'second')
+
+        const revert = $error(Key, 'third')
+
+        revert()
+
+        expect($error(Key('a'))).toBe('first')
+        expect($error(Key('b'))).toBe('second')
       })
     })
   })

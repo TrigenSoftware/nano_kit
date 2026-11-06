@@ -316,6 +316,27 @@ describe('query', () => {
 
           off()
         })
+
+        it('should pass every key to a reducer of a whole shard', () => {
+          const cache = new ShardedSignalsMap<string, string, string>()
+          const a = {
+            shard: 'test',
+            key: 'a'
+          }
+          const b = {
+            shard: 'test',
+            key: 'b'
+          }
+
+          cache.set(a, 'value')
+          cache.set(b, 'value')
+          cache.set({
+            shard: 'test'
+          }, (value, key) => `${value}:${key}`)
+
+          expect(cache.$get(a)).toBe('value:a')
+          expect(cache.$get(b)).toBe('value:b')
+        })
       })
 
       describe('delete', () => {

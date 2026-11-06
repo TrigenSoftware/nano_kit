@@ -17,7 +17,7 @@
     "gzip": true,
     "path": "dist/index.production.js",
     "import": "{ client, mutations, queryKey }",
-    "limit": "1.85 kB"
+    "limit": "1.9 kB"
   },
   {
     "name": "Minimal set (Brotli)",

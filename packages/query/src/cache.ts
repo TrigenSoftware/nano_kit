@@ -99,11 +99,13 @@ function cacheGetterSetter<F extends 'data' | 'error', P extends unknown[], R>(
   ...value: [NewData<P, CacheEntry<P, R>[F]>, RevertData<CacheEntry[F]>?]
 ) {
   if (value.length) {
+    const entryKey = key.key
     const [newValue, undo] = value
-    let prevEntry: CacheEntry
+    // By entry: a key of a shard alone writes to every entry of the shard
+    const prevEntries = new Map<string, CacheEntry>()
 
-    this.set(key, (entry = this.initial()) => {
-      prevEntry = entry
+    this.set(key, (entry = this.initial(), each = entryKey) => {
+      prevEntries.set(each, entry)
 
       return assignKey(entry, field, nextValue(
         entry[field] as CacheEntry<P, R>[F],
@@ -112,16 +114,19 @@ function cacheGetterSetter<F extends 'data' | 'error', P extends unknown[], R>(
       ))
     })
 
-    return () => this.set(
-      key,
-      (entry = prevEntry) => assignKey(
-        entry,
-        field,
-        undo
-          ? undo(entry[field], prevEntry[field])
-          : prevEntry[field]
-      )
-    )
+    return () => this.set(key, (entry = prevEntries.get(entryKey)!, each = entryKey) => {
+      const prevEntry = prevEntries.get(each)
+
+      return prevEntry
+        ? assignKey(
+          entry,
+          field,
+          undo
+            ? undo(entry[field], prevEntry[field])
+            : prevEntry[field]
+        )
+        : entry
+    })
   }
 
   return this.$get(key)[field] as CacheEntry<P, R>[F]
