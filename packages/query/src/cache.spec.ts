@@ -15,6 +15,15 @@ import {
   dataCacheFacade,
   errorCacheFacade
 } from './cache.js'
+import {
+  append,
+  drop,
+  mapFirstPage,
+  mapPages,
+  restore,
+  restorePages
+} from './utils.js'
+import type { InfinitePages } from './client.js'
 
 describe('query', () => {
   describe('cache', () => {
@@ -401,6 +410,68 @@ describe('query', () => {
 
           expect($cache(CountKey('a'))).toBe(1)
           expect($cache(CountKey('b'))).toBe(2)
+        })
+
+        it('should take a removal back with `restore`', () => {
+          const ListKey = queryKey<[], number[]>('list')
+          const $cache = dataCacheFacade(new CacheStorage())
+          const key = ListKey()
+          const isTwo = (value: number) => value === 2
+
+          $cache(key, [1, 2, 3])
+
+          const revert = $cache(
+            key,
+            list => drop(list, isTwo),
+            (current, prev) => restore(current, prev, isTwo)
+          )
+
+          $cache(key, list => append(list, 4))
+          revert()
+
+          expect($cache(key)).toEqual([1, 2, 3, 4])
+        })
+
+        it('should take a removal from pages back with `restorePages`', () => {
+          interface Page {
+            items: number[]
+          }
+
+          const PagesKey = queryKey<[], InfinitePages<Page, number>>('pages')
+          const $cache = dataCacheFacade(new CacheStorage())
+          const key = PagesKey()
+          const isTwo = (value: number) => value === 2
+
+          $cache(key, {
+            pages: [
+              {
+                items: [1, 2]
+              }
+            ],
+            next: 2,
+            more: true
+          })
+
+          const revert = $cache(
+            key,
+            pages => mapPages(pages, page => ({
+              items: drop(page.items, isTwo)
+            })),
+            (current, prev) => restorePages(current, prev, isTwo, (restoreItems, page) => ({
+              items: restoreItems(page.items)
+            }))
+          )
+
+          $cache(key, pages => mapFirstPage(pages, page => ({
+            items: append(page.items, 3)
+          })))
+          revert()
+
+          expect($cache(key)?.pages).toEqual([
+            {
+              items: [1, 2, 3]
+            }
+          ])
         })
       })
     })

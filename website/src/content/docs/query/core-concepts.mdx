@@ -327,6 +327,17 @@ revert()
 
 Previous data is `null` when the entry had none at the time of the write, so whatever it holds now came later. The spread above keeps it, while `current && prev && { ... }` would clear it.
 
+A removal from a list has a ready-made undo function: [`restore`](/query/advanced#array-helpers) puts what `drop` took out back where it stood, among everything written since, and [`restorePages`](/query/advanced#infinite-page-helpers) does the same for infinite pages:
+
+```ts
+const isRemoved = (post: Post) => post.id === postId
+const revert = $data(
+  PostsKey(),
+  posts => drop(posts, isRemoved),
+  (current, prev) => restore(current, prev, isRemoved)
+)
+```
+
 #### Revalidating Cache
 
 Use `revalidate()` to mark cache entries as stale, triggering active queries to refetch:
