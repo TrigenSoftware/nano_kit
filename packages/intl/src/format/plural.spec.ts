@@ -53,6 +53,16 @@ describe('intl', () => {
         })).toBe('2 items')
       })
 
+      it('should fill in the value as it is', () => {
+        const format = plural('count')
+
+        expect(format(ctx, {
+          other: '{count} items'
+        })({
+          count: 1284
+        })).toBe('1284 items')
+      })
+
       it('should select plural form by argument value', () => {
         const format = plural('count', forms({
           one: text(),

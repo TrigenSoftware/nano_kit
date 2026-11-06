@@ -5,6 +5,10 @@ import {
   it
 } from 'vitest'
 import type { FormatContext } from '../types.js'
+import {
+  cases,
+  match
+} from './match.js'
 import { number } from './number.js'
 import {
   forms,
@@ -117,6 +121,100 @@ describe('intl', () => {
           name: 'Ada',
           count: 2
         })).toBe('Ada has 2 messages')
+      })
+
+      it('should fill in the param of a plural formatter', () => {
+        const format = params({
+          count: number()
+        }, plural('count'))
+
+        expect(format(ctx, {
+          one: '{count} item',
+          other: '{count} items'
+        })({
+          count: 1284
+        })).toBe('1,284 items')
+      })
+
+      it('should select a plural form by the raw value of the param', () => {
+        const format = params({
+          count: number({
+            minimumFractionDigits: 1
+          })
+        }, plural('count'))
+
+        expect(format(ctx, {
+          one: '{count} item',
+          other: '{count} items'
+        })({
+          count: 1
+        })).toBe('1.0 item')
+      })
+
+      it('should leave a param it does not list to a plural formatter', () => {
+        const format = params({
+          name: text()
+        }, plural('count'))
+
+        expect(format(ctx, {
+          other: '{name} has {count}'
+        })({
+          name: 'Ada',
+          count: 1284
+        })).toBe('Ada has 1284')
+      })
+
+      it('should fill in the param of a plain string translation', () => {
+        const format = params({
+          count: number()
+        }, plural('count'))
+
+        expect(format(ctx, '{count} items')({
+          count: 1284
+        })).toBe('1,284 items')
+      })
+
+      it('should fill in the param of plural forms', () => {
+        const format = params({
+          count: number()
+        }, plural('count', forms({
+          one: text('{count} item'),
+          other: text('{count} items')
+        })))
+
+        expect(format(ctx)({
+          count: 1284
+        })).toBe('1,284 items')
+      })
+
+      it('should fill in the param of a plural formatter in nested cases', () => {
+        const format = params({
+          count: number()
+        }, match('gender', cases({
+          male: plural('count'),
+          female: plural('count')
+        })))
+
+        expect(format(ctx, {
+          female: {
+            other: 'She has {count} items'
+          }
+        })({
+          gender: 'female',
+          count: 1284
+        })).toBe('She has 1,284 items')
+      })
+
+      it('should fill in the param of a match formatter', () => {
+        const format = params({
+          status: text()
+        }, match('status'))
+
+        expect(format(ctx, {
+          active: '{status} account'
+        })({
+          status: 'active'
+        })).toBe('active account')
       })
 
       it('should warn about a param without a value', () => {

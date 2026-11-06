@@ -4,7 +4,7 @@
     "gzip": true,
     "path": "dist/index.production.js",
     "import": "*",
-    "limit": "2.45 kB"
+    "limit": "2.50 kB"
   },
   {
     "name": "All publics (Brotli)",

@@ -7,6 +7,7 @@ import {
 import type { FormatContext } from '../types.js'
 import type {
   AnyFormat,
+  FnWithAnyParams,
   FnWithParams,
   Format,
   FormatsInput,
@@ -153,7 +154,7 @@ export function match<
     const locale = ctx.$locale()
     const isString = typeof input === 'string'
     // A string never reaches the lookups below, so it is stored as is.
-    let resolvedCases = (input ?? {}) as Record<string, string | undefined | MatchFn<K, B>>
+    let resolvedCases = (input ?? {}) as Record<string, string | undefined | FnWithAnyParams>
 
     if (cases && !isString) {
       resolvedCases = {
@@ -163,12 +164,14 @@ export function match<
       cases(ctx, input, resolvedCases)
     }
 
-    return (params) => {
+    return (params, formats?: Record<string, unknown>) => {
       const value = $get(typeof params === 'object' ? params[param] : params)
       const resolvedCase = isString ? input : resolvedCases[getKey(value, locale, resolvedCases)]
-      const message = isFunction(resolvedCase) ? resolvedCase(params) : resolvedCase
+      const message = isFunction(resolvedCase) ? resolvedCase(params, formats) : resolvedCase
 
-      return message?.replace(valuePattern, value as string)
+      return formats && param in formats
+        ? message
+        : message?.replace(valuePattern, value as string)
     }
   }
 }
