@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.9.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.8.0...v2.9.0) (2026-11-06)
+
+### Features
+
+* add `undo` to `$data` to revert only its own change ([#337](https://github.com/TrigenSoftware/nano_kit/issues/337)) ([4adf879](https://github.com/TrigenSoftware/nano_kit/commit/4adf8798ab979a4a72f8119e48363ceef08d1aa6))
+
+### Bug Fixes
+
+* revert every entry of a shard to its own data ([#338](https://github.com/TrigenSoftware/nano_kit/issues/338)) ([cc54815](https://github.com/TrigenSoftware/nano_kit/commit/cc54815c9d55a7dc097e60a1ad39acda418a76e5))
+
 ## [2.8.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.0.0...v2.8.0) (2026-11-05)
 
 ### Features

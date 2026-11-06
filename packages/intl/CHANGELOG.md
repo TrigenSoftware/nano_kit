@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.9.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.7.0...v2.9.0) (2026-11-06)
+
+### Bug Fixes
+
+* let `params` format the value of `plural` and `match` ([#341](https://github.com/TrigenSoftware/nano_kit/issues/341)) ([dbec84c](https://github.com/TrigenSoftware/nano_kit/commit/dbec84c7b05cfa9b92d48d732f09a8739c671830))
+
 ## [2.7.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.4.2...v2.7.0) (2026-11-05)
 
 ### Features
