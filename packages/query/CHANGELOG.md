@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.10.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.9.0...v2.10.0) (2026-11-06)
+
+### Features
+
+* add `restore` and `restorePages` to undo `drop` ([#342](https://github.com/TrigenSoftware/nano_kit/issues/342)) ([22be0e7](https://github.com/TrigenSoftware/nano_kit/commit/22be0e72501e0719333bfc11ee786931c2411306))
+
 ## [2.9.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.8.0...v2.9.0) (2026-11-06)
 
 ### Features
