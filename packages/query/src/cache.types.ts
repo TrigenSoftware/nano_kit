@@ -34,9 +34,21 @@ export type ExtrasCacheKeyBuilder<
 
 export type NewData<P extends readonly unknown[], R> = R | ((data: R, params: P) => R)
 
+export type RevertData<R> = (current: R, prev: R) => R
+
 export interface CacheDataFacade {
   <P extends unknown[], R>(key: CacheKey<P, R>): R | null
-  <P extends unknown[], R>(key: CacheShardKey<P, R> | CacheKey<P, R>, value: NewData<P, R | null>): () => void
+  <P extends unknown[], R>(
+    key: CacheKey<P, R>,
+    value: NewData<P, R | null>,
+    undo?: RevertData<R | null>
+  ): () => void
+  // A write to a whole shard keeps one previous entry, so `undo` gets no previous data here
+  <P extends unknown[], R>(
+    key: CacheShardKey<P, R> | CacheKey<P, R>,
+    value: NewData<P, R | null>,
+    undo?: (current: R | null) => R | null
+  ): () => void
 }
 
 export interface CacheErrorFacade {

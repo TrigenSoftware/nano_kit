@@ -188,6 +188,156 @@ describe('query', () => {
 
         off()
       })
+
+      describe('undo', () => {
+        const CountKey = queryKey<[name: string], number>('count')
+
+        it('should pass the current and the previous data', () => {
+          const $cache = dataCacheFacade(new CacheStorage())
+          const key = CountKey('a')
+          const undo = vi.fn((current: number | null) => current)
+
+          $cache(key, 1)
+
+          const revert = $cache(key, 2, undo)
+
+          $cache(key, 3)
+          revert()
+
+          expect(undo).toHaveBeenCalledTimes(1)
+          expect(undo).toHaveBeenCalledWith(3, 1)
+        })
+
+        it('should keep a change made after the write', () => {
+          const PostKey = queryKey<[id: number], {
+            title: string
+            likes: number
+          } | null>('post')
+          const $cache = dataCacheFacade(new CacheStorage())
+          const key = PostKey(1)
+
+          $cache(key, {
+            title: 'old',
+            likes: 0
+          })
+
+          const revert = $cache(
+            key,
+            post => post && {
+              ...post,
+              title: 'new'
+            },
+            (current, prev) => current && {
+              ...current,
+              ...prev && {
+                title: prev.title
+              }
+            }
+          )
+
+          $cache(key, post => post && {
+            ...post,
+            likes: 1
+          })
+          revert()
+
+          expect($cache(key)).toEqual({
+            title: 'old',
+            likes: 1
+          })
+        })
+
+        it('should undo changes in any order', () => {
+          const $cache = dataCacheFacade(new CacheStorage())
+          const key = CountKey('a')
+
+          $cache(key, 0)
+
+          const revertFirst = $cache(key, value => (value ?? 0) + 1, value => (value ?? 0) - 1)
+          const revertSecond = $cache(key, value => (value ?? 0) + 10, value => (value ?? 0) - 10)
+
+          revertFirst()
+
+          expect($cache(key)).toBe(10)
+
+          revertSecond()
+
+          expect($cache(key)).toBe(0)
+        })
+
+        it('should undo to falsy data', () => {
+          const $cache = dataCacheFacade(new CacheStorage())
+          const key = CountKey('a')
+
+          $cache(key, 0)
+
+          const revert = $cache(key, 1, (_, prev) => prev)
+
+          revert()
+
+          expect($cache(key)).toBe(0)
+        })
+
+        it('should pass null as the current data', () => {
+          const $cache = dataCacheFacade(new CacheStorage())
+          const key = CountKey('a')
+          const undo = vi.fn((current: number | null) => current)
+
+          $cache(key, 1)
+
+          const revert = $cache(key, 2, undo)
+
+          $cache(key, null)
+          revert()
+
+          expect(undo).toHaveBeenCalledWith(null, 1)
+          expect($cache(key)).toBe(null)
+        })
+
+        it('should pass null as the previous data', () => {
+          const $cache = dataCacheFacade(new CacheStorage())
+          const key = CountKey('a')
+          const undo = vi.fn((current: number | null) => current)
+          const revert = $cache(key, 1, undo)
+
+          revert()
+
+          expect(undo).toHaveBeenCalledWith(1, null)
+          expect($cache(key)).toBe(1)
+        })
+
+        it('should clear an entry that had no data', () => {
+          const $cache = dataCacheFacade(new CacheStorage())
+          const key = CountKey('a')
+          const revert = $cache(key, 1, (_, prev) => prev)
+
+          revert()
+
+          expect($cache(key)).toBe(null)
+        })
+
+        it('should undo every entry of a shard', () => {
+          const $cache = dataCacheFacade(new CacheStorage())
+
+          $cache(CountKey('a'), 1)
+          $cache(CountKey('b'), 2)
+
+          const revert = $cache(CountKey, value => (value ?? 0) + 10, value => (value ?? 0) - 10)
+
+          revert()
+
+          expect($cache(CountKey('a'))).toBe(1)
+          expect($cache(CountKey('b'))).toBe(2)
+        })
+
+        it('should not get previous data for a shard', () => {
+          const $cache = dataCacheFacade(new CacheStorage())
+          // @ts-expect-error a write to a whole shard keeps one previous entry
+          const revert = $cache(CountKey, 1, (_, prev) => prev)
+
+          expect(revert).toBeTypeOf('function')
+        })
+      })
     })
 
     describe('errorCacheFacade', () => {
