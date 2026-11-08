@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.10.1](https://github.com/TrigenSoftware/nano_kit/compare/v2.8.0...v2.10.1) (2026-11-08)
+
+### Bug Fixes
+
+* keep the title announcer from making a short page scroll ([#344](https://github.com/TrigenSoftware/nano_kit/issues/344)) ([79ebcd6](https://github.com/TrigenSoftware/nano_kit/commit/79ebcd6981cca009b17e62aef90ec9b025f5fc33))
+
 ## [2.8.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.4.0...v2.8.0) (2026-11-05)
 
 ### Features
