@@ -31,7 +31,9 @@ export function titleAnnouncer(
   host.attachShadow({
     mode: 'open'
   }).append(region)
-  host.style.cssText = 'position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap'
+  // Pinned to the top: where it stands, under a shell as tall as the window, it would make
+  // a short page scroll by a pixel
+  host.style.cssText = 'position:absolute;top:0;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap'
   region.role = 'status'
   document.body.append(host)
 

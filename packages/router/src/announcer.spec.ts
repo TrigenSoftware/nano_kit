@@ -61,6 +61,19 @@ describe('router', () => {
       stop()
     })
 
+    it('should pin the live region to the top so the page does not grow', () => {
+      const [$location] = virtualNavigation('/home', routes)
+      const $page = router($location, [])
+      const stop = titleAnnouncer($page)
+      const { style } = document.querySelector<HTMLElement>('body > nano-kit-title-announcer')!
+
+      // Stopped first, so a failure leaves no live region for the next tests
+      stop()
+
+      expect(style.position).toBe('absolute')
+      expect(style.top).toBe('0px')
+    })
+
     it('should not announce the title the document opened with', () => {
       const [$location] = virtualNavigation('/home', routes)
       const $page = router($location, [
