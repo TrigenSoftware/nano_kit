@@ -116,6 +116,12 @@ export function entities(
         return (entity: {}) => ref(EntityFn, entity)
       }
 
+      // Captured already, as the pages an infinite query has loaded are: its copy is
+      // the entity as it was then, and writing it back would undo what came since
+      if (ENTITY_KEY in entity) {
+        return entity
+      }
+
       const key = EntityFn(entity)
 
       ctx.set(key, {
