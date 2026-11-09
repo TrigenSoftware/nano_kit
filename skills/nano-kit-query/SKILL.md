@@ -43,7 +43,7 @@ metadata:
 - `query`: data that depends on reactive parameters and should load whenever something shows it. It fetches only while its data signal is observed, refetches on parameter changes, revalidation and invalidation, and never at creation time.
 - `mutation`: a write on demand with the last result, error and loading state.
 - `operation`: manual work whose result deserves the cache (AI generation, reports, explicit search submits, lazy loading that must not start on mount).
-- `infinite`: pages behind a cursor; a parameter change restarts from the first page.
+- `infinite`: pages behind a cursor; a parameter change restarts from the first page, while revalidation refetches every loaded page, so it is safe on a long list.
 - Create the client once per app as an injectable `Client$()` factory with the extensions the app needs (`mutations()`, `infinites()`, `operations()`) and `hydratable()` when the app renders on the server.
 
 ## Keys and parameters

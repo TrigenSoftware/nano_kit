@@ -1077,6 +1077,8 @@ const [fetchNext, $data, $error, $loading] = infinite(
 - `$loading`: Signal indicating loading state.
 - `$key`: Signal with current cache key.
 
+Revalidating an infinite query, with `revalidate()` or by reading it again once the dedupe window has closed, refetches every loaded page: the first one, then each next one by the cursor of the page before it. The new pages replace the loaded ones at once, so a long list keeps its length and stays on screen while it loads. If a page fails, the loaded pages stay with the error. New parameters start over from the first page, and so does `invalidate()`, which drops the pages.
+
 Here is a small usage example in a React component:
 
 ```tsx

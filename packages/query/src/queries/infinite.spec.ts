@@ -15,7 +15,12 @@ import {
   client,
   infinites
 } from '../client.js'
-import { previous } from '../RequestContext.js'
+import { dedupeTime } from '../ClientContext.js'
+import {
+  onSuccess,
+  onError,
+  previous
+} from '../RequestContext.js'
 import {
   drop,
   mapFirstPage
@@ -24,7 +29,8 @@ import type { InfinitePages } from './infinite.js'
 import {
   type PostsPage,
   resetMockData,
-  getPosts
+  getPosts,
+  createPost
 } from '../client.mock.js'
 
 const PostsKey = queryKey<[], InfinitePages<PostsPage, number | undefined>>('posts')
@@ -352,7 +358,7 @@ describe('query', () => {
         off()
       })
 
-      it('should replace pages when revalidating the first page', async () => {
+      it('should refetch every loaded page when revalidated', async () => {
         const {
           infinite,
           revalidate
@@ -368,21 +374,146 @@ describe('query', () => {
         })
 
         await waitTasks($data)
-
-        expect($data()?.pages).toHaveLength(1)
-
-        fetchNext()
-
-        await waitTasks($data)
-
-        expect($data()?.pages).toHaveLength(2)
+        await fetchNext()
+        await createPost({
+          title: 'Fourth Post',
+          content: 'Fourth Content'
+        })
 
         revalidate(PostsKey())
 
         await waitTasks($data)
 
-        expect($data()?.pages).toHaveLength(1)
-        expect($data()?.pages[0]?.posts.map(post => post.id)).toEqual([1, 2])
+        expect($data()?.pages.map(page => page.posts.map(post => post.id))).toEqual([[1, 2], [3, 4]])
+
+        off()
+      })
+
+      it('should keep the loaded pages when read again after the dedupe time', async () => {
+        const { infinite } = client(
+          infinites(),
+          dedupeTime(0)
+        )
+        const [fetchNext, $data] = infinite(
+          PostsKey,
+          [],
+          page => page.nextCursor,
+          getPosts
+        )
+        let off = effect(() => {
+          $data()
+        })
+
+        await waitTasks($data)
+        await fetchNext()
+
+        off()
+        off = effect(() => {
+          $data()
+        })
+
+        await waitTasks($data)
+
+        expect($data()?.pages).toHaveLength(2)
+
+        off()
+      })
+
+      it('should keep the loaded pages when refetching one of them fails', async () => {
+        const {
+          infinite,
+          revalidate
+        } = client(infinites())
+        const fetcher = vi.fn(getPosts)
+        const [fetchNext, $data, $error] = infinite(
+          PostsKey,
+          [],
+          page => page.nextCursor,
+          fetcher
+        )
+        const off = effect(() => {
+          $data()
+        })
+
+        await waitTasks($data)
+        await fetchNext()
+
+        fetcher.mockImplementation(cursor => (cursor ? Promise.reject(new Error('Network error')) : getPosts(cursor)))
+        revalidate(PostsKey())
+
+        await waitTasks($data)
+
+        expect($data()?.pages.map(page => page.posts.map(post => post.id))).toEqual([[1, 2], [3]])
+        expect($error()).toBe('Network error')
+
+        off()
+      })
+
+      it('should call the success callbacks once when it refetches several pages', async () => {
+        const {
+          infinite,
+          revalidate
+        } = client(infinites())
+        const successSpy = vi.fn()
+        const [fetchNext, $data] = infinite(
+          PostsKey,
+          [],
+          page => page.nextCursor,
+          (cursor, ctx) => {
+            onSuccess(ctx, successSpy)
+
+            return getPosts(cursor)
+          }
+        )
+        const off = effect(() => {
+          $data()
+        })
+
+        await waitTasks($data)
+        await fetchNext()
+
+        successSpy.mockClear()
+        revalidate(PostsKey())
+
+        await waitTasks($data)
+
+        expect(successSpy).toHaveBeenCalledTimes(1)
+
+        off()
+      })
+
+      it('should call the error callbacks once when a refetched page fails', async () => {
+        const {
+          infinite,
+          revalidate
+        } = client(infinites())
+        const errorSpy = vi.fn()
+        let failing = false
+        const [fetchNext, $data] = infinite(
+          PostsKey,
+          [],
+          page => page.nextCursor,
+          (cursor, ctx) => {
+            onError(ctx, errorSpy)
+
+            return failing && cursor
+              ? Promise.reject(new Error('Network error'))
+              : getPosts(cursor)
+          }
+        )
+        const off = effect(() => {
+          $data()
+        })
+
+        await waitTasks($data)
+        await fetchNext()
+
+        failing = true
+        revalidate(PostsKey())
+
+        await waitTasks($data)
+
+        expect(errorSpy).toHaveBeenCalledTimes(1)
 
         off()
       })
