@@ -51,6 +51,9 @@ function decode(
   encoded.forEach(([shard, key, value]) => {
     const entry = decodeEntry(value, codec)
 
+    // A request in flight on the server does not go on here, so it is made again
+    entry.loading = false
+
     // An error the server rendered is on the page already: it stays, as an answer would,
     // rather than asked again as the page hydrates
     if (entry.error) {
