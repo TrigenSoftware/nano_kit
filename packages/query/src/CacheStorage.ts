@@ -41,7 +41,8 @@ export class CacheStorage {
     return {
       rev: UNSET_REV,
       dedupes: 0,
-      expires: 0,
+      // No answer yet, so nothing to expire: data written before the first one stays while it loads
+      expires: Infinity,
       params: [],
       data: null,
       error: null,
