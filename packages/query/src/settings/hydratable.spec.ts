@@ -213,6 +213,44 @@ describe('query', () => {
         offHydrated()
       })
 
+      it('should ask again for a key the server was still loading', async () => {
+        const hydratables = new Map()
+        const { query } = client(
+          hydratable(null, hydratables)
+        )
+        const [$post] = query(PostKey, [signal(1)], () => new Promise<Post | null>(() => {}))
+        const off = effect(() => {
+          $post()
+        })
+
+        off()
+
+        const { query: hydratedQuery } = client(
+          hydratable(new StaticHydrator([
+            [
+              '@nano_kit/query',
+              hydratables.get('@nano_kit/query')!()
+            ]
+          ]))
+        )
+        const hydratedFetcher = vi.fn(getPost)
+        const [$hydratedPost] = hydratedQuery(PostKey, [signal(1)], hydratedFetcher)
+        const offHydrated = effect(() => {
+          $hydratedPost()
+        })
+
+        await waitTasks($hydratedPost)
+
+        expect(hydratedFetcher).toHaveBeenCalledTimes(1)
+        expect($hydratedPost()).toEqual({
+          id: 1,
+          title: 'First Post',
+          content: 'Hello World!'
+        })
+
+        offHydrated()
+      })
+
       it('should deserialize cache from dehydrated map', () => {
         const dehydrated: any = [
           [
