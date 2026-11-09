@@ -19,11 +19,16 @@ import {
 } from '../client.mock.js'
 import { onError } from '../RequestContext.js'
 import {
+  type InfinitePages,
   client,
-  mutations
+  mutations,
+  infinites
 } from '../client.js'
 import { queryKey } from '../cache.js'
-import { prepend } from '../utils.js'
+import {
+  prepend,
+  mapPages
+} from '../utils.js'
 import {
   entity,
   entities
@@ -32,6 +37,7 @@ import {
 const PostEntity = entity<Post>('post')
 const PostKey = queryKey<[id: number], Post | null>('post')
 const PostsKey = queryKey<[], PostsPage>('posts')
+const PostsPagesKey = queryKey<[], InfinitePages<PostsPage, number | undefined>>('postsPages')
 
 describe('query', () => {
   describe('settings', () => {
@@ -272,6 +278,42 @@ describe('query', () => {
         })
 
         offPost()
+      })
+
+      it('should keep entity updates when the next page loads', async () => {
+        const {
+          infinite,
+          $data
+        } = client(infinites())
+        const [fetchNext, $pages] = infinite(
+          PostsPagesKey,
+          [],
+          page => page.nextCursor,
+          getPosts,
+          [
+            entities((capture, pages) => mapPages(pages, page => ({
+              ...page,
+              posts: page.posts.map(capture(PostEntity))
+            })))
+          ]
+        )
+        const off = effect(() => {
+          $pages()
+        })
+
+        await waitTasks($pages)
+
+        $data(PostEntity(1), post => post && {
+          ...post,
+          title: 'Directly Updated First Post'
+        })
+
+        await fetchNext()
+
+        expect($data(PostEntity(1))?.title).toBe('Directly Updated First Post')
+        expect($pages()?.pages[0]?.posts[0]?.title).toBe('Directly Updated First Post')
+
+        off()
       })
     })
   })
