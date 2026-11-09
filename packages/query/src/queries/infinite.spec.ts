@@ -16,6 +16,10 @@ import {
   infinites
 } from '../client.js'
 import { previous } from '../RequestContext.js'
+import {
+  drop,
+  mapFirstPage
+} from '../utils.js'
 import type { InfinitePages } from './infinite.js'
 import {
   type PostsPage,
@@ -140,6 +144,37 @@ describe('query', () => {
           more: false
         })
         expect($loading()).toBe(false)
+
+        off()
+      })
+
+      it('should keep cache writes made while the next page loads', async () => {
+        const {
+          infinite,
+          $data
+        } = client(infinites())
+        const [fetchNext, $posts] = infinite(
+          PostsKey,
+          [],
+          page => page.nextCursor,
+          getPosts
+        )
+        const off = effect(() => {
+          $posts()
+        })
+
+        await waitTasks($posts)
+
+        const fetching = fetchNext()
+
+        $data(PostsKey(), posts => mapFirstPage(posts, page => ({
+          ...page,
+          posts: drop(page.posts, post => post.id === 1)
+        })))
+
+        await fetching
+
+        expect($posts()?.pages.map(page => page.posts.map(post => post.id))).toEqual([[2], [3]])
 
         off()
       })
