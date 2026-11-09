@@ -63,7 +63,7 @@ describe('query', () => {
         expect(entry).toEqual({
           rev: expect.any(Number),
           dedupes: 0,
-          expires: 0,
+          expires: Infinity,
           params: [],
           data: null,
           error: null,
@@ -484,6 +484,22 @@ describe('query', () => {
 
         expect(entry.loading).toBe(true)
         expect(entry.data).toBe(null)
+      })
+
+      it('should keep data written before the first answer', () => {
+        const key = queryKey('test')('a')
+
+        storage.set(key, {
+          ...storage.initial(),
+          data: 'written data'
+        })
+
+        storage.loading(key)
+
+        const entry = storage.$get(key)
+
+        expect(entry.loading).toBe(true)
+        expect(entry.data).toBe('written data')
       })
 
       it('should notify listeners on loading state change', () => {
