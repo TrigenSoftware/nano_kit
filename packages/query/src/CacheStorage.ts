@@ -127,7 +127,8 @@ export class CacheStorage {
         ? entry
         : {
           ...entry,
-          dedupes: now + this.dedupeTime,
+          // A failure is no answer to dedupe: the key is asked again once it is read again
+          dedupes: error === null ? now + this.dedupeTime : 0,
           expires: now + this.cacheTime,
           params: key.params,
           data: error === null ? data : entry.data,

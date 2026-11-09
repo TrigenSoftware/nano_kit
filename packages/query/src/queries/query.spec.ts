@@ -254,6 +254,29 @@ describe('query', () => {
         off()
       })
 
+      it('should ask for a failed key again when it is read again', async () => {
+        const { query } = client()
+        const $postId = signal(1)
+        const failingFetcher = vi.fn().mockRejectedValue(new Error('Network error'))
+        const [$data] = query(PostKey, [$postId], failingFetcher)
+        let off = effect(() => {
+          $data()
+        })
+
+        await waitTasks($data)
+
+        off()
+        off = effect(() => {
+          $data()
+        })
+
+        await waitTasks($data)
+
+        expect(failingFetcher).toHaveBeenCalledTimes(2)
+
+        off()
+      })
+
       it('should use custom error mapper', async () => {
         const { query } = client(
           mapError(err => `Failed: ${(err as Error).message}`)

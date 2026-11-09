@@ -179,12 +179,13 @@ describe('query', () => {
           $id(1)
           await waitTasks($data)
 
-          expect(fetcher).toHaveBeenCalledTimes(2)
+          // The second post, then the first one again, as a failed key is asked again
+          expect(fetcher).toHaveBeenCalledTimes(3)
 
           vi.advanceTimersByTime(5000)
           await waitTasks($data)
 
-          expect(fetcher).toHaveBeenCalledTimes(2)
+          expect(fetcher).toHaveBeenCalledTimes(3)
 
           off()
         })
