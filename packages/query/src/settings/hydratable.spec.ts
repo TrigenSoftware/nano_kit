@@ -179,6 +179,40 @@ describe('query', () => {
         offHydrated()
       })
 
+      it('should not ask again for an error the server rendered', async () => {
+        const hydratables = new Map()
+        const { query } = client(
+          hydratable(null, hydratables)
+        )
+        const [$post] = query(PostKey, [signal(1)], vi.fn().mockRejectedValue(new Error('Network error')))
+        const off = effect(() => {
+          $post()
+        })
+
+        await waitTasks($post)
+
+        off()
+
+        const { query: hydratedQuery } = client(
+          hydratable(new StaticHydrator([
+            [
+              '@nano_kit/query',
+              hydratables.get('@nano_kit/query')!()
+            ]
+          ]))
+        )
+        const hydratedFetcher = vi.fn(getPost)
+        const [$hydratedPost, $hydratedError] = hydratedQuery(PostKey, [signal(1)], hydratedFetcher)
+        const offHydrated = effect(() => {
+          $hydratedPost()
+        })
+
+        expect(hydratedFetcher).not.toHaveBeenCalled()
+        expect($hydratedError()).toBe('Network error')
+
+        offHydrated()
+      })
+
       it('should deserialize cache from dehydrated map', () => {
         const dehydrated: any = [
           [

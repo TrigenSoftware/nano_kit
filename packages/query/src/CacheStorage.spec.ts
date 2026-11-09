@@ -574,6 +574,14 @@ describe('query', () => {
         expect(storage.$get(key).data).toBe('first')
       })
 
+      it('should not dedupe a failed request', () => {
+        const key = queryKey('test')('a')
+
+        storage.settled(key, null, 'error message')
+
+        expect(storage.mute(storage.$get(key))).toBe(false)
+      })
+
       it('should update dedupes and expires timestamps', () => {
         const key = queryKey('test')('a')
         const now = Date.now()

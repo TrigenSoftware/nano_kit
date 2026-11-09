@@ -43,14 +43,25 @@ function encode({
 function decode(
   {
     cache,
-    codec
+    codec,
+    dedupeTime
   }: HydratableContext,
   encoded: EncodedShardedMap
 ) {
-  encoded.forEach(([shard, key, value]) => cache.set({
-    shard,
-    key
-  }, decodeEntry(value, codec)))
+  encoded.forEach(([shard, key, value]) => {
+    const entry = decodeEntry(value, codec)
+
+    // An error the server rendered is on the page already: it stays, as an answer would,
+    // rather than asked again as the page hydrates
+    if (entry.error) {
+      entry.dedupes = Date.now() + dedupeTime
+    }
+
+    cache.set({
+      shard,
+      key
+    }, entry)
+  })
 }
 
 /**

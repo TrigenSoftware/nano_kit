@@ -23,6 +23,6 @@
     "name": "Minimal set (Brotli)",
     "path": "dist/index.production.js",
     "import": "{ client, mutations, queryKey }",
-    "limit": "1.8 kB"
+    "limit": "1.75 kB"
   }
 ]
