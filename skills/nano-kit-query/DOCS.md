@@ -268,6 +268,8 @@ const [$post] = query(PostKey, [$postId], fetchPost, [
 
 This prevents unnecessary duplicate requests when multiple components or effects subscribe to the same data simultaneously.
 
+Only answers are deduped. A request that failed is not, so its key is asked again as soon as something reads it again, such as a page opened again or a parameter set back to it.
+
 ## Cache Keys
 
 Cache keys are identifiers used by `@nano_kit/query` to manage cached data. They serve as unique addresses for storing, retrieving, and invalidating query results.
@@ -369,6 +371,15 @@ $data(PostKey, null)  /* Clear all posts */
 /* Read and write cached errors */
 $error(PostKey(1))
 $error(PostKey(1), 'Failed to load post')
+```
+
+Data written to a key that has not loaded yet stays there while its first request loads, and the answer replaces it. So a mutation can write what it created under the key of the page it opens, and that page shows it at once:
+
+```ts
+onSuccess(ctx, (post) => {
+  /* The post's page shows it at once, while its own request confirms it */
+  $data(PostKey(post.id), post)
+})
 ```
 
 Both `$data(key, value)` and `$error(key, value)` return a function that restores the previous cached value, each entry its own after a write to a whole shard. This is useful for optimistic updates: write the optimistic value immediately, then call the returned function in an error callback.
@@ -1352,6 +1363,11 @@ This enables the usual SSR flow:
 2.  The renderer waits for the tasks of the signals the page returns from `Stores$`, and of everything they depend on.
 3.  Query cache state is dehydrated into the hydration payload.
 4.  The client rehydrates the cache and reuses the prefetched data.
+
+Two kinds of entries reach the client differently:
+
+- A request the server had not finished when it dehydrated the cache, such as one of a query read during render whose signal the page stores do not return, is made again in the browser rather than left loading.
+- An error the server rendered stays for the dedupe time, as an answer does, so the page does not ask for it again while it hydrates. An error that happens in the browser is asked again once its key is read again, see `dedupeTime`.
 
 ---
 

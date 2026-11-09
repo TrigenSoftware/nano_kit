@@ -36,3 +36,8 @@ This enables the usual SSR flow:
 2. The renderer waits for the tasks of the signals the page returns from [`Stores$`](/router/ssr#stores-data-dehydration), and of everything they depend on.
 3. Query cache state is dehydrated into the hydration payload.
 4. The client rehydrates the cache and reuses the prefetched data.
+
+Two kinds of entries reach the client differently:
+
+- A request the server had not finished when it dehydrated the cache, such as one of a query read during render whose signal the page stores do not return, is made again in the browser rather than left loading.
+- An error the server rendered stays for the dedupe time, as an answer does, so the page does not ask for it again while it hydrates. An error that happens in the browser is asked again once its key is read again, see [`dedupeTime`](/query/core-concepts#dedupetime).
