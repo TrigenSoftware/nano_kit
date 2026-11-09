@@ -102,15 +102,38 @@ export function infinite<P extends unknown[], C, R>(
   } = baseQuery<P, [cursor: C | undefined], InfinitePages<R, C>>(this, key, params, async (...args) => {
     const queryCtx = args[args.length - 1] as QueryContext<P, InfinitePages<R, C>>
     const cursor = args[args.length - 2] as C | undefined
-    const page = await fn(...args)
+    const pages: R[] = []
+    // From the first page, as many pages as are loaded: a list asked again keeps its length
+    let count = cursor === undefined && (clientCtx.$get(queryCtx).data as InfinitePages<R, C> | null)?.pages.length || 1
+    let nextValue = cursor
+    let firstCtx: object | undefined
+
+    try {
+      do {
+        (args as unknown[])[args.length - 2] = nextValue
+
+        const page = await fn(...args)
+
+        // One request, one set of callbacks: the context stays as the first page left it.
+        // Its own fields alone are kept, to be put back, so the prototype is not needed
+        firstCtx ??= {
+          // oxlint-disable-next-line typescript/no-misused-spread
+          ...queryCtx
+        }
+        pages.push(page)
+        nextValue = next(page)
+      } while (--count && nextValue)
+    } finally {
+      Object.assign(queryCtx, firstCtx)
+    }
+
     // The pages as they are by now: what was written while the page loaded stays
     const data = clientCtx.$get(queryCtx).data as InfinitePages<R, C> | null
-    const nextValue = next(page)
 
     return {
       pages: cursor === undefined
-        ? [page]
-        : [...data?.pages || [], page],
+        ? pages
+        : [...data?.pages || [], ...pages],
       next: nextValue,
       more: Boolean(nextValue)
     }
