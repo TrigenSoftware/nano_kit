@@ -70,7 +70,8 @@ export function retryOnError(
               const delay = this.calcRetryDelay!(retryCount, error)
 
               this.retryTimeoutId = setTimeout(() => {
-                this.invalidate(queryCtx)
+                // Asked again over what it shows, as the loaded pages of an infinite query
+                this.revalidate(queryCtx)
                 setRetryCount(this, queryCtx, retryCount)
               }, delay)
             }

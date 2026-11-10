@@ -12,10 +12,17 @@ import {
   waitTasks
 } from '@nano_kit/store'
 import { queryKey } from '../cache.js'
-import { client } from '../client.js'
+import {
+  type InfinitePages,
+  client,
+  infinites
+} from '../client.js'
 import {
   type Post,
-  resetMockData
+  type PostsPage,
+  resetMockData,
+  getPosts,
+  createPost
 } from '../client.mock.js'
 import {
   retryOnError,
@@ -23,6 +30,7 @@ import {
 } from './retryOnError.js'
 
 const PostKey = queryKey<[id: number], Post | null>('post')
+const PostsKey = queryKey<[], InfinitePages<PostsPage, number | undefined>>('posts')
 
 describe('query', () => {
   describe('settings', () => {
@@ -211,6 +219,79 @@ describe('query', () => {
           expect(fetcher).toHaveBeenCalledTimes(2)
 
           vi.restoreAllMocks()
+          off()
+        })
+
+        it('should keep the data while it retries', async () => {
+          const {
+            query,
+            revalidate
+          } = client()
+          const $id = signal(1)
+          const calcDelay = vi.fn().mockReturnValue(1000)
+          const post = {
+            id: 1,
+            title: 'Post',
+            content: 'Content'
+          }
+          const fetcher = vi.fn()
+            .mockResolvedValueOnce(post)
+            .mockRejectedValueOnce(new Error('test error'))
+            .mockReturnValue(new Promise(() => {}))
+          const [$data] = query(PostKey, [$id], fetcher, [retryOnError(calcDelay)])
+          const off = effect(() => {
+            $data()
+          })
+
+          await waitTasks($data)
+
+          revalidate(PostKey(1))
+          await waitTasks($data)
+
+          vi.advanceTimersByTime(1000)
+
+          expect(fetcher).toHaveBeenCalledTimes(3)
+          expect($data()).toEqual(post)
+
+          off()
+        })
+
+        it('should keep the loaded pages when it retries a failed next page', async () => {
+          const { infinite } = client(infinites())
+          const calcDelay = vi.fn().mockReturnValue(1000)
+          const fetcher = vi.fn(getPosts)
+          const [fetchNext, $data] = infinite(
+            PostsKey,
+            [],
+            page => page.nextCursor,
+            fetcher,
+            [retryOnError(calcDelay)]
+          )
+
+          await createPost({
+            title: 'Fourth Post',
+            content: 'Fourth Content'
+          })
+          await createPost({
+            title: 'Fifth Post',
+            content: 'Fifth Content'
+          })
+
+          const off = effect(() => {
+            $data()
+          })
+
+          await waitTasks($data)
+          await fetchNext()
+
+          fetcher.mockRejectedValueOnce(new Error('test error'))
+          await fetchNext()
+
+          vi.advanceTimersByTime(1000)
+          await waitTasks($data)
+
+          expect($data()?.pages).toHaveLength(2)
+
           off()
         })
       })
