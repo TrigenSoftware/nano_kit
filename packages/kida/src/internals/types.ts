@@ -28,30 +28,6 @@ export type Signalish<T> = T | Accessor<T>
 
 export type AnySignalish = Signalish<any>
 
-/**
- * @deprecated Use `Signalish`
- * @todo Drop at the next major
- */
-export type ValueOrAccessor<T> = Signalish<T>
-
-/**
- * @deprecated Use `Signalish`
- * @todo Drop at the next major
- */
-export type AnyValueOrAccessor = AnySignalish
-
-/**
- * @deprecated Use `Signalish`
- * @todo Drop at the next major
- */
-export type ValueOrSignal<T> = T | ReadableSignal<T>
-
-/**
- * @deprecated Use `Signalish`
- * @todo Drop at the next major
- */
-export type ValueOrWritableSignal<T> = T | WritableSignal<T>
-
 export type ToSignal<T> = [T] extends [AnyWritableSignal]
   ? T
   : [T] extends [AnyReadableSignal]

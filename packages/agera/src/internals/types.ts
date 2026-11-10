@@ -145,12 +145,6 @@ export type AccessorValue<T> = T extends Accessor<infer U> ? U : never
 
 export type SignalishValue<T> = T extends Accessor<infer U> ? U : T
 
-/**
- * @deprecated Use `SignalishValue`
- * @todo Drop at the next major
- */
-export type MaybeAccessorValue<T> = SignalishValue<T>
-
 export type Mountable<S extends AnySignal> = S & {
   node: EnableVirtualFlags<S['node'], 'mountable'>
 }
