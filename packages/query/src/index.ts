@@ -2,7 +2,7 @@ export * from './settings/index.js'
 export {
   queryKey,
   operationKey,
-  keys
+  eachKeyBuilder
 } from './cache.js'
 export {
   type CacheKey,

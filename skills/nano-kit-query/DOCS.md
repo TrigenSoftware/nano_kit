@@ -781,25 +781,49 @@ const [$post] = query(PostKey, [$postId], (id, ctx) => {
 
 ## Registered Cache Keys
 
-Every `queryKey()` builder is registered automatically. Use `keys()` to iterate over cache key builders:
+Every `queryKey()` builder is registered automatically. Use `eachKeyBuilder()` to iterate over cache key builders:
 
 ```ts
-import { client, keys, queryKey } from '@nano_kit/query'
+import { client, eachKeyBuilder, queryKey } from '@nano_kit/query'
 
 const PostKey = queryKey<[id: number], Post>('post')
 const UserKey = queryKey<[id: number], User>('user')
 const { revalidate, invalidate } = client()
 
 /* Mark every registered query shard as stale */
-keys(revalidate)
+eachKeyBuilder(revalidate)
 
 /* Or remove every registered query shard from cache */
-keys(invalidate)
+eachKeyBuilder(invalidate)
 ```
 
 This is useful after broad application changes, such as sign in, sign out, locale changes, or any mutation that can affect several query domains at once.
 
 The name of a builder is its cache shard: two builders with one name share one cache.
+
+## Cached Keys
+
+A builder passed to `revalidate()`, `invalidate()` or `$data()` reaches every entry of its shard. To reach only some of them, add the `keys()` extension: its `eachKey()` calls back with every cached key of a builder, and each key carries the parameters it was loaded with:
+
+```ts
+import { client, keys, queryKey } from '@nano_kit/query'
+
+const PostsKey = queryKey<[authorId: number, search: string], Post[]>('posts')
+const { eachKey, revalidate } = client(keys())
+
+/* Refetch only the searches among the posts of author 1 */
+eachKey(PostsKey, (key) => {
+  const [authorId, search] = key.params
+
+  if (authorId === 1 && search) {
+    revalidate(key)
+  }
+})
+```
+
+The key works with every method that takes a concrete key: `revalidate()`, `invalidate()`, `$data()` and `$error()`. Iteration is batched, as with `eachKeyBuilder()`.
+
+An entry that was only read, or written before its first load, has no parameters yet: its key comes with an empty `params` array.
 
 ## Cache Mutation Helpers
 
