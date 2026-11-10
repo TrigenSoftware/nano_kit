@@ -158,7 +158,7 @@ One store needs an update: `invalidateSession` from the authentication chapter i
 import { TranslationsKey } from './intl'
 
 const invalidateSession = () => {
-  keys(Key => Key !== TranslationsKey && invalidate(Key))
+  eachKeyBuilder(Key => Key !== TranslationsKey && invalidate(Key))
 }
 ```
 

@@ -66,11 +66,11 @@ export function queryKey<P extends unknown[], R>(
 }
 
 /**
- * Iterate over all cache key builders and call the provided callback with each key.
+ * Iterate over all cache key builders and call the provided callback with each builder.
  * Iteration is batched to avoid unnecessary reactivity triggers.
  * @param callback - The callback function to be called with each cache key builder.
  */
-export function keys(callback: (key: AnyCacheKeyBuilder) => void) {
+export function eachKeyBuilder(callback: (key: AnyCacheKeyBuilder) => void) {
   batch(() => keysSet.forEach(callback))
 }
 

@@ -12,7 +12,7 @@ import {
 } from '@nano_kit/store'
 import {
   queryKey,
-  keys
+  eachKeyBuilder
 } from '../cache.js'
 import {
   dedupe,
@@ -181,7 +181,7 @@ describe('query', () => {
         expect(userFetcher).toHaveBeenCalledTimes(1)
         expect(editorFetcher).toHaveBeenCalledTimes(1)
 
-        keys(revalidate)
+        eachKeyBuilder(revalidate)
 
         await waitTasks($userPost)
         await waitTasks($editorPost)

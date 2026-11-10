@@ -3,7 +3,7 @@ import {
   onMountEffect
 } from '@nano_kit/store'
 import {
-  keys,
+  eachKeyBuilder,
   onSuccess,
   queryKey
 } from '@nano_kit/query'
@@ -38,7 +38,7 @@ export function User$() {
     $userLoading
   ] = query(UserKey, [], () => userService.getUser())
   const invalidateSession = () => {
-    keys(Key => Key !== TranslationsKey && invalidate(Key))
+    eachKeyBuilder(Key => Key !== TranslationsKey && invalidate(Key))
   }
   const [
     login, ,

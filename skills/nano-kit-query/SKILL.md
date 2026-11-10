@@ -44,7 +44,7 @@ metadata:
 - `mutation`: a write on demand with the last result, error and loading state.
 - `operation`: manual work whose result deserves the cache (AI generation, reports, explicit search submits, lazy loading that must not start on mount).
 - `infinite`: pages behind a cursor; a parameter change restarts from the first page, while revalidation refetches every loaded page, so it is safe on a long list.
-- Create the client once per app as an injectable `Client$()` factory with the extensions the app needs (`mutations()`, `infinites()`, `operations()`) and `hydratable()` when the app renders on the server.
+- Create the client once per app as an injectable `Client$()` factory with the extensions the app needs (`mutations()`, `infinites()`, `operations()`, `keys()`) and `hydratable()` when the app renders on the server.
 
 ## Keys and parameters
 
@@ -60,7 +60,8 @@ metadata:
 - Optimistic update: write the cache first, register the revert with the error callback of the request context, then send the request.
 - A plain revert puts back the whole value and drops what was written since. When other writes can reach the entry while the request is in flight, such as a second press or a change to another field, give `$data` the function that undoes only this change.
 - The function that undoes a `drop` is ready-made: `restore` for arrays, `restorePages` for infinite pages. They put items back at their previous index in the data as it is by now, and leave it alone when a refetch has already brought them back.
-- `keys(...)` sweeps every registered builder at once; on login, logout or locale change invalidate everything except keys that must survive, such as translations.
+- `eachKeyBuilder(...)` sweeps every registered builder at once; on login, logout or locale change invalidate everything except keys that must survive, such as translations.
+- A builder passed to `revalidate`, `invalidate` or `$data` reaches its whole shard. To reach only the entries with some parameters, add the `keys()` extension and pick them by `key.params` in `eachKey(Key, key => ...)`.
 
 ## Settings that matter
 

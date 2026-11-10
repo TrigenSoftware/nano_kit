@@ -11,7 +11,7 @@ import {
 import { CacheStorage } from './CacheStorage.js'
 import {
   queryKey,
-  keys,
+  eachKeyBuilder,
   dataCacheFacade,
   errorCacheFacade
 } from './cache.js'
@@ -103,13 +103,13 @@ describe('query', () => {
       })
     })
 
-    describe('keys', () => {
+    describe('eachKeyBuilder', () => {
       it('should call callback with created key builders', () => {
         const UserKey = queryKey<[id: number], { name: string }>('users-list')
         const PostsKey = queryKey<[id: number], { title: string }>('posts-list')
         const callback = vi.fn()
 
-        keys(callback)
+        eachKeyBuilder(callback)
 
         expect(callback.mock.calls.map(([key]) => key)).toContain(UserKey)
         expect(callback.mock.calls.map(([key]) => key)).toContain(PostsKey)

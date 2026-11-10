@@ -101,7 +101,7 @@ The session state is just a query: `GET /api/users/me` keyed as `UserKey`. For a
 
 ```ts title="src/stores/user.ts"
 import { inject, onMountEffect } from '@nano_kit/store'
-import { keys, onSuccess, queryKey } from '@nano_kit/query'
+import { eachKeyBuilder, onSuccess, queryKey } from '@nano_kit/query'
 import { LocationNavigation$, Paths$ } from '@nano_kit/router'
 import { type LoginParams, type User, UserError } from '#src/services/user.types'
 import { UserService$ } from '#src/services/user'
@@ -125,7 +125,7 @@ export function User$() {
     $userLoading
   ] = query(UserKey, [], () => userService.getUser())
   const invalidateSession = () => {
-    keys(Key => invalidate(Key))
+    eachKeyBuilder(Key => invalidate(Key))
   }
   const [
     login, ,
@@ -169,7 +169,7 @@ export function User$() {
 
 Two details carry the weight here.
 
-`invalidateSession` runs after every login and logout. A session change invalidates more than the user: the personal `going` flags inside cached events are stale too. Instead of listing keys by hand, [`keys`](/query/advanced#registered-cache-keys) iterates every registered cache key and invalidates it.
+`invalidateSession` runs after every login and logout. A session change invalidates more than the user: the personal `going` flags inside cached events are stale too. Instead of listing keys by hand, [`eachKeyBuilder`](/query/advanced#registered-cache-keys) iterates every registered cache key builder and invalidates it.
 
 The [`onMountEffect`](/store/advanced#onmounteffect-and-onmounteffectscope) block is the route guard. The effect reads `$location.$route()` and `$userError()`, so both are tracked dependencies: it re-runs when the visitor navigates *and* when the session state changes. When an unauthenticated visitor reaches a route that is not public, the guard replaces the location with the login page. The location and navigation pair comes from [`LocationNavigation$`](/router/advanced#tokens), which provides both as one injectable tuple.
 

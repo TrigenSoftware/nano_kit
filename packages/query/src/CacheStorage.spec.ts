@@ -8,7 +8,7 @@ import {
 import { effect } from '@nano_kit/store'
 import {
   queryKey,
-  keys
+  eachKeyBuilder
 } from './cache.js'
 import {
   DEFAULT_DEDUPE_TIME,
@@ -293,7 +293,7 @@ describe('query', () => {
           loading: false
         })
 
-        keys(Key => storage.revalidate(Key))
+        eachKeyBuilder(Key => storage.revalidate(Key))
 
         const userEntry = storage.$get(userKey)
         const postEntry = storage.$get(postKey)
