@@ -604,7 +604,7 @@ $t().title
 // 'GARDEN OF THE WEEK'
 ```
 
-A message function, like one of `params`, `plural` or `match`, is passed as is, after the values of the call read from signals and accessors. The function calls the message with the values it chooses, or returns something else instead. When the message is called with the value itself, the function receives that value.
+A message function, like one of `params`, `plural` or `match`, is passed as is, followed by the values of the call read from signals and accessors. The function calls the message with the values it chooses, or returns something else instead. When the message is called with the value itself, the function receives that value.
 
 ```ts
 const translations = {
@@ -617,7 +617,7 @@ const [$t] = messages('garden', {
   location: wrap(params({
     city: text(),
     country: text()
-  }), (place, message) => (place.city && place.country ? message(place) : place.city || place.country))
+  }), (message, place) => (place.city && place.country ? message(place) : place.city || place.country))
 })
 
 $t().location({
@@ -639,7 +639,7 @@ The wrapped message renders only when the function calls it, and a value returne
 const [$t] = messages('garden', {
   greeting: wrap(params({
     name: text()
-  }), (values, message) => message({
+  }), (message, values) => message({
     name: values.name?.trim()
   }))
 })

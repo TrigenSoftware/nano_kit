@@ -29,7 +29,7 @@ describe('intl', () => {
         const place = wrap(params({
           city: text(),
           country: text()
-        }), (values, message) => (values.city && values.country ? message(values) : values.city || values.country))
+        }), (message, values) => (values.city && values.country ? message(values) : values.city || values.country))
 
         it('should render the wrapped message when the function calls it', () => {
           expect(place(ctx, '{city}, {country}')({
@@ -70,7 +70,7 @@ describe('intl', () => {
         it('should render the wrapped message with values the function passes', () => {
           const format = wrap(params({
             city: text()
-          }), (values, message) => message({
+          }), (message, values) => message({
             city: values.city?.trim()
           }))
 
@@ -80,7 +80,7 @@ describe('intl', () => {
         })
 
         it('should pass the value of a call made with the value itself', () => {
-          const format = wrap(plural('count'), (count, message) => (count ? message(count) : undefined))
+          const format = wrap(plural('count'), (message, count) => (count ? message(count) : undefined))
           const message = format(ctx, {
             one: '{count} view',
             other: '{count} views'
@@ -96,7 +96,7 @@ describe('intl', () => {
           }, plural('count', forms({
             one: text(),
             other: text()
-          }))), (values, message) => message(values))
+          }))), (message, values) => message(values))
 
           expect(format(ctx, {
             one: '{name} has {count} plant',
@@ -111,7 +111,7 @@ describe('intl', () => {
           const formatDate = wrap(format(datetime({
             dateStyle: 'medium',
             timeZone: 'UTC'
-          })), (date, message) => message(date))
+          })), (message, date) => message(date))
 
           expect(formatDate(ctx)(new Date('2024-01-02T00:00:00.000Z'))).toBe('Jan 2, 2024')
         })
@@ -119,7 +119,7 @@ describe('intl', () => {
         it('should pass the active locale', () => {
           const format = wrap(params({
             city: text()
-          }), (values, message, locale) => message(values)?.toLocaleUpperCase(locale))
+          }), (message, values, locale) => message(values)?.toLocaleUpperCase(locale))
 
           expect(format(trCtx, '{city}')({
             city: 'izmir'

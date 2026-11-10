@@ -17,11 +17,8 @@ export type WrapValues<A> = A extends Accessor<infer V>
     }
     : A
 
-/**
- * @todo Pass the message first at the next major, `[message, values, locale]`, like the value form and `choose`
- */
 export type WrapArgs<R> = [R] extends [(arg: infer A) => unknown]
-  ? [values: WrapValues<A>, message: R, locale: string]
+  ? [message: R, values: WrapValues<A>, locale: string]
   : [message: R, locale: string]
 
 export type Wrapped<R, O> = [R] extends [(arg: infer A) => unknown]
@@ -31,7 +28,7 @@ export type Wrapped<R, O> = [R] extends [(arg: infer A) => unknown]
 /**
  * Creates a formatter that wraps a message with a function deciding what it renders.
  * @param format - Formatter of the message to wrap.
- * @param fn - Function that receives the wrapped message and the active locale and returns what the message renders. A message function is passed as is, after the values of its call read from signals and accessors, for `fn` to call with the values it chooses.
+ * @param fn - Function that receives the wrapped message and the active locale and returns what the message renders. A message function is passed as is, followed by the values of its call read from signals and accessors, for `fn` to call with the values it chooses.
  * @returns Formatter that returns what `fn` returns, or a message function returning it.
  */
 export function wrap<I, R, O>(
@@ -49,7 +46,7 @@ export function wrap(
     const locale = ctx.$locale()
 
     return isFunction(message)
-      ? (arg: unknown) => fn(read(arg), message, locale)
+      ? (arg: unknown) => fn(message, read(arg), locale)
       : fn(message, locale)
   }
 }
