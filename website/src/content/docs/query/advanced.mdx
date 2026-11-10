@@ -520,6 +520,8 @@ Extensions allow you to add extra functionality to the client or individual quer
 
 Enables automatic retries when a request fails. It uses an exponential backoff strategy by default to determine the delay between attempts.
 
+A retry revalidates the key, so the data on screen stays while it runs, and an infinite query refetches its loaded pages, whose next page then comes with `fetchNext` as before. The error stays shown between attempts.
+
 ```ts
 import { client, retryOnError } from '@nano_kit/query'
 
