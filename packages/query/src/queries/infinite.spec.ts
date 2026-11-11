@@ -146,7 +146,7 @@ describe('query', () => {
               nextCursor: null
             }
           ],
-          next: null,
+          next: undefined,
           more: false
         })
         expect($loading()).toBe(false)
@@ -213,6 +213,60 @@ describe('query', () => {
 
         expect(result).toBeUndefined()
         expect(fetcher).toHaveBeenCalledTimes(2)
+
+        off()
+      })
+
+      it('should end the pages without a cursor when next returns false', async () => {
+        const { infinite } = client(infinites())
+        const [fetchNext, $data] = infinite(
+          PostsKey,
+          [],
+          page => page.nextCursor !== null && page.nextCursor,
+          getPosts
+        )
+        const off = effect(() => {
+          $data()
+        })
+
+        await waitTasks($data)
+
+        fetchNext()
+
+        await waitTasks($data)
+
+        // The cursor type leaves false out
+        const next: number | undefined = $data()?.next
+
+        expect($data()?.more).toBe(false)
+        expect(next).toBeUndefined()
+
+        off()
+      })
+
+      it('should end the pages without a cursor when next returns null', async () => {
+        const { infinite } = client(infinites())
+        const [fetchNext, $data] = infinite(
+          PostsKey,
+          [],
+          page => page.nextCursor,
+          getPosts
+        )
+        const off = effect(() => {
+          $data()
+        })
+
+        await waitTasks($data)
+
+        fetchNext()
+
+        await waitTasks($data)
+
+        // The cursor type leaves null out
+        const next: number | undefined = $data()?.next
+
+        expect($data()?.more).toBe(false)
+        expect(next).toBeUndefined()
 
         off()
       })

@@ -1,4 +1,5 @@
 import {
+  type FalsyValue,
   type Mountable,
   type ReadableSignal,
   action,
@@ -31,7 +32,7 @@ export interface InfinitePages<P, C> {
  * Create an infinite query that fetches paginated data with cache management.
  * @param key - The cache key builder.
  * @param params - The signal parameters for the query.
- * @param next - A function to determine the next cursor from the last page.
+ * @param next - A function to determine the next cursor from the last page, or a falsy value, like `undefined`, `null` or `false`, when there is no next page.
  * @param fn - The fetcher function that returns a promise of the data.
  * @param settings - Optional settings for the query.
  * @returns A tuple containing the fetchNext function and signals for data, error, loading state, and the cache key.
@@ -43,7 +44,7 @@ export function infinite<
 >(
   key: CacheKeyBuilder<P, InfinitePages<R, C>>,
   params: SignalishParams<P>,
-  next: (lastPage: R) => C | undefined,
+  next: (lastPage: R) => C | FalsyValue,
   fn: (...args: [...P, cursor: C | undefined, queryCtx: QueryContext<P, InfinitePages<R, C>>]) => Promise<R>,
   settings?: ClientSetting<QueryClientContext<InfinitePages<R, C>>>[]
 ): readonly [
@@ -58,7 +59,7 @@ export function infinite<
  * Create an infinite query that fetches paginated data with cache management.
  * @param key - The cache key builder.
  * @param params - The signal parameters for the query.
- * @param next - A function to determine the next cursor from the last page.
+ * @param next - A function to determine the next cursor from the last page, or a falsy value, like `undefined`, `null` or `false`, when there is no next page.
  * @param fn - The fetcher function that returns a promise of the data.
  * @param settings - Optional settings for the query.
  * @returns A tuple containing the fetchNext function and signals for data, error, loading state, and the cache key.
@@ -70,7 +71,7 @@ export function infinite<
 >(
   key: CacheKeyBuilder<P, InfinitePages<R, C>>,
   params: SignalishParams<P>,
-  next: (lastPage: R) => C | undefined,
+  next: (lastPage: R) => C | FalsyValue,
   fn: (...args: [...P, cursor: C | undefined]) => Promise<R>,
   settings?: ClientSetting<QueryClientContext<InfinitePages<R, C>>>[]
 ): readonly [
@@ -86,7 +87,7 @@ export function infinite<P extends unknown[], C, R>(
   this: ClientContext,
   key: CacheKeyBuilder<P, InfinitePages<R, C>>,
   params: SignalishParams<P>,
-  next: (lastPage: R) => C | undefined,
+  next: (lastPage: R) => C | FalsyValue,
   fn: (...args: [...P, cursor: C | undefined, queryCtx: QueryContext<P, InfinitePages<R, C>>]) => Promise<R>,
   settings?: ClientSetting<QueryClientContext<InfinitePages<R, C>>>[]
 ) {
@@ -121,7 +122,7 @@ export function infinite<P extends unknown[], C, R>(
           ...queryCtx
         }
         pages.push(page)
-        nextValue = next(page)
+        nextValue = next(page) || undefined
       } while (--count && nextValue)
     } finally {
       Object.assign(queryCtx, firstCtx)
