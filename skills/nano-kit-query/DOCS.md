@@ -1077,7 +1077,7 @@ const [result, error] = await generate('Write a post about React')
 
 Infinite queries enable pagination and "Load More" patterns by maintaining an array of pages in the cache.
 
-Use `infinite()` from `infinites()` extension. It requires a `getNextCursor` function to determine the next page's cursor.
+Use `infinite()` from `infinites()` extension. It requires a `getNextCursor` function to determine the next page's cursor. The function returns a falsy value, like `undefined`, `null` or `false`, when there is no next page.
 
 ```ts
 import { type InfinitePages, client, infinites, queryKey } from '@nano_kit/query'
@@ -1106,7 +1106,7 @@ const [fetchNext, $data, $error, $loading] = infinite(
 - `fetchNext`: Function to load the next page.
 - `$data`: Signal with `InfinitePages` object:
   - `pages`: Array of all loaded pages `P[]`.
-  - `next`: The next cursor value `C`.
+  - `next`: The next cursor value `C`, or `undefined` after the last page.
   - `more`: Boolean indicating if `next` cursor is present.
 - `$error`: Signal with error message (or `null`).
 - `$loading`: Signal indicating loading state.
