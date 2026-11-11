@@ -1,4 +1,5 @@
 import {
+  type Accessor,
   type Signalish,
   action,
   computed,
@@ -19,9 +20,32 @@ import {
 } from '../ClientContext.js'
 import { QueryContext } from '../RequestContext.js'
 
+declare const skip: unique symbol
+
+/**
+ * A query parameter wrapped in `required()`: it gives the value, or an internal mark while there is none.
+ */
+export type RequiredParam<T> = Accessor<T | typeof skip>
+
 export type SignalishParams<T extends unknown[]> = T extends [infer First, ...infer Rest]
-  ? [Signalish<First>, ...SignalishParams<Rest>]
+  ? [Signalish<First> | RequiredParam<First>, ...SignalishParams<Rest>]
   : []
+
+// The value of a required parameter while it has none, and the parameters of the query it skips:
+// empty, so the key filter gets every parameter as missing, as its `Partial<P>` type promises.
+// Typed as a symbol, so a read outside the parameters is flagged in strings and arithmetic
+const SKIP: typeof skip = [] as never
+
+/**
+ * Mark a query parameter as required: while it is `undefined` or `null`, the query is skipped.
+ * It neither fetches nor creates a cache entry, and its fetcher receives the parameter as non-nullable.
+ * @param $param - The parameter signal.
+ * @returns The required parameter, which gives an internal mark instead of a missing value.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function required<T>($param: Accessor<T>): RequiredParam<NonNullable<T>> {
+  return () => $param() ?? SKIP
+}
 
 /* @__NO_SIDE_EFFECTS__ */
 export function baseQuery<
@@ -35,7 +59,11 @@ export function baseQuery<
   fn: (...args: [...P, ...E, queryCtx: QueryContext<P, R>]) => Promise<R>,
   settings?: ClientSetting<QueryClientContext<R>>[]
 ) {
-  const $params = computed(() => params.map($get) as P)
+  const $params = computed(() => {
+    const values = params.map($get)
+
+    return (values.includes(SKIP) ? SKIP : values) as unknown as P
+  })
   const $key = computed((prevKey?: CacheKey<P, R>) => {
     const nextKey = key(...$params())
 
@@ -50,7 +78,16 @@ export function baseQuery<
     return nextKey
   })
   const clientCtx = forkQueryClient<R>(rootCtx, $key, settings)
-  const $entry = computed(() => clientCtx.$get($key()))
+  // A required parameter without a value skips the query: its entry is locked, so nothing is
+  // fetched, and stays out of the cache, which holds only keys with every parameter they need
+  const $entry = computed(() => (
+    $params() as unknown === SKIP
+      ? {
+        ...clientCtx.initial(),
+        rev: -1
+      }
+      : clientCtx.$get($key())
+  ))
   /**
    * Changes on every entry rev reset
    */

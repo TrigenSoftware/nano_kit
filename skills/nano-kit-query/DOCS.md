@@ -182,6 +182,41 @@ $userId(2)  // Refetches with new userId
 $postId(20) // Refetches with new postId
 ```
 
+### Required Parameters
+
+A parameter can have no value for a while, like the id of a post that is not open yet. Wrap its signal in `required()`: while it is `undefined` or `null`, the query is skipped. It does not fetch and does not create a cache entry, its data is `null` and it is not loading. The fetcher receives the parameter without `undefined` and `null`, so the cache key types it as a plain value:
+
+```ts
+import { required } from '@nano_kit/query'
+
+const PostKey = queryKey<[id: number], Post>('post')
+const $postId = signal<number | undefined>(undefined)
+
+const [$post, , $loading] = query(PostKey, [required($postId)], fetchPost)
+
+effect(() => {
+  console.log('Post:', $post(), 'Loading:', $loading())
+})
+// Post: null Loading: false <- Skipped, nothing is fetched
+
+$postId(1)
+// Post: null Loading: true
+// Post: { id: 1, title: 'First' } Loading: false
+```
+
+A parameter that is not wrapped keeps `undefined` as its value, so one query can have both:
+
+```ts
+const CommentsKey = queryKey<[postId: number, authorId: number | undefined], Comment[]>('comments')
+
+/* Comments of every author while $authorId is undefined */
+const [$comments] = query(CommentsKey, [required($postId), $authorId], fetchComments)
+```
+
+Infinite queries and operations are skipped the same way: `fetchNext()` and `fetch()` do nothing while a required parameter has no value.
+
+Pass the result of `required()` only to the parameters of a query: without a value it gives an internal mark, not `undefined`. Read the original signal everywhere else.
+
 ### Cache Behavior
 
 Queries automatically cache data based on cache keys. When you refetch with the same parameters, the previous cached data is shown while new data loads:
@@ -669,7 +704,7 @@ const [$user] = query(UserKey, [$userId], fetchUser, [
 ])
 ```
 
-**When to use:** Conditionally enable queries based on application state, such as authentication status or availability of required parameters.
+**When to use:** Conditionally enable queries based on application state, such as authentication status. When a query waits for a parameter to have a value, wrap the parameter in `required()` instead: the fetcher then receives it without `undefined`, and no cache entry is created in the meantime.
 
 ### `mapError`
 

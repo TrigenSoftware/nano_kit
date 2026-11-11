@@ -3,6 +3,7 @@ import {
   describe,
   it,
   expect,
+  expectTypeOf,
   beforeEach
 } from 'vitest'
 import {
@@ -22,6 +23,9 @@ import {
 } from '../ClientContext.js'
 import { client } from '../client.js'
 import { previous } from '../RequestContext.js'
+import { keys } from '../settings/keys.js'
+import { revalidateOn } from '../settings/revalidateOn.js'
+import { required } from './base.js'
 import {
   type Post,
   type PostsPage,
@@ -331,6 +335,143 @@ describe('query', () => {
         expect(dataSpy).toHaveBeenCalledTimes(2)
         expect(fetcher).toHaveBeenCalledTimes(1)
         expect($data()?.title).toBe('First Post')
+
+        off()
+      })
+
+      it('should not fetch while a required parameter has no value', async () => {
+        const { query } = client()
+        const $postId = signal<number | undefined>(undefined)
+        const dataSpy = vi.fn()
+        const fetcher = vi.fn(getPost)
+        const [$data, $error, $loading] = query(PostKey, [required($postId)], fetcher)
+        const off = effect(() => {
+          dataSpy($data())
+        })
+
+        await waitTasks($data)
+
+        expect(dataSpy).toHaveBeenCalledTimes(1)
+        expect(dataSpy).toHaveBeenCalledWith(null)
+        expect($error()).toBe(null)
+        expect($loading()).toBe(false)
+        expect(fetcher).not.toHaveBeenCalled()
+
+        $postId(1)
+
+        expect($loading()).toBe(true)
+
+        await waitTasks($data)
+
+        expect(fetcher).toHaveBeenCalledTimes(1)
+        expect(fetcher).toHaveBeenCalledWith(1, expect.anything())
+        expect($data()?.title).toBe('First Post')
+
+        off()
+      })
+
+      it('should skip again when a required parameter loses its value', async () => {
+        const { query } = client()
+        const $postId = signal<number | null>(1)
+        const fetcher = vi.fn(getPost)
+        const [$data, , $loading] = query(PostKey, [required($postId)], fetcher)
+        const off = effect(() => {
+          $data()
+        })
+
+        await waitTasks($data)
+
+        expect($data()?.title).toBe('First Post')
+
+        $postId(null)
+
+        expect($data()).toBe(null)
+        expect($loading()).toBe(false)
+
+        $postId(1)
+
+        expect($data()?.title).toBe('First Post')
+        expect(fetcher).toHaveBeenCalledTimes(1)
+
+        off()
+      })
+
+      it('should not create a cache entry while a required parameter has no value', () => {
+        const {
+          query,
+          revalidate,
+          eachKey
+        } = client(keys())
+        const $postId = signal<number | undefined>(undefined)
+        const keySpy = vi.fn()
+        const [$data, , , $key] = query(PostKey, [required($postId)], getPost)
+        const off = effect(() => {
+          $data()
+        })
+
+        revalidate($key())
+        eachKey(PostKey, keySpy)
+
+        expect(keySpy).not.toHaveBeenCalled()
+
+        off()
+      })
+
+      it('should pass a parameter without a value when it is not required', async () => {
+        const { query } = client()
+        const AuthorPostKey = queryKey<[id: number, authorId: number | undefined], Post | null>('authorPost')
+        const $postId = signal<number | undefined>(1)
+        const $authorId = signal<number | undefined>(undefined)
+        const fetcher = vi.fn((id: number, _authorId: number | undefined) => getPost(id))
+        const [$data] = query(AuthorPostKey, [required($postId), $authorId], fetcher)
+        const off = effect(() => {
+          $data()
+        })
+
+        await waitTasks($data)
+
+        expect(fetcher).toHaveBeenCalledWith(1, undefined, expect.anything())
+        expect($data()?.title).toBe('First Post')
+
+        off()
+      })
+
+      it('should pass a plain parameter without a value', async () => {
+        const { query } = client()
+        const TaggedPostKey = queryKey<[id: number, authorId: number | undefined, tag: string | null], Post | null>('taggedPost')
+        const fetcher = vi.fn((id: number, _authorId: number | undefined, _tag: string | null) => getPost(id))
+        const [$data] = query(TaggedPostKey, [1, undefined, null], fetcher)
+        const off = effect(() => {
+          $data()
+        })
+
+        await waitTasks($data)
+
+        expect(fetcher).toHaveBeenCalledWith(1, undefined, null, expect.anything())
+        expect($data()?.title).toBe('First Post')
+
+        off()
+      })
+
+      it('should type a required parameter as its value or a mark', () => {
+        const $postId = required(signal<number | undefined>(1))
+
+        expectTypeOf($postId).returns.extract<number>().toEqualTypeOf<number>()
+        expectTypeOf($postId).returns.exclude<number>().toBeSymbol()
+      })
+
+      it('should give the key filter no value while a required parameter has none', () => {
+        const { query } = client()
+        const SearchKey = queryKey<[search: string], Post | null>('search', ([search]) => [search?.trim()])
+        const $search = signal<string | undefined>(undefined)
+        const $focused = signal(false)
+        const [$data, , , $key] = query(SearchKey, [required($search)], () => getPost(1), [revalidateOn($focused)])
+        const off = effect(() => {
+          $data()
+        })
+
+        expect(() => $focused(true)).not.toThrow()
+        expect($key().key).toBe('[null]')
 
         off()
       })

@@ -59,7 +59,7 @@ const [$user] = query(UserKey, [$userId], fetchUser, [
 ])
 ```
 
-**When to use:** Conditionally enable queries based on application state, such as authentication status or availability of required parameters.
+**When to use:** Conditionally enable queries based on application state, such as authentication status. When a query waits for a parameter to have a value, wrap the parameter in [`required()`](/query/core-concepts#required-parameters) instead: the fetcher then receives it without `undefined`, and no cache entry is created in the meantime.
 
 ### `mapError`
 
