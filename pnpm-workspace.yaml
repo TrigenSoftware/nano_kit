@@ -26,7 +26,7 @@ catalog:
   happy-dom: ^21.0.0
   preact: ^11.0.0
   preact-render-to-string: ^6.8.1
-  playwright: ^1.60.0
+  playwright: ^1.65.0
   react: ^19.2.8
   react-dom: ^19.2.8
   size-limit: ^14.0.1

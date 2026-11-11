@@ -49,8 +49,8 @@ catalogs:
       specifier: ^21.0.0
       version: 21.0.1
     playwright:
-      specifier: ^1.60.0
-      version: 1.60.0
+      specifier: ^1.65.0
+      version: 1.65.0
     preact:
       specifier: ^11.0.0
       version: 11.0.1
@@ -176,7 +176,7 @@ importers:
         version: 7.0.2001
       playwright:
         specifier: 'catalog:'
-        version: 1.60.0
+        version: 1.65.0
       react:
         specifier: 'catalog:'
         version: 19.2.8
@@ -200,7 +200,7 @@ importers:
         version: 24.13.2
       playwright:
         specifier: 'catalog:'
-        version: 1.60.0
+        version: 1.65.0
       typescript:
         specifier: 'catalog:'
         version: 7.0.2
@@ -289,7 +289,7 @@ importers:
     devDependencies:
       playwright:
         specifier: 'catalog:'
-        version: 1.60.0
+        version: 1.65.0
       typescript:
         specifier: 'catalog:'
         version: 7.0.2
@@ -479,7 +479,7 @@ importers:
     devDependencies:
       playwright:
         specifier: 'catalog:'
-        version: 1.60.0
+        version: 1.65.0
       typescript:
         specifier: 'catalog:'
         version: 7.0.2
@@ -891,7 +891,7 @@ importers:
     devDependencies:
       playwright:
         specifier: 'catalog:'
-        version: 1.60.0
+        version: 1.65.0
       typescript:
         specifier: 'catalog:'
         version: 7.0.2
@@ -1011,7 +1011,7 @@ importers:
     devDependencies:
       playwright:
         specifier: 'catalog:'
-        version: 1.60.0
+        version: 1.65.0
       typescript:
         specifier: 'catalog:'
         version: 7.0.2
@@ -1376,7 +1376,7 @@ importers:
         version: 1.4.1
       playwright:
         specifier: 'catalog:'
-        version: 1.60.0
+        version: 1.65.0
       rxjs:
         specifier: ^7.8.2
         version: 7.8.2
@@ -1576,13 +1576,13 @@ importers:
         version: 5.0.0(vite@8.2.1(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))(vitest@5.0.0)
       '@vitest/browser-playwright':
         specifier: ^5.0.0
-        version: 5.0.0(playwright@1.60.0)(vite@8.2.1(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))(vitest@5.0.0)
+        version: 5.0.0(playwright@1.65.0)(vite@8.2.1(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))(vitest@5.0.0)
       '@vitest/coverage-v8':
         specifier: 'catalog:'
         version: 5.0.0(@vitest/browser@5.0.0)(vitest@5.0.0)
       playwright:
         specifier: 'catalog:'
-        version: 1.60.0
+        version: 1.65.0
       size-limit:
         specifier: 'catalog:'
         version: 14.0.1
@@ -6205,11 +6205,6 @@ packages:
   fs.realpath@1.0.0:
     resolution: {integrity: sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==}
 
-  fsevents@2.3.2:
-    resolution: {integrity: sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==}
-    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
-    os: [darwin]
-
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
@@ -7396,14 +7391,14 @@ packages:
     resolution: {integrity: sha512-qcJu88Q2IWqJsDD529JKMdwGm/dvInW4HvQnRwiH9JtihJvzGOscDtHE3x1pBKeUOTysQ8kVmLnJ2kJu7yhcGA==}
     engines: {node: '>=12'}
 
-  playwright-core@1.60.0:
-    resolution: {integrity: sha512-9bW6zvX/m0lEbgTKJ6YppOKx8H3VOPBMOCFh2irXFOT4BbHgrx5hPjwJYLT40Lu+4qtD36qKc/Hn56StUW57IA==}
-    engines: {node: '>=18'}
+  playwright-core@1.65.0:
+    resolution: {integrity: sha512-vNSKgH6YqtN7cdT/L334zo0a+YwkrpicyrHJlWWPIm/Q+Nn2SWInil01oT0mbu96U4GgoRtCYQD9CzJQgju+lA==}
+    engines: {node: '>=20'}
     hasBin: true
 
-  playwright@1.60.0:
-    resolution: {integrity: sha512-hheHdokM8cdqCb0lcE3s+zT4t4W+vvjpGxsZlDnikarzx8tSzMebh3UiFtgqwFwnTnjYQcsyMF8ei2mCO/tpeA==}
-    engines: {node: '>=18'}
+  playwright@1.65.0:
+    resolution: {integrity: sha512-F3AMWcR44qMBt4kq+6Kb6mX7bjGXshktKFOPULd7reED6ZJWevjbNRqysP7q+AATE9kdPEZBibex1BYsvpVoeA==}
+    engines: {node: '>=20'}
     hasBin: true
 
   pngjs@7.0.0:
@@ -11202,11 +11197,11 @@ snapshots:
       '@rolldown/pluginutils': 1.0.1
       vite: 8.2.1(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0)
 
-  '@vitest/browser-playwright@5.0.0(playwright@1.60.0)(vite@8.2.1(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))(vitest@5.0.0)':
+  '@vitest/browser-playwright@5.0.0(playwright@1.65.0)(vite@8.2.1(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))(vitest@5.0.0)':
     dependencies:
       '@vitest/browser': 5.0.0(vite@8.2.1(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))(vitest@5.0.0)
       '@vitest/mocker': 5.0.0(vite@8.2.1(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))
-      playwright: 1.60.0
+      playwright: 1.65.0
       tinyrainbow: 3.1.1
       vitest: 5.0.0(@types/node@24.13.2)(@vitest/browser-playwright@5.0.0)(@vitest/coverage-v8@5.0.0)(@vitest/ui@5.0.0)(happy-dom@21.0.1)(vite@8.2.1(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))
     transitivePeerDependencies:
@@ -12449,9 +12444,6 @@ snapshots:
       universalify: 2.0.1
 
   fs.realpath@1.0.0: {}
-
-  fsevents@2.3.2:
-    optional: true
 
   fsevents@2.3.3:
     optional: true
@@ -14050,13 +14042,11 @@ snapshots:
 
   picomatch@4.0.7: {}
 
-  playwright-core@1.60.0: {}
+  playwright-core@1.65.0: {}
 
-  playwright@1.60.0:
+  playwright@1.65.0:
     dependencies:
-      playwright-core: 1.60.0
-    optionalDependencies:
-      fsevents: 2.3.2
+      playwright-core: 1.65.0
 
   pngjs@7.0.0: {}
 
@@ -15248,7 +15238,7 @@ snapshots:
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 24.13.2
-      '@vitest/browser-playwright': 5.0.0(playwright@1.60.0)(vite@8.2.1(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))(vitest@5.0.0)
+      '@vitest/browser-playwright': 5.0.0(playwright@1.65.0)(vite@8.2.1(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))(vitest@5.0.0)
       '@vitest/coverage-v8': 5.0.0(@vitest/browser@5.0.0)(vitest@5.0.0)
       '@vitest/ui': 5.0.0(vitest@5.0.0)
       happy-dom: 21.0.1
