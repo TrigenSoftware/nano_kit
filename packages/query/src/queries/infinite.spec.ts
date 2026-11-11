@@ -26,6 +26,7 @@ import {
   mapFirstPage
 } from '../utils.js'
 import type { InfinitePages } from './infinite.js'
+import { required } from './base.js'
 import {
   type PostsPage,
   resetMockData,
@@ -34,6 +35,7 @@ import {
 } from '../client.mock.js'
 
 const PostsKey = queryKey<[], InfinitePages<PostsPage, number | undefined>>('posts')
+const AuthorPostsKey = queryKey<[authorId: number], InfinitePages<PostsPage, number>>('authorPosts')
 
 describe('query', () => {
   describe('queries', () => {
@@ -213,6 +215,38 @@ describe('query', () => {
 
         expect(result).toBeUndefined()
         expect(fetcher).toHaveBeenCalledTimes(2)
+
+        off()
+      })
+
+      it('should not fetch while a required parameter has no value', async () => {
+        const { infinite } = client(infinites())
+        const $authorId = signal<number | undefined>(undefined)
+        const fetcher = vi.fn((_authorId: number, cursor: number | undefined) => getPosts(cursor))
+        const [fetchNext, $data, , $loading] = infinite(
+          AuthorPostsKey,
+          [required($authorId)],
+          page => page.nextCursor,
+          fetcher
+        )
+        const off = effect(() => {
+          $data()
+        })
+
+        await waitTasks($data)
+
+        expect(await fetchNext()).toBeUndefined()
+        expect($data()).toBe(null)
+        expect($loading()).toBe(false)
+        expect(fetcher).not.toHaveBeenCalled()
+
+        $authorId(1)
+
+        await waitTasks($data)
+
+        expect(fetcher).toHaveBeenCalledTimes(1)
+        expect(fetcher).toHaveBeenCalledWith(1, undefined, expect.anything())
+        expect($data()?.pages).toHaveLength(1)
 
         off()
       })

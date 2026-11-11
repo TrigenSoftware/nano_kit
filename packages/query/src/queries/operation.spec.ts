@@ -26,6 +26,7 @@ import {
 } from '../client.mock.js'
 import { dedupe } from '../ClientContext.js'
 import { previous } from '../RequestContext.js'
+import { required } from './base.js'
 
 const PostKey = queryKey<[id: number], Post | null>('post')
 const UpdatePostKey = operationKey<[id: number], [params: UpdatePostParams], Post | null>('updatePost')
@@ -96,6 +97,29 @@ describe('query', () => {
         expect(dataSpy).toHaveBeenCalledTimes(1)
         expect(dataSpy).toHaveBeenLastCalledWith(null)
         expect($error()).toBe('Fetch failed')
+
+        off()
+      })
+
+      it('should not fetch while a required parameter has no value', async () => {
+        const { operation } = client(operations())
+        const $postId = signal<number | undefined>(undefined)
+        const fetcher = vi.fn(getPost)
+        const [fetch, $data, , $loading] = operation(PostKey, [required($postId)], fetcher)
+        const off = effect(() => {
+          $data()
+        })
+
+        expect(await fetch()).toBeUndefined()
+        expect($loading()).toBe(false)
+        expect(fetcher).not.toHaveBeenCalled()
+
+        $postId(1)
+
+        await fetch()
+
+        expect(fetcher).toHaveBeenCalledTimes(1)
+        expect($data()?.title).toBe('First Post')
 
         off()
       })

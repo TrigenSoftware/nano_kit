@@ -5,6 +5,10 @@ export {
   eachKeyBuilder
 } from './cache.js'
 export {
+  type RequiredParam,
+  required
+} from './queries/base.js'
+export {
   type CacheKey,
   type CacheShardKey,
   type CacheEntry,

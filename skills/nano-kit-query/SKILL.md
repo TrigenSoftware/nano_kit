@@ -50,6 +50,7 @@ metadata:
 
 - A key builder names a cache shard and types its parameters and data. Shard names must be unique across the app; two builders with one name share a cache.
 - Parameters must be JSON-serializable. Give the parameter tuple exactly the builder's parameter types, plain values included.
+- Wrap a parameter that can have no value yet, such as an id from the route, in `required()`: while it is `undefined` or `null` the query neither fetches nor creates a cache entry, and the key and the fetcher take it as a plain value. Pass the wrapper only into the parameters: without a value it gives an internal mark, not `undefined`; read the original signal elsewhere. Do not return `null` from the fetcher for a missing parameter.
 - Exclude paging or presentation parameters from the key when every page of one request should share an entry.
 - Derive parameters from route and search state through the router's signals (skill `nano-kit-react-router`), not from `window.location`.
 
