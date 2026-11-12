@@ -86,3 +86,4 @@ metadata:
 - To run calls one after another, `await previous(ctx)` in the fetcher and give mutations and operations `dedupe(false)`: otherwise a call made while one is in flight is dropped before it can wait.
 - Reading the cache with `$data(key)` inside an effect subscribes the effect to that entry; use an untracked read for one-off reads in actions.
 - Entities normalize only what the mapper captures; nested records that are not captured stay plain copies.
+- `$loading` and `$error` of `infinite` cover a refetch of the loaded pages too. Drive the load-more control with `$nextLoading` and pick the retry by `$nextError`: `fetchNext` when it is set, `revalidate` otherwise.
