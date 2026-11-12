@@ -605,6 +605,112 @@ describe('query', () => {
 
         off()
       })
+
+      it('should mark the loading of the next page', async () => {
+        const { infinite } = client(infinites())
+        const [fetchNext, $data, , , , $nextLoading] = infinite(
+          PostsKey,
+          [],
+          page => page.nextCursor,
+          getPosts
+        )
+        const off = effect(() => {
+          $data()
+        })
+
+        await waitTasks($data)
+
+        const nextPage = fetchNext()
+
+        expect($nextLoading()).toBe(true)
+
+        await nextPage
+
+        expect($nextLoading()).toBe(false)
+
+        off()
+      })
+
+      it('should not mark the first page and a refetch as the next page', async () => {
+        const {
+          infinite,
+          revalidate
+        } = client(infinites())
+        const [fetchNext, $data, , $loading, , $nextLoading] = infinite(
+          PostsKey,
+          [],
+          page => page.nextCursor,
+          getPosts
+        )
+        const off = effect(() => {
+          $data()
+        })
+
+        expect($loading()).toBe(true)
+        expect($nextLoading()).toBe(false)
+
+        await waitTasks($data)
+        await fetchNext()
+        revalidate(PostsKey())
+
+        expect($loading()).toBe(true)
+        expect($nextLoading()).toBe(false)
+
+        await waitTasks($data)
+
+        off()
+      })
+
+      it('should give the error of a failed next page', async () => {
+        const { infinite } = client(infinites())
+        const fetcher = vi.fn(getPosts)
+        const [fetchNext, $data, $error, , $nextError] = infinite(
+          PostsKey,
+          [],
+          page => page.nextCursor,
+          fetcher
+        )
+        const off = effect(() => {
+          $data()
+        })
+
+        await waitTasks($data)
+        fetcher.mockRejectedValue(new Error('Network error'))
+        await fetchNext()
+
+        expect($error()).toBe('Network error')
+        expect($nextError()).toBe('Network error')
+
+        off()
+      })
+
+      it('should not give the error of a failed refetch as the error of the next page', async () => {
+        const {
+          infinite,
+          revalidate
+        } = client(infinites())
+        const fetcher = vi.fn(getPosts)
+        const [fetchNext, $data, $error, , $nextError] = infinite(
+          PostsKey,
+          [],
+          page => page.nextCursor,
+          fetcher
+        )
+        const off = effect(() => {
+          $data()
+        })
+
+        await waitTasks($data)
+        await fetchNext()
+        fetcher.mockRejectedValue(new Error('Network error'))
+        revalidate(PostsKey())
+        await waitTasks($data)
+
+        expect($error()).toBe('Network error')
+        expect($nextError()).toBe(null)
+
+        off()
+      })
     })
   })
 })

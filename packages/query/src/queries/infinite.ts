@@ -3,6 +3,8 @@ import {
   type Mountable,
   type ReadableSignal,
   action,
+  computed,
+  signal,
   effect,
   effectScope,
   onStart
@@ -35,7 +37,8 @@ export interface InfinitePages<P, C> {
  * @param next - A function to determine the next cursor from the last page, or a falsy value, like `undefined`, `null` or `false`, when there is no next page.
  * @param fn - The fetcher function that returns a promise of the data.
  * @param settings - Optional settings for the query.
- * @returns A tuple containing the fetchNext function and signals for data, error, loading state, and the cache key.
+ * @returns A tuple containing the fetchNext function and signals for data, error, loading state,
+ * error and loading state of the next page alone, and the cache key.
  */
 export function infinite<
   P extends unknown[],
@@ -52,6 +55,8 @@ export function infinite<
   $data: Mountable<ReadableSignal<InfinitePages<R, C> | null>>,
   $error: ReadableSignal<string | null>,
   $loading: ReadableSignal<boolean>,
+  $nextError: ReadableSignal<string | null>,
+  $nextLoading: ReadableSignal<boolean>,
   $key: ReadableSignal<CacheKey<P, InfinitePages<R, C>>>
 ]
 
@@ -62,7 +67,8 @@ export function infinite<
  * @param next - A function to determine the next cursor from the last page, or a falsy value, like `undefined`, `null` or `false`, when there is no next page.
  * @param fn - The fetcher function that returns a promise of the data.
  * @param settings - Optional settings for the query.
- * @returns A tuple containing the fetchNext function and signals for data, error, loading state, and the cache key.
+ * @returns A tuple containing the fetchNext function and signals for data, error, loading state,
+ * error and loading state of the next page alone, and the cache key.
  */
 export function infinite<
   P extends unknown[],
@@ -79,6 +85,8 @@ export function infinite<
   $data: Mountable<ReadableSignal<InfinitePages<R, C> | null>>,
   $error: ReadableSignal<string | null>,
   $loading: ReadableSignal<boolean>,
+  $nextError: ReadableSignal<string | null>,
+  $nextLoading: ReadableSignal<boolean>,
   $key: ReadableSignal<CacheKey<P, InfinitePages<R, C>>>
 ]
 
@@ -91,6 +99,8 @@ export function infinite<P extends unknown[], C, R>(
   fn: (...args: [...P, cursor: C | undefined, queryCtx: QueryContext<P, InfinitePages<R, C>>]) => Promise<R>,
   settings?: ClientSetting<QueryClientContext<InfinitePages<R, C>>>[]
 ) {
+  // The request of the list that runs or ran last is for the next page
+  const $nextRequest = signal(false)
   const {
     clientCtx,
     fetch,
@@ -108,6 +118,9 @@ export function infinite<P extends unknown[], C, R>(
     let count = cursor === undefined && (clientCtx.$get(queryCtx).data as InfinitePages<R, C> | null)?.pages.length || 1
     let nextValue = cursor
     let firstCtx: object | undefined
+
+    // Only a request with a cursor loads the next page: a refetch from the first page is not one
+    $nextRequest(cursor !== undefined)
 
     try {
       do {
@@ -140,6 +153,8 @@ export function infinite<P extends unknown[], C, R>(
     }
   }, settings)
   const initialTimeDedupe = clientCtx.timeDedupe
+  const $nextError = computed(() => ($nextRequest() ? $error() : null))
+  const $nextLoading = computed(() => $nextRequest() && $loading())
   const fetchNext = action(() => {
     const data = $data()
 
@@ -164,5 +179,5 @@ export function infinite<P extends unknown[], C, R>(
     clientCtx.mounted()
   }))
 
-  return [fetchNext, $data, $error, $loading, $key] as const
+  return [fetchNext, $data, $error, $loading, $nextError, $nextLoading, $key] as const
 }
