@@ -181,6 +181,59 @@ $postId(1)
 
 Cache can be controlled with `invalidate()` and `revalidate()` methods (detailed in [Cache Keys](#cache-keys) section).
 
+### Holding Previous Data
+
+On a cache miss the data is `null` until the answer comes, so search results blink out on every new search. `hold()` takes the data and key signals of a query and shows the data of the previous key until the current key has its own:
+
+```ts
+import { hold } from '@nano_kit/query'
+
+const SearchKey = queryKey<[search: string], Post[]>('search')
+const $search = signal('')
+const [$found, , , $foundKey] = query(SearchKey, [$search], searchPosts)
+const [$posts, $postsKey, $held] = hold($found, $foundKey)
+
+effect(() => {
+  console.log('Posts:', $posts()?.map(post => post.title), 'Held:', $held())
+})
+// Posts: undefined Held: false
+// Posts: ['First', 'Second'] Held: false
+
+$search('fir')
+// Posts: ['First', 'Second'] Held: true <- Data of the previous key
+// Posts: ['First'] Held: false
+```
+
+It returns a tuple with:
+
+- `$heldData`: the data on screen, of the current key or held from a previous one
+- `$heldKey`: the key of that data
+- `$held`: `true` while the data of a previous key is on screen
+
+The key tells what the data on screen was found by, which is not always what was typed last:
+
+```ts
+/* "Nothing found for ..." names the search of the posts on screen */
+const $postsSearch = computed(() => $postsKey().params[0])
+```
+
+Data is held only across a change of the key, and only when there is data to hold: when the current key loses its data, as on [`invalidate()`](#invalidating-cache), it is gone from the screen too. The query itself stays about the current key: `$loading` and `$error` tell how its request goes while the held data is on screen, and `fetchNext()` of an [infinite query](/query/advanced#infinite) does nothing until the first page of the current key comes.
+
+A failed request does not end the hold by itself. To decide when the held data has to go, pass a predicate. It gets the current parameters and the parameters of the held data and can read other signals, like the error of the query:
+
+```ts
+const AuthorPostsKey = queryKey<[authorId: number, search: string], Post[]>('authorPosts')
+const [$found, $error, , $foundKey] = query(AuthorPostsKey, [$authorId, $search], searchAuthorPosts)
+const [$posts, $postsKey] = hold(
+  $found,
+  $foundKey,
+  /* Show the error of a failed search, and never the posts of another author */
+  ([authorId], [heldAuthorId]) => !$error() && authorId === heldAuthorId
+)
+```
+
+While the query is skipped by a [required parameter](#required-parameters), the current parameters are missing, so the predicate types them as optional.
+
 ### Query Settings
 
 You can pass settings as the fourth argument to override client defaults:
