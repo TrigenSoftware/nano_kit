@@ -133,6 +133,42 @@ describe('query', () => {
 
         off()
       })
+
+      it('should revalidate every query with the same condition when the client has conditions too', async () => {
+        const $pageVisible = signal(true)
+        const $networkOnline = signal(true)
+        const { query } = client(
+          revalidateOn($pageVisible)
+        )
+        const firstFetcher = vi.fn(getPost)
+        const secondFetcher = vi.fn(getPost)
+        const [$first] = query(PostKey, [1], firstFetcher, [
+          revalidateOn($networkOnline)
+        ])
+        const [$second] = query(PostKey, [2], secondFetcher, [
+          revalidateOn($networkOnline)
+        ])
+        const off = effect(() => {
+          $first()
+          $second()
+        })
+
+        await waitTasks($first)
+        await waitTasks($second)
+
+        expect(firstFetcher).toHaveBeenCalledTimes(1)
+        expect(secondFetcher).toHaveBeenCalledTimes(1)
+
+        $networkOnline(false)
+        $networkOnline(true)
+        await waitTasks($first)
+        await waitTasks($second)
+
+        expect(firstFetcher).toHaveBeenCalledTimes(2)
+        expect(secondFetcher).toHaveBeenCalledTimes(2)
+
+        off()
+      })
     })
   })
 })

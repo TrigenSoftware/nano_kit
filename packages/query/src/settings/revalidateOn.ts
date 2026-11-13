@@ -17,12 +17,12 @@ interface RevalidateOnContext extends QueryClientContext {
 /* @__NO_SIDE_EFFECTS__ */
 export function revalidateOn(...conditions: AnyAccessor[]): ClientSetting<QueryClientContext> {
   return (ctx: RevalidateOnContext) => {
-    if (ctx.revalidateOn === undefined) {
-      ctx.revalidateOn = new Set()
-    }
+    // A set of its own over the inherited one: a condition added for a query
+    // stays out of the set of the client, which every other query reads
+    const added = ctx.revalidateOn = new Set(ctx.revalidateOn)
 
     conditions.forEach(($condition) => {
-      if (!ctx.revalidateOn!.has($condition)) {
+      if (!added.has($condition)) {
         ctx.mounted = addFn(ctx.mounted, function (this: RevalidateOnContext) {
           listen($condition, (visible) => {
             if (visible) {
@@ -31,7 +31,7 @@ export function revalidateOn(...conditions: AnyAccessor[]): ClientSetting<QueryC
           })
         })
 
-        ctx.revalidateOn!.add($condition)
+        added.add($condition)
       }
     })
   }
