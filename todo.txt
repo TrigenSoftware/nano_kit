@@ -1,11 +1,14 @@
 - no-magic-numbers pain
+- forms
+- mock db
 
 ## Agera/Kida/Store
+
+- shared AbortSignal for task callbacks, to abort all tasks of a request or a stream at once
 
 ## 🔥🔥🔥 Query 🔥🔥🔥
 
 - optimize using ai
-- map data / default data
 - synced cache between tabs
 
 ## Router
@@ -38,4 +41,4 @@
 
 ## devtools
 
-- adapters
+- adapters (resolved, query, router)
