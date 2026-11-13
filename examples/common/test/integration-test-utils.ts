@@ -4,6 +4,7 @@ import {
   spawn
 } from 'node:child_process'
 import { createHash } from 'node:crypto'
+import { setDefaultResultOrder } from 'node:dns'
 import {
   mkdir,
   readFile,
@@ -42,6 +43,10 @@ const ANSI_PATTERN = /\x1B\[[0-?]*[ -/]*[@-~]/g
 const CLOSED_TARGET_PATTERN = /target page, context or browser has been closed/i
 const networkMemoryCache = new Map<string, NetworkCacheEntry>()
 const children = new Set<ChildProcess>()
+
+// Playwright asks the IPv6 address of a host first and waits 5 seconds for it,
+// so on a machine without working IPv6 a request of `route.fetch()` outlasts the test
+setDefaultResultOrder('ipv4first')
 
 function closeChild(child: ChildProcess) {
   children.delete(child)
