@@ -19,7 +19,7 @@ import { UNSET_REV } from '../CacheStorage.js'
 import {
   type ClientContext,
   type QueryClientContext,
-  forkQueryClient
+  forkClient
 } from '../ClientContext.js'
 import { QueryContext } from '../RequestContext.js'
 
@@ -72,17 +72,12 @@ export function baseQuery<
   const $key = computed((prevKey?: CacheKey<P, R>) => {
     const nextKey = key(...$params())
 
-    if (
-      prevKey
-      && prevKey.shard === nextKey.shard
-      && prevKey.key === nextKey.key
-    ) {
-      return prevKey
-    }
-
-    return nextKey
+    // The shard is the name of the builder, so only the key can differ
+    return prevKey?.key === nextKey.key
+      ? prevKey
+      : nextKey
   })
-  const clientCtx = forkQueryClient<P, R>(rootCtx, $key, settings)
+  const clientCtx = forkClient<QueryClientContext<P, R>>(rootCtx, settings, $key)
   // A required parameter without a value skips the query: its entry is locked, so nothing is
   // fetched, and stays out of the cache, which holds only keys with every parameter they need
   const $entry = computed(() => (

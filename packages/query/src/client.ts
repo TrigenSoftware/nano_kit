@@ -10,9 +10,10 @@ import {
   ClientContext
 } from './ClientContext.js'
 import {
-  dataCacheFacade,
-  errorCacheFacade,
-  loadingCacheFacade
+  type CacheDataFacade,
+  type CacheErrorFacade,
+  type CacheKey,
+  cacheGetterSetter
 } from './cache.js'
 import {
   query,
@@ -38,9 +39,9 @@ export function client<S extends (AnyClientSetting | AnyClientExtension)[]>(...s
     invalidate: (key => ctx.invalidate(key)) as typeof ctx.invalidate,
     revalidate: (key => ctx.revalidate(key)) as typeof ctx.revalidate,
     /* oxlint-enable typescript/no-unnecessary-type-assertion */
-    $data: dataCacheFacade(ctx),
-    $error: errorCacheFacade(ctx),
-    $loading: loadingCacheFacade(ctx)
+    $data: cacheGetterSetter.bind(ctx, 'data') as CacheDataFacade,
+    $error: cacheGetterSetter.bind(ctx, 'error') as CacheErrorFacade,
+    $loading: (key: CacheKey) => ctx.$get(key).loading
   }
 
   for (const setting of settings) {

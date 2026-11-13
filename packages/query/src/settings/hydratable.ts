@@ -29,11 +29,7 @@ function encode({
 
   cache.forEach((shard, shardKey) => {
     for (const key of shard.keys()) {
-      const value = shard.get(key)
-
-      if (value !== undefined) {
-        encoded.push([shardKey, key, encodeEntry(value, codec)])
-      }
+      encoded.push([shardKey, key, encodeEntry(shard.get(key)!, codec)])
     }
   })
 

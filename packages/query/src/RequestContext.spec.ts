@@ -5,8 +5,9 @@ import {
   expect
 } from 'vitest'
 import {
+  type CacheDataFacade,
   queryKey,
-  dataCacheFacade
+  cacheGetterSetter
 } from './cache.js'
 import { CacheStorage } from './CacheStorage.js'
 import { ClientContext } from './ClientContext.js'
@@ -249,8 +250,8 @@ describe('query', () => {
     })
 
     describe('QueryContext', () => {
-      it('should be usable as key with dataCacheFacade', () => {
-        const $cache = dataCacheFacade(new CacheStorage())
+      it('should be usable as key with the data facade', () => {
+        const $cache = cacheGetterSetter.bind(new CacheStorage(), 'data') as CacheDataFacade
         const key = queryKey<[string], string>('test')('a')
         const ctx = new QueryContext(key)
 

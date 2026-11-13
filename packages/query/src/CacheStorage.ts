@@ -16,19 +16,9 @@ export const UNSET_REV = Infinity
 /*
 REV
 < 0 = locked, do not fetch
-0 = unset, need to fetch
+Infinity = unset, need to fetch
 > 0 = current revision, used to identify latest fetch
 */
-
-/* @__NO_SIDE_EFFECTS__ */
-export function revLock(rev: number) {
-  return rev > 0 ? rev * -1 : rev
-}
-
-/* @__NO_SIDE_EFFECTS__ */
-export function revLocked(rev: number) {
-  return rev < 0
-}
 
 let revCounter = 0
 
@@ -82,7 +72,8 @@ export class CacheStorage {
    * @param key - The cache key to revalidate.
    */
   revalidate(key: CacheShardKey | CacheKey) {
-    if (key.key === undefined || this.cache.has(key)) {
+    // For a key of a shard `has` tells whether the shard is there
+    if (this.cache.has(key)) {
       this.set(key, entry => ({
         ...entry!,
         rev: UNSET_REV,
@@ -95,7 +86,7 @@ export class CacheStorage {
     return (
       loadingDedupe && entry.loading && entry.rev !== UNSET_REV
       || timeDedupe && entry.dedupes > Date.now()
-      || revLocked(entry.rev)
+      || entry.rev < 0
     )
   }
 

@@ -10,10 +10,11 @@ import {
 } from '@nano_kit/store'
 import { CacheStorage } from './CacheStorage.js'
 import {
+  type CacheDataFacade,
+  type CacheErrorFacade,
   queryKey,
   eachKeyBuilder,
-  dataCacheFacade,
-  errorCacheFacade
+  cacheGetterSetter
 } from './cache.js'
 import {
   append,
@@ -24,6 +25,10 @@ import {
   restorePages
 } from './utils.js'
 import type { InfinitePages } from './client.js'
+
+// The facades as the client binds them
+const dataCacheFacade = (storage: CacheStorage) => cacheGetterSetter.bind(storage, 'data') as CacheDataFacade
+const errorCacheFacade = (storage: CacheStorage) => cacheGetterSetter.bind(storage, 'error') as CacheErrorFacade
 
 describe('query', () => {
   describe('cache', () => {

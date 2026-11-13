@@ -106,8 +106,8 @@ export function infinite<P extends unknown[], C, R>(
     $loading,
     $key
   ] = baseQuery<P, [cursor: C | undefined], InfinitePages<R, C>>(this, key, params, async (...args) => {
-    const queryCtx = args[args.length - 1] as QueryContext<P, InfinitePages<R, C>>
-    const cursor = args[args.length - 2] as C | undefined
+    const queryCtx = args.pop() as QueryContext<P, InfinitePages<R, C>>
+    const cursor = args.pop() as C | undefined
     const pages: R[] = []
     // From the first page, as many pages as are loaded: a list asked again keeps its length
     let count = cursor === undefined && (clientCtx.$get(queryCtx).data as InfinitePages<R, C> | null)?.pages.length || 1
@@ -119,9 +119,7 @@ export function infinite<P extends unknown[], C, R>(
 
     try {
       do {
-        (args as unknown[])[args.length - 2] = nextValue
-
-        const page = await fn(...args)
+        const page = await fn(...args as unknown as P, nextValue, queryCtx)
 
         // One request, one set of callbacks: the context stays as the first page left it.
         // Its own fields alone are kept, to be put back, so the prototype is not needed
