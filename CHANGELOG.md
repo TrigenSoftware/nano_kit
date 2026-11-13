@@ -3,6 +3,64 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.10.1...v3.0.0) (2026-11-13)
+
+### ⚠ BREAKING CHANGES
+
+* **query:** `encodeEntry`, `decodeEntry`, `encodeEntryData`, `decodeEntryData`,
+  `encodeEntryDetails` and `decodeEntryDetails` are no longer exported. `ClientContext` has no
+  `handleError()` method, its `codec` is `undefined` until the `codec()` setting sets it, and its
+  `settled()` takes the revision of the request as a required argument.
+* **query:** `keys()`, which iterates over every registered cache key builder, is
+  renamed to `eachKeyBuilder()`, and `keys` now names the client extension that adds
+  `eachKey()`: `keys(Key => invalidate(Key))` becomes `eachKeyBuilder(Key => invalidate(Key))`.
+* **agera,kida:** `MaybeAccessorValue` is removed from `agera`, use `SignalishValue`.
+  `ValueOrAccessor`, `AnyValueOrAccessor`, `ValueOrSignal` and `ValueOrWritableSignal` are
+  removed from `kida`, and with it from `@nano_kit/store`, which re-exports it: use
+  `Signalish` and `AnySignalish`, or `T | WritableSignal<T>` where only a writable signal fits.
+* **query:** `QueryClientContext` takes the type of the query parameters first,
+  `QueryClientContext<P, R>`, so a setting typed as `QueryClientContext<T>` becomes
+  `QueryClientContext<unknown[], T>`.
+* **query:** after the last page, `next` of the infinite data is `undefined`, as its type
+  says, rather than the falsy value that `next` returned. Read `more` to tell whether there is
+  a next page.
+* **intl:** for a message function, like one of `params`, `plural` or `match`, the
+  function of `wrap()` receives `(message, values, locale)`, not `(values, message, locale)`:
+  `(place, message) => message(place)` becomes `(message, place) => message(place)`. The
+  value form keeps `(message, locale)`.
+* **query:** the tuple of `infinite()` gets `$nextError` and `$nextLoading` after
+  `$loading`, so `$key` moves from the fifth place to the seventh.
+
+### Features
+
+* **agera,kida:** drop the type aliases deprecated by the `Signalish` rename ([#356](https://github.com/TrigenSoftware/nano_kit/issues/356)) ([2568ccb](https://github.com/TrigenSoftware/nano_kit/commit/2568ccb127915715f6859ed0e91bc105292fdbb4)), references [#210](https://github.com/TrigenSoftware/nano_kit/issues/210)
+* **intl:** pass the message to the function of `wrap()` before the values of its call ([#357](https://github.com/TrigenSoftware/nano_kit/issues/357)) ([daff68b](https://github.com/TrigenSoftware/nano_kit/commit/daff68b0bca751bc559ab26200d2023e0da3eea7))
+* **query:** add `$nextError` and `$nextLoading` of the next page to `infinite()` ([#362](https://github.com/TrigenSoftware/nano_kit/issues/362)) ([42b5070](https://github.com/TrigenSoftware/nano_kit/commit/42b507070d0f2f36776ea7bff973d778868e7c5e))
+* **query:** add `hold()` to show the data of the previous key while the next one loads ([#361](https://github.com/TrigenSoftware/nano_kit/issues/361)) ([681ffcf](https://github.com/TrigenSoftware/nano_kit/commit/681ffcf5c57bed65cd0aa08b48ec19cc636d4a8e))
+* **query:** let `entities()` take the entity id from the query parameters to show the entity before the query has its own data ([#363](https://github.com/TrigenSoftware/nano_kit/issues/363)) ([bd6948a](https://github.com/TrigenSoftware/nano_kit/commit/bd6948ad009e24acd6bb4dc76543580c4cc7abcc))
+* **query:** pick the cached keys of a builder by their parameters with the `keys()` extension, and rename the old `keys()` to `eachKeyBuilder()` ([#355](https://github.com/TrigenSoftware/nano_kit/issues/355)) ([87970c1](https://github.com/TrigenSoftware/nano_kit/commit/87970c1d98487b6ed201131fdaec2b5fb4c930a4))
+* **query:** rename `hold()` to `preserve()` before its first release ([#364](https://github.com/TrigenSoftware/nano_kit/issues/364)) ([716671a](https://github.com/TrigenSoftware/nano_kit/commit/716671a4c91ecb25aba0e25a2eef065b66492766)), references [#361](https://github.com/TrigenSoftware/nano_kit/issues/361)
+* **query:** skip a query while a parameter wrapped in `required()` has no value ([#360](https://github.com/TrigenSoftware/nano_kit/issues/360)) ([a5fa5f5](https://github.com/TrigenSoftware/nano_kit/commit/a5fa5f53505fd95f33b9fb01418d8fd38fbb4062))
+* **query:** stop exporting the entry codec helpers and trim the client context ([#369](https://github.com/TrigenSoftware/nano_kit/issues/369)) ([ca3a622](https://github.com/TrigenSoftware/nano_kit/commit/ca3a6225ad2a5a3c878feef371c0678ab76d6086))
+
+### Bug Fixes
+
+* **query:** ask again in the browser for a key the server was still loading ([#351](https://github.com/TrigenSoftware/nano_kit/issues/351)) ([6d74bab](https://github.com/TrigenSoftware/nano_kit/commit/6d74babca5970f7af82ea1d8f278b87dce57e31f))
+* **query:** ask for a failed key again when it is read again ([#350](https://github.com/TrigenSoftware/nano_kit/issues/350)) ([ec69fef](https://github.com/TrigenSoftware/nano_kit/commit/ec69fef08e722db65eeb61d58e372347cc37a75a))
+* **query:** keep cache writes made while `fetchNext` loads a page ([#346](https://github.com/TrigenSoftware/nano_kit/issues/346)) ([646ee41](https://github.com/TrigenSoftware/nano_kit/commit/646ee4193e96ee66ef537f7b8d298422fe2622f2))
+* **query:** keep data written with `$data` while a key loads for the first time ([#349](https://github.com/TrigenSoftware/nano_kit/issues/349)) ([bd46da4](https://github.com/TrigenSoftware/nano_kit/commit/bd46da4cf8a660eef9a52b95b8f7eac8c429a5d3))
+* **query:** keep entity updates when `fetchNext` loads a page ([#347](https://github.com/TrigenSoftware/nano_kit/issues/347)) ([a3dd4e1](https://github.com/TrigenSoftware/nano_kit/commit/a3dd4e12d6016d89165c3f69c1fb6a6b9437d7f1))
+* **query:** keep the data and the loaded pages when `retryOnError` retries ([#354](https://github.com/TrigenSoftware/nano_kit/issues/354)) ([4783420](https://github.com/TrigenSoftware/nano_kit/commit/47834204447c063df308b48b4179e4763ff98c67))
+* **query:** keep the falsy values that `next` of `infinite()` returns out of the cursor type ([#358](https://github.com/TrigenSoftware/nano_kit/issues/358)) ([b5518ba](https://github.com/TrigenSoftware/nano_kit/commit/b5518bad0587e89f65b1fb84d77d95b9b871e629))
+* **query:** refetch every loaded page when an infinite query is revalidated ([#353](https://github.com/TrigenSoftware/nano_kit/issues/353)) ([023aaaf](https://github.com/TrigenSoftware/nano_kit/commit/023aaaff14ec7857476b85fa3183e454914c3f8e))
+* **query:** revalidate every query that shares a condition of `revalidateOn()` when the client has conditions too ([#365](https://github.com/TrigenSoftware/nano_kit/issues/365)) ([839480d](https://github.com/TrigenSoftware/nano_kit/commit/839480d3e828241f7b0ccc5d592cf41485747a4b))
+
+### Performance Improvements
+
+* **query:** drop dead checks and single-use helpers from the core and the settings ([#368](https://github.com/TrigenSoftware/nano_kit/issues/368)) ([d5274bb](https://github.com/TrigenSoftware/nano_kit/commit/d5274bb92f2cb7fcc9f3db7728d5adaccf8af0b1))
+* **query:** shrink `indexedDbStorage()` and delete a shard with one request ([#367](https://github.com/TrigenSoftware/nano_kit/issues/367)) ([ca2b09c](https://github.com/TrigenSoftware/nano_kit/commit/ca2b09c87f360622e3dbf38cc8f91b40872888c9))
+* **query:** shrink `query()`, `infinite()` and `operation()` by sharing their mount logic ([#366](https://github.com/TrigenSoftware/nano_kit/issues/366)) ([39e0b5c](https://github.com/TrigenSoftware/nano_kit/commit/39e0b5c8303379a8b3e699863ba7d348757bedae))
+
 ## [2.10.1](https://github.com/TrigenSoftware/nano_kit/compare/v2.10.0...v2.10.1) (2026-11-08)
 
 ### Bug Fixes

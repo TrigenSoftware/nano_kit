@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.9.0...v3.0.0) (2026-11-13)
+
+### ⚠ BREAKING CHANGES
+
+* for a message function, like one of `params`, `plural` or `match`, the
+  function of `wrap()` receives `(message, values, locale)`, not `(values, message, locale)`:
+  `(place, message) => message(place)` becomes `(message, place) => message(place)`. The
+  value form keeps `(message, locale)`.
+
+### Features
+
+* pass the message to the function of `wrap()` before the values of its call ([#357](https://github.com/TrigenSoftware/nano_kit/issues/357)) ([daff68b](https://github.com/TrigenSoftware/nano_kit/commit/daff68b0bca751bc559ab26200d2023e0da3eea7))
+
 ## [2.9.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.7.0...v2.9.0) (2026-11-06)
 
 ### Bug Fixes
