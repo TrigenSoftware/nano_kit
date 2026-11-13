@@ -242,34 +242,34 @@ $postId(1)
 
 Cache can be controlled with `invalidate()` and `revalidate()` methods (detailed in [Cache Keys](#cache-keys) section).
 
-### Holding Previous Data
+### Preserving Previous Data
 
-On a cache miss the data is `null` until the answer comes, so search results blink out on every new search. `hold()` takes the data and key signals of a query and shows the data of the previous key until the current key has its own:
+On a cache miss the data is `null` until the answer comes, so search results blink out on every new search. `preserve()` takes the data and key signals of a query and shows the data of the previous key until the current key has its own:
 
 ```ts
-import { hold } from '@nano_kit/query'
+import { preserve } from '@nano_kit/query'
 
 const SearchKey = queryKey<[search: string], Post[]>('search')
 const $search = signal('')
 const [$found, , , $foundKey] = query(SearchKey, [$search], searchPosts)
-const [$posts, $postsKey, $held] = hold($found, $foundKey)
+const [$posts, $postsKey, $preserved] = preserve($found, $foundKey)
 
 effect(() => {
-  console.log('Posts:', $posts()?.map(post => post.title), 'Held:', $held())
+  console.log('Posts:', $posts()?.map(post => post.title), 'Preserved:', $preserved())
 })
-// Posts: undefined Held: false
-// Posts: ['First', 'Second'] Held: false
+// Posts: undefined Preserved: false
+// Posts: ['First', 'Second'] Preserved: false
 
 $search('fir')
-// Posts: ['First', 'Second'] Held: true <- Data of the previous key
-// Posts: ['First'] Held: false
+// Posts: ['First', 'Second'] Preserved: true <- Data of the previous key
+// Posts: ['First'] Preserved: false
 ```
 
 It returns a tuple with:
 
-- `$heldData`: the data on screen, of the current key or held from a previous one
-- `$heldKey`: the key of that data
-- `$held`: `true` while the data of a previous key is on screen
+- `$preservedData`: the data on screen, of the current key or preserved from a previous one
+- `$preservedKey`: the key of that data
+- `$preserved`: `true` while the data of a previous key is on screen
 
 The key tells what the data on screen was found by, which is not always what was typed last:
 
@@ -278,18 +278,18 @@ The key tells what the data on screen was found by, which is not always what was
 const $postsSearch = computed(() => $postsKey().params[0])
 ```
 
-Data is held only across a change of the key, and only when there is data to hold: when the current key loses its data, as on [`invalidate()`](#invalidating-cache), it is gone from the screen too. The query itself stays about the current key: `$loading` and `$error` tell how its request goes while the held data is on screen, and `fetchNext()` of an infinite query does nothing until the first page of the current key comes.
+Data is preserved only across a change of the key, and only when there is data to preserve: when the current key loses its data, as on [`invalidate()`](#invalidating-cache), it is gone from the screen too. The query itself stays about the current key: `$loading` and `$error` tell how its request goes while the preserved data is on screen, and `fetchNext()` of an infinite query does nothing until the first page of the current key comes.
 
-A failed request does not end the hold by itself. To decide when the held data has to go, pass a predicate. It gets the current parameters and the parameters of the held data and can read other signals, like the error of the query:
+A failed request does not drop the preserved data by itself. To decide when it has to go, pass a predicate. It gets the current parameters and the parameters of the preserved data and can read other signals, like the error of the query:
 
 ```ts
 const AuthorPostsKey = queryKey<[authorId: number, search: string], Post[]>('authorPosts')
 const [$found, $error, , $foundKey] = query(AuthorPostsKey, [$authorId, $search], searchAuthorPosts)
-const [$posts, $postsKey] = hold(
+const [$posts, $postsKey] = preserve(
   $found,
   $foundKey,
   /* Show the error of a failed search, and never the posts of another author */
-  ([authorId], [heldAuthorId]) => !$error() && authorId === heldAuthorId
+  ([authorId], [preservedAuthorId]) => !$error() && authorId === preservedAuthorId
 )
 ```
 
