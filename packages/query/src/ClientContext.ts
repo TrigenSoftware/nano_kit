@@ -19,11 +19,11 @@ import {
 export type OnEveryError = (error: unknown, stopped: boolean) => void
 
 export class ClientContext<T = unknown> extends CacheStorage {
-  $key?: ReadableSignal<CacheKey> = undefined
-  $disabled?: Accessor<boolean> = undefined
+  $key?: ReadableSignal<CacheKey>
+  $disabled?: Accessor<boolean>
   loadingDedupe = true
   timeDedupe = true
-  onEveryError: OnEveryError | undefined = undefined
+  onEveryError: OnEveryError | undefined
   codec: AnyCodec = NoopCodec
 
   task<T>(promise: Promise<T>): Promise<T> {
@@ -46,7 +46,7 @@ export class ClientContext<T = unknown> extends CacheStorage {
 
   override mute(entry: CacheEntry) {
     return (
-      this.$disabled?.() === true
+      this.$disabled?.()
       || super.mute(entry, this.loadingDedupe, this.timeDedupe)
     )
   }
@@ -103,34 +103,21 @@ export interface MutationClientContext<T = unknown> extends ClientContext<T> {
 }
 
 /* @__NO_SIDE_EFFECTS__ */
-export function forkMutationClient<T>(
+export function forkClient<C extends QueryClientContext | MutationClientContext>(
   ctx: ClientContext,
-  settings: ClientSetting<MutationClientContext<T>>[] = []
+  settings: ClientSetting<C>[] = [],
+  $key?: ReadableSignal<CacheKey>
 ) {
-  const child = Object.create(ctx) as MutationClientContext<T>
+  const child = Object.create(ctx) as ClientContext
 
-  for (const setting of settings) {
-    setting(child)
-  }
-
-  return child
-}
-
-/* @__NO_SIDE_EFFECTS__ */
-export function forkQueryClient<P extends unknown[], R>(
-  ctx: ClientContext,
-  $key: ReadableSignal<CacheKey<P, R>>,
-  settings: ClientSetting<QueryClientContext<P, R>>[] = []
-) {
-  const child = Object.create(ctx) as QueryClientContext<P, R>
-
+  // A query has a key, a mutation has none
   child.$key = $key
 
   for (const setting of settings) {
-    setting(child)
+    setting(child as C)
   }
 
-  return child
+  return child as C
 }
 
 /**

@@ -1,4 +1,3 @@
-import { untracked } from '@nano_kit/store'
 import type { ClientSetting } from '../client.types.js'
 import type {
   CacheKey,
@@ -6,11 +5,7 @@ import type {
   CacheEntry
 } from '../CacheStorage.types.js'
 import type { QueryClientContext } from '../ClientContext.js'
-import {
-  UNSET_REV,
-  revLock,
-  revLocked
-} from '../CacheStorage.js'
+import { UNSET_REV } from '../CacheStorage.js'
 import {
   encodeEntryData,
   decodeEntryData
@@ -45,23 +40,21 @@ export function persistence(storage: Storage | null, lifetime: number): ClientSe
       const superInvalidate = ctx.invalidate
 
       ctx.$get = function (key) {
-        const hasKey = this.cache.has(key)
-        const entry = superGet.call(this, key)
+        if (!this.cache.has(key)) {
+          const entry = this.initial()
 
-        if (hasKey) {
-          return entry
+          // Locked until the storage answers
+          superSet.call(this, key, {
+            ...entry,
+            rev: -1
+          })
+
+          void this.task(storage.get(key).then(storedEntry => superSet.call(this, key, {
+            ...entry,
+            ...storedEntry && decodeEntryData(storedEntry, this.codec),
+            rev: UNSET_REV
+          })))
         }
-
-        superSet.call(this, key, {
-          ...entry,
-          rev: revLock(entry.rev)
-        })
-
-        void this.task(storage.get(key).then(storedEntry => superSet.call(this, key, {
-          ...entry,
-          ...storedEntry && decodeEntryData(storedEntry, this.codec),
-          rev: UNSET_REV
-        })))
 
         return superGet.call(this, key)
       }
@@ -70,9 +63,9 @@ export function persistence(storage: Storage | null, lifetime: number): ClientSe
         this: PersistenceContext,
         key: CacheKey
       ) {
-        const entry = untracked(superGet.bind(this, key))
+        const entry = this.cache.get(key.shard)?.get(key.key)
 
-        if (entry && !entry.loading && !entry.error && !revLocked(entry.rev)) {
+        if (entry && !entry.loading && !entry.error && entry.rev >= 0) {
           void this.task(
             storage!.set(
               key,

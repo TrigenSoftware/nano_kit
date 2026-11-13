@@ -8,12 +8,12 @@ export type OnError = (error: unknown) => void
 export type OnSettled<T> = (data: T | undefined, error: unknown) => void
 
 export class RequestContext<T> {
-  onSuccess: OnSuccess<T> | undefined = undefined
-  onError: OnError | undefined = undefined
-  onSettled: OnSettled<T> | undefined = undefined
+  onSuccess: OnSuccess<T> | undefined
+  onError: OnError | undefined
+  onSettled: OnSettled<T> | undefined
   stopErrorPropagation = false
   // Not typed by T: a field of T would make the context invariant
-  promise: Promise<unknown> | undefined = undefined
+  promise: Promise<unknown> | undefined
   prevCtx: RequestContext<T> | undefined
 
   constructor(prevCtx?: RequestContext<T>) {

@@ -6,8 +6,6 @@ import {
 import type {
   CacheKeyBuilder,
   AnyCacheKeyBuilder,
-  CacheDataFacade,
-  CacheErrorFacade,
   CacheKey,
   ExtrasCacheKeyBuilder,
   NewData,
@@ -58,7 +56,6 @@ export function queryKey<P extends unknown[], R>(
   })) as CacheKeyBuilder<P, R>
 
   key.shard = name
-  key.key = undefined
 
   keysSet.add(key)
 
@@ -92,7 +89,9 @@ export function operationKey<
   return queryKey<P, R>(name, filter) as ExtrasCacheKeyBuilder<P, E, R>
 }
 
-function cacheGetterSetter<F extends 'data' | 'error', P extends unknown[], R>(
+// The getter and setter of a field of the cache entries: the client binds it to its storage
+// and to `data` or `error`
+export function cacheGetterSetter<F extends 'data' | 'error', P extends unknown[], R>(
   this: CacheStorage,
   field: F,
   key: CacheKey<P, R>,
@@ -130,34 +129,4 @@ function cacheGetterSetter<F extends 'data' | 'error', P extends unknown[], R>(
   }
 
   return this.$get(key)[field] as CacheEntry<P, R>[F]
-}
-
-/**
- * Create cache getter/setter for data.
- * @param cache - The cache map.
- * @returns The data getter/setter.
- */
-/* @__NO_SIDE_EFFECTS__ */
-export function dataCacheFacade(cache: CacheStorage) {
-  return cacheGetterSetter.bind(cache, 'data') as CacheDataFacade
-}
-
-/**
- * Create cache getter for loading state.
- * @param cache - The cache map.
- * @returns The loading state getter.
- */
-/* @__NO_SIDE_EFFECTS__ */
-export function loadingCacheFacade(cache: CacheStorage) {
-  return (key: CacheKey) => cache.$get(key).loading
-}
-
-/**
- * Create cache getter for error state.
- * @param cache - The cache map.
- * @returns The error state getter/setter.
- */
-/* @__NO_SIDE_EFFECTS__ */
-export function errorCacheFacade(cache: CacheStorage) {
-  return cacheGetterSetter.bind(cache, 'error') as CacheErrorFacade
 }

@@ -1,5 +1,4 @@
 import type { ClientSetting } from '../client.types.js'
-import type { CacheKey } from '../CacheStorage.types.js'
 import type { QueryClientContext } from '../ClientContext.js'
 import type { QueryContext } from '../RequestContext.js'
 
@@ -17,18 +16,6 @@ export function defaultCalcRetryDelay(retryCount: number) {
     // oxlint-disable-next-line eslint/no-magic-numbers
     ~~((Math.random() + 0.5) * (1 << (retryCount < 8 ? retryCount : 8))) * 2000
   )
-}
-
-function getRetryCount(ctx: RetryContext, key: CacheKey) {
-  return ctx.retryCounts?.get(key.key) || 0
-}
-
-function setRetryCount(ctx: RetryContext, key: CacheKey, count: number) {
-  (ctx.retryCounts ??= new Map()).set(key.key, count)
-}
-
-function clearRetryCount(ctx: RetryContext, key: CacheKey) {
-  ctx.retryCounts?.delete(key.key)
 }
 
 /**
@@ -64,16 +51,16 @@ export function retryOnError(
             const error = result?.[1]
 
             if (!error) {
-              clearRetryCount(this, queryCtx)
+              this.retryCounts?.delete(queryCtx.key)
             } else {
-              const retryCount = getRetryCount(this, queryCtx) + 1
-              const delay = this.calcRetryDelay!(retryCount, error)
+              const retryCounts = this.retryCounts ??= new Map<string, number>()
+              const retryCount = (retryCounts.get(queryCtx.key) || 0) + 1
 
               this.retryTimeoutId = setTimeout(() => {
                 // Asked again over what it shows, as the loaded pages of an infinite query
                 this.revalidate(queryCtx)
-                setRetryCount(this, queryCtx, retryCount)
-              }, delay)
+                retryCounts.set(queryCtx.key, retryCount)
+              }, this.calcRetryDelay!(retryCount, error))
             }
           }
         ))

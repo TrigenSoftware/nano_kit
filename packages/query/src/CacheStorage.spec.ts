@@ -14,9 +14,7 @@ import {
   DEFAULT_DEDUPE_TIME,
   DEFAULT_CACHE_TIME,
   UNSET_REV,
-  CacheStorage,
-  revLock,
-  revLocked
+  CacheStorage
 } from './CacheStorage.js'
 
 describe('query', () => {
@@ -25,20 +23,6 @@ describe('query', () => {
 
     beforeEach(() => {
       storage = new CacheStorage()
-    })
-
-    describe('revLock/revLocked', () => {
-      it('should lock rev by making it negative', () => {
-        expect(revLock(5)).toBe(-5)
-        expect(revLock(0)).toBe(0)
-        expect(revLock(-5)).toBe(-5)
-      })
-
-      it('should detect locked rev', () => {
-        expect(revLocked(-5)).toBe(true)
-        expect(revLocked(0)).toBe(false)
-        expect(revLocked(5)).toBe(false)
-      })
     })
 
     describe('defaults', () => {
@@ -359,7 +343,7 @@ describe('query', () => {
 
       it('should return true when rev is locked', () => {
         const entry = {
-          rev: revLock(5),
+          rev: -5,
           dedupes: 0,
           expires: 0,
           params: [],

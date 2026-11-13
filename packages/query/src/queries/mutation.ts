@@ -11,7 +11,7 @@ import type { ClientSetting } from '../client.types.js'
 import {
   type ClientContext,
   type MutationClientContext,
-  forkMutationClient
+  forkClient
 } from '../ClientContext.js'
 import { RequestContext } from '../RequestContext.js'
 
@@ -62,7 +62,7 @@ export function mutation<
   fn: (...args: [...P, requestCtx: RequestContext<R>]) => Promise<R>,
   settings: ClientSetting<MutationClientContext<R>>[] = []
 ) {
-  const clientCtx = forkMutationClient<R>(this, settings)
+  const clientCtx = forkClient<MutationClientContext<R>>(this, settings)
   const {
     mapComputedData,
     $disabled,
@@ -76,7 +76,7 @@ export function mutation<
   let prevRequestCtx: RequestContext<R> | undefined
   const fetch = action((...params: P) => {
     if (
-      $disabled?.() === true
+      $disabled?.()
       || loadingDedupe && $loading()
     ) {
       return Promise.resolve() as Promise<undefined>
