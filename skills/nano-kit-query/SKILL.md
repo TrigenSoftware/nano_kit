@@ -44,7 +44,7 @@ metadata:
 - `mutation`: a write on demand with the last result, error and loading state.
 - `operation`: manual work whose result deserves the cache (AI generation, reports, explicit search submits, lazy loading that must not start on mount).
 - `infinite`: pages behind a cursor; a parameter change restarts from the first page, while revalidation refetches every loaded page, so it is safe on a long list.
-- `hold`: search results or a filtered list that must stay on screen while the next key loads. Take what the shown data was found by from the parameters of its key, not from the input, which runs ahead. Give it a predicate when held data must not cross a scope, such as another account, or should give way to an error: by default it stays after a failed request.
+- `preserve`: search results or a filtered list that must stay on screen while the next key loads. Take what the shown data was found by from the parameters of its key, not from the input, which runs ahead. Give it a predicate when preserved data must not cross a scope, such as another account, or should give way to an error: by default it stays after a failed request.
 - Create the client once per app as an injectable `Client$()` factory with the extensions the app needs (`mutations()`, `infinites()`, `operations()`, `keys()`) and `hydratable()` when the app renders on the server.
 
 ## Keys and parameters
