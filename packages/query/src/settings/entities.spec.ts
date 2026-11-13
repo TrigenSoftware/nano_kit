@@ -2,6 +2,7 @@ import {
   describe,
   it,
   expect,
+  expectTypeOf,
   beforeEach
 } from 'vitest'
 import {
@@ -25,6 +26,7 @@ import {
   infinites
 } from '../client.js'
 import { queryKey } from '../cache.js'
+import { required } from '../queries/base.js'
 import {
   prepend,
   mapPages
@@ -314,6 +316,133 @@ describe('query', () => {
         expect($pages()?.pages[0]?.posts[0]?.title).toBe('Directly Updated First Post')
 
         off()
+      })
+
+      describe('with an entity id from the parameters', () => {
+        const createdPost = {
+          id: 4,
+          title: 'Fourth Post',
+          content: 'Fourth Content'
+        }
+
+        it('should show the entity while the query has no data of its own', () => {
+          const {
+            query,
+            $data
+          } = client()
+          const [$post, , $loading] = query(PostKey, [4], () => new Promise<Post | null>(() => {}), [
+            entities(PostEntity, (params) => {
+              expectTypeOf(params).toEqualTypeOf<Partial<[id: number]>>()
+
+              return params[0]
+            })
+          ])
+          const off = effect(() => {
+            $post()
+          })
+
+          $data(PostEntity(createdPost), createdPost)
+
+          expect($post()).toEqual(createdPost)
+          expect($loading()).toBe(true)
+
+          off()
+        })
+
+        it('should follow updates of the entity while the query loads', () => {
+          const {
+            query,
+            $data
+          } = client()
+          const [$post] = query(PostKey, [4], () => new Promise<Post | null>(() => {}), [
+            entities(PostEntity, ([id]) => id)
+          ])
+          const off = effect(() => {
+            $post()
+          })
+
+          $data(PostEntity(createdPost), createdPost)
+          $data(PostEntity(4), post => post && {
+            ...post,
+            title: 'Fourth Post Updated'
+          })
+
+          expect($post()?.title).toBe('Fourth Post Updated')
+
+          off()
+        })
+
+        it('should give way to the data of the query once it comes', async () => {
+          const {
+            query,
+            $data
+          } = client()
+          const [$post] = query(PostKey, [1], getPost, [
+            entities(PostEntity, ([id]) => id)
+          ])
+
+          $data(PostEntity(1), {
+            id: 1,
+            title: 'Stale First Post',
+            content: 'Hello World!'
+          })
+
+          const off = effect(() => {
+            $post()
+          })
+
+          expect($post()?.title).toBe('Stale First Post')
+
+          await waitTasks($post)
+
+          expect($post()?.title).toBe('First Post')
+
+          off()
+        })
+
+        it('should keep showing the entity after the request of the query fails', async () => {
+          const {
+            query,
+            $data
+          } = client()
+          const [$post, $error] = query(PostKey, [4], () => Promise.reject(new Error('Not found')), [
+            entities(PostEntity, ([id]) => id)
+          ])
+
+          $data(PostEntity(createdPost), createdPost)
+
+          const off = effect(() => {
+            $post()
+          })
+
+          await waitTasks($post).catch(() => {})
+
+          expect($error()).toBe('Not found')
+          expect($post()).toEqual(createdPost)
+
+          off()
+        })
+
+        it('should give no data while a required parameter has no value', () => {
+          const {
+            query,
+            $data
+          } = client()
+          const $postId = signal<number | undefined>(undefined)
+          const [$post, , $loading] = query(PostKey, [required($postId)], getPost, [
+            entities(PostEntity, ([id]) => id)
+          ])
+          const off = effect(() => {
+            $post()
+          })
+
+          $data(PostEntity(createdPost), createdPost)
+
+          expect($post()).toBeNull()
+          expect($loading()).toBe(false)
+
+          off()
+        })
       })
     })
   })

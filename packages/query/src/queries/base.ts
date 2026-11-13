@@ -57,7 +57,7 @@ export function baseQuery<
   key: CacheKeyBuilder<P, R>,
   params: SignalishParams<P>,
   fn: (...args: [...P, ...E, queryCtx: QueryContext<P, R>]) => Promise<R>,
-  settings?: ClientSetting<QueryClientContext<R>>[]
+  settings?: ClientSetting<QueryClientContext<P, R>>[]
 ) {
   const $params = computed(() => {
     const values = params.map($get)
@@ -77,7 +77,7 @@ export function baseQuery<
 
     return nextKey
   })
-  const clientCtx = forkQueryClient<R>(rootCtx, $key, settings)
+  const clientCtx = forkQueryClient<P, R>(rootCtx, $key, settings)
   // A required parameter without a value skips the query: its entry is locked, so nothing is
   // fetched, and stays out of the cache, which holds only keys with every parameter they need
   const $entry = computed(() => (
