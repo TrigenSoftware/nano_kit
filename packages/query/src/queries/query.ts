@@ -1,9 +1,6 @@
-import {
-  type Mountable,
-  type ReadableSignal,
-  effect,
-  effectScope,
-  onStart
+import type {
+  Mountable,
+  ReadableSignal
 } from '@nano_kit/store'
 import type { ClientSetting } from '../client.types.js'
 import type {
@@ -74,27 +71,7 @@ export function query<P extends unknown[], R>(
   fn: (...args: [...P, queryCtx: QueryContext<P, R>]) => Promise<R>,
   settings?: ClientSetting<QueryClientContext<P, R>>[]
 ) {
-  const {
-    clientCtx,
-    fetch,
-    $params,
-    $key,
-    $rev,
-    $data,
-    $error,
-    $loading
-  } = baseQuery<P, [], R>(this, key, params, fn, settings)
+  const [, , ...signals] = baseQuery<P, [], R>(this, key, params, fn, settings, fetch => fetch())
 
-  onStart($data, () => effectScope(() => {
-    effect(() => {
-      $rev()
-      $params()
-      clientCtx.$disabled?.()
-      void fetch()
-    })
-
-    clientCtx.mounted()
-  }))
-
-  return [$data, $error, $loading, $key] as const
+  return signals
 }

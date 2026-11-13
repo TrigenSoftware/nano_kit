@@ -4,10 +4,7 @@ import {
   type ReadableSignal,
   action,
   computed,
-  signal,
-  effect,
-  effectScope,
-  onStart
+  signal
 } from '@nano_kit/store'
 import type { ClientSetting } from '../client.types.js'
 import type {
@@ -101,16 +98,14 @@ export function infinite<P extends unknown[], C, R>(
 ) {
   // The request of the list that runs or ran last is for the next page
   const $nextRequest = signal(false)
-  const {
+  const [
     clientCtx,
     fetch,
-    $params,
-    $key,
-    $rev,
     $data,
     $error,
-    $loading
-  } = baseQuery<P, [cursor: C | undefined], InfinitePages<R, C>>(this, key, params, async (...args) => {
+    $loading,
+    $key
+  ] = baseQuery<P, [cursor: C | undefined], InfinitePages<R, C>>(this, key, params, async (...args) => {
     const queryCtx = args[args.length - 1] as QueryContext<P, InfinitePages<R, C>>
     const cursor = args[args.length - 2] as C | undefined
     const pages: R[] = []
@@ -151,7 +146,10 @@ export function infinite<P extends unknown[], C, R>(
       next: nextValue,
       more: Boolean(nextValue)
     }
-  }, settings)
+  }, settings, () => {
+    clientCtx.timeDedupe = initialTimeDedupe
+    void fetch(undefined)
+  })
   const initialTimeDedupe = clientCtx.timeDedupe
   const $nextError = computed(() => ($nextRequest() ? $error() : null))
   const $nextLoading = computed(() => $nextRequest() && $loading())
@@ -166,18 +164,6 @@ export function infinite<P extends unknown[], C, R>(
 
     return fetch(data.next)
   })
-
-  onStart($data, () => effectScope(() => {
-    effect(() => {
-      $rev()
-      $params()
-      clientCtx.$disabled?.()
-      clientCtx.timeDedupe = initialTimeDedupe
-      void fetch(undefined)
-    })
-
-    clientCtx.mounted()
-  }))
 
   return [fetchNext, $data, $error, $loading, $nextError, $nextLoading, $key] as const
 }
