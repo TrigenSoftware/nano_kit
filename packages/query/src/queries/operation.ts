@@ -1,8 +1,6 @@
-import {
-  type Mountable,
-  type ReadableSignal,
-  effectScope,
-  onStart
+import type {
+  Mountable,
+  ReadableSignal
 } from '@nano_kit/store'
 import type { ClientSetting } from '../client.types.js'
 import type {
@@ -131,16 +129,7 @@ export function operation<
   fn: (...args: [...P, ...E, queryCtx: QueryContext<P, R>]) => Promise<R>,
   settings: ClientSetting<QueryClientContext<P, R>>[] = []
 ) {
-  const {
-    clientCtx,
-    fetch,
-    $key,
-    $data,
-    $error,
-    $loading
-  } = baseQuery<P, E, R>(this, key, params, fn, [dedupe(true, false), ...settings])
+  const [, ...tuple] = baseQuery<P, E, R>(this, key, params, fn, [dedupe(true, false), ...settings])
 
-  onStart($data, () => effectScope(() => clientCtx.mounted()))
-
-  return [fetch, $data, $error, $loading, $key] as const
+  return tuple
 }

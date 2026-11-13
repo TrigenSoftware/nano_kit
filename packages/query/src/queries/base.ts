@@ -3,7 +3,10 @@ import {
   type Signalish,
   action,
   computed,
+  effect,
+  effectScope,
   mountable,
+  onStart,
   $get,
   task
 } from '@nano_kit/store'
@@ -57,7 +60,9 @@ export function baseQuery<
   key: CacheKeyBuilder<P, R>,
   params: SignalishParams<P>,
   fn: (...args: [...P, ...E, queryCtx: QueryContext<P, R>]) => Promise<R>,
-  settings?: ClientSetting<QueryClientContext<P, R>>[]
+  settings?: ClientSetting<QueryClientContext<P, R>>[],
+  // How the mounted query asks for its data by itself; an operation is run by hand and passes none
+  auto?: (fetch: (...extraParams: E) => unknown) => unknown
 ) {
   const $params = computed(() => {
     const values = params.map($get)
@@ -120,14 +125,18 @@ export function baseQuery<
 
   clientCtx.task = promise => task($data, promise)
 
-  return {
-    clientCtx,
-    fetch,
-    $params,
-    $key,
-    $rev,
-    $data,
-    $error,
-    $loading
-  }
+  onStart($data, () => effectScope(() => {
+    if (auto) {
+      effect(() => {
+        $rev()
+        $params()
+        clientCtx.$disabled?.()
+        auto(fetch)
+      })
+    }
+
+    clientCtx.mounted()
+  }))
+
+  return [clientCtx, fetch, $data, $error, $loading, $key] as const
 }
