@@ -750,4 +750,33 @@ With this setup:
 
 The `capture` helper stores each entity in the shared entity cache and returns a reference for the query result. Passing `entities(PostEntity)` is the shorthand for a single entity result.
 
+Update an entity by its own key, as `updatePost` does. A query that maps its result to the entity shows the entity, so a write to the key of that query is not shown.
+
+A query of a single entity can show it before its own result comes. Give `entities` a second argument that gets the entity id from the query parameters:
+
+```ts
+const [$post] = query(PostKey, [$postId], (postId) => (
+  PostsService.fetch(postId)
+), [
+  /* Until its own result comes, shows the post that $posts has loaded */
+  entities(PostEntity, ([postId]) => postId)
+])
+```
+
+A post from the list then shows at once, while its own request confirms it. A created post needs only its entity, `$data(PostEntity(post), post)`, and a mutation with `entities(PostEntity)` writes even that:
+
+```ts
+const [createPost] = mutation<[params: CreatePostParams], Post>(
+  params => PostsService.create(params),
+  [
+    /* The page of the new post shows it at once */
+    entities(PostEntity)
+  ]
+)
+```
+
+If the request of the query fails, the entity stays with the error, as cached data does after a failed refetch. While a [required](/query/core-concepts#required-parameters) parameter has no value, the id function gets the parameters as `undefined`.
+
+The entity outlives the keys of the queries that show it, so invalidate it too when the post is deleted: `invalidate(PostEntity(postId))`. Otherwise a page that opens on the post keeps showing it, even after its request fails.
+
 **When to use:** Complex applications where the same data (e.g., a "User" or "Product") appears in multiple places or lists and needs to stay synchronized.

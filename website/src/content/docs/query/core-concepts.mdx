@@ -409,6 +409,8 @@ onSuccess(ctx, (post) => {
 })
 ```
 
+If the page's query takes its [entity](/query/advanced#entities) id from its parameters, the created entity is enough, and the key needs no write.
+
 Both `$data(key, value)` and `$error(key, value)` return a function that restores the previous cached value, each entry its own after a write to a whole shard. This is useful for optimistic updates: write the optimistic value immediately, then call the returned function in an error callback.
 
 Restoring the previous value also drops everything written after it. When other writes can reach the same entry in the meantime, such as a like pressed while a post is being saved, pass `$data` a third argument that undoes only this change. It receives the current and the previous data, either of which can be `null`:

@@ -59,6 +59,7 @@ metadata:
 
 - After a mutation, `revalidate` the affected keys: cached data stays visible while the refetch runs. `invalidate` blanks the entries and causes loading flashes; use it for session changes and hard resets.
 - After a create, write the new item under its own key with `$data`: the page that opens on it shows it at once while its own request confirms it.
+- With entities, give the query of one item the entity id from its parameters, `entities(XEntity, ([id]) => id)`: until its own data comes, it shows the entity, so an item opened from a list shows at once. A create then needs no write to the key: write the entity, or give the create mutation `entities(XEntity)`, which writes it.
 - Optimistic update: write the cache first, register the revert with the error callback of the request context, then send the request.
 - A plain revert puts back the whole value and drops what was written since. When other writes can reach the entry while the request is in flight, such as a second press or a change to another field, give `$data` the function that undoes only this change.
 - The function that undoes a `drop` is ready-made: `restore` for arrays, `restorePages` for infinite pages. They put items back at their previous index in the data as it is by now, and leave it alone when a refetch has already brought them back.
@@ -86,4 +87,6 @@ metadata:
 - To run calls one after another, `await previous(ctx)` in the fetcher and give mutations and operations `dedupe(false)`: otherwise a call made while one is in flight is dropped before it can wait.
 - Reading the cache with `$data(key)` inside an effect subscribes the effect to that entry; use an untracked read for one-off reads in actions.
 - Entities normalize only what the mapper captures; nested records that are not captured stay plain copies.
+- Update an entity by its own key: a query that maps its data to the entity shows the entity, so a write to the key of that query is not shown.
+- When an item is deleted, invalidate its entity too: a query that takes the entity id from its parameters keeps showing it, even after its own request fails.
 - `$loading` and `$error` of `infinite` cover a refetch of the loaded pages too. Drive the load-more control with `$nextLoading` and pick the retry by `$nextError`: `fetchNext` when it is set, `revalidate` otherwise.

@@ -37,7 +37,7 @@ export function operation<
   key: ExtrasCacheKeyBuilder<P, E, R>,
   params: SignalishParams<P>,
   fn: (...args: [...P, ...E, queryCtx: QueryContext<P, R>]) => Promise<R>,
-  settings?: ClientSetting<QueryClientContext<R>>[]
+  settings?: ClientSetting<QueryClientContext<P, R>>[]
 ): readonly [
   fetch: (...extraParams: E) => Promise<readonly [R | undefined, unknown] | undefined>,
   $data: Mountable<ReadableSignal<R | null>>,
@@ -62,7 +62,7 @@ export function operation<
   key: ExtrasCacheKeyBuilder<P, E, R>,
   params: SignalishParams<P>,
   fn: (...args: [...P, ...E]) => Promise<R>,
-  settings?: ClientSetting<QueryClientContext<R>>[]
+  settings?: ClientSetting<QueryClientContext<P, R>>[]
 ): readonly [
   fetch: (...extraParams: E) => Promise<readonly [R | undefined, unknown] | undefined>,
   $data: Mountable<ReadableSignal<R | null>>,
@@ -86,7 +86,7 @@ export function operation<
   key: CacheKeyBuilder<P, R>,
   params: SignalishParams<P>,
   fn: (...args: [...P, queryCtx: QueryContext<P, R>]) => Promise<R>,
-  settings?: ClientSetting<QueryClientContext<R>>[]
+  settings?: ClientSetting<QueryClientContext<P, R>>[]
 ): readonly [
   fetch: () => Promise<readonly [R | undefined, unknown] | undefined>,
   $data: Mountable<ReadableSignal<R | null>>,
@@ -110,7 +110,7 @@ export function operation<
   key: CacheKeyBuilder<P, R>,
   params: SignalishParams<P>,
   fn: (...args: P) => Promise<R>,
-  settings?: ClientSetting<QueryClientContext<R>>[]
+  settings?: ClientSetting<QueryClientContext<P, R>>[]
 ): readonly [
   fetch: () => Promise<readonly [R | undefined, unknown] | undefined>,
   $data: ReadableSignal<R | null>,
@@ -129,7 +129,7 @@ export function operation<
   key: CacheKeyBuilder<P, R>,
   params: SignalishParams<P>,
   fn: (...args: [...P, ...E, queryCtx: QueryContext<P, R>]) => Promise<R>,
-  settings: ClientSetting<QueryClientContext<R>>[] = []
+  settings: ClientSetting<QueryClientContext<P, R>>[] = []
 ) {
   const {
     clientCtx,

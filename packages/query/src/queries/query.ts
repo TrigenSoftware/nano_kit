@@ -35,7 +35,7 @@ export function query<
   key: CacheKeyBuilder<P, R>,
   params: SignalishParams<P>,
   fn: (...args: [...P, queryCtx: QueryContext<P, R>]) => Promise<R>,
-  settings?: ClientSetting<QueryClientContext<R>>[]
+  settings?: ClientSetting<QueryClientContext<P, R>>[]
 ): readonly [
   $data: Mountable<ReadableSignal<R | null>>,
   $error: ReadableSignal<string | null>,
@@ -58,7 +58,7 @@ export function query<
   key: CacheKeyBuilder<P, R>,
   params: SignalishParams<P>,
   fn: (...args: P) => Promise<R>,
-  settings?: ClientSetting<QueryClientContext<R>>[]
+  settings?: ClientSetting<QueryClientContext<P, R>>[]
 ): readonly [
   $data: Mountable<ReadableSignal<R | null>>,
   $error: ReadableSignal<string | null>,
@@ -72,7 +72,7 @@ export function query<P extends unknown[], R>(
   key: CacheKeyBuilder<P, R>,
   params: SignalishParams<P>,
   fn: (...args: [...P, queryCtx: QueryContext<P, R>]) => Promise<R>,
-  settings?: ClientSetting<QueryClientContext<R>>[]
+  settings?: ClientSetting<QueryClientContext<P, R>>[]
 ) {
   const {
     clientCtx,

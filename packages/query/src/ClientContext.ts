@@ -92,8 +92,8 @@ export class ClientContext<T = unknown> extends CacheStorage {
   }
 }
 
-export interface QueryClientContext<T = unknown> extends ClientContext<T> {
-  $key: ReadableSignal<CacheKey>
+export interface QueryClientContext<P extends unknown[] = unknown[], R = unknown> extends ClientContext<R> {
+  $key: ReadableSignal<CacheKey<P, R>>
   Q: true
 }
 
@@ -117,12 +117,12 @@ export function forkMutationClient<T>(
 }
 
 /* @__NO_SIDE_EFFECTS__ */
-export function forkQueryClient<T>(
+export function forkQueryClient<P extends unknown[], R>(
   ctx: ClientContext,
-  $key: ReadableSignal<CacheKey>,
-  settings: ClientSetting<QueryClientContext<T>>[] = []
+  $key: ReadableSignal<CacheKey<P, R>>,
+  settings: ClientSetting<QueryClientContext<P, R>>[] = []
 ) {
-  const child = Object.create(ctx) as QueryClientContext<T>
+  const child = Object.create(ctx) as QueryClientContext<P, R>
 
   child.$key = $key
 

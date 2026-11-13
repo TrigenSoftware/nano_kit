@@ -49,7 +49,7 @@ export function infinite<
   params: SignalishParams<P>,
   next: (lastPage: R) => C | FalsyValue,
   fn: (...args: [...P, cursor: C | undefined, queryCtx: QueryContext<P, InfinitePages<R, C>>]) => Promise<R>,
-  settings?: ClientSetting<QueryClientContext<InfinitePages<R, C>>>[]
+  settings?: ClientSetting<QueryClientContext<P, InfinitePages<R, C>>>[]
 ): readonly [
   fetchNext: () => Promise<readonly [InfinitePages<R, C> | undefined, unknown] | undefined>,
   $data: Mountable<ReadableSignal<InfinitePages<R, C> | null>>,
@@ -79,7 +79,7 @@ export function infinite<
   params: SignalishParams<P>,
   next: (lastPage: R) => C | FalsyValue,
   fn: (...args: [...P, cursor: C | undefined]) => Promise<R>,
-  settings?: ClientSetting<QueryClientContext<InfinitePages<R, C>>>[]
+  settings?: ClientSetting<QueryClientContext<P, InfinitePages<R, C>>>[]
 ): readonly [
   fetchNext: () => Promise<readonly [InfinitePages<R, C> | undefined, unknown] | undefined>,
   $data: Mountable<ReadableSignal<InfinitePages<R, C> | null>>,
@@ -97,7 +97,7 @@ export function infinite<P extends unknown[], C, R>(
   params: SignalishParams<P>,
   next: (lastPage: R) => C | FalsyValue,
   fn: (...args: [...P, cursor: C | undefined, queryCtx: QueryContext<P, InfinitePages<R, C>>]) => Promise<R>,
-  settings?: ClientSetting<QueryClientContext<InfinitePages<R, C>>>[]
+  settings?: ClientSetting<QueryClientContext<P, InfinitePages<R, C>>>[]
 ) {
   // The request of the list that runs or ran last is for the next page
   const $nextRequest = signal(false)

@@ -92,7 +92,7 @@ export function entity<T extends { id: number | string }>(
  */
 export function entities<T>(
   mapper: NoInfer<EntityMapper<PickNonEmptyValue<T>>>
-): ClientSetting<QueryClientContext<T>>
+): ClientSetting<QueryClientContext<unknown[], T>>
 
 /**
  * Map entities from the fetched data.
@@ -103,9 +103,22 @@ export function entities<T>(
   mapper: NoInfer<EntityMapper<PickNonEmptyValue<T>>>
 ): ClientSetting<MutationClientContext<T>>
 
+/**
+ * Map the fetched data to an entity, and show the entity until the query has data of its own.
+ * @param mapper - The entity of the fetched data.
+ * @param id - A function to get the entity identifier from the query parameters,
+ * which are missing while a required one has no value.
+ * @returns The client setting function.
+ */
+export function entities<P extends unknown[], R>(
+  mapper: NoInfer<Entity<PickNonEmptyValue<R> & {}>>,
+  id: (params: NoInfer<Partial<P>>) => number | string | null | undefined
+): ClientSetting<QueryClientContext<P, R>>
+
 /* @__NO_SIDE_EFFECTS__ */
 export function entities(
-  mapper: EntityMapper<unknown>
+  mapper: EntityMapper<unknown>,
+  id?: (params: unknown[]) => number | string | null | undefined
 ) {
   return (ctx: ClientContext) => {
     const ref = (
@@ -157,8 +170,21 @@ export function entities(
         ? map(mapper, data)
         : mapper(map as EntityCapture, data)
     )
+    const derefData = wrap(deref)
 
     ctx.mapData = wrap(ref)
-    ctx.mapComputedData = wrap(deref)
+
+    ctx.mapComputedData = (data: {}) => {
+      if (data || !id) {
+        return derefData(data)
+      }
+
+      // Until the query has data of its own, it shows the entity its parameters name
+      const entityKey = (mapper as Entity<{}>)(id(ctx.$key!().params) as string)
+
+      return entityKey
+        ? ctx.$get(entityKey).data
+        : null
+    }
   }
 }
