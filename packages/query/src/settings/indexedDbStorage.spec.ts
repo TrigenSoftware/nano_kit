@@ -29,6 +29,9 @@ import {
 } from './indexedDbStorage.js'
 
 const PostKey = queryKey<[id: number], Post | null>('post')
+// Shards next to `post` in the order of the keys: one is the start of its name, one starts with it
+const PosKey = queryKey<[id: number], Post | null>('pos')
+const PostDraftKey = queryKey<[id: number], Post | null>('postDraft')
 
 async function clearStore(db: Promise<IDBDatabase | null>) {
   const connection = await db
@@ -250,6 +253,29 @@ describe('query', () => {
 
         off1()
         off2()
+      })
+
+      it('should keep the entries of other shards when a shard is deleted', async () => {
+        const storage = indexedDbStorage()!
+        const entry = {
+          rev: 1,
+          dedupes: 0,
+          expires: Infinity,
+          params: [1],
+          data: null,
+          error: null,
+          loading: false
+        }
+
+        await storage.set(PostKey(1), entry, 60000)
+        await storage.set(PosKey(1), entry, 60000)
+        await storage.set(PostDraftKey(1), entry, 60000)
+
+        await storage.delete(PostKey)
+
+        expect(await storage.get(PostKey(1))).toBe(null)
+        expect(await storage.get(PosKey(1))).not.toBe(null)
+        expect(await storage.get(PostDraftKey(1))).not.toBe(null)
       })
     })
   })
