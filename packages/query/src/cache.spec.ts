@@ -236,7 +236,7 @@ describe('query', () => {
         const key = queryKey<[id: number, name: string], string>('test')(42, 'Dan')
         const reducer = vi.fn((value: string | null, params: [number, string]) => `${value}:${params.join(':')}`)
 
-        storage.settled(key, 'user', null)
+        storage.settled(key, 'user', null, storage.$get(key).rev)
         $cache(key, reducer)
 
         expect(reducer).toHaveBeenCalledWith('user', [42, 'Dan'])

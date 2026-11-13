@@ -11,7 +11,8 @@ import type {
 function mapEntry(
   entry: CacheEntry | EncodedCacheEntry,
   mapDetail: (data: number | string) => number | string,
-  mapData: (data: unknown) => unknown
+  // Without a codec the data is kept as it is
+  mapData: (data: unknown) => unknown = identity
 ) {
   return {
     ...entry,
@@ -22,28 +23,20 @@ function mapEntry(
   }
 }
 
-export function encodeEntryData<T extends CacheEntry | EncodedCacheEntry>(entry: T, codec: AnyCodec) {
-  return mapEntry(entry, identity, codec.encode) as T
+export function encodeEntryData<T extends CacheEntry | EncodedCacheEntry>(entry: T, codec?: AnyCodec) {
+  return mapEntry(entry, identity, codec?.encode) as T
 }
 
-export function decodeEntryData<T extends CacheEntry | EncodedCacheEntry>(entry: T, codec: AnyCodec) {
-  return mapEntry(entry, identity, codec.decode) as T
+export function decodeEntryData<T extends CacheEntry | EncodedCacheEntry>(entry: T, codec?: AnyCodec) {
+  return mapEntry(entry, identity, codec?.decode) as T
 }
 
-export function encodeEntryDetails(entry: CacheEntry) {
-  return mapEntry(entry, String, identity) as EncodedCacheEntry
+export function encodeEntry(entry: CacheEntry, codec?: AnyCodec) {
+  return mapEntry(entry, String, codec?.encode) as EncodedCacheEntry
 }
 
-export function decodeEntryDetails(entry: EncodedCacheEntry) {
-  return mapEntry(entry, Number, identity) as CacheEntry
-}
-
-export function encodeEntry(entry: CacheEntry, codec: AnyCodec) {
-  return mapEntry(entry, String, codec.encode) as EncodedCacheEntry
-}
-
-export function decodeEntry(entry: EncodedCacheEntry, codec: AnyCodec) {
-  return mapEntry(entry, Number, codec.decode) as CacheEntry
+export function decodeEntry(entry: EncodedCacheEntry, codec?: AnyCodec) {
+  return mapEntry(entry, Number, codec?.decode) as CacheEntry
 }
 
 /**

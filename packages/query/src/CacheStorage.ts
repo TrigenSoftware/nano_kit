@@ -82,7 +82,7 @@ export class CacheStorage {
     }
   }
 
-  mute(entry: CacheEntry, loadingDedupe = true, timeDedupe = true) {
+  mute(entry: CacheEntry, loadingDedupe: boolean, timeDedupe: boolean) {
     return (
       loadingDedupe && entry.loading && entry.rev !== UNSET_REV
       || timeDedupe && entry.dedupes > Date.now()
@@ -109,12 +109,13 @@ export class CacheStorage {
     key: CacheKey,
     data: unknown,
     error: string | null,
-    rev?: number
+    rev: number | undefined
   ) {
     const now = Date.now()
 
     this.set(key, (entry = this.initial()) => (
-      rev !== undefined && rev !== entry.rev
+      // An answer to a request the entry is no longer waiting for is dropped
+      rev !== entry.rev
         ? entry
         : {
           ...entry,

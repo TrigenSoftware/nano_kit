@@ -1,8 +1,7 @@
-import {
-  type AnyCodec,
-  type ReadableSignal,
-  type Accessor,
-  NoopCodec
+import type {
+  AnyCodec,
+  ReadableSignal,
+  Accessor
 } from '@nano_kit/store'
 import type { ClientSetting } from './client.types.js'
 import type { RequestContext } from './RequestContext.js'
@@ -24,7 +23,7 @@ export class ClientContext<T = unknown> extends CacheStorage {
   loadingDedupe = true
   timeDedupe = true
   onEveryError: OnEveryError | undefined
-  codec: AnyCodec = NoopCodec
+  codec?: AnyCodec
 
   task<T>(promise: Promise<T>): Promise<T> {
     return promise
@@ -76,19 +75,13 @@ export class ClientContext<T = unknown> extends CacheStorage {
 
       onSettled(dataOrNull, errorString)
       requestCtx.settled(mappedData, error)
-      this.handleError(error, requestCtx.stopErrorPropagation)
+
+      if (error !== undefined) {
+        this.onEveryError?.(error, requestCtx.stopErrorPropagation)
+      }
 
       return [mappedData, error] as const
     }))
-  }
-
-  handleError(
-    error: unknown,
-    stopped: boolean
-  ) {
-    if (error !== undefined) {
-      this.onEveryError?.(error, stopped)
-    }
   }
 }
 
