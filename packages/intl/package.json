@@ -1,7 +1,7 @@
 {
   "name": "@nano_kit/intl",
   "type": "module",
-  "version": "2.9.0",
+  "version": "3.0.0",
   "description": "A lightweight internationalization library for Nano Kit applications.",
   "author": "dangreen",
   "license": "MIT",

@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.5.0...v3.0.0) (2026-11-13)
+
+### ⚠ BREAKING CHANGES
+
+* `MaybeAccessorValue` is removed from `agera`, use `SignalishValue`.
+  `ValueOrAccessor`, `AnyValueOrAccessor`, `ValueOrSignal` and `ValueOrWritableSignal` are
+  removed from `kida`, and with it from `@nano_kit/store`, which re-exports it: use
+  `Signalish` and `AnySignalish`, or `T | WritableSignal<T>` where only a writable signal fits.
+
+### Features
+
+* drop the type aliases deprecated by the `Signalish` rename ([#356](https://github.com/TrigenSoftware/nano_kit/issues/356)) ([2568ccb](https://github.com/TrigenSoftware/nano_kit/commit/2568ccb127915715f6859ed0e91bc105292fdbb4)), references [#210](https://github.com/TrigenSoftware/nano_kit/issues/210)
+
 ## [2.5.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.0.0...v2.5.0) (2026-11-01)
 
 ### Features
