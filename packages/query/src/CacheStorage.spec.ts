@@ -11,11 +11,22 @@ import {
   eachKeyBuilder
 } from './cache.js'
 import {
+  type CacheKey,
   DEFAULT_DEDUPE_TIME,
   DEFAULT_CACHE_TIME,
   UNSET_REV,
   CacheStorage
 } from './CacheStorage.js'
+
+// Settle the request the entry is waiting for, as a query does with the revision `loading` gave it
+function settle(
+  storage: CacheStorage,
+  key: CacheKey,
+  data: unknown,
+  error: string | null
+) {
+  storage.settled(key, data, error, storage.$get(key).rev)
+}
 
 describe('query', () => {
   describe('CacheStorage', () => {
@@ -71,7 +82,7 @@ describe('query', () => {
         expect(listener).toHaveBeenCalledTimes(1)
         expect(listener).toHaveBeenCalledWith(null)
 
-        storage.settled(key, 'result', null)
+        settle(storage, key, 'result', null)
 
         expect(listener).toHaveBeenCalledTimes(2)
         expect(listener).toHaveBeenCalledWith('result')
@@ -115,7 +126,7 @@ describe('query', () => {
       it('should notify listeners on value change', () => {
         const key = queryKey('test')('a')
 
-        storage.settled(key, 'first', null)
+        settle(storage, key, 'first', null)
 
         const listener = vi.fn()
         const off = effect(() => {
@@ -125,7 +136,7 @@ describe('query', () => {
         expect(listener).toHaveBeenCalledTimes(1)
         expect(listener).toHaveBeenCalledWith('first')
 
-        storage.settled(key, 'second', null)
+        settle(storage, key, 'second', null)
 
         expect(listener).toHaveBeenCalledTimes(2)
         expect(listener).toHaveBeenCalledWith('second')
@@ -167,7 +178,7 @@ describe('query', () => {
       it('should notify listeners on invalidate', () => {
         const key = queryKey('test')('a')
 
-        storage.settled(key, 'data', null)
+        settle(storage, key, 'data', null)
 
         const listener = vi.fn()
         const off = effect(() => {
@@ -190,8 +201,8 @@ describe('query', () => {
         const keyA = TestKey('a')
         const keyB = TestKey('b')
 
-        storage.settled(keyA, 'dataA', null)
-        storage.settled(keyB, 'dataB', null)
+        settle(storage, keyA, 'dataA', null)
+        settle(storage, keyB, 'dataB', null)
 
         const listenerA = vi.fn()
         const listenerB = vi.fn()
@@ -293,7 +304,7 @@ describe('query', () => {
       it('should notify listeners on revalidate', () => {
         const key = queryKey('test')('a')
 
-        storage.settled(key, 'data', null)
+        settle(storage, key, 'data', null)
 
         const listener = vi.fn()
         const off = effect(() => {
@@ -324,7 +335,7 @@ describe('query', () => {
           loading: true
         }
 
-        expect(storage.mute(entry)).toBe(true)
+        expect(storage.mute(entry, true, true)).toBe(true)
       })
 
       it('should return true when dedupes is in future', () => {
@@ -338,7 +349,7 @@ describe('query', () => {
           loading: false
         }
 
-        expect(storage.mute(entry)).toBe(true)
+        expect(storage.mute(entry, true, true)).toBe(true)
       })
 
       it('should return true when rev is locked', () => {
@@ -352,7 +363,7 @@ describe('query', () => {
           loading: false
         }
 
-        expect(storage.mute(entry)).toBe(true)
+        expect(storage.mute(entry, true, true)).toBe(true)
       })
 
       it('should return false when not loading and dedupes expired', () => {
@@ -366,7 +377,7 @@ describe('query', () => {
           loading: false
         }
 
-        expect(storage.mute(entry)).toBe(false)
+        expect(storage.mute(entry, true, true)).toBe(false)
       })
 
       it('should respect loadingDedupe flag', () => {
@@ -380,7 +391,7 @@ describe('query', () => {
           loading: true
         }
 
-        expect(storage.mute(entry, false)).toBe(false)
+        expect(storage.mute(entry, false, true)).toBe(false)
       })
 
       it('should respect timeDedupe flag', () => {
@@ -501,7 +512,7 @@ describe('query', () => {
         expect(listener).toHaveBeenCalledTimes(2)
         expect(listener).toHaveBeenCalledWith(true)
 
-        storage.settled(key, 'result', null)
+        settle(storage, key, 'result', null)
 
         expect(listener).toHaveBeenCalledTimes(3)
         expect(listener).toHaveBeenCalledWith(false)
@@ -514,7 +525,7 @@ describe('query', () => {
       it('should set data on success', () => {
         const key = queryKey('test')('a')
 
-        storage.settled(key, 'result', null)
+        settle(storage, key, 'result', null)
 
         const entry = storage.$get(key)
 
@@ -536,7 +547,7 @@ describe('query', () => {
           loading: true
         })
 
-        storage.settled(key, null, 'error message')
+        settle(storage, key, null, 'error message')
 
         const entry = storage.$get(key)
 
@@ -561,16 +572,16 @@ describe('query', () => {
       it('should not dedupe a failed request', () => {
         const key = queryKey('test')('a')
 
-        storage.settled(key, null, 'error message')
+        settle(storage, key, null, 'error message')
 
-        expect(storage.mute(storage.$get(key))).toBe(false)
+        expect(storage.mute(storage.$get(key), true, true)).toBe(false)
       })
 
       it('should update dedupes and expires timestamps', () => {
         const key = queryKey('test')('a')
         const now = Date.now()
 
-        storage.settled(key, 'result', null)
+        settle(storage, key, 'result', null)
 
         const entry = storage.$get(key)
 
@@ -588,7 +599,7 @@ describe('query', () => {
 
         const now = Date.now()
 
-        storage.settled(key, 'result', null)
+        settle(storage, key, 'result', null)
 
         const entry = storage.$get(key)
 
@@ -610,12 +621,12 @@ describe('query', () => {
         expect(listener).toHaveBeenCalledTimes(1)
         expect(listener).toHaveBeenCalledWith(null)
 
-        storage.settled(key, 'result', null)
+        settle(storage, key, 'result', null)
 
         expect(listener).toHaveBeenCalledTimes(2)
         expect(listener).toHaveBeenCalledWith('result')
 
-        storage.settled(key, undefined, 'error')
+        settle(storage, key, undefined, 'error')
 
         expect(listener).toHaveBeenCalledTimes(3)
         expect(listener).toHaveBeenCalledWith('error')
