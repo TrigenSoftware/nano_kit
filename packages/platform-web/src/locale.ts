@@ -20,9 +20,12 @@ export function browserLocale(container: LocalesContainer): string
 
 /**
  * Resolves the best browser locale from a language container.
+ * Languages are tried in order. An exact tag wins, then any supported locale of the same language:
+ * `ro-RO` resolves to `ro`, `pt-PT` to `pt-BR`. Of several locales of one language, the one in the language's
+ * likely script and region is taken, then the first in that script: `zh-TW` resolves to `zh-Hant`, `en` to `en-US`.
  * @param container - Object containing browser language preferences, such as `navigator`.
  * @param supported - List of supported locale codes to match against.
- * @returns The first matching supported locale, or `'en'` when none match.
+ * @returns The supported locale of the first matching language, or `'en'` when none match.
  */
 export function browserLocale<const T extends string>(
   container: LocalesContainer,
@@ -31,10 +34,13 @@ export function browserLocale<const T extends string>(
 
 /**
  * Resolves the best browser locale from a language container.
+ * Languages are tried in order. An exact tag wins, then any supported locale of the same language:
+ * `ro-RO` resolves to `ro`, `pt-PT` to `pt-BR`. Of several locales of one language, the one in the language's
+ * likely script and region is taken, then the first in that script: `zh-TW` resolves to `zh-Hant`, `en` to `en-US`.
  * @param container - Object containing browser language preferences, such as `navigator`.
  * @param supported - List of supported locale codes to match against.
  * @param fallback - Locale returned when none of the supported locales match.
- * @returns The first matching supported locale, or the fallback.
+ * @returns The supported locale of the first matching language, or the fallback.
  */
 export function browserLocale<const T extends string>(
   container: LocalesContainer,
@@ -52,8 +58,52 @@ export function browserLocale(
 
   if (supported) {
     for (const language of languages) {
-      if (supported.includes(language)) {
-        return language
+      const base = language.split('-')[0]
+      const prefix = `${base}-`
+      const locales: string[] = []
+      let match: string | undefined
+
+      // One pass over the supported locales: the exact tag wins at once,
+      // the locales of the same language are collected.
+      for (const tag of supported) {
+        if (tag === language) {
+          return tag
+        }
+
+        if (tag === base || tag.startsWith(prefix)) {
+          locales.push(tag)
+        }
+      }
+
+      // `Intl.Locale` is slow, so it only chooses between several locales of one language,
+      // with one `maximize()` per locale: the likely script and region of the language win at once,
+      // the first locale in the script waits for the end of the pass.
+      // A malformed tag from a request header throws there: what is found so far stays.
+      if (locales[1]) {
+        try {
+          const {
+            script,
+            region
+          } = new Intl.Locale(language).maximize()
+
+          for (const tag of locales) {
+            const likely = new Intl.Locale(tag).maximize()
+
+            if (likely.script === script) {
+              if (likely.region === region) {
+                return tag
+              }
+
+              match ||= tag
+            }
+          }
+        } catch {}
+      }
+
+      match ||= locales[0]
+
+      if (match) {
+        return match
       }
     }
 

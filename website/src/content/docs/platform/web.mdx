@@ -308,6 +308,15 @@ import { browserLocale } from '@nano_kit/platform-web'
 const locale = browserLocale(navigator, ['en', 'ru'], 'en')
 ```
 
+Languages are tried in the browser's order. An exact tag wins; otherwise any supported locale of the same language matches. Of several, the one in the language's likely script and region is taken, then the first in that script. The fallback is returned only when no language has a locale.
+
+```ts
+browserLocale({ language: 'ro-RO' }, ['en', 'ro']) // 'ro'
+browserLocale({ language: 'pt-PT' }, ['en', 'pt-BR']) // 'pt-BR'
+browserLocale({ language: 'zh-TW' }, ['zh-Hans', 'zh-Hant']) // 'zh-Hant'
+browserLocale({ language: 'en' }, ['en-GB', 'en-US']) // 'en-US'
+```
+
 For universal code, use the `Locales$` injection token. By default it returns `navigator`, so browser-only code does not need any setup.
 
 ```ts
@@ -339,6 +348,8 @@ const context = [
 ```
 
 `parseLocales` sorts languages by `q` quality and keeps declaration order when qualities are equal. An empty or missing header (`null` or `undefined`) falls back to `{ language: 'en', languages: ['en'] }`.
+
+The header and `navigator.languages` may list different tags for the same browser: Safari sends `en-US,en;q=0.9` while listing only `en-US`. `browserLocale` matches by language, so the server and the browser resolve to the same locale.
 
 ## User Agent
 
