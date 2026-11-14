@@ -188,16 +188,19 @@ export function notFound<const P>(
   }
 }
 
+// `R` takes the `null` of a not found page, or it would not be inferred and would widen to `string`;
+// the returned layer drops it, as a not found page adds no route names.
+
 /**
  * Define a layout match reference for nested route matching.
  * @param layout - The layout module ref
  * @param pages - Array of page or nested layout match references
  * @returns Layout match reference object
  */
-export function layout<R extends string, P, const L>(
+export function layout<R extends string | null, P, const L>(
   layout: PageModuleRef<L>,
   pages: MatchRef<R, P, L>[]
-): LayoutMatchRef<R, P, L>
+): LayoutMatchRef<Exclude<R, null>, P, L>
 
 /**
  * Define a layout match reference for nested route matching.
@@ -205,10 +208,10 @@ export function layout<R extends string, P, const L>(
  * @param pages - Array of page or nested layout match references
  * @returns Layout match reference object
  */
-export function layout<R extends string, P, const L>(
+export function layout<R extends string | null, P, const L>(
   layout: PageModule<L>,
   pages: MatchRef<R, P, L>[]
-): LayoutMatchRef<R, P, L>
+): LayoutMatchRef<Exclude<R, null>, P, L>
 
 /**
  * Define a layout match reference for nested route matching.
@@ -216,10 +219,10 @@ export function layout<R extends string, P, const L>(
  * @param pages - Array of page or nested layout match references
  * @returns Layout match reference object
  */
-export function layout<R extends string, P, const L>(
+export function layout<R extends string | null, P, const L>(
   layout: L,
   pages: MatchRef<R, P, L>[]
-): LayoutMatchRef<R, P, L>
+): LayoutMatchRef<Exclude<R, null>, P, L>
 
 /* @__NO_SIDE_EFFECTS__ */
 export function layout(

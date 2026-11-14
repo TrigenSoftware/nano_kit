@@ -89,7 +89,7 @@ export interface PageMatchRef<R extends string | null, P> {
   page: PageRefGetter<P>
 }
 
-export interface LayoutMatchRef<R extends string, P, L> {
+export interface LayoutMatchRef<R extends string | null, P, L> {
   /**
    * Function to get the view reference for the layout.
    */
@@ -100,7 +100,7 @@ export interface LayoutMatchRef<R extends string, P, L> {
   pages: MatchRef<R, P, L>[]
 }
 
-export type MatchRef<R extends string, P, L> =
+export type MatchRef<R extends string | null, P, L> =
   | PageMatchRef<R, P>
   | PageMatchRef<null, P>
   | LayoutMatchRef<R, P, L>
