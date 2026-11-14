@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.2](https://github.com/TrigenSoftware/nano_kit/compare/v2.4.0...v3.0.2) (2026-11-14)
+
+### Bug Fixes
+
+* accept a `notFound()` page in a layout of its own ([#375](https://github.com/TrigenSoftware/nano_kit/issues/375)) ([fa21e7c](https://github.com/TrigenSoftware/nano_kit/commit/fa21e7c56d22a2fb1000b6b64c20619abc651a61))
+
 ## [2.4.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.3.0...v2.4.0) (2026-10-27)
 
 ### Features
