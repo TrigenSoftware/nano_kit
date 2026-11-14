@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.0.1](https://github.com/TrigenSoftware/nano_kit/compare/v3.0.0...v3.0.1) (2026-11-14)
+
+### Bug Fixes
+
+* **platform-web:** match `browserLocale()` by language, so `ro-RO` resolves to `ro` and `pt-PT` to `pt-BR` ([#373](https://github.com/TrigenSoftware/nano_kit/issues/373)) ([617df34](https://github.com/TrigenSoftware/nano_kit/commit/617df34c32913054f579b4d4cdfa191d6348ae03))
+
 ## [3.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.10.1...v3.0.0) (2026-11-13)
 
 ### ⚠ BREAKING CHANGES
