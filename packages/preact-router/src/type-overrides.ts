@@ -85,10 +85,10 @@ export declare function notFound(
  * @param pages - Array of page or nested layout match references
  * @returns Layout match reference object
  */
-export declare function layout<R extends string>(
+export declare function layout<R extends string | null>(
   layout: PageModuleRef<PageComponent>,
   pages: MatchRef<R, PageComponent, PageComponent>[]
-): LayoutMatchRef<R, PageComponent, PageComponent>
+): LayoutMatchRef<Exclude<R, null>, PageComponent, PageComponent>
 
 /**
  * Define a layout match reference for nested route matching.
@@ -96,10 +96,10 @@ export declare function layout<R extends string>(
  * @param pages - Array of page or nested layout match references
  * @returns Layout match reference object
  */
-export declare function layout<R extends string>(
+export declare function layout<R extends string | null>(
   layout: PageModule<PageComponent>,
   pages: MatchRef<R, PageComponent, PageComponent>[]
-): LayoutMatchRef<R, PageComponent, PageComponent>
+): LayoutMatchRef<Exclude<R, null>, PageComponent, PageComponent>
 
 /**
  * Define a layout match reference for nested route matching.
@@ -107,10 +107,10 @@ export declare function layout<R extends string>(
  * @param pages - Array of page or nested layout match references
  * @returns Layout match reference object
  */
-export declare function layout<R extends string>(
+export declare function layout<R extends string | null>(
   layout: PageComponent,
   pages: MatchRef<R, PageComponent, PageComponent>[]
-): LayoutMatchRef<R, PageComponent, PageComponent>
+): LayoutMatchRef<Exclude<R, null>, PageComponent, PageComponent>
 
 // @ts-expect-error - Override types for better inference
 export { loadable, layout, page, notFound } from '@nano_kit/router' // oxlint-disable-line trigen/named-export-order

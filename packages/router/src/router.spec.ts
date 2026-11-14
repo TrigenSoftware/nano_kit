@@ -295,6 +295,78 @@ describe('router', () => {
         expect($page()?.default?.()).toBe('About')
       })
 
+      it('should match not found page within layout', () => {
+        const [$location, navigation] = virtualNavigation('/', {
+          home: '/home',
+          about: '/about'
+        })
+        const compose = ($outlet: Accessor<(() => string) | null>, layout: string) => () => `${layout} > ${$outlet()?.()}`
+        const $page = router($location, [
+          page('home', (): string => 'Home Page'),
+          layout('SiteLayout', [
+            page('about', (): string => 'About Page'),
+            notFound((): string => 'Not Found Page')
+          ])
+        ], compose)
+
+        navigation.push('/about')
+        expect($page()?.default?.()).toBe('SiteLayout > About Page')
+
+        navigation.push('/unknown')
+        expect($page()?.default?.()).toBe('SiteLayout > Not Found Page')
+
+        navigation.push('/home')
+        expect($page()?.default?.()).toBe('Home Page')
+      })
+
+      it('should match not found page in a layout of its own', () => {
+        const [$location, navigation] = virtualNavigation('/', {
+          home: '/home',
+          login: '/login'
+        })
+        const compose = ($outlet: Accessor<(() => string) | null>, layout: string) => () => `${layout} > ${$outlet()?.()}`
+        const $page = router($location, [
+          page('home', (): string => 'Home Page'),
+          layout('RootLayout', [
+            layout('AuthLayout', [
+              page('login', (): string => 'Login Page')
+            ]),
+            layout('SiteLayout', [
+              notFound((): string => 'Not Found Page')
+            ])
+          ])
+        ], compose)
+
+        navigation.push('/login')
+        expect($page()?.default?.()).toBe('RootLayout > AuthLayout > Login Page')
+
+        navigation.push('/unknown')
+        expect($page()?.default?.()).toBe('RootLayout > SiteLayout > Not Found Page')
+
+        navigation.push('/home')
+        expect($page()?.default?.()).toBe('Home Page')
+      })
+
+      it('should type a tree with not found page in a layout by the routes of its pages', () => {
+        const [$location, navigation] = virtualNavigation('/', {
+          home: '/home'
+        })
+        const compose = ($outlet: Accessor<(() => string) | null>, layout: string) => () => `${layout} > ${$outlet()?.()}`
+        const $page = router($location, [
+          page('home', (): string => 'Home Page'),
+          // @ts-expect-error `about` is not listed in the routes
+          layout('RootLayout', [
+            page('about', (): string => 'About Page'),
+            layout('SiteLayout', [
+              notFound((): string => 'Not Found Page')
+            ])
+          ])
+        ], compose)
+
+        navigation.push('/unknown')
+        expect($page()?.default?.()).toBe('RootLayout > SiteLayout > Not Found Page')
+      })
+
       it('should build linked list from layouts and pages', () => {
         const [$location, navigation] = virtualNavigation('/', {
           home: '/home',
