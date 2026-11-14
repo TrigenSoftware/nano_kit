@@ -93,33 +93,6 @@ describe('router', () => {
           stop()
         })
 
-        it('should keep title when duplicate title descriptors change', () => {
-          expect(document.title).toBe('')
-
-          const $page = signal({
-            default: null,
-            Head$: () => [
-              title('b'),
-              title('a')
-            ]
-          })
-          const stop = syncHead($page)
-
-          expect(document.title).toBe('b')
-
-          $page({
-            default: null,
-            Head$: () => [
-              title('c'),
-              title('a')
-            ]
-          })
-
-          expect(document.title).toBe('c')
-
-          stop()
-        })
-
         it('should update title signal', () => {
           expect(document.title).toBe('')
 
@@ -975,6 +948,265 @@ describe('router', () => {
         expect(document.head.querySelector('link[rel="stylesheet"][href="common.css"]')).toBe(commonStyle)
 
         stop()
+      })
+
+      describe('layouts', () => {
+        beforeEach(() => {
+          document.title = ''
+          document.head.textContent = ''
+        })
+
+        it('should apply title of the page over title of its layout', () => {
+          const stop = syncHead((): ComposedPageRef<null> => ({
+            default: null,
+            Head$: () => [title('Layout Title')],
+            r: {
+              default: null,
+              Head$: () => [title('Page Title')]
+            }
+          }))
+
+          expect(document.title).toBe('Page Title')
+
+          stop()
+        })
+
+        it('should keep title of the page over title of its layout on page change', () => {
+          const Head$ = () => [title('Layout Title')]
+          const $page = signal<ComposedPageRef<null>>({
+            default: null,
+            Head$,
+            r: {
+              default: null,
+              Head$: () => [title('Page Title')]
+            }
+          })
+          const stop = syncHead($page)
+
+          expect(document.title).toBe('Page Title')
+
+          $page({
+            default: null,
+            Head$,
+            r: {
+              default: null,
+              Head$: () => [title('Next Page Title')]
+            }
+          })
+
+          expect(document.title).toBe('Next Page Title')
+
+          stop()
+        })
+
+        it('should keep title of the layout on a page with meta named title', () => {
+          const stop = syncHead((): ComposedPageRef<null> => ({
+            default: null,
+            Head$: () => [title('Layout Title')],
+            r: {
+              default: null,
+              Head$: () => [
+                meta({
+                  name: 'title',
+                  content: 'Page'
+                })
+              ]
+            }
+          }))
+
+          expect(document.title).toBe('Layout Title')
+          expect(document.head.querySelector('meta[name="title"]')?.getAttribute('content')).toBe('Page')
+
+          stop()
+        })
+
+        it('should keep meta named title of the layout on a page with its own title', () => {
+          const stop = syncHead((): ComposedPageRef<null> => ({
+            default: null,
+            Head$: () => [
+              meta({
+                name: 'title',
+                content: 'Layout'
+              })
+            ],
+            r: {
+              default: null,
+              Head$: () => [title('Page Title')]
+            }
+          }))
+
+          expect(document.title).toBe('Page Title')
+          expect(document.head.querySelector('meta[name="title"]')?.getAttribute('content')).toBe('Layout')
+
+          stop()
+        })
+
+        it('should replace meta of the layout with meta of the page with the same name or property', () => {
+          const stop = syncHead((): ComposedPageRef<null> => ({
+            default: null,
+            Head$: () => [
+              meta({
+                name: 'viewport',
+                content: 'width=device-width'
+              }),
+              meta({
+                name: 'description',
+                content: 'Layout description'
+              }),
+              meta({
+                property: 'og:title',
+                content: 'Layout'
+              })
+            ],
+            r: {
+              default: null,
+              Head$: () => [
+                meta({
+                  name: 'description',
+                  content: 'Page description'
+                }),
+                meta({
+                  property: 'og:title',
+                  content: 'Page'
+                })
+              ]
+            }
+          }))
+
+          expect(document.head.innerHTML).toBe(
+            '<meta name="viewport" content="width=device-width">'
+            + '<meta name="description" content="Page description">'
+            + '<meta property="og:title" content="Page">'
+          )
+
+          stop()
+        })
+
+        it('should take meta of the nearest layout', () => {
+          const stop = syncHead((): ComposedPageRef<null> => ({
+            default: null,
+            Head$: () => [
+              meta({
+                property: 'og:title',
+                content: 'Root'
+              })
+            ],
+            r: {
+              default: null,
+              Head$: () => [
+                meta({
+                  property: 'og:title',
+                  content: 'Layout'
+                })
+              ],
+              r: {
+                default: null
+              }
+            }
+          }))
+
+          expect(document.head.innerHTML).toBe('<meta property="og:title" content="Layout">')
+
+          stop()
+        })
+
+        it('should keep every meta with the same property of one page', () => {
+          const stop = syncHead((): ComposedPageRef<null> => ({
+            default: null,
+            Head$: () => [
+              meta({
+                property: 'og:image',
+                content: '/layout.png'
+              })
+            ],
+            r: {
+              default: null,
+              Head$: () => [
+                meta({
+                  property: 'og:image',
+                  content: '/first.png'
+                }),
+                meta({
+                  property: 'og:image',
+                  content: '/second.png'
+                })
+              ]
+            }
+          }))
+
+          expect(document.head.innerHTML).toBe(
+            '<meta property="og:image" content="/first.png">'
+            + '<meta property="og:image" content="/second.png">'
+          )
+
+          stop()
+        })
+
+        it('should bring meta of the layout back on a page without its own', () => {
+          const Head$ = () => [
+            meta({
+              property: 'og:title',
+              content: 'Layout'
+            })
+          ]
+          const $page = signal<ComposedPageRef<null>>({
+            default: null,
+            Head$,
+            r: {
+              default: null,
+              Head$: () => [
+                meta({
+                  property: 'og:title',
+                  content: 'Page'
+                })
+              ]
+            }
+          })
+          const stop = syncHead($page)
+
+          expect(document.head.innerHTML).toBe('<meta property="og:title" content="Page">')
+
+          $page({
+            default: null,
+            Head$,
+            r: {
+              default: null
+            }
+          })
+
+          expect(document.head.innerHTML).toBe('<meta property="og:title" content="Layout">')
+
+          stop()
+        })
+
+        it('should hydrate meta of the page without adding meta of its layout', () => {
+          document.head.innerHTML = '<meta property="og:title" content="Page">'
+
+          const pageMeta = document.head.firstChild
+          const stop = syncHead((): ComposedPageRef<null> => ({
+            default: null,
+            Head$: () => [
+              meta({
+                property: 'og:title',
+                content: 'Layout'
+              })
+            ],
+            r: {
+              default: null,
+              Head$: () => [
+                meta({
+                  property: 'og:title',
+                  content: 'Page'
+                })
+              ]
+            }
+          }))
+
+          expect(document.head.innerHTML).toBe('<meta property="og:title" content="Page">')
+          expect(document.head.firstChild).toBe(pageMeta)
+
+          stop()
+        })
       })
     })
 

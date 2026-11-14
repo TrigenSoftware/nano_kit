@@ -85,6 +85,8 @@ export function Head$() {
 
 The SSR renderer reads `Head$` and injects the tags into the HTML response automatically.
 
+Layout modules can export `Head$` too: the `title`, `lang`, `dir` and `meta` of a page replace the same tags of its layouts, see [Layout `Head$`](/router/advanced#layout-head).
+
 ## Setting Up SSR
 
 The low-level setup (virtual navigation, renderer class, client hydration) is handled by the SSR renderer. See the [SSR renderer docs](/ssr) for a complete setup guide.

@@ -60,6 +60,7 @@ metadata:
 ## Pages and head
 
 - Split by route with `loadable(() => import(...), Fallback)`; preload on hover with the link preload hooks.
+- Declare the head defaults of a group of pages (a default `title`, the description, Open Graph `meta`) in the `Head$` of their layout: a page's `title`, `lang`, `dir` and `meta` with the same `name` or `property` replace the layout's, other tags are kept from both; declare `title`, `lang` and `dir` at most once in a `Head$`.
 - Give every view a distinct title in `Head$` and keep values that change often, like timers, out of it: the title announcer announces every new title, and moving between two pages with the same title announces nothing. Read the title in components with `useTitle()` and in stores with `inject(Title$)`, not `document.title`.
 - Scroll utilities touch `window`, and stores returned from `Stores$` are mounted on the server during dehydration: start scroll effects only in the browser.
 

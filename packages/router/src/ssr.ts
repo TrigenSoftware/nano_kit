@@ -10,6 +10,7 @@ import type {
   CacheFactory,
   MatchRef
 } from './router.types.js'
+import { mergeHead } from './head.js'
 
 /**
  * Precomposes the given pages with the provided compose function. This is useful for server-side rendering, where you want to compose the page components with the layout components before rendering.
@@ -89,8 +90,8 @@ function composeWithLayouts(
     layout = layouts[i]
     current = {
       default: compose(() => inner.default, layout.default),
-      Stores$: composeArrayFns(layout.Stores$, inner.Stores$),
-      Head$: composeArrayFns(layout.Head$, inner.Head$),
+      Stores$: composeArrayFns(layout.Stores$, inner.Stores$, concat),
+      Head$: composeArrayFns(layout.Head$, inner.Head$, mergeHead),
       Cache$: composeCache(layout.Cache$, inner.Cache$),
       __chunks: composeChunks(layout.__chunks, inner.__chunks),
       statusCode: inner.statusCode ?? layout.statusCode
@@ -104,12 +105,17 @@ function noopArray() {
   return []
 }
 
+function concat<T>(outer: T[], inner: T[]) {
+  return [...outer, ...inner]
+}
+
 function composeArrayFns<T>(
   outer: (() => T[]) | undefined,
-  inner: (() => T[]) | undefined
+  inner: (() => T[]) | undefined,
+  merge: (outer: T[], inner: T[]) => T[]
 ): () => T[] {
   return outer && inner
-    ? () => [...outer(), ...inner()]
+    ? () => merge(outer(), inner())
     : outer || inner || noopArray
 }
 
