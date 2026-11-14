@@ -564,6 +564,24 @@ inject(Api$, context) === inject(MockApi$, context) // true
 
 When a token is provided twice in one array, the last provider wins, for values and aliases alike.
 
+### `provideOwn`
+
+`provideOwn` gives a context an instance of its own: within the context the dependency is created anew instead of being taken from the contexts above, and it is kept in that context:
+
+```ts
+import { InjectionContext, provideOwn, inject } from 'kida'
+
+function Search$() {
+  return { query: '' }
+}
+
+const app = new InjectionContext()
+const dialog = new InjectionContext([provideOwn(Search$)], app)
+
+inject(Search$, dialog) === inject(Search$, app) // false, the dialog has its own Search$
+inject(Search$, new InjectionContext([], dialog)) === inject(Search$, dialog) // true, the contexts below share it
+```
+
 ## Utils
 
 ### `isSignal`

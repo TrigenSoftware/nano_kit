@@ -563,6 +563,39 @@ function TodoItem() {
 
 To start a subtree from scratch, with new instances of every store, wrap it in `Isolate`.
 
+### Own Instances
+
+`provideOwn` gives a provider an instance of its own. Within it the store is created anew instead of being taken from above, and it lives as long as the provider does. Use it when a part of the UI needs the same store with a state of its own, like a picker in a dialog that searches the list the page under it shows.
+
+```tsx
+import { provideOwn, signal } from '@nano_kit/store'
+import { InjectionContextProvider, useInject } from '@nano_kit/react'
+
+/* Reads nothing provided: one list for the whole app */
+function Users$() {
+  const $search = signal('')
+
+  return { $search }
+}
+
+function UserPicker() {
+  return (
+    <InjectionContextProvider context={[provideOwn(Users$)]}>
+      <UserSearch />
+    </InjectionContextProvider>
+  )
+}
+
+function UserSearch() {
+  /* The list of the picker: its search does not touch the list of the page */
+  const { $search } = useInject(Users$)
+
+  /* ... */
+}
+```
+
+Everything inside `UserPicker` that injects `Users$` gets that instance, including the stores created there that depend on it. The rule of nested contexts holds below it: a provider further down that overrides something `Users$` reads gets an instance of its own again.
+
 ## Naming Convention
 
 The library follows consistent naming conventions to distinguish between different types of reactive entities. Highly recommended to follow these conventions in your own code to maintain consistency, improve readability and make reactive dependencies immediately recognizable:

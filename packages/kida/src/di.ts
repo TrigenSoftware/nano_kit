@@ -281,6 +281,26 @@ export function provideAs<T>(injectable: Injectable<T>, alias: Injectable<T>): I
   return [injectable, undefined, alias]
 }
 
+/**
+ * Provide a dependency of the context's own: within the context it is created anew
+ * instead of being taken from the contexts above, and is kept in this context.
+ * @param injectable - The injectable function or class to create anew.
+ * @returns The provider.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function provideOwn<T>(injectable: Injectable<T>): InjectionProvider {
+  // The alias is a token of this provider alone, so nothing above has it
+  return provideAs(injectable, () => {
+    // Read only to make the context that provides the token the owner of the instance.
+    // A lookup creates nothing: an injection would resolve the token as this very alias again
+    currentContext!.get(injectable, true)
+
+    return injectable.injectable
+      ? new injectable()
+      : injectable()
+  })
+}
+
 export class DependencyNotFound extends Error {
   constructor(caller: string) {
     super(import.meta.env.DEV ? `${caller} dependency not found in context.` : caller)

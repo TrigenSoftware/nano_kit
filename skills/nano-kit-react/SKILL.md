@@ -53,7 +53,7 @@ metadata:
 
 - Wrap the app in `InjectionContextProvider` with the providers that differ per environment (theme, API base, mocks) and read stores with `useInject`. Components inject stores, not raw services.
 - `injectHook` and `signalHook` build reusable hooks for tokens that are read in many places.
-- A nested provider with providers creates a child context: the stores that read what it provides get their own instances there, every other store is shared with the parent. `Isolate` starts a subtree from scratch (previews, embedded widgets).
+- A nested provider with providers creates a child context: the stores that read what it provides get their own instances there, every other store is shared with the parent. `provideOwn(Store$)` among the providers gives the subtree its own instance of that one store, `Isolate` starts a subtree from scratch (previews, embedded widgets).
 
 ## Hydration
 

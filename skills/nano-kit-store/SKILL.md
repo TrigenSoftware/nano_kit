@@ -88,6 +88,7 @@ export class Api$ extends Injectable$ {
 - Inject stores into stores and components; provide services (transport, cookies, navigation) at the root, so a test replaces them with `provide(Token$, mock)` instead of module mocking.
 - Swap an implementation for stories and tests with `provideAs(Api$, MockApi$)`: the mock is an injectable like any store and injects what it needs.
 - A store nobody provides is shared as widely as its inputs allow: it lives in the deepest context that provides something it reads. For an instance per subtree (an editor per list item), provide the item's token in a nested context: the stores that read it get their own instance there, everything else stays shared.
+- For the same store with a state of its own in a subtree (a picker in a dialog over the page that shows the same list), provide `provideOwn(Store$)` in the nested context: the store is created anew there and lives as long as the context. Do not add a token only for the store to read it.
 - A token without a sensible default should throw `DependencyNotFound`, so misconfiguration is loud.
 - Keep `inject()` inside factories, `run(context, fn)` or framework hooks; outside a context it throws.
 

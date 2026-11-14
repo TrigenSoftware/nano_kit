@@ -17,7 +17,8 @@ import {
   run,
   provide,
   inject,
-  provideAs
+  provideAs,
+  provideOwn
 } from './di.js'
 
 describe('kida', () => {
@@ -759,6 +760,124 @@ describe('kida', () => {
         expect(inject(Api$, context)).toBe(value)
         expect(inject(Api$, new InjectionContext([], context))).toBe(value)
         expect(MockApi$).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('provideOwn', () => {
+      it('should create the dependency anew within the context', () => {
+        const Store$ = vi.fn(() => ({}))
+        const root = new InjectionContext()
+        const store = inject(Store$, root)
+        const context = new InjectionContext([provideOwn(Store$)], root)
+
+        expect(inject(Store$, context)).not.toBe(store)
+        expect(inject(Store$, context)).toBe(inject(Store$, context))
+        expect(inject(Store$, root)).toBe(store)
+        expect(Store$).toHaveBeenCalledTimes(2)
+      })
+
+      it('should create the dependency for every context that provides it', () => {
+        const Store$ = vi.fn(() => ({}))
+        const root = new InjectionContext()
+        const first = new InjectionContext([provideOwn(Store$)], root)
+        const second = new InjectionContext([provideOwn(Store$)], root)
+
+        expect(inject(Store$, first)).not.toBe(inject(Store$, second))
+        expect(inject(Store$, first)).not.toBe(inject(Store$, root))
+        expect(Store$).toHaveBeenCalledTimes(3)
+      })
+
+      it('should create the dependency before the contexts above have their own', () => {
+        const Store$ = vi.fn(() => ({}))
+        const root = new InjectionContext()
+        const context = new InjectionContext([provideOwn(Store$)], root)
+        const store = inject(Store$, context)
+
+        expect(inject(Store$, root)).not.toBe(store)
+        expect(inject(Store$, context)).toBe(store)
+      })
+
+      it('should share the dependency with the contexts below', () => {
+        const Store$ = vi.fn(() => ({}))
+        const root = new InjectionContext()
+        const context = new InjectionContext([provideOwn(Store$)], root)
+        const child = new InjectionContext([], context)
+
+        expect(inject(Store$, child)).toBe(inject(Store$, context))
+        expect(Store$).toHaveBeenCalledTimes(1)
+      })
+
+      it('should create the dependency again under the override of what it injects', () => {
+        const Locale$ = vi.fn(() => 'en')
+        const Store$ = vi.fn(() => ({
+          locale: inject(Locale$)
+        }))
+        const root = new InjectionContext()
+        const context = new InjectionContext([provideOwn(Store$)], root)
+        const german = new InjectionContext([provide(Locale$, 'de')], context)
+
+        expect(inject(Store$, context).locale).toBe('en')
+        expect(inject(Store$, german).locale).toBe('de')
+        expect(inject(Store$, context).locale).toBe('en')
+      })
+
+      it('should keep the dependency in the context that provides it', () => {
+        const Store$ = vi.fn(() => ({}))
+        const root = new InjectionContext()
+        const context = new InjectionContext([provideOwn(Store$)], root)
+        const store = inject(Store$, context)
+
+        expect([...context.deps.values()]).toContain(store)
+        expect([...root.deps.values()]).not.toContain(store)
+      })
+
+      it('should keep what injects the dependency within the context', () => {
+        const Store$ = vi.fn(() => ({}))
+        const Consumer$ = vi.fn(() => ({
+          store: inject(Store$)
+        }))
+        const root = new InjectionContext()
+        const context = new InjectionContext([provideOwn(Store$)], root)
+
+        expect(inject(Consumer$, context).store).toBe(inject(Store$, context))
+        expect(inject(Consumer$, root).store).toBe(inject(Store$, root))
+        expect(inject(Consumer$, root)).not.toBe(inject(Consumer$, context))
+      })
+
+      it('should create a class dependency anew', () => {
+        class Service$ extends Injectable$ {}
+
+        const root = new InjectionContext()
+        const context = new InjectionContext([provideOwn(Service$)], root)
+
+        expect(inject(Service$, context)).toBeInstanceOf(Service$)
+        expect(inject(Service$, context)).not.toBe(inject(Service$, root))
+        expect(inject(Service$, context)).toBe(inject(Service$, context))
+      })
+
+      it('should override a value provided above and give way to a value provided below', () => {
+        const Store$ = vi.fn(() => ({}))
+        const above = {}
+        const below = {}
+        const root = new InjectionContext([provide(Store$, above)])
+        const context = new InjectionContext([provideOwn(Store$)], root)
+        const child = new InjectionContext([provide(Store$, below)], context)
+
+        expect(inject(Store$, context)).not.toBe(above)
+        expect(inject(Store$, child)).toBe(below)
+        expect(Store$).toHaveBeenCalledTimes(1)
+      })
+
+      it('should not create the dependency on lookup', () => {
+        const Store$ = vi.fn(() => ({}))
+        const context = new InjectionContext([provideOwn(Store$)])
+
+        expect(context.get(Store$, true)).toBeUndefined()
+        expect(Store$).not.toHaveBeenCalled()
+
+        const store = inject(Store$, context)
+
+        expect(context.get(Store$, true)).toBe(store)
       })
     })
   })
