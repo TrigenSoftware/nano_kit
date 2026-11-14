@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.1.0](https://github.com/TrigenSoftware/nano_kit/compare/v3.0.1...v3.1.0) (2026-11-14)
+
+### Features
+
+* **router:** replace a layout's `meta` with the page's `meta` of the same `name` or `property` ([#377](https://github.com/TrigenSoftware/nano_kit/issues/377)) ([ba3b5bd](https://github.com/TrigenSoftware/nano_kit/commit/ba3b5bd11ca87511ab067987e0cafcfa0bd41f4f))
+
+### Bug Fixes
+
+* **router,react-router,preact-router,svelte-router:** accept a `notFound()` page in a layout of its own ([#375](https://github.com/TrigenSoftware/nano_kit/issues/375)) ([fa21e7c](https://github.com/TrigenSoftware/nano_kit/commit/fa21e7c56d22a2fb1000b6b64c20619abc651a61))
+
 ## [3.0.1](https://github.com/TrigenSoftware/nano_kit/compare/v3.0.0...v3.0.1) (2026-11-14)
 
 ### Bug Fixes
