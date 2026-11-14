@@ -47,7 +47,7 @@ metadata:
 
 - One index file exports `routes` and `pages`; the plugin, the renderer and the client entry all read it.
 - Every store is an injectable factory, never a module-level signal: one process serves many requests and each request gets its own `InjectionContext`.
-- Page and layout modules export `Stores$` (the accessors the server must await and dehydrate) and `Head$` next to the default component; layout and page factories are merged.
+- Page and layout modules export `Stores$` (the accessors the server must await and dehydrate) and `Head$` next to the default component; layout and page factories are merged, and a page's `title`, `lang`, `dir` and `meta` (told apart by `name` or `property`) replace the layout's, so the server never sends a default tag next to the page's one.
 - Select services that differ between browser and server with `import.meta.env.SSR`, and keep server-only code behind it.
 
 ## Request flow

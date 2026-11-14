@@ -45,13 +45,7 @@ function startProperty<T extends string>(
 ) {
   const target = this.target()
   const property = this.tag
-  const predicate = (el: PseudoElement) => el.matches(property)
-
-  if (head.some(predicate)) {
-    return
-  }
-
-  const element = prevHead?.find(predicate) || {
+  const element = prevHead?.find(el => el.matches(property)) || {
     matches(tag) {
       return tag === property
     },
@@ -272,19 +266,48 @@ export function script(props: ScriptTagProps): ScriptTagDescriptor {
   }
 }
 
+function headKey(tag: GenericHeadDescriptor) {
+  const props = (tag as MetaTagDescriptor).props
+
+  // Of the tags, only `meta` has these props.
+  // The space keeps `title`, `lang` and `dir` apart from a `meta` named so
+  return props
+    ? props.name || props.property
+    : `${tag.tag} `
+}
+
+/**
+ * Joins the head of a layout with the head of what it wraps.
+ * A `title`, `lang`, `dir` or `meta` of the inner head replaces the layout's ones of the same kind:
+ * `meta` is told apart by its `name` or `property`. Tags repeated within one head are all kept.
+ * @param outer - Head descriptors of the layout.
+ * @param inner - Head descriptors of the page, or of the layouts and the page inside.
+ * @returns Head descriptors of the layout that are not replaced, then the inner ones.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function mergeHead(
+  outer: GenericHeadDescriptor[],
+  inner: GenericHeadDescriptor[]
+): GenericHeadDescriptor[] {
+  const keys: unknown[] = inner.map(headKey)
+
+  // A tag without a key is looked up as `0`, which no key is, so it always stays
+  return [...outer.filter(tag => !keys.includes(headKey(tag) || 0)), ...inner]
+}
+
 function getHeadDescriptors(
   page: ComposedPageRef<unknown> | null | undefined,
   context: InjectionContext | undefined
 ): GenericHeadDescriptor[] {
   return page
-    ? [
-      ...getHeadDescriptors(page.r, context),
-      ...page.Head$
+    ? mergeHead(
+      page.Head$
         ? context
           ? inject(page.Head$, context)
           : page.Head$()
-        : []
-    ]
+        : [],
+      getHeadDescriptors(page.r, context)
+    )
     : []
 }
 

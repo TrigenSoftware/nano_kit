@@ -81,6 +81,39 @@ export function Head$() {
 export default function UserPage() { /* ... */ }
 ```
 
+### Layout `Head$`
+
+A layout module can export `Head$` as well. The head of a page is joined with the heads of its layouts, so a layout declares what its pages share and a page replaces what differs:
+
+- `title`, `lang` and `dir` of the page replace the layout's. Declare each of them at most once in a `Head$`.
+- A `meta` of the page replaces the layout's `meta` with the same `name` or `property`.
+- All other tags are kept from both, and so are the tags repeated within one `Head$`, like several `og:image`.
+
+```ts
+/* The root layout: the defaults of every page */
+export function Head$() {
+  return [
+    title('My App'),
+    meta({ name: 'description', content: 'A place for your posts' }),
+    meta({ property: 'og:image', content: '/cover.png' })
+  ]
+}
+```
+
+```ts
+/* A page: its own title and description, the image of the layout */
+export function Head$() {
+  const $post = inject(Post$)
+
+  return [
+    title(() => $post().title),
+    meta({ name: 'description', content: () => $post().summary })
+  ]
+}
+```
+
+The same happens in the browser and in the SSR renderer, so a crawler never gets the default tag next to the one of the page.
+
 ### `syncHead`
 
 `syncHead` subscribes to the current page accessor and applies all head descriptors reactively. Call it once during app initialization.

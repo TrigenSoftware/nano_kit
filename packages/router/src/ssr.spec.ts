@@ -13,6 +13,11 @@ import {
   router
 } from './router.js'
 import {
+  type HeadDescriptor,
+  title,
+  meta
+} from './head.js'
+import {
   precompose,
   loadPages,
   loadPage
@@ -82,6 +87,121 @@ describe('router', () => {
 
         navigation.push('/dashboard')
         expect($page()?.default?.()).toBe('AuthLayout(DashboardLayout(Dashboard))')
+      })
+
+      it('should replace head tags of the layout with the same tags of the page', () => {
+        const [$location, navigation] = virtualNavigation('/', {
+          index: '/',
+          home: '/home',
+          about: '/about'
+        })
+        const pages = [
+          page('index', (): string => 'Index'),
+          layout({
+            default: 'RootLayout',
+            Head$: () => [
+              title('Root'),
+              meta({
+                charSet: 'utf-8'
+              }),
+              meta({
+                property: 'og:title',
+                content: 'Root'
+              }),
+              meta({
+                property: 'og:image',
+                content: '/root.png'
+              })
+            ]
+          }, [
+            page('home', {
+              default: (): string => 'Home',
+              Head$: () => [
+                title('Home'),
+                meta({
+                  property: 'og:title',
+                  content: 'Home'
+                }),
+                meta({
+                  property: 'og:image',
+                  content: '/first.png'
+                }),
+                meta({
+                  property: 'og:image',
+                  content: '/second.png'
+                })
+              ]
+            }),
+            page('about', (): string => 'About')
+          ])
+        ]
+        const compose = ($outlet: Accessor<(() => string) | null>, layout: string) => () => `${layout}(${$outlet()?.()})`
+        const head = (descriptors: HeadDescriptor[] | undefined) => descriptors?.map(
+          descriptor => ('props' in descriptor
+            ? [descriptor.tag, descriptor.props]
+            : [descriptor.tag, descriptor.value])
+        )
+
+        precompose(pages, compose)
+
+        const $page = router($location, pages, compose)
+
+        navigation.push('/home')
+        expect(head($page()?.Head$?.())).toEqual([
+          [
+            'meta',
+            {
+              charSet: 'utf-8'
+            }
+          ],
+          ['title', 'Home'],
+          [
+            'meta',
+            {
+              property: 'og:title',
+              content: 'Home'
+            }
+          ],
+          [
+            'meta',
+            {
+              property: 'og:image',
+              content: '/first.png'
+            }
+          ],
+          [
+            'meta',
+            {
+              property: 'og:image',
+              content: '/second.png'
+            }
+          ]
+        ])
+
+        navigation.push('/about')
+        expect(head($page()?.Head$?.())).toEqual([
+          ['title', 'Root'],
+          [
+            'meta',
+            {
+              charSet: 'utf-8'
+            }
+          ],
+          [
+            'meta',
+            {
+              property: 'og:title',
+              content: 'Root'
+            }
+          ],
+          [
+            'meta',
+            {
+              property: 'og:image',
+              content: '/root.png'
+            }
+          ]
+        ])
       })
     })
 

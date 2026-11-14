@@ -8,6 +8,17 @@ export * from './params.js'
 export * from './paths.js'
 export * from './router.js'
 export * from './di.js'
-export * from './head.js'
+export type * from './head.types.js'
+export {
+  title,
+  lang,
+  dir,
+  toHtmlAttribute,
+  link,
+  meta,
+  script,
+  syncHead,
+  pageTitle
+} from './head.js'
 export * from './announcer.js'
 export * from './ssr.js'
