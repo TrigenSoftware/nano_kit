@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.1.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.10.1...v3.1.0) (2026-11-14)
+
+### Features
+
+* replace a layout's `meta` with the page's `meta` of the same `name` or `property` ([#377](https://github.com/TrigenSoftware/nano_kit/issues/377)) ([ba3b5bd](https://github.com/TrigenSoftware/nano_kit/commit/ba3b5bd11ca87511ab067987e0cafcfa0bd41f4f))
+
+### Bug Fixes
+
+* accept a `notFound()` page in a layout of its own ([#375](https://github.com/TrigenSoftware/nano_kit/issues/375)) ([fa21e7c](https://github.com/TrigenSoftware/nano_kit/commit/fa21e7c56d22a2fb1000b6b64c20619abc651a61))
+
 ## [2.10.1](https://github.com/TrigenSoftware/nano_kit/compare/v2.8.0...v2.10.1) (2026-11-08)
 
 ### Bug Fixes
