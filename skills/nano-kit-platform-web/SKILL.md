@@ -61,6 +61,6 @@ metadata:
 
 ## Pitfalls
 
-- `browserLocale` matches language tags exactly (`ru-RU` is not `ru`); list the tags you support or normalize before matching.
+- `browserLocale` matches by language (`ro-RO` resolves to `ro`, `pt-PT` to `pt-BR`), so pass the browser's tags as they are; a region without its own locale gets the first locale of the language in the same script, so list the preferred region first.
 - Singleton signals are shared across the app; derive from them with `computed`, do not write to them.
 - `syncedSessionStored` follows other documents that share the tab's session storage, not other tabs.
