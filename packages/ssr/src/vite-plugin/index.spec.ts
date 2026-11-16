@@ -65,6 +65,28 @@ describe('ssr', () => {
       expect(output[3].code).not.toContain('Status$')
     })
 
+    it('should remove Stores$ and Status$ of a page behind an index file, with the stores of other modules they use', async () => {
+      const clientTransformPlugin = plugin.find(p => p.name === '@nano_kit/ssr/vite-plugin:transform:client')!
+      const result: any = await build({
+        root: testAppDir,
+        logLevel: 'silent',
+        build: {
+          outDir,
+          minify: false,
+          rolldownOptions: {
+            input
+          }
+        },
+        plugins: [clientTransformPlugin]
+      })
+      const chunk = result.output.find((c: any) => c.facadeModuleId?.endsWith('garden/index.js'))
+
+      expect(chunk.code).toContain('function Garden()')
+      expect(chunk.code).not.toContain('Stores$')
+      expect(chunk.code).not.toContain('Status$')
+      expect(chunk.code).not.toContain('Soil')
+    })
+
     it('should attach chunk name to dynamic imports in server bundle', async () => {
       const plugins = plugin.filter(
         p => p.name === '@nano_kit/ssr/vite-plugin:transform:server' || p.name === '@nano_kit/ssr/vite-plugin:virtual'
