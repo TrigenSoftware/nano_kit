@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.2.2](https://github.com/TrigenSoftware/nano_kit/compare/v3.2.1...v3.2.2) (2026-11-16)
+
+### Bug Fixes
+
+* **ssr:** remove `Stores$` that only lists injected stores from the client build ([#383](https://github.com/TrigenSoftware/nano_kit/issues/383)) ([af85123](https://github.com/TrigenSoftware/nano_kit/commit/af851239a86e3882a2c6d46fcaca8efee5b9cc26))
+
 ## [3.2.1](https://github.com/TrigenSoftware/nano_kit/compare/v3.2.0...v3.2.1) (2026-11-16)
 
 ### What's new
