@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.2.0](https://github.com/TrigenSoftware/nano_kit/compare/v3.1.0...v3.2.0) (2026-11-16)
+
+### Features
+
+* **router,ssr:** add `Status$` to set the response status of a page by its loaded data ([#381](https://github.com/TrigenSoftware/nano_kit/issues/381)) ([990459a](https://github.com/TrigenSoftware/nano_kit/commit/990459abfa200107f80a5b0886b59529b96cb0de))
+
+### Bug Fixes
+
+* **ssr:** pre-bundle the app's dependencies when the dev server starts ([#379](https://github.com/TrigenSoftware/nano_kit/issues/379)) ([6a51edd](https://github.com/TrigenSoftware/nano_kit/commit/6a51edd417799a2199e6a41f4074798ade2dae54))
+
 ## [3.1.0](https://github.com/TrigenSoftware/nano_kit/compare/v3.0.1...v3.1.0) (2026-11-14)
 
 ### Features

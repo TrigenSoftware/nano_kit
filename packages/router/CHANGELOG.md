@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.2.0](https://github.com/TrigenSoftware/nano_kit/compare/v3.1.0...v3.2.0) (2026-11-16)
+
+### Features
+
+* add `Status$` to set the response status of a page by its loaded data ([#381](https://github.com/TrigenSoftware/nano_kit/issues/381)) ([990459a](https://github.com/TrigenSoftware/nano_kit/commit/990459abfa200107f80a5b0886b59529b96cb0de))
+
 ## [3.1.0](https://github.com/TrigenSoftware/nano_kit/compare/v2.10.1...v3.1.0) (2026-11-14)
 
 ### Features
