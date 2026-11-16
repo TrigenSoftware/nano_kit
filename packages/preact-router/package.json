@@ -1,7 +1,7 @@
 {
   "name": "@nano_kit/preact-router",
   "type": "module",
-  "version": "3.1.0",
+  "version": "3.2.1",
   "description": "Preact integration for @nano_kit/router with code splitting, Dependency Injection, and state management.",
   "author": "dangreen",
   "license": "MIT",
