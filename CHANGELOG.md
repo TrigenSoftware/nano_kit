@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.2.3](https://github.com/TrigenSoftware/nano_kit/compare/v3.2.2...v3.2.3) (2026-11-16)
+
+### Bug Fixes
+
+* **router,ssr:** rename the `Status$` page export to `StatusCode$` ([#385](https://github.com/TrigenSoftware/nano_kit/issues/385)) ([224a300](https://github.com/TrigenSoftware/nano_kit/commit/224a300ff10d3765d0cf0b9d147628ce95c5a6fe))
+
 ## [3.2.2](https://github.com/TrigenSoftware/nano_kit/compare/v3.2.1...v3.2.2) (2026-11-16)
 
 ### Bug Fixes
