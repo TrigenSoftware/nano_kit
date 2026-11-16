@@ -10,7 +10,8 @@ export const routes = {
   home: '/',
   about: '/about',
   gone: '/gone',
-  teapot: '/teapot'
+  teapot: '/teapot',
+  garden: '/garden'
 }
 
 export const pages = [
@@ -18,7 +19,8 @@ export const pages = [
     page('home', loadable(() => import('./home.js'))),
     page('about', loadable(() => import('./about.js'))),
     page('gone', loadable(() => import('./gone.js'))),
-    page('teapot', Teapot)
+    page('teapot', Teapot),
+    page('garden', loadable(() => import('./garden/index.js')))
   ])
 ]
 

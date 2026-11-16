@@ -1017,6 +1017,8 @@ export function Stores$() {
 }
 ```
 
+`Stores$` is called on the server only and is removed from the client build, see [Server-Only Exports](#server-only-exports).
+
 ## Head Management
 
 Export a `Head$` function from a page module to declare per-page document metadata. See Head Management for all available tag descriptors.
@@ -1087,9 +1089,49 @@ export default function Post() { /* The post, or a note that there is none */ }
 
 Return `undefined` when the page has nothing to say: the renderer then takes `statusCode`, or `200` without it. Only the status changes, the page is rendered as usual, so the page itself shows that there is no such post.
 
-`Status$` should read only the stores returned from `Stores$`, as the renderer waits for no others. It is called on the server only, and the SSR plugin removes it from the client build.
+`Status$` should read only the stores returned from `Stores$`, as the renderer waits for no others.
 
 Layout modules can export `Status$` and `statusCode` too. The page answers first, with its `Status$` and then with its `statusCode`, and its layouts follow, from the nearest one. So a layout that loads a blog responds with `404` when there is no such blog, for every page inside it that gives no status of its own.
+
+## Server-Only Exports
+
+`Stores$` and `Status$` are called on the server only. The SSR Vite plugin removes them from the client build, so neither they nor the code that only they use reach the browser.
+
+The plugin goes by one sign: **the module has a default export**. From such a module it removes the exports named `Stores$`, `Status$` and `Cache$`, a name the router keeps for the page cache, whether they are declared there or re-exported by name. A module without a default export is left as it is.
+
+So keep the default export of a page in the same module as its `Stores$` and `Status$`:
+
+```tsx
+export function Stores$() { /* ... */ }
+
+export function Status$() { /* ... */ }
+
+export default function Post() { /* ... */ }
+```
+
+A page kept in a folder needs this too. If only the index file has the default export, the plugin never sees `Stores$` behind `export *`, and it stays in the client build:
+
+```ts
+/* pages/Post/index.ts */
+
+/* ❌ `Stores$` of `./Post` stays in the client build */
+export * from './Post'
+export { Post as default } from './Post'
+
+/* ✅ `./Post` has the default export itself */
+export * from './Post'
+export { default } from './Post'
+```
+
+The stores a page shares with others need nothing special. A function that only the removed `Stores$` uses, like the `PostStores$` of a block or the `Stores$` of another module, is dropped from the client build by tree-shaking:
+
+```tsx
+import { PostStores$ } from '../blocks/Post'
+
+export function Stores$() {
+  return [...inject(PostStores$)]
+}
+```
 
 ## Setting Up SSR
 

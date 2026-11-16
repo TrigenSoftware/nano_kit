@@ -170,7 +170,7 @@ An adapter consists of three parts: a **renderer**, a **client entry**, and a **
    }
    ```
 
-   The plugin automatically handles building both the **client bundle** and the **SSR renderer bundle**.
+   The plugin automatically handles building both the **client bundle** and the **SSR renderer bundle**. It also removes the [server-only exports](/router/ssr#server-only-exports) of page modules from the client bundle.
 
 </Steps>
 

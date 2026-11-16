@@ -49,6 +49,7 @@ metadata:
 - Every store is an injectable factory, never a module-level signal: one process serves many requests and each request gets its own `InjectionContext`.
 - Page and layout modules export `Stores$` (the accessors the server must await and dehydrate) and `Head$` next to the default component; layout and page factories are merged, and a page's `title`, `lang`, `dir` and `meta` (told apart by `name` or `property`) replace the layout's, so the server never sends a default tag next to the page's one.
 - Select services that differ between browser and server with `import.meta.env.SSR`, and keep server-only code behind it.
+- `Stores$` and `Status$` are server-only: the plugin removes them from the client build, but only from a module with a default export. Keep a page's default export in the same file as its `Stores$`; an index file that adds the default export over `export *` leaves them in the client build.
 
 ## Request flow
 

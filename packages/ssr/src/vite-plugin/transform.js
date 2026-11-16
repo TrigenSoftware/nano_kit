@@ -16,6 +16,11 @@ function isFunctionWithReturn(node) {
     return false
   }
 
+  // An arrow function with an expression for its body returns it
+  if (node.expression) {
+    return true
+  }
+
   let found = false
 
   walk(node.body, {
@@ -28,39 +33,16 @@ function isFunctionWithReturn(node) {
 }
 
 /**
- * @param {any} node
- * @returns {boolean}
- */
-function isStoresFunction(node) {
-  if (!isFunctionWithReturn(node)) {
-    return false
-  }
-
-  let found = false
-
-  walk(node.body, {
-    Identifier(id) {
-      if (id.name[0] === '$' && id.name.length > 1) {
-        found = true
-      }
-    }
-  }, true)
-
-  return found
-}
-
-/**
  * @param {any[]} body
  * @param {string} name
- * @param {(node: any) => boolean} validator
  * @returns {boolean}
  */
-function hasBindingWithFunction(body, name, validator) {
+function hasBindingWithFunction(body, name) {
   for (const node of body) {
     if (
       node.type === 'FunctionDeclaration'
       && node.id?.name === name
-      && validator(node)
+      && isFunctionWithReturn(node)
     ) {
       return true
     }
@@ -70,7 +52,7 @@ function hasBindingWithFunction(body, name, validator) {
         if (
           decl.id?.name === name
           && decl.init
-          && validator(decl.init)
+          && isFunctionWithReturn(decl.init)
         ) {
           return true
         }
@@ -219,7 +201,7 @@ export const clientTransformFilter = {
     exclude: /^\0|node_modules/
   },
   code: {
-    include: [/\bexport\b/, /\bdefault\b/, /(?:Stores|Cache|Status)\$/, /\breturn\b/]
+    include: [/\bexport\b/, /\bdefault\b/, /\b(?:Stores|Cache|Status)\$/]
   }
 }
 
@@ -236,98 +218,85 @@ export function clientTransformFilterFallback(id, code) {
   )
 }
 
-/** @type {Record<string, (node: any) => boolean>} */
-const SSR_ONLY_EXPORTS = {
-  Stores$: isStoresFunction,
-  Cache$: isFunctionWithReturn,
-  Status$: isFunctionWithReturn
-}
+const SSR_ONLY_EXPORTS = new Set(['Stores$', 'Cache$', 'Status$'])
 
 /**
- * Remove SSR-only exports (`Stores$`, `Cache$`, `Status$`) from page components for client build,
+ * Remove SSR-only exports (`Stores$`, `Cache$`, `Status$`) from page modules for client build,
  * since they are only used for SSR and can cause issues if left in.
+ * A page module is one with a default export. Any other module is left as it is: what only
+ * the removed exports use there is dropped by tree-shaking.
  * @param {import('rolldown').RolldownMagicString | null} magicString
  * @param {any} ast
  * @param {string} code
  * @returns {{ code: string, map: import('magic-string').SourceMap } | null} Transformed code
  */
 export function transformClient(magicString, ast, code) {
-  const s = magicString ?? new MagicString(code)
-  let changed = false
+  /** @type {[start: number, end: number, replacement: string][]} */
+  const edits = []
+  let page = false
 
   for (const node of ast.body) {
+    if (node.type === 'ExportDefaultDeclaration') {
+      page = true
+      continue
+    }
+
     if (node.type !== 'ExportNamedDeclaration') {
       continue
     }
 
     const decl = node.declaration
 
-    if (decl && decl.type === 'FunctionDeclaration') {
-      const validator = SSR_ONLY_EXPORTS[decl.id?.name]
+    if (decl) {
+      const fn = decl.type === 'VariableDeclaration' && decl.declarations.length === 1
+        ? decl.declarations[0]
+        : decl
+      const name = fn.id?.name
 
-      if (validator && validator(decl)) {
-        s.remove(node.start, node.end)
-        changed = true
-        continue
+      if (SSR_ONLY_EXPORTS.has(name) && isFunctionWithReturn(fn.init || fn)) {
+        edits.push([node.start, node.end, ''])
+      }
+
+      continue
+    }
+
+    const specs = node.specifiers
+    const kept = []
+
+    for (const spec of specs) {
+      const name = spec.exported.name
+
+      if (
+        !SSR_ONLY_EXPORTS.has(name)
+        // The function of a re-export is in another module, so its name is all there is to go by
+        || !node.source && !hasBindingWithFunction(ast.body, spec.local.name)
+      ) {
+        page ||= name === 'default'
+        kept.push(code.slice(spec.start, spec.end))
       }
     }
 
-    if (
-      decl
-      && decl.type === 'VariableDeclaration'
-      && decl.declarations.length === 1
-    ) {
-      const d = decl.declarations[0]
-      const validator = SSR_ONLY_EXPORTS[d.id?.name]
-
-      if (validator && d.init && validator(d.init)) {
-        s.remove(node.start, node.end)
-        changed = true
-        continue
-      }
-    }
-
-    if (!decl && node.specifiers) {
-      const spec = node.specifiers.find(
-        s => s.type === 'ExportSpecifier'
-          && (
-            SSR_ONLY_EXPORTS[s.local?.name]
-            || SSR_ONLY_EXPORTS[s.exported?.name]
-          )
+    if (kept.length < specs.length) {
+      edits.push(
+        kept.length
+          ? [specs[0].start, specs[specs.length - 1].end, kept.join(', ')]
+          : [node.start, node.end, '']
       )
-
-      if (!spec) {
-        continue
-      }
-
-      const exportedName = SSR_ONLY_EXPORTS[spec.exported?.name]
-        ? spec.exported.name
-        : spec.local.name
-      const localName = spec.local?.name ?? exportedName
-      const validator = SSR_ONLY_EXPORTS[exportedName]
-
-      if (!hasBindingWithFunction(ast.body, localName, validator)) {
-        continue
-      }
-
-      if (node.specifiers.length === 1) {
-        s.remove(node.start, node.end)
-      } else {
-        const specs = node.specifiers
-        const idx = specs.indexOf(spec)
-        const isLast = idx === specs.length - 1
-        const start = isLast ? specs[idx - 1].end : spec.start
-        const end = isLast ? spec.end : specs[idx + 1].start
-
-        s.remove(start, end)
-      }
-
-      changed = true
     }
   }
 
-  if (!changed) {
+  if (!page || !edits.length) {
     return null
+  }
+
+  const s = magicString ?? new MagicString(code)
+
+  for (const [start, end, replacement] of edits) {
+    if (replacement) {
+      s.overwrite(start, end, replacement)
+    } else {
+      s.remove(start, end)
+    }
   }
 
   return {
