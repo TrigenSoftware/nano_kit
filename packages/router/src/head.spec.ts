@@ -632,6 +632,30 @@ describe('router', () => {
 
           stop()
         })
+
+        it('should hydrate existing meta tag with a line break, quotes and backslashes in its content', () => {
+          const content = 'Tomatoes.\nWatered by "Dan" in C:\\garden\\'
+          const charset = document.createElement('meta')
+          const description = document.createElement('meta')
+
+          charset.setAttribute('charset', 'utf-8')
+          description.setAttribute('name', 'description')
+          description.setAttribute('content', content)
+          document.head.append(charset, description)
+
+          const stop = syncHead(() => ({
+            default: null,
+            Head$: () => [meta({
+              name: 'description',
+              content
+            })]
+          }))
+
+          expect(document.head.children).toHaveLength(2)
+          expect(document.head.lastElementChild).toBe(description)
+
+          stop()
+        })
       })
 
       describe('script', () => {
