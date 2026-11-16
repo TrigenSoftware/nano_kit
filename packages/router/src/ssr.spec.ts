@@ -204,7 +204,7 @@ describe('router', () => {
         ])
       })
 
-      describe('Status$', () => {
+      describe('StatusCode$', () => {
         const [$location, navigation] = virtualNavigation('/', {
           home: '/home',
           about: '/about',
@@ -214,15 +214,15 @@ describe('router', () => {
         const pages = [
           layout({
             default: 'RootLayout',
-            Status$: () => 403
+            StatusCode$: () => 403
           }, [
             page('home', {
               default: (): string => 'Home',
-              Status$: () => 404
+              StatusCode$: () => 404
             }),
             page('about', {
               default: (): string => 'About',
-              Status$: () => undefined
+              StatusCode$: () => undefined
             }),
             page('gone', {
               default: (): string => 'Gone',
@@ -232,7 +232,7 @@ describe('router', () => {
           layout('PlainLayout', [
             page('plain', {
               default: (): string => 'Plain',
-              Status$: () => 404
+              StatusCode$: () => 404
             })
           ])
         ]
@@ -244,22 +244,22 @@ describe('router', () => {
 
         it('should take the status of the page before the status of its layout', () => {
           navigation.push('/home')
-          expect($page()?.Status$?.()).toBe(404)
+          expect($page()?.StatusCode$?.()).toBe(404)
         })
 
         it('should take the status of the layout when the page gives none', () => {
           navigation.push('/about')
-          expect($page()?.Status$?.()).toBe(403)
+          expect($page()?.StatusCode$?.()).toBe(403)
         })
 
         it('should take the status code of the page before the status of its layout', () => {
           navigation.push('/gone')
-          expect($page()?.Status$?.()).toBe(410)
+          expect($page()?.StatusCode$?.()).toBe(410)
         })
 
         it('should keep the status of the page in a layout without one', () => {
           navigation.push('/plain')
-          expect($page()?.Status$?.()).toBe(404)
+          expect($page()?.StatusCode$?.()).toBe(404)
         })
       })
     })

@@ -35,7 +35,7 @@ describe('ssr', () => {
       })
     })
 
-    it('should remove exported Stores$, Cache$ and Status$ functions from client bundle', async () => {
+    it('should remove exported Stores$, Cache$ and StatusCode$ functions from client bundle', async () => {
       const clientTransformPlugin = plugin.find(p => p.name === '@nano_kit/ssr/vite-plugin:transform:client')!
       const result: any = await build({
         root: testAppDir,
@@ -53,19 +53,19 @@ describe('ssr', () => {
 
       expect(output[0].code).not.toContain('Stores$')
       expect(output[0].code).not.toContain('Cache$')
-      expect(output[0].code).not.toContain('Status$')
+      expect(output[0].code).not.toContain('StatusCode$')
       expect(output[1].code).not.toContain('Stores$')
       expect(output[1].code).not.toContain('Cache$')
-      expect(output[1].code).not.toContain('Status$')
+      expect(output[1].code).not.toContain('StatusCode$')
       expect(output[2].code).not.toContain('Stores$')
       expect(output[2].code).not.toContain('Cache$')
-      expect(output[2].code).not.toContain('Status$')
+      expect(output[2].code).not.toContain('StatusCode$')
       expect(output[3].code).not.toContain('Stores$')
       expect(output[3].code).not.toContain('Cache$')
-      expect(output[3].code).not.toContain('Status$')
+      expect(output[3].code).not.toContain('StatusCode$')
     })
 
-    it('should remove Stores$ and Status$ of a page behind an index file, with the stores of other modules they use', async () => {
+    it('should remove Stores$ and StatusCode$ of a page behind an index file, with the stores of other modules they use', async () => {
       const clientTransformPlugin = plugin.find(p => p.name === '@nano_kit/ssr/vite-plugin:transform:client')!
       const result: any = await build({
         root: testAppDir,
@@ -83,7 +83,7 @@ describe('ssr', () => {
 
       expect(chunk.code).toContain('function Garden()')
       expect(chunk.code).not.toContain('Stores$')
-      expect(chunk.code).not.toContain('Status$')
+      expect(chunk.code).not.toContain('StatusCode$')
       expect(chunk.code).not.toContain('Soil')
     })
 

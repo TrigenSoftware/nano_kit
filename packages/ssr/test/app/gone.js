@@ -28,7 +28,7 @@ export function Stores$() {
   return [$data]
 }
 
-export function Status$() {
+export function StatusCode$() {
   const $data = inject(Data$)
 
   return $data()?.gone ? 410 : undefined

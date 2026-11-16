@@ -1,6 +1,6 @@
 export const statusCode = 418
 
-export function Status$() {
+export function StatusCode$() {
   return undefined
 }
 

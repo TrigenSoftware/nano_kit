@@ -1066,7 +1066,7 @@ export const statusCode = 410
 export default function Gone() { /* ... */ }
 ```
 
-When the status depends on the data, export a `Status$` function. It is called within the request's `InjectionContext` once the stores from `Stores$` are dehydrated, so it reads what they have loaded:
+When the status depends on the data, export a `StatusCode$` function. It is called within the request's `InjectionContext` once the stores from `Stores$` are dehydrated, so it reads what they have loaded:
 
 ```tsx
 import { inject } from '@nano_kit/store'
@@ -1078,7 +1078,7 @@ export function Stores$() {
   return [$post]
 }
 
-export function Status$() {
+export function StatusCode$() {
   const { $post } = inject(Post$)
 
   return $post() ? undefined : 404
@@ -1089,22 +1089,22 @@ export default function Post() { /* The post, or a note that there is none */ }
 
 Return `undefined` when the page has nothing to say: the renderer then takes `statusCode`, or `200` without it. Only the status changes, the page is rendered as usual, so the page itself shows that there is no such post.
 
-`Status$` should read only the stores returned from `Stores$`, as the renderer waits for no others.
+`StatusCode$` should read only the stores returned from `Stores$`, as the renderer waits for no others.
 
-Layout modules can export `Status$` and `statusCode` too. The page answers first, with its `Status$` and then with its `statusCode`, and its layouts follow, from the nearest one. So a layout that loads a blog responds with `404` when there is no such blog, for every page inside it that gives no status of its own.
+Layout modules can export `StatusCode$` and `statusCode` too. The page answers first, with its `StatusCode$` and then with its `statusCode`, and its layouts follow, from the nearest one. So a layout that loads a blog responds with `404` when there is no such blog, for every page inside it that gives no status of its own.
 
 ## Server-Only Exports
 
-`Stores$` and `Status$` are called on the server only. The SSR Vite plugin removes them from the client build, so neither they nor the code that only they use reach the browser.
+`Stores$` and `StatusCode$` are called on the server only. The SSR Vite plugin removes them from the client build, so neither they nor the code that only they use reach the browser.
 
-The plugin goes by one sign: **the module has a default export**. From such a module it removes the exports named `Stores$`, `Status$` and `Cache$`, a name the router keeps for the page cache, whether they are declared there or re-exported by name. A module without a default export is left as it is.
+The plugin goes by one sign: **the module has a default export**. From such a module it removes the exports named `Stores$`, `StatusCode$` and `Cache$`, a name the router keeps for the page cache, whether they are declared there or re-exported by name. A module without a default export is left as it is.
 
-So keep the default export of a page in the same module as its `Stores$` and `Status$`:
+So keep the default export of a page in the same module as its `Stores$` and `StatusCode$`:
 
 ```tsx
 export function Stores$() { /* ... */ }
 
-export function Status$() { /* ... */ }
+export function StatusCode$() { /* ... */ }
 
 export default function Post() { /* ... */ }
 ```

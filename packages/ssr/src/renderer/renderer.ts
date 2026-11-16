@@ -134,7 +134,7 @@ export abstract class Renderer extends Manifest {
           ...run(context, page.Head$!),
           ...this.getAssetsTags(page.__chunks)
         ]
-        status = (page.Status$ && run(context, page.Status$)) ?? page.statusCode
+        status = (page.StatusCode$ && run(context, page.StatusCode$)) ?? page.statusCode
       } else {
         head = this.getAssetsTags()
         status = page.statusCode

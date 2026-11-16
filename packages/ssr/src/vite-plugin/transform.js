@@ -201,7 +201,7 @@ export const clientTransformFilter = {
     exclude: /^\0|node_modules/
   },
   code: {
-    include: [/\bexport\b/, /\bdefault\b/, /\b(?:Stores|Cache|Status)\$/]
+    include: [/\bexport\b/, /\bdefault\b/, /\b(?:Stores|Cache|StatusCode)\$/]
   }
 }
 
@@ -218,10 +218,10 @@ export function clientTransformFilterFallback(id, code) {
   )
 }
 
-const SSR_ONLY_EXPORTS = new Set(['Stores$', 'Cache$', 'Status$'])
+const SSR_ONLY_EXPORTS = new Set(['Stores$', 'Cache$', 'StatusCode$'])
 
 /**
- * Remove SSR-only exports (`Stores$`, `Cache$`, `Status$`) from page modules for client build,
+ * Remove SSR-only exports (`Stores$`, `Cache$`, `StatusCode$`) from page modules for client build,
  * since they are only used for SSR and can cause issues if left in.
  * A page module is one with a default export. Any other module is left as it is: what only
  * the removed exports use there is dropped by tree-shaking.
