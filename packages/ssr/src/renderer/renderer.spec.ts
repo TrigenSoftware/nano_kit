@@ -69,7 +69,7 @@ describe('ssr', () => {
       expect((await renderer.render('/gone')).statusCode).toBe(410)
     })
 
-    it('should respond with the status code of the page when its Status$ gives none', async () => {
+    it('should respond with the status code of the page when its StatusCode$ gives none', async () => {
       expect((await renderer.render('/teapot')).statusCode).toBe(418)
     })
 

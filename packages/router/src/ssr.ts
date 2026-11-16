@@ -8,7 +8,7 @@ import type {
   UnknownPageMatchRef,
   UnknownComposer,
   CacheFactory,
-  StatusFactory,
+  StatusCodeFactory,
   MatchRef
 } from './router.types.js'
 import { mergeHead } from './head.js'
@@ -94,7 +94,7 @@ function composeWithLayouts(
       Stores$: composeArrayFns(layout.Stores$, inner.Stores$, concat),
       Head$: composeArrayFns(layout.Head$, inner.Head$, mergeHead),
       Cache$: composeCache(layout.Cache$, inner.Cache$),
-      Status$: composeStatus(layout.Status$, inner),
+      StatusCode$: composeStatusCode(layout.StatusCode$, inner),
       __chunks: composeChunks(layout.__chunks, inner.__chunks),
       statusCode: inner.statusCode ?? layout.statusCode
     }
@@ -151,14 +151,14 @@ function composeCache(
     : outer || inner || noopCache
 }
 
-// The page answers before its layouts do, with `Status$` and then with `statusCode`
-function composeStatus(
-  outer: StatusFactory | undefined,
+// The page answers before its layouts do, with `StatusCode$` and then with `statusCode`
+function composeStatusCode(
+  outer: StatusCodeFactory | undefined,
   inner: PageRef<unknown>
-): StatusFactory | undefined {
+): StatusCodeFactory | undefined {
   return outer
-    ? () => inner.Status$?.() ?? inner.statusCode ?? outer()
-    : inner.Status$
+    ? () => inner.StatusCode$?.() ?? inner.statusCode ?? outer()
+    : inner.StatusCode$
 }
 
 function composeChunks(

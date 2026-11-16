@@ -12,7 +12,7 @@ export function Stores$() {
   return [inject(Garden$), ...inject(SoilStores$)]
 }
 
-export function Status$() {
+export function StatusCode$() {
   return inject(Garden$)() ? undefined : 404
 }
 

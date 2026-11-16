@@ -27,7 +27,7 @@ describe('ssr', () => {
           expect(code).toContain('export default function Page() {}')
         })
 
-        it('should keep Stores$, Cache$ and Status$ in a module without a default export', () => {
+        it('should keep Stores$, Cache$ and StatusCode$ in a module without a default export', () => {
           expect(transform(`
             export function Stores$() {
               return [$data]
@@ -37,7 +37,7 @@ describe('ssr', () => {
               return new Map()
             }
 
-            export function Status$() {
+            export function StatusCode$() {
               return signal('idle')
             }
 
@@ -93,13 +93,13 @@ describe('ssr', () => {
           expect(code).not.toContain('Stores$')
         })
 
-        it('should remove Cache$ and Status$ from a module with a default export', () => {
+        it('should remove Cache$ and StatusCode$ from a module with a default export', () => {
           const code = transform(`
             export function Cache$() {
               return true
             }
 
-            export function Status$() {
+            export function StatusCode$() {
               return 404
             }
 
@@ -107,7 +107,7 @@ describe('ssr', () => {
           `)
 
           expect(code).not.toContain('Cache$')
-          expect(code).not.toContain('Status$')
+          expect(code).not.toContain('StatusCode$')
         })
 
         it('should keep Stores$ that is not a function', () => {
@@ -140,13 +140,13 @@ describe('ssr', () => {
               return [$data]
             }
 
-            function Status$() {
+            function StatusCode$() {
               return 404
             }
 
             function Page() {}
 
-            export { Stores$, Page as default, Status$ }
+            export { Stores$, Page as default, StatusCode$ }
           `)
 
           expect(code).toContain('export { Page as default }')
@@ -166,9 +166,9 @@ describe('ssr', () => {
           expect(code).not.toContain('export {')
         })
 
-        it('should remove Stores$ and Status$ re-exported from another module', () => {
+        it('should remove Stores$ and StatusCode$ re-exported from another module', () => {
           const code = transform(`
-            export { Stores$, Status$, Head$ } from './page.stores.js'
+            export { Stores$, StatusCode$, Head$ } from './page.stores.js'
 
             export default function Page() {}
           `)
