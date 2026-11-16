@@ -1,7 +1,6 @@
 import {
   type HeadDescriptor,
   type Location,
-  type PageRef,
   PermanentReplaceHistoryAction,
   toHtmlAttribute
 } from '@nano_kit/router'
@@ -14,7 +13,6 @@ import type { ResponseStatusCode } from './renderer.types.js'
 import {
   FOUND_STATUS,
   MOVED_PERMANENTLY_STATUS,
-  NOT_FOUND_STATUS,
   SUCCESS_STATUS
 } from './constants.js'
 
@@ -118,18 +116,7 @@ export function responseRedirect(
 
 export function responseStatus(
   location: Location,
-  page: PageRef<unknown> | null
+  status = SUCCESS_STATUS
 ): [ResponseStatusCode, string | null] {
-  const redirect = responseRedirect(location)
-
-  if (redirect) {
-    return redirect
-  }
-
-  return [
-    page
-      ? (page.statusCode as ResponseStatusCode) ?? SUCCESS_STATUS
-      : NOT_FOUND_STATUS,
-    null
-  ]
+  return responseRedirect(location) || [status as ResponseStatusCode, null]
 }

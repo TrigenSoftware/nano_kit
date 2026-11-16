@@ -8,6 +8,7 @@ import type {
   UnknownPageMatchRef,
   UnknownComposer,
   CacheFactory,
+  StatusFactory,
   MatchRef
 } from './router.types.js'
 import { mergeHead } from './head.js'
@@ -93,6 +94,7 @@ function composeWithLayouts(
       Stores$: composeArrayFns(layout.Stores$, inner.Stores$, concat),
       Head$: composeArrayFns(layout.Head$, inner.Head$, mergeHead),
       Cache$: composeCache(layout.Cache$, inner.Cache$),
+      Status$: composeStatus(layout.Status$, inner),
       __chunks: composeChunks(layout.__chunks, inner.__chunks),
       statusCode: inner.statusCode ?? layout.statusCode
     }
@@ -147,6 +149,16 @@ function composeCache(
       return r
     }
     : outer || inner || noopCache
+}
+
+// The page answers before its layouts do, with `Status$` and then with `statusCode`
+function composeStatus(
+  outer: StatusFactory | undefined,
+  inner: PageRef<unknown>
+): StatusFactory | undefined {
+  return outer
+    ? () => inner.Status$?.() ?? inner.statusCode ?? outer()
+    : inner.Status$
 }
 
 function composeChunks(

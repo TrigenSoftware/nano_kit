@@ -219,7 +219,7 @@ export const clientTransformFilter = {
     exclude: /^\0|node_modules/
   },
   code: {
-    include: [/\bexport\b/, /\bdefault\b/, /(?:Stores|Cache)\$/, /\breturn\b/]
+    include: [/\bexport\b/, /\bdefault\b/, /(?:Stores|Cache|Status)\$/, /\breturn\b/]
   }
 }
 
@@ -239,11 +239,12 @@ export function clientTransformFilterFallback(id, code) {
 /** @type {Record<string, (node: any) => boolean>} */
 const SSR_ONLY_EXPORTS = {
   Stores$: isStoresFunction,
-  Cache$: isFunctionWithReturn
+  Cache$: isFunctionWithReturn,
+  Status$: isFunctionWithReturn
 }
 
 /**
- * Remove SSR-only exports (`Stores$`, `Cache$`) from page components for client build,
+ * Remove SSR-only exports (`Stores$`, `Cache$`, `Status$`) from page components for client build,
  * since they are only used for SSR and can cause issues if left in.
  * @param {import('rolldown').RolldownMagicString | null} magicString
  * @param {any} ast

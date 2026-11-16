@@ -48,7 +48,7 @@ metadata:
 - When several paths render one page, declare one route with a parameter of listed values, such as `'/gardens/:id/:tab(posts|plants)?'`, instead of several routes pointing at the same page.
 - Provide `LocationNavigation$` (from `browserNavigation(routes)`), `Page$` (from `router($location, pages)`) and `Pages$` together at the root; the derived tokens come for free.
 - Render with the ready-made `App`, let layouts render children through `Outlet`, and call `useSyncHead()`, `useTitleAnnouncer()`, `useLinkComponentPreload()` and `useLinkComponentAriaCurrent()` once in the root layout.
-- Page modules export the component as `default` and, when needed, `Stores$` (what SSR awaits and dehydrates), `Head$` (head descriptors) and `statusCode`.
+- Page modules export the component as `default` and, when needed, `Stores$` (what SSR awaits and dehydrates), `Head$` (head descriptors), `statusCode` and `Status$` (the response status: a fixed one, or one that depends on the loaded data).
 
 ## URL-derived state
 

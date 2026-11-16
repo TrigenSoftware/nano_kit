@@ -30,6 +30,8 @@ export type CacheCondition = CacheConditionDescriptor | boolean
 
 export type CacheFactory = () => CacheCondition
 
+export type StatusFactory = () => number | undefined
+
 export interface PageModule<V> {
   /**
    * Factory function to get stores to dehydrate for the view while SSR.
@@ -43,6 +45,11 @@ export interface PageModule<V> {
    * Factory function to get cache conditions for the view. If it returns a falsy value, the view will not be cached.
    */
   Cache$?: CacheFactory
+  /**
+   * Factory function to get the response status code for the view while SSR, by the data of its stores.
+   * It is called once the stores are dehydrated. If it returns `undefined`, `statusCode` is used.
+   */
+  Status$?: StatusFactory
   /**
    * Chunk names attached by plugin for SSR.
    */

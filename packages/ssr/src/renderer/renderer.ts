@@ -25,6 +25,7 @@ import type {
   RenderData,
   RenderResult
 } from './renderer.types.js'
+import { NOT_FOUND_STATUS } from './constants.js'
 import { Manifest } from './manifest.js'
 import {
   responseRedirect,
@@ -124,6 +125,7 @@ export abstract class Renderer extends Manifest {
     const page = $page()
     let head: HeadDescriptor[] = []
     let dehydrated: [string, unknown][] = []
+    let status: number | undefined = NOT_FOUND_STATUS
 
     if (page) {
       if (this.options.dehydrate !== false) {
@@ -132,12 +134,14 @@ export abstract class Renderer extends Manifest {
           ...run(context, page.Head$!),
           ...this.getAssetsTags(page.__chunks)
         ]
+        status = (page.Status$ && run(context, page.Status$)) ?? page.statusCode
       } else {
         head = this.getAssetsTags()
+        status = page.statusCode
       }
     }
 
-    const [statusCode, redirect] = responseStatus($location(), page)
+    const [statusCode, redirect] = responseStatus($location(), status)
     let setCookieHeaders = null
 
     if (virtualCookieStore) {
