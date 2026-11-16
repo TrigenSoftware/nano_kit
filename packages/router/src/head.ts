@@ -121,8 +121,7 @@ export function toHtmlAttribute(prop: string) {
 }
 
 function buildPredicate(tag: string, attributes: [string, AnySignalish][]) {
-  let selector = tag
-  let count = 0
+  const expected: [string, string][] = []
   let code: string | undefined
 
   for (const [key, value] of attributes) {
@@ -132,15 +131,17 @@ function buildPredicate(tag: string, attributes: [string, AnySignalish][]) {
       if (key === 'code') {
         code = String(resolvedValue)
       } else {
-        count++
-        selector += `[${toHtmlAttribute(key)}="${String(resolvedValue).replace(/"/g, '\\"')}"]`
+        expected.push([toHtmlAttribute(key), String(resolvedValue)])
       }
     }
   }
 
+  // Values are compared as they are: a selector made of them breaks on a line break or a backslash.
+  // A `title`, `lang` or `dir` pseudo element has no `localName`, so it never matches
   return (
-    (element: HTMLElement) => element.matches(selector)
-      && element.attributes.length === count
+    (element: HTMLElement) => element.localName === tag
+      && element.attributes.length === expected.length
+      && expected.every(([name, value]) => element.getAttribute(name) === value)
       && (code === undefined || element.textContent === code)
   ) as (element: PseudoElement) => boolean
 }
