@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.2.4](https://github.com/TrigenSoftware/nano_kit/compare/v3.2.3...v3.2.4) (2026-11-16)
+
+### Bug Fixes
+
+* **router:** keep `syncHead` working when a value of a head tag has a line break or a backslash ([#387](https://github.com/TrigenSoftware/nano_kit/issues/387)) ([b74b850](https://github.com/TrigenSoftware/nano_kit/commit/b74b850cf4218c84c09542c5904b09f7e85ea6d2))
+
 ## [3.2.3](https://github.com/TrigenSoftware/nano_kit/compare/v3.2.2...v3.2.3) (2026-11-16)
 
 ### Bug Fixes
