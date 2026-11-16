@@ -149,6 +149,21 @@ export default function SsrPlugin(options, adapter) {
       name: '@nano_kit/ssr/vite-plugin:serve',
       apply: 'serve',
 
+      config(config) {
+        // An SSR app has no index.html for Vite to crawl for dependencies, so it would find them
+        // page by page, re-bundling and reloading each time. The crawl starts at the client entry,
+        // or at the app index when that entry is the adapter's virtual module, which it cannot read.
+        if (!config.optimizeDeps?.entries) {
+          const entry = clientPath === adapter.clientPath ? appIndex : clientPath
+
+          return {
+            optimizeDeps: {
+              entries: [entry]
+            }
+          }
+        }
+      },
+
       configureServer(server) {
         const { logger } = server.config
 
