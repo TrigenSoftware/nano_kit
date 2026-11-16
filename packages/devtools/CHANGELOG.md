@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.2.1](https://github.com/TrigenSoftware/nano_kit/compare/v2.0.1...v3.2.1) (2026-11-16)
+
+### What's new
+
+- Every package is released together, so each one accepts the latest versions of the others.
+
+### Upgrading
+
+- Update all `@nano_kit/*` packages, `kida` and `agera` to `3.2.1` at once.
+
 ## [2.0.1](https://github.com/TrigenSoftware/nano_kit/compare/v2.0.0...v2.0.1) (2026-10-21)
 
 ### Bug Fixes
