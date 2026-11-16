@@ -4,16 +4,21 @@ import {
   loadable
 } from '@nano_kit/router'
 import * as Layout from './layout.js'
+import * as Teapot from './teapot.js'
 
 export const routes = {
   home: '/',
-  about: '/about'
+  about: '/about',
+  gone: '/gone',
+  teapot: '/teapot'
 }
 
 export const pages = [
   layout(Layout, [
     page('home', loadable(() => import('./home.js'))),
-    page('about', loadable(() => import('./about.js')))
+    page('about', loadable(() => import('./about.js'))),
+    page('gone', loadable(() => import('./gone.js'))),
+    page('teapot', Teapot)
   ])
 ]
 

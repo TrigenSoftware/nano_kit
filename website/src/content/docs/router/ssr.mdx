@@ -87,6 +87,43 @@ The SSR renderer reads `Head$` and injects the tags into the HTML response autom
 
 Layout modules can export `Head$` too: the `title`, `lang`, `dir` and `meta` of a page replace the same tags of its layouts, see [Layout `Head$`](/router/advanced#layout-head).
 
+## Response Status
+
+The SSR renderer responds with `200` for a page and with `404` for the `notFound` page. Export `statusCode` from a page module to respond with another status:
+
+```tsx
+export const statusCode = 410
+
+export default function Gone() { /* ... */ }
+```
+
+When the status depends on the data, export a `Status$` function. It is called within the request's `InjectionContext` once the stores from `Stores$` are dehydrated, so it reads what they have loaded:
+
+```tsx
+import { inject } from '@nano_kit/store'
+import { Post$ } from './stores/post'
+
+export function Stores$() {
+  const { $post } = inject(Post$)
+
+  return [$post]
+}
+
+export function Status$() {
+  const { $post } = inject(Post$)
+
+  return $post() ? undefined : 404
+}
+
+export default function Post() { /* The post, or a note that there is none */ }
+```
+
+Return `undefined` when the page has nothing to say: the renderer then takes `statusCode`, or `200` without it. Only the status changes, the page is rendered as usual, so the page itself shows that there is no such post.
+
+`Status$` should read only the stores returned from `Stores$`, as the renderer waits for no others. It is called on the server only, and the SSR plugin removes it from the client build.
+
+Layout modules can export `Status$` and `statusCode` too. The page answers first, with its `Status$` and then with its `statusCode`, and its layouts follow, from the nearest one. So a layout that loads a blog responds with `404` when there is no such blog, for every page inside it that gives no status of its own.
+
 ## Setting Up SSR
 
 The low-level setup (virtual navigation, renderer class, client hydration) is handled by the SSR renderer. See the [SSR renderer docs](/ssr) for a complete setup guide.

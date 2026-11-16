@@ -57,6 +57,22 @@ describe('ssr', () => {
       )
     })
 
+    it('should respond with 200 by default', async () => {
+      expect((await renderer.render('/')).statusCode).toBe(200)
+    })
+
+    it('should respond with 404 when no page matches', async () => {
+      expect((await renderer.render('/nowhere')).statusCode).toBe(404)
+    })
+
+    it('should respond with the status that the page gives by its dehydrated stores', async () => {
+      expect((await renderer.render('/gone')).statusCode).toBe(410)
+    })
+
+    it('should respond with the status code of the page when its Status$ gives none', async () => {
+      expect((await renderer.render('/teapot')).statusCode).toBe(418)
+    })
+
     it('should escape closing script tags in the dehydrated script', () => {
       expect(renderer.dehydratedScript([
         ['html', '</script><script>alert(1)</script>']

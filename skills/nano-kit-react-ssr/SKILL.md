@@ -52,7 +52,7 @@ metadata:
 
 ## Request flow
 
-- The renderer creates a virtual navigation for the URL, builds the request context (router tokens plus the platform tokens enabled with the plugin's `inject` options), runs `Stores$` through dehydration, reads `Head$`, and only then renders. The result carries the HTML, the status code, a redirect target and the collected `Set-Cookie` headers.
+- The renderer creates a virtual navigation for the URL, builds the request context (router tokens plus the platform tokens enabled with the plugin's `inject` options), runs `Stores$` through dehydration, reads `Head$` and `Status$`, and only then renders. The result carries the HTML, the status code, a redirect target and the collected `Set-Cookie` headers.
 - Forward the request headers the plugin expects (`cookie`, `accept-language`, `user-agent`) into `renderer.render`, append every returned `Set-Cookie` value, and honour `redirect` and `statusCode`.
 - `vite dev` serves SSR in-process; the production `server` entry is only used by the built bundle.
 
@@ -61,6 +61,7 @@ metadata:
 - Configure the query client for server rendering as the SSR section of the `nano-kit-query` skill's `DOCS.md` shows and return the query data signals from `Stores$`, so the renderer waits for them and the browser restores the cache.
 - Read cookies, locale and user agent through the `@nano_kit/platform-web` tokens; enable the matching `inject` options so the server provides them per request. Cookie writes made while the stores run become `Set-Cookie` headers of the response.
 - A store that navigates during server rendering (an auth guard in `Stores$`) turns into an HTTP redirect; a URL that matches no route renders the `notFound` page with status 404 unless the module exports `statusCode`.
+- When the status depends on loaded data (a post that does not exist), export `Status$` from the page or layout module and render the missing state in the page itself. Return `undefined` from it when there is nothing to say, never `200`, so the `statusCode` of a page inside a layout is not overridden.
 
 ## Client entry and renderer
 

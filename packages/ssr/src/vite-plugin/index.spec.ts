@@ -35,7 +35,7 @@ describe('ssr', () => {
       })
     })
 
-    it('should remove exported Stores$ and Cache$ functions from client bundle', async () => {
+    it('should remove exported Stores$, Cache$ and Status$ functions from client bundle', async () => {
       const clientTransformPlugin = plugin.find(p => p.name === '@nano_kit/ssr/vite-plugin:transform:client')!
       const result: any = await build({
         root: testAppDir,
@@ -53,10 +53,16 @@ describe('ssr', () => {
 
       expect(output[0].code).not.toContain('Stores$')
       expect(output[0].code).not.toContain('Cache$')
+      expect(output[0].code).not.toContain('Status$')
       expect(output[1].code).not.toContain('Stores$')
       expect(output[1].code).not.toContain('Cache$')
+      expect(output[1].code).not.toContain('Status$')
       expect(output[2].code).not.toContain('Stores$')
       expect(output[2].code).not.toContain('Cache$')
+      expect(output[2].code).not.toContain('Status$')
+      expect(output[3].code).not.toContain('Stores$')
+      expect(output[3].code).not.toContain('Cache$')
+      expect(output[3].code).not.toContain('Status$')
     })
 
     it('should attach chunk name to dynamic imports in server bundle', async () => {

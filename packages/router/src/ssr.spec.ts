@@ -203,6 +203,65 @@ describe('router', () => {
           ]
         ])
       })
+
+      describe('Status$', () => {
+        const [$location, navigation] = virtualNavigation('/', {
+          home: '/home',
+          about: '/about',
+          gone: '/gone',
+          plain: '/plain'
+        })
+        const pages = [
+          layout({
+            default: 'RootLayout',
+            Status$: () => 403
+          }, [
+            page('home', {
+              default: (): string => 'Home',
+              Status$: () => 404
+            }),
+            page('about', {
+              default: (): string => 'About',
+              Status$: () => undefined
+            }),
+            page('gone', {
+              default: (): string => 'Gone',
+              statusCode: 410
+            })
+          ]),
+          layout('PlainLayout', [
+            page('plain', {
+              default: (): string => 'Plain',
+              Status$: () => 404
+            })
+          ])
+        ]
+        const compose = ($outlet: Accessor<(() => string) | null>, layout: string) => () => `${layout}(${$outlet()?.()})`
+
+        precompose(pages, compose)
+
+        const $page = router($location, pages, compose)
+
+        it('should take the status of the page before the status of its layout', () => {
+          navigation.push('/home')
+          expect($page()?.Status$?.()).toBe(404)
+        })
+
+        it('should take the status of the layout when the page gives none', () => {
+          navigation.push('/about')
+          expect($page()?.Status$?.()).toBe(403)
+        })
+
+        it('should take the status code of the page before the status of its layout', () => {
+          navigation.push('/gone')
+          expect($page()?.Status$?.()).toBe(410)
+        })
+
+        it('should keep the status of the page in a layout without one', () => {
+          navigation.push('/plain')
+          expect($page()?.Status$?.()).toBe(404)
+        })
+      })
     })
 
     describe('loadPages', () => {
