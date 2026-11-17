@@ -1,7 +1,7 @@
 {
   "name": "@nano_kit/router",
   "type": "module",
-  "version": "3.2.4",
+  "version": "3.2.5",
   "description": "A small and powerful router for the @nano_kit/store state management library.",
   "author": "dangreen",
   "license": "MIT",

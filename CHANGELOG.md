@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.2.5](https://github.com/TrigenSoftware/nano_kit/compare/v3.2.4...v3.2.5) (2026-11-17)
+
+### Bug Fixes
+
+* **router,next-router,svelte-kit:** go back on `replace` to the URL of the previous entry instead of duplicating it ([#389](https://github.com/TrigenSoftware/nano_kit/issues/389)) ([5387184](https://github.com/TrigenSoftware/nano_kit/commit/53871846fa591293c74f809e5834ccb3056c8a5a))
+
 ## [3.2.4](https://github.com/TrigenSoftware/nano_kit/compare/v3.2.3...v3.2.4) (2026-11-16)
 
 ### Bug Fixes

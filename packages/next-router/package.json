@@ -1,7 +1,7 @@
 {
   "name": "@nano_kit/next-router",
   "type": "module",
-  "version": "3.2.1",
+  "version": "3.2.5",
   "description": "Next.js integration for @nano_kit/router.",
   "author": "dangreen",
   "license": "MIT",
