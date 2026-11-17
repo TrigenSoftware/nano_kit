@@ -1,4 +1,5 @@
 import {
+  afterEach,
   beforeEach,
   describe,
   it,
@@ -7,8 +8,28 @@ import {
 } from 'vitest'
 import {
   browserNavigation,
+  goBackTo,
   virtualNavigation
 } from './navigation.js'
+
+function stubNavigationApi(previousHref: string, sameDocument = true) {
+  const back = vi.fn(() => ({}))
+
+  vi.stubGlobal('navigation', {
+    currentEntry: {
+      index: 1
+    },
+    entries: () => [
+      {
+        url: `${location.origin}${previousHref}`,
+        sameDocument
+      }
+    ],
+    back
+  })
+
+  return back
+}
 
 describe('router', () => {
   describe('navigation', () => {
@@ -386,6 +407,37 @@ describe('router', () => {
         window.history.replaceState(null, '', '/')
       })
 
+      afterEach(() => {
+        vi.unstubAllGlobals()
+      })
+
+      describe('goBackTo', () => {
+        it('should go back to the previous entry at the href', () => {
+          const back = stubNavigationApi('/list/')
+
+          expect(goBackTo('/list')).toBeTruthy()
+          expect(back).toHaveBeenCalled()
+        })
+
+        it('should not go back to the previous entry at another href', () => {
+          const back = stubNavigationApi('/list?page=2')
+
+          expect(goBackTo('/list')).toBeFalsy()
+          expect(back).not.toHaveBeenCalled()
+        })
+
+        it('should not go back to the previous entry of another document', () => {
+          const back = stubNavigationApi('/list', false)
+
+          expect(goBackTo('/list')).toBeFalsy()
+          expect(back).not.toHaveBeenCalled()
+        })
+
+        it('should not go back without the Navigation API', () => {
+          expect(goBackTo('/list')).toBeFalsy()
+        })
+      })
+
       describe('browserRouter', () => {
         it('should handle location state correctly', () => {
           window.history.replaceState(null, '', '/test?param=value#section')
@@ -468,6 +520,34 @@ describe('router', () => {
           navigation.replace('/same')
 
           expect($location()).toBe(locationBefore)
+        })
+
+        it('should go back instead of replacing state when the previous entry is at the href', () => {
+          window.history.replaceState(null, '', '/form')
+
+          const back = stubNavigationApi('/list')
+          const [$location, navigation] = browserNavigation()
+          const locationBefore = $location()
+
+          navigation.replace('/list')
+
+          expect(back).toHaveBeenCalled()
+          // The location comes with the traversal
+          expect($location()).toBe(locationBefore)
+          expect(window.location.pathname).toBe('/form')
+        })
+
+        it('should replace state when the previous entry is at another href', () => {
+          window.history.replaceState(null, '', '/form')
+
+          const back = stubNavigationApi('/other')
+          const [$location, navigation] = browserNavigation()
+
+          navigation.replace('/list')
+
+          expect(back).not.toHaveBeenCalled()
+          expect($location.$href()).toBe('/list')
+          expect(window.location.pathname).toBe('/list')
         })
 
         it('should replace state with navigation update object', () => {
@@ -621,6 +701,24 @@ describe('router', () => {
           navigation.replace('/')
 
           expect($location()).toBe(snapshot)
+        })
+
+        it('should go back instead of replacing when the previous entry is at the href', () => {
+          const [$location, navigation] = virtualNavigation()
+
+          navigation.push('/list')
+          navigation.push('/form')
+          navigation.replace('/list')
+
+          expect($location.$href()).toBe('/list')
+          expect($location().action).toBe('pop')
+
+          navigation.back()
+          expect($location.$href()).toBe('/')
+
+          navigation.forward()
+          navigation.forward()
+          expect($location.$href()).toBe('/form')
         })
 
         it('should remove trailing slash from pushed paths', () => {

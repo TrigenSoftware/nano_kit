@@ -45,6 +45,7 @@ describe('svelte-kit', () => {
       afterEach(() => {
         cleanup()
         vi.restoreAllMocks()
+        vi.unstubAllGlobals()
       })
 
       it('should return current location from page url', () => {
@@ -98,6 +99,31 @@ describe('svelte-kit', () => {
         expect(goto).toHaveBeenCalledWith('/about', {
           replace: true
         })
+      })
+
+      it('should go back instead of calling goto when the previous entry is at the href', () => {
+        const back = vi.fn(() => ({}))
+
+        vi.stubGlobal('navigation', {
+          currentEntry: {
+            index: 1
+          },
+          entries: () => [
+            {
+              url: `${location.origin}/about`,
+              sameDocument: true
+            }
+          ],
+          back
+        })
+        render(NavigationFixture)
+
+        const [, navigation] = getNavigationState()
+
+        navigation.replace('/about')
+
+        expect(back).toHaveBeenCalled()
+        expect(goto).not.toHaveBeenCalled()
       })
 
       it('should call goto with replaceState on navigation.replace with SvelteKit 2', () => {

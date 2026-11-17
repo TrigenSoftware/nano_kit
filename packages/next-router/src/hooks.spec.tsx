@@ -3,6 +3,7 @@ import {
   it,
   expect,
   vi,
+  afterEach,
   beforeEach
 } from 'vitest'
 import type { PropsWithChildren } from 'react'
@@ -41,6 +42,10 @@ describe('next-router', () => {
         mockNavigation.reset()
       })
 
+      afterEach(() => {
+        vi.unstubAllGlobals()
+      })
+
       it('should return current location from pathname', () => {
         const { result } = renderHook(() => useNextNavigation(routes))
         const [$location] = result.current
@@ -69,6 +74,33 @@ describe('next-router', () => {
         })
 
         expect(mockNavigation.replace).toHaveBeenCalledWith('/about')
+      })
+
+      it('should go back instead of calling nextRouter.replace when the previous entry is at the href', () => {
+        const back = vi.fn(() => ({}))
+
+        vi.stubGlobal('navigation', {
+          currentEntry: {
+            index: 1
+          },
+          entries: () => [
+            {
+              url: `${location.origin}/about`,
+              sameDocument: true
+            }
+          ],
+          back
+        })
+
+        const { result } = renderHook(() => useNextNavigation(routes))
+        const [, navigation] = result.current
+
+        act(() => {
+          navigation.replace('/about')
+        })
+
+        expect(back).toHaveBeenCalled()
+        expect(mockNavigation.replace).not.toHaveBeenCalled()
       })
 
       it('should call nextRouter.back on navigation.back', () => {

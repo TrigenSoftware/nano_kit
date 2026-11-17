@@ -17,6 +17,7 @@ import {
   ReplaceHistoryAction,
   createCachedMatcher,
   createLocation,
+  goBackTo,
   updateLocation
 } from '@nano_kit/router'
 import {
@@ -96,7 +97,7 @@ export function getKitNavigation<const R extends Routes = Routes>(
       const nextLocation = routerLocation(updateLocation(prevLocation, to, ReplaceHistoryAction))
 
       navigation.transition((location) => {
-        if (location !== null) {
+        if (location !== null && !goBackTo(location.href)) {
           kitGoto(location.href, true)
         }
       }, nextLocation, prevLocation)

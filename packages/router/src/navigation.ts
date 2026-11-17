@@ -31,6 +31,7 @@ import {
 import {
   composeMatchers,
   createLocation,
+  getHref,
   parseHref,
   removeTrailingSlash,
   updateLocation
@@ -104,12 +105,36 @@ export function createCachedMatcher(routes: Routes) {
   return matcher
 }
 
+/**
+ * Goes back to the previous entry of the browser history if it is at the given href and belongs to the current document.
+ * Relies on the Navigation API and does nothing where it is missing.
+ * @internal
+ * @param href - The href to go back to.
+ * @returns Truthy if the history goes back, falsy otherwise.
+ */
+export function goBackTo(href: string): unknown {
+  const { navigation } = window
+  const entry = navigation?.entries()[navigation.currentEntry!.index - 1]
+
+  // Unlike `history.back()`, it goes to the entry by its key,
+  // so a repeated call does not go further back while the traversal is under way
+  return entry?.sameDocument && getHref(new URL(entry.url!)) === href && navigation.back()
+}
+
 function applyBrowserLocation({ href, action }: Location) {
   if (action === PushHistoryAction) {
     history.pushState(null, '', href)
   } else if (action === ReplaceHistoryAction) {
+    // Back to the same page right before, rather than a copy of it in place of the current one:
+    // the location then comes with the traversal
+    if (goBackTo(href)) {
+      return false
+    }
+
     history.replaceState(null, '', href)
   }
+
+  return true
 }
 
 /**
@@ -130,8 +155,7 @@ export function browserNavigation<const R extends Routes = {}>(
     routerLocation(createLocation(location))
   ))
   const update = (location: RouteLocation<R> | null) => {
-    if (location !== null) {
-      applyBrowserLocation(location)
+    if (location !== null && applyBrowserLocation(location)) {
       $location(location)
     }
   }
@@ -257,7 +281,12 @@ export function virtualNavigation<const R extends Routes = {}>(
           $activeIndex(nextIndex)
         })
       } else if (action === ReplaceHistoryAction || action === PermanentReplaceHistoryAction) {
-        $location(location)
+        // Back to the same page right before, as the browser navigation does
+        if ($history()[$activeIndex() - 1]?.href === location.href) {
+          back()
+        } else {
+          $location(location)
+        }
       }
     }
   }

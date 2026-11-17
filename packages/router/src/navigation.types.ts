@@ -67,6 +67,9 @@ export interface Navigation<R extends Routes = Routes> {
   push(to: string | UrlUpdate): void
   /**
    * Navigate to a new URL by replacing the current entry in the history stack.
+   * If the previous entry is at the same URL, go back to it instead, so the history does not hold the page twice in a row:
+   * the location then updates with the traversal, as on `back`, with the `pop` action.
+   * In a browser, this relies on the Navigation API and takes only entries of the current document.
    * @param to - The target URL as a string or UrlUpdate object with partial URL components.
    * @param permanent - If true, indicates that the replacement is permanent (e.g., for SEO purposes). This can be used to differentiate between temporary and permanent redirects in server-side rendering scenarios.
    */
