@@ -236,6 +236,16 @@ export default defineConfig({
                       }
                     }
                   ]
+                },
+                {
+                  label: 'Testing',
+                  items: [
+                    {
+                      autogenerate: {
+                        directory: 'testing'
+                      }
+                    }
+                  ]
                 }
               ]
             },

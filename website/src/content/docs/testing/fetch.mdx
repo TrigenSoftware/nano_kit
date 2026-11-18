@@ -1,0 +1,166 @@
+---
+title: Virtual Fetch
+description: "A fetch that answers by Hono routes and behaves as the real one."
+sidebar:
+  order: 3
+---
+
+`virtualFetch` makes a `fetch` that answers by the routes of a [Hono](https://hono.dev) app instead of the network. Hand it to the code under test where the real one would go: a dependency of a store, an option of a client, a parameter of a function.
+
+```ts
+import { type App, virtualFetch } from '@nano_kit/testing/fetch'
+
+function routes(app: App, db: DB) {
+  app.get('/plants', c => c.json(db.plants.get()))
+}
+
+const fetch = virtualFetch([routes], db)
+
+const response = await fetch('plants')
+```
+
+## Handlers
+
+The first argument is a list of functions that put routes on the app. Every function gets the app first, then the rest of the arguments of `virtualFetch`, such as the database to answer from. The types check that every function gets what it asks for. The app is typed as `App`, the type of a Hono app that both `@nano_kit/testing/fetch` and `@nano_kit/testing/backend` export, so a module of the mock needs no import from `hono`.
+
+The functions run once, on the first request, in their order. A later function lies on top of the earlier ones: its routes answer first, and its middleware wraps their routes. So a function at the end of the list overrides or wraps the ones before it:
+
+```ts
+function slowNetwork(app: App) {
+  app.use(delay(300))
+}
+
+const fetch = virtualFetch([gardenRoutes, plantRoutes, slowNetwork], db)
+```
+
+A falsy item of the list is skipped, so a condition fits right in it: `virtualFetch([gardenRoutes, isSlow && slowNetwork], db)`.
+
+## As the Real One
+
+The virtual fetch behaves as the real one where the code under test can tell the difference:
+
+- **Always a promise**. Even a route that answers at once gives a promise.
+- **Aborts**. A request whose signal is aborted, before it is sent or while a route is answering, rejects with the reason of the abort. A request that hangs on [`pending()`](#pending) can be aborted too.
+- **`response.url`**. It holds the address of the request.
+- **Relative addresses**. Addresses such as `garden/1/plants` work, as they do on a page. An absolute address is routed by its path, whatever its origin.
+- **No route, no silence**. A request that no route answers gets a 404 and a warning in the console with its method and path, so a typo in an address shows up at once.
+- **A route that throws**. It answers 500, as Hono does, and the error goes to the console.
+
+Since the fetch takes a `Request` and returns a `Response`, it also answers a real server: `serve({ fetch: request => fetch(request) })` with `@hono/node-server` turns the mock into a backend on a port.
+
+## Behaviors
+
+Behaviors are ready Hono handlers for the answers that are hard to get from a real backend: a failure, a hang, a lost connection. Put one on a route as any other handler. A behavior that hands the request on wraps the routes below it.
+
+```ts
+import {
+  pending,
+  fail,
+  offline,
+  delay,
+  mapJson,
+  pass,
+  sequence,
+  when
+} from '@nano_kit/testing/fetch'
+```
+
+| Behavior | What the request gets |
+|----------|-----------------------|
+| `pending()` | No answer at all. The request can still be aborted. |
+| `fail(status, body)` | A failure: 500 by default, with the body as JSON when it is given. |
+| `offline()` | No connection: the fetch rejects with a `TypeError`. |
+| `delay(ms)` | The answer of the routes below, after a pause. |
+| `mapJson(map)` | The JSON of the routes below, rewritten. |
+| `pass()` | The answer of the routes below: a step of `sequence()` that changes nothing. |
+| `sequence(...steps)` | The n-th step for the n-th request, the routes below after the steps. |
+| `when(test, behavior)` | The behavior when the request passes the test, the routes below otherwise. |
+
+A behavior is typed `Behavior`, so a helper that takes one needs no import from `hono`:
+
+```ts
+import { type App, type Behavior, fail } from '@nano_kit/testing/fetch'
+
+function deleting(path: string, behavior: Behavior = fail()) {
+  return (app: App) => {
+    app.delete(path, behavior)
+  }
+}
+```
+
+### pending
+
+Shows a loading state that never ends:
+
+```ts
+app.get('/garden/1/plants', pending())
+```
+
+### fail
+
+Answers with a failure. Without a body the answer is empty:
+
+```ts
+app.delete('/garden/1/plants/1', fail())
+app.post('/users', fail(409, { error: 'User already exists' }))
+```
+
+### offline
+
+Cuts the network off, so the code under test meets a network error rather than an answer:
+
+```ts
+app.use(offline())
+```
+
+### delay
+
+Holds the request for a while, then hands it on:
+
+```ts
+app.use(delay(500))
+```
+
+### mapJson
+
+Rewrites the JSON the routes below answer with, keeping its status and headers. An answer that is not JSON, such as the 404 of a missing record, goes as it is.
+
+```ts
+app.get('/garden/1/plants', mapJson((page: PlantsPage) => ({
+  ...page,
+  isLastPage: true
+})))
+```
+
+### sequence
+
+Gives the first requests their steps and the rest to the routes below. Requests are counted for every path apart, whatever their query, so a retry of the same address gets the next step:
+
+```ts
+/* The first load fails, the retry gets the plants */
+app.get('/garden/1/plants', sequence(fail()))
+
+/* The first page loads, a refresh of it fails once */
+app.get('/garden/1/plants', sequence(pass(), fail()))
+```
+
+### when
+
+Applies a behavior to the requests that pass a test:
+
+```ts
+/* Only the next pages hang, the first one loads */
+app.get('/garden/1/plants', when(c => c.req.query('lastId') !== undefined, pending()))
+```
+
+## found
+
+Every route that reads a record by its id needs the same branch: answer 404 when there is no such record. `found()` is that branch. It returns the record and throws a 404 that the app answers with when the record is `undefined` or `null`:
+
+```ts
+import { found } from '@nano_kit/testing/fetch'
+
+app.get('/garden/:gardenId/plants/:id', c => c.json(found(db.plants.find(c.req.param('id')))))
+```
+
+The type of the result has no `undefined` in it, so the route goes on with the record.

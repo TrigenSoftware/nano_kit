@@ -1,0 +1,114 @@
+---
+title: Getting Started
+description: "@nano_kit/testing is a set of testing tools for stories, tests and demos, starting with a virtual backend: a database in memory, a fetch on Hono routes, and forks of both."
+sidebar:
+  order: 1
+---
+
+import { Tabs, TabItem, Code } from '@astrojs/starlight/components'
+
+`@nano_kit/testing` is a set of testing tools for stories, tests and demos, starting with a virtual backend: typed collections in memory, a `fetch` that answers by [Hono](https://hono.dev) routes, and an independent copy of both for every story and test.
+
+- **Typed collections**. Records are found by id, by fields or by a predicate, and `update` and `delete` change every match, as in SQL.
+- **Read-only data**. Records and values are frozen, so every change goes through the collection and any state forks into an independent copy.
+- **A real fetch**. It returns a promise even for an instant answer, honors `AbortSignal`, fills `response.url` and fails as a network does.
+- **A fork per story**. Seed the backend once and fork it for every story and test, tuned by recipes that change the data and put routes in front.
+- **Modular and typed**. Every service keeps its schema, seed and routes in a module of its own, and a module missing from the list is a compile error.
+
+The virtual backend spans three entries of the package, one on top of the other:
+
+| Entry | What it gives |
+|-------|---------------|
+| `@nano_kit/testing` | [Virtual database](/testing/database): collections, values, seeds, forks. |
+| `@nano_kit/testing/fetch` | [Virtual fetch](/testing/fetch): a fetch on Hono routes, behaviors of answers, `found`. |
+| `@nano_kit/testing/backend` | [Virtual backend](/testing/backend): a database and a fetch made of mock modules, with forks. |
+
+## Installation
+
+Install the package with Hono as dev dependencies:
+
+<Tabs syncKey='pkg'>
+  <TabItem label='pnpm' icon='pnpm'>
+    <Code frame='none' lang='bash' code='pnpm add -D @nano_kit/testing hono' />
+  </TabItem>
+  <TabItem label='Yarn' icon='seti:yarn'>
+    <Code frame='none' lang='bash' code='yarn add -D @nano_kit/testing hono' />
+  </TabItem>
+  <TabItem label='npm' icon='seti:npm'>
+    <Code frame='none' lang='bash' code='npm install -D @nano_kit/testing hono' />
+  </TabItem>
+</Tabs>
+
+Hono is needed by the fetch and the backend. The database alone works without it.
+
+## Quick Start
+
+A module of the mock keeps a part of the schema, the seed of that part and the routes that answer from it:
+
+```ts
+/* plant.mock.ts */
+import { type VirtualDatabase, collection } from '@nano_kit/testing'
+import { type App, found } from '@nano_kit/testing/fetch'
+
+interface Plant {
+  id: string
+  name: string
+}
+
+export const schema = {
+  plants: collection<Plant>({
+    entity: seq => ({
+      name: `Plant ${seq}`
+    })
+  })
+}
+
+type DB = VirtualDatabase<typeof schema>
+
+export function seed(db: DB) {
+  db.plants.createMany(10)
+}
+
+export function routes(app: App, db: DB) {
+  app.get('/plants', c => c.json(db.plants.get()))
+  app.get('/plants/:id', c => c.json(found(db.plants.find(c.req.param('id')))))
+  app.delete('/plants/:id', c => c.json(db.plants.delete(c.req.param('id'))))
+}
+```
+
+The backend is made once from the modules. It seeds itself on its first use:
+
+```ts
+/* api.mock.ts */
+import { virtualBackend } from '@nano_kit/testing/backend'
+import * as plantMock from './plant.mock'
+
+export const [fetch, db, fork] = virtualBackend([plantMock])
+```
+
+Every test and story forks it, so none of them sees the changes of another. A fork gives a `fetch` to hand to the code under test and the database it answers from:
+
+```ts
+/* plants.spec.ts */
+import { fail } from '@nano_kit/testing/fetch'
+import { fork } from './api.mock'
+
+it('should delete a plant', async () => {
+  const [fetch, db] = fork()
+
+  await fetch('/plants/1', {
+    method: 'DELETE'
+  })
+
+  expect(db.plants.find('1')).toBeUndefined()
+})
+
+it('should get a failure where a recipe puts one', async () => {
+  /* A recipe tunes the fork: its routes answer before the ones of the modules */
+  const [fetch] = fork((app) => {
+    app.get('/plants', fail(503))
+  })
+
+  expect((await fetch('/plants')).status).toBe(503)
+})
+```

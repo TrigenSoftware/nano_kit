@@ -1,0 +1,222 @@
+---
+title: Virtual Backend
+description: "A database and a fetch made of mock modules, forked for every story and test."
+sidebar:
+  order: 4
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+`virtualBackend` makes a whole mock backend from modules: a [database](/testing/database) of all their schemas, filled by their seeds, and a [fetch](/testing/fetch) that answers by all their routes. It is made once and forked for every story and test.
+
+## Modules
+
+A module of the mock is an ES module next to the service it stands in for. It exports up to three things, each of them optional:
+
+- **`schema`**: its collections and values.
+- **`seed(db)`**: fills its collections.
+- **`routes(app, db)`**: puts its routes on the app.
+
+```ts
+/* services/garden/garden.mock.ts */
+import { type VirtualDatabase, collection } from '@nano_kit/testing'
+import type { App } from '@nano_kit/testing/backend'
+
+export const schema = {
+  gardens: collection<Garden>({
+    entity: createGarden
+  })
+}
+
+type DB = VirtualDatabase<typeof schema>
+
+export function seed(db: DB) {
+  db.gardens.createMany(10)
+}
+
+export function routes(app: App, db: DB) {
+  app.get('/gardens', c => c.json(db.gardens.get()))
+}
+```
+
+A module types its database once, as `DB`, and its seed, its routes and its helpers all take that type. `DB` is made of the module's own part of the schema. When the module needs the records of another one, it adds that module's part by a type import, so modules never import each other at run time:
+
+```ts
+/* services/plant/plant.mock.ts */
+import { type VirtualDatabase, collection } from '@nano_kit/testing'
+import { type App, found } from '@nano_kit/testing/fetch'
+import type * as gardenMock from '../garden/garden.mock'
+
+export const schema = {
+  plants: collection<Plant>({
+    entity: createPlant
+  })
+}
+
+type DB = VirtualDatabase<typeof schema & typeof gardenMock.schema>
+
+export function seed(db: DB) {
+  const gardens = db.gardens.get()
+
+  db.plants.createMany(100, index => ({
+    gardenId: gardens[index % gardens.length].id
+  }))
+}
+
+export function routes(app: App, db: DB) {
+  app.get('/garden/:gardenId/plants', c => c.json(db.plants.where({
+    gardenId: c.req.param('gardenId')
+  })))
+  app.get('/garden/:gardenId/plants/:id', c => c.json(found(db.plants.find(c.req.param('id')))))
+}
+```
+
+## Assembly
+
+`virtualBackend` takes the list of modules and returns three things: the fetch, the database and `fork`.
+
+```ts
+/* services/api/api.mock.ts */
+import { virtualBackend } from '@nano_kit/testing/backend'
+import * as gardenMock from '../garden/garden.mock'
+import * as plantMock from '../plant/plant.mock'
+import * as userMock from '../user/user.mock'
+
+export const [fetch, db, fork] = virtualBackend([gardenMock, plantMock, userMock])
+```
+
+- **One schema**. The database has the collections and values of every module, typed.
+- **Seeds in order**. The seeds of the modules run in the order of the list, once, on the first use of the backend. The second argument of `virtualBackend` is one more seed that runs after them, for data that belongs to no module.
+- **Later on top**. A later module lies on top of the earlier ones: its routes answer first and its middleware wraps their routes.
+- **Checked by types**. The seed of the plants reads the gardens, so a list without `gardenMock` is a compile error, and the error names the missing collection.
+
+<Aside type='caution'>
+A module written right in the list needs the types of its parameters: `{ routes(app: App) { ... } }`. Without them TypeScript cannot work out the schema of the whole list.
+</Aside>
+
+## Forks and Recipes
+
+`fork()` makes an independent copy of the backend as it is now and returns a fetch and a database of the copy. Forks share no data with the backend or with each other, and the seeds do not run again: a copy of the seeded database costs little.
+
+The functions given to `fork()`, recipes, tune the copy. A recipe gets the app and the database, like the routes of a module:
+
+```ts
+import { fail } from '@nano_kit/testing/fetch'
+
+const [fetch, db] = fork((app, db) => {
+  db.plants.update('1', { name: 'Gardener’s Delight' })
+  app.delete('/garden/1/plants/1', fail())
+})
+```
+
+- **Data**. A recipe changes the database of the copy, and `db.reset()` brings the copy back to what its recipes made.
+- **Routes**. The routes of a recipe answer before the ones of the modules, so a recipe overrides them or, with a behavior that hands requests on, wraps them.
+- **In order**. Every recipe lies on top of the ones before it. It writes its data later, and its routes answer first.
+- **Fresh counters**. The routes are put on anew in every fork, so the counters of `sequence()` start from zero.
+- **Skipped when falsy**. A falsy recipe is skipped, so a condition fits right in the list: `fork(signedIn, isEmpty && emptyGarden)`.
+
+A recipe that only changes data takes the app as `_`, and then it is reused as it is:
+
+```ts
+/* services/user/user.mock.ts */
+export function signedIn(_: App, db: DB) {
+  db.session = 'user-1'
+}
+```
+
+```ts
+const [fetch] = fork(signedIn, (app) => {
+  app.delete('/garden/1/plants/1', fail())
+})
+```
+
+A recipe written apart from a call of `fork()` has nothing to take the types of its parameters from. `RecipeOf` takes them from the backend's `fork`:
+
+```ts
+/* services/api/api.mock.ts */
+import { type RecipeOf, virtualBackend } from '@nano_kit/testing/backend'
+
+export const [fetch, db, fork] = virtualBackend([gardenMock, plantMock, userMock])
+export type Recipe = RecipeOf<typeof fork>
+```
+
+```ts
+const emptyGarden: Recipe = (_, db) => {
+  db.plants.delete({ gardenId: '1' })
+}
+```
+
+A fork returns a pair, the fetch and the database, with no `fork` of its own: every fork is made from the backend. To share a state between several stories, share the recipes and list them: `fork(signedIn, emptyGarden, refusing)`.
+
+## Stories
+
+The examples below assume that the app takes its fetch from a DI token, as a store takes any dependency, so a story or a test can provide another one:
+
+```ts
+/* services/api.ts */
+export function Fetch$(): typeof fetch {
+  return fetch
+}
+```
+
+Fork when a story opens, not when its module loads: then every visit starts from clean data and counters from zero. Storybook runs the loaders of a story before it renders the story, on every visit, so a loader is the place for the fork, and a decorator hands its fetch to the app:
+
+```tsx
+import type { StoryObj } from '@storybook/react-vite'
+import { provide } from '@nano_kit/store'
+import { InjectionContextProvider } from '@nano_kit/react'
+import { fork } from '~/services/api/api.mock'
+import { Fetch$ } from '~/services/api'
+
+export function withBackend(...recipes: Parameters<typeof fork>): StoryObj {
+  return {
+    /* A fresh fork on every visit */
+    loaders: [() => ({ backend: fork(...recipes) })],
+    decorators: [
+      (Story, { loaded }) => {
+        const [fetch] = loaded.backend
+
+        return (
+          <InjectionContextProvider context={[provide(Fetch$, fetch)]}>
+            <Story />
+          </InjectionContextProvider>
+        )
+      }
+    ]
+  }
+}
+```
+
+```tsx
+/** Deleting the plant is refused: a toast says so */
+export const Refused: Story = {
+  ...withBackend(signedIn, (app) => {
+    app.delete('/garden/1/plants/1', fail())
+  })
+}
+```
+
+The loader keeps the whole fork, so the database of the visit is at hand too: a play function finds it in `loaded.backend` to check what the story did.
+
+## Tests
+
+A test forks the backend, hands the fetch to the code under test, and checks the database after it:
+
+```ts
+import { InjectionContext, provide, inject } from '@nano_kit/store'
+import { fork } from '~/services/api/api.mock'
+import { Fetch$ } from '~/services/api'
+import { Plants$ } from '~/stores/plants'
+
+it('should delete a plant', async () => {
+  const [fetch, db] = fork(signedIn)
+  const context = new InjectionContext([
+    provide(Fetch$, fetch)
+  ])
+  const { deletePlant } = inject(Plants$, context)
+
+  await deletePlant('1')
+
+  expect(db.plants.find('1')).toBeUndefined()
+})
+```
