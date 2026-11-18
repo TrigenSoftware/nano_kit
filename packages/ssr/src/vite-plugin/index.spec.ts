@@ -4,12 +4,16 @@ import {
   readFile
 } from 'node:fs/promises'
 import {
+  vi,
   describe,
   it,
   expect,
   afterAll
 } from 'vitest'
-import { build } from 'vite'
+import {
+  type UserConfig,
+  build
+} from 'vite'
 import SsrPlugin from './index.js'
 
 const testDir = path.join(import.meta.dirname, '..', '..', 'test')
@@ -243,6 +247,46 @@ describe('ssr', () => {
       expect(serverPageChunk).toBeDefined()
       expect(serverPageChunk.code).toContain('"Home Page"')
       expect(serverPageChunk.code).toContain('Stores$')
+    })
+
+    it('should leave alone a build whose input another tool has chosen', async () => {
+      const loadRenderer = vi.fn(adapter.loadRenderer)
+      const plugin = SsrPlugin({
+        index: input
+      }, {
+        ...adapter,
+        loadRenderer
+      })
+      const foreignInput = path.join(testAppDir, 'about.js')
+      // As Storybook builds its preview: with its own input, set before the other plugins run
+      const foreignPlugin = {
+        name: 'foreign-input',
+        enforce: 'pre' as const,
+        config(config: UserConfig) {
+          config.build = {
+            ...config.build,
+            rolldownOptions: {
+              ...config.build?.rolldownOptions,
+              input: foreignInput
+            }
+          }
+        }
+      }
+      const result: any = await build({
+        root: testAppDir,
+        logLevel: 'silent',
+        plugins: [foreignPlugin, ...plugin],
+        build: {
+          minify: false,
+          write: false
+        }
+      })
+      const entry = result.output.find((c: any) => c.isEntry)
+      const manifest = result.output.find((c: any) => c.fileName === '.vite/manifest.json')
+
+      expect(entry.facadeModuleId).toBe(foreignInput)
+      expect(manifest).toBeUndefined()
+      expect(loadRenderer).not.toHaveBeenCalled()
     })
   }, 30_000)
 })

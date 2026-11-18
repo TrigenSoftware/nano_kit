@@ -31,6 +31,7 @@ export default function SsrPlugin(options, adapter) {
   } = options
   let sourceConfig = {}
   let isSsrBuild
+  let isForeignBuild
 
   return [
     {
@@ -243,6 +244,14 @@ export default function SsrPlugin(options, adapter) {
       apply: 'build',
 
       config(config, env) {
+        // Another tool has chosen what to build, as Storybook does for its preview: the build
+        // is not the app's, so it is left as it is, with no server build after it
+        isForeignBuild = (config.build?.rolldownOptions?.input ?? config.build?.rollupOptions?.input) !== undefined
+
+        if (isForeignBuild) {
+          return
+        }
+
         sourceConfig = config
         isSsrBuild = env.isSsrBuild
 
@@ -294,7 +303,7 @@ export default function SsrPlugin(options, adapter) {
       },
 
       async closeBundle(error) {
-        if (!error && !isSsrBuild && sourceConfig.build?.ssr !== false) {
+        if (!error && !isForeignBuild && !isSsrBuild && sourceConfig.build?.ssr !== false) {
           await build({
             ...sourceConfig,
             configFile: false,
