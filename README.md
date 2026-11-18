@@ -13,6 +13,7 @@ A lightweight, modular, and performant state management ecosystem for building m
 | [`@nano_kit/intl`](packages/intl#readme) | Internationalization library, built on @nano_kit/store. | [![NPM version][intl-npm]][intl-npm-url] |
 | [`@nano_kit/ssr`](packages/ssr#readme) | Base package for server-side rendering capabilities. | [![NPM version][ssr-npm]][ssr-npm-url] |
 | [`@nano_kit/devtools`](packages/devtools#readme) | In-page DevTools panel for @nano_kit/store. | [![NPM version][devtools-npm]][devtools-npm-url] |
+| [`@nano_kit/testing`](packages/testing#readme) | Testing tools for stories, tests and demos. | [![NPM version][testing-npm]][testing-npm-url] |
 | [`@nano_kit/react`](packages/react#readme) | React integration for @nano_kit/store. | [![NPM version][react-npm]][react-npm-url] |
 | [`@nano_kit/react-router`](packages/react-router#readme) | React integration for @nano_kit/router. | [![NPM version][react-router-npm]][react-router-npm-url] |
 | [`@nano_kit/react-ssr`](packages/react-ssr#readme) | React adapter for server-side rendering capabilities. | [![NPM version][react-ssr-npm]][react-ssr-npm-url] |
@@ -82,6 +83,11 @@ See the [Agent Skills](https://nano-kit.js.org/getting-started/agent-skills/) pa
 
 [devtools-npm]: https://img.shields.io/npm/v/%40nano_kit%2Fdevtools.svg
 [devtools-npm-url]: https://npmjs.com/package/@nano_kit/devtools
+
+<!-- testing -->
+
+[testing-npm]: https://img.shields.io/npm/v/%40nano_kit%2Ftesting.svg
+[testing-npm-url]: https://npmjs.com/package/@nano_kit/testing
 
 <!-- react -->
 

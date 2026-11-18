@@ -2178,6 +2178,26 @@ importers:
     linkDirectory: false
     publishDirectory: package
 
+  packages/testing:
+    devDependencies:
+      '@vitest/coverage-v8':
+        specifier: 'catalog:'
+        version: 5.0.0(@vitest/browser@5.0.0)(vitest@5.0.0)
+      hono:
+        specifier: ^4.12.31
+        version: 4.12.31
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
+      vite:
+        specifier: 'catalog:'
+        version: 8.2.1(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0)
+      vitest:
+        specifier: 'catalog:'
+        version: 5.0.0(@types/node@24.13.2)(@vitest/browser-playwright@5.0.0)(@vitest/coverage-v8@5.0.0)(@vitest/ui@5.0.0)(happy-dom@21.0.1)(vite@8.2.1(@types/node@24.13.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))
+    linkDirectory: false
+    publishDirectory: package
+
   scripts/skills-docs:
     dependencies:
       mdast-util-to-markdown:

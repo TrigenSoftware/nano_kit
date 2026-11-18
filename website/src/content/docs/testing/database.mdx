@@ -1,0 +1,181 @@
+---
+title: Virtual Database
+description: "Typed collections and values in memory: the data of a virtual backend."
+sidebar:
+  order: 2
+---
+
+import { Aside } from '@astrojs/starlight/components'
+
+`virtualDatabase` keeps the data of a mock in memory: collections of records and single values, by their names. It works on its own, with no Hono and no fetch, so it also fits tests that need nothing but data.
+
+```ts
+import { collection, value, virtualDatabase } from '@nano_kit/testing'
+
+const schema = {
+  gardens: collection<Garden>(),
+  plants: collection<Plant>(),
+  session: value<string | null>(null)
+}
+
+const db = virtualDatabase(schema, (db) => {
+  /* The seed: runs once, on the first use of the database */
+  const garden = db.gardens.create({
+    name: 'Courtyard garden'
+  })
+
+  db.plants.create({
+    gardenId: garden.id,
+    name: 'Boston fern'
+  })
+})
+
+db.plants.where({ gardenId: '1' })
+db.session = 'user-1'
+```
+
+## Collections
+
+`collection<T>()` makes a collection of records with an `id`. A record created without an `id` gets the next one: the strings `'1'`, `'2'` and so on.
+
+```ts
+const gardens = collection<Garden>()
+
+gardens.create({ name: 'Courtyard garden' }) /* { id: '1', name: 'Courtyard garden' } */
+gardens.create({ id: '7', name: 'Roof garden' })
+```
+
+A collection takes three parameters:
+
+- **`id`** makes the `id` of a new record from its number. A collection whose ids are not strings has to be given one: `collection<Post>({ id: seq => seq })`.
+- **`entity`** makes every field of a new record from its number, so `create()` is told only what differs. A factory you already have fits as it is: `collection<Plant>({ entity: createPlant })`.
+- **`initial`** gives the records the collection holds at first. New records are numbered after them.
+
+```ts
+const plants = collection<Plant>({
+  entity: seq => ({
+    gardenId: '1',
+    name: `Plant ${seq}`
+  })
+})
+
+plants.create() /* { id: '1', gardenId: '1', name: 'Plant 1' } */
+plants.create({ gardenId: '2' }) /* { id: '2', gardenId: '2', name: 'Plant 2' } */
+plants.createMany(25, index => ({ name: `Seedling ${index + 1}` }))
+```
+
+### Reading
+
+`get()` gives every record, in the order they were created. `find()` gives the first record a selector picks, and `where()` every one. A selector is an id, the fields a record should have, or a predicate:
+
+```ts
+db.plants.get()
+db.plants.find('1')
+db.plants.find({ gardenId: '1', name: 'Boston fern' })
+db.plants.where(plant => plant.name.startsWith('Fern'))
+```
+
+### Changing
+
+`update()` and `delete()` act on every record the selector picks, as `UPDATE` and `DELETE` in SQL do, and return the records they changed. Picked by fields or by a predicate, no record is not a mistake: nothing changes. Picked by an id, a missing record is a typo, so they throw.
+
+```ts
+db.plants.update('1', { name: 'Gardener’s Delight' })
+db.plants.update({ gardenId: '1' }, { gardenId: '2' }) /* Moves every plant of garden 1 */
+db.plants.delete({ gardenId: '2' })
+```
+
+`update()` merges the given fields into each record. For nested fields, give it a function: it edits a draft of the record in place, and the collection keeps a frozen copy of the draft.
+
+```ts
+db.gardens.update('1', (garden) => {
+  garden.location.city = 'London'
+})
+```
+
+`set()` replaces the records with the given ones: the way to filter, sort or cut a collection with array methods.
+
+```ts
+db.posts.set(db.posts.get().slice(0, 4))
+db.reports.set([])
+```
+
+## Values
+
+`value()` keeps a single value, such as the session, and takes what it holds at first. In a database, a value is a property: it is read and assigned as one.
+
+```ts
+const db = virtualDatabase({
+  session: value<string | null>(null),
+  role: value<'owner' | 'viewer'>('owner')
+})
+
+db.session = 'user-1'
+db.session /* 'user-1' */
+```
+
+Without an argument, a value holds `undefined` until it is assigned, and its type says so: `value<string>()` is typed `Value<string | undefined>`.
+
+## Read-Only Data
+
+Records and values are frozen, all the way down. What `get()`, `find()` and `where()` return is a snapshot that nobody changes behind your back, and a story cannot change the data by accident while it reads it. Every change goes through the methods of the collection or an assignment of the value.
+
+```ts
+const plant = db.plants.find('1')!
+
+plant.name = 'Lavender' /* TypeError: the record is read-only */
+db.plants.update('1', { name: 'Lavender' }) /* The way to change it */
+```
+
+What is not plain data, such as a `Date`, a `Map` or a `Blob`, is kept by reference as it is.
+
+## Seed
+
+The second argument of `virtualDatabase` fills it: it creates records and ties records of different collections together. It runs once, on the first use of the database, so a database made at the top of a module costs nothing until a story or a test reads it.
+
+## Fork and Reset
+
+`fork()` makes an independent copy of the database as it is now. The copy and the database do not see each other's changes from then on. The functions given to `fork()`, recipes, tune the copy, in order:
+
+```ts
+type DB = VirtualDatabase<typeof schema>
+
+function signedIn(db: DB) {
+  db.session = 'user-1'
+}
+
+function emptyGarden(db: DB) {
+  db.plants.delete({ gardenId: '1' })
+}
+
+const state = db.fork(signedIn, emptyGarden)
+```
+
+A falsy recipe is skipped, so a condition fits right in the list: `db.fork(signedIn, isEmpty && emptyGarden)`.
+
+A copy shares the records it has not changed with the database, so a fork is cheap even when the seed is large.
+
+`reset()` brings a database back to where it started: right after its seed, or right after the recipes of the fork. A collection or a value has its own `reset()` too.
+
+```ts
+state.plants.set([])
+state.reset() /* The plants of garden 1 are gone again, the others are back */
+```
+
+## Typing a Part of the Schema
+
+`VirtualDatabase<S>` is the type of a database of the schema `S`. A database fits where one of a part of its schema is expected, so a function can ask for only the collections it uses:
+
+```ts
+import type { VirtualDatabase } from '@nano_kit/testing'
+
+function signedIn(db: VirtualDatabase<Pick<typeof schema, 'session'>>) {
+  db.session = 'user-1'
+}
+```
+
+This is how the modules of a [virtual backend](/testing/backend) type the database: every module by its own part of the schema, with no import of the whole.
+
+<Aside type='caution'>
+`fork` and `reset` are names of the database itself, so a schema cannot take them: a collection named `fork` is a compile error.
+</Aside>

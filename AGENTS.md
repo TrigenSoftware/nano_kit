@@ -6,6 +6,8 @@ Working notes for agents (and humans) contributing to this monorepo.
 
 This is a set of small, published libraries: `agera` (signals core), `kida`, `@nano_kit/store`, `query`, `router` and thin framework adapters. Their selling point is that they are tiny and fast, so **bundle size is priority one and CPU is priority two**. A change that makes the code nicer but bigger is not an improvement.
 
+**`@nano_kit/testing` is the exception.** It is for tests, stories and demos only and never ships in an app's bundle, so it is judged by developer experience: a clear API, readable code and helpful errors. Bundle size and CPU are not goals there, and are no reason to trade any of those away.
+
 ## Writing internal code
 
 Internal code — everything that is not part of a package's public API — is held to three rules:
