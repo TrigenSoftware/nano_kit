@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.3.1](https://github.com/TrigenSoftware/nano_kit/compare/v3.2.3...v3.3.1) (2026-11-18)
+
+### Bug Fixes
+
+* keep `storybook build` working when the vite plugin is in the config ([#393](https://github.com/TrigenSoftware/nano_kit/issues/393)) ([a0ca4b7](https://github.com/TrigenSoftware/nano_kit/commit/a0ca4b7247eff43db23cdcef34b44157212d4943))
+
 ## [3.2.3](https://github.com/TrigenSoftware/nano_kit/compare/v3.2.2...v3.2.3) (2026-11-16)
 
 ### Bug Fixes
