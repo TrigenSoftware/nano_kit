@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [3.3.0](https://github.com/TrigenSoftware/nano_kit/compare/v3.2.5...v3.3.0) (2026-11-18)
+
+### Features
+
+* **testing:** introduce testing tools with a virtual backend for stories, tests and demos ([#391](https://github.com/TrigenSoftware/nano_kit/issues/391)) ([12265c9](https://github.com/TrigenSoftware/nano_kit/commit/12265c9bbf327d53f5df27705346441a928625dc))
+
 ## [3.2.5](https://github.com/TrigenSoftware/nano_kit/compare/v3.2.4...v3.2.5) (2026-11-17)
 
 ### Bug Fixes
