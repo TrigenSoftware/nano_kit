@@ -1,5 +1,5 @@
 {
-  "project": ["@simple-release/pnpm@3.2.5#PnpmWorkspacesProject", {
+  "project": ["@simple-release/pnpm@4.0.0#PnpmWorkspacesProject", {
     "mode": "fixed"
   }],
   "releaser": {
