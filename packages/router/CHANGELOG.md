@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v3.2.5...v4.0.0) (2026-11-20)
+
+### ⚠ BREAKING CHANGES
+
+* `Navigation.length`, the `canGoBack` function and the `CanGoBack$` token are
+  removed. Read `navigation.$canGoBack()` instead, or `inject(Navigation$).$canGoBack` in a
+  store, and give a custom `Navigation` a `$canGoBack` accessor instead of `length`.
+
+### Bug Fixes
+
+* tell whether going back stays in the app with `navigation.$canGoBack` ([#396](https://github.com/TrigenSoftware/nano_kit/issues/396)) ([7c22308](https://github.com/TrigenSoftware/nano_kit/commit/7c223089c84aacb70bb314af6e3f048d60df0e7e))
+
 ## [3.2.5](https://github.com/TrigenSoftware/nano_kit/compare/v3.2.4...v3.2.5) (2026-11-17)
 
 ### Bug Fixes
