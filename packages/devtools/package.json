@@ -1,7 +1,7 @@
 {
   "name": "@nano_kit/devtools",
   "type": "module",
-  "version": "3.2.1",
+  "version": "4.0.0",
   "description": "In-page DevTools panel for nano_kit: the reactive graph, values, lifecycle and a flush-grouped log.",
   "author": "dangreen",
   "license": "MIT",
