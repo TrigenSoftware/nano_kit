@@ -1,6 +1,5 @@
 import {
   type WritableSignal,
-  type Accessor,
   atIndex,
   onMount,
   readonly,
@@ -10,8 +9,7 @@ import {
   updateArray,
   action,
   mountable,
-  computed,
-  untracked
+  computed
 } from '@nano_kit/store'
 import type {
   Location,
@@ -195,9 +193,8 @@ export function browserNavigation<const R extends Routes = {}>(
     transition(fn, nextLocation) {
       fn(nextLocation)
     },
-    get length() {
-      return history.length
-    },
+    // The Navigation API is not reactive: the location comes with every change of the history
+    $canGoBack: computed(() => ($location(), Boolean(window.navigation?.canGoBack))),
     back: action(() => {
       navigation.transition(() => history.back(), null, $location())
     }),
@@ -311,9 +308,7 @@ export function virtualNavigation<const R extends Routes = {}>(
     transition(fn, location) {
       fn(location)
     },
-    get length() {
-      return untracked($history).length
-    },
+    $canGoBack: computed(() => $activeIndex() > 0),
     back: action(() => {
       navigation.transition(back, null, $location())
     }),
@@ -339,22 +334,4 @@ export function virtualNavigation<const R extends Routes = {}>(
   }
 
   return [record(readonly($location)), navigation]
-}
-
-/**
- * Determines if it's possible to navigate back in history.
- * @param $location - Signal containing the current route location.
- * @param navigation - Navigation instance to check history length.
- * @returns Accessor that returns true if back navigation is possible, false otherwise.
- */
-export function canGoBack<R extends Routes>(
-  $location: RouteLocationRecord<R>,
-  navigation: Navigation<R>
-): Accessor<boolean>
-
-export function canGoBack(
-  $location: RouteLocationRecord<Routes>,
-  navigation: Navigation
-) {
-  return computed(() => ($location(), navigation.length > 1))
 }

@@ -125,6 +125,24 @@ describe('next-router', () => {
         expect(mockNavigation.forward).toHaveBeenCalled()
       })
 
+      it('should go back as the Navigation API can', () => {
+        vi.stubGlobal('navigation', {
+          canGoBack: true
+        })
+
+        const { result } = renderHook(() => useNextNavigation(routes))
+        const [, navigation] = result.current
+
+        expect(navigation.$canGoBack()).toBe(true)
+      })
+
+      it('should not go back without the Navigation API', () => {
+        const { result } = renderHook(() => useNextNavigation(routes))
+        const [, navigation] = result.current
+
+        expect(navigation.$canGoBack()).toBe(false)
+      })
+
       it('should resolve route params from path in push', () => {
         const { result } = renderHook(() => useNextNavigation(routes))
         const [, navigation] = result.current

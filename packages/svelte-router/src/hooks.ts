@@ -1,7 +1,10 @@
-import { toSignal } from '@nano_kit/store'
+import { onMount } from 'svelte'
+import {
+  computed,
+  signal
+} from '@nano_kit/store'
 import { getInject } from '@nano_kit/svelte'
 import {
-  CanGoBack$,
   Location$,
   Navigation$,
   Paths$,
@@ -34,10 +37,16 @@ export function getPaths() {
 
 /**
  * Get the "can go back" signal from the injection context.
+ * The server knows no history, so it is false there and until the component mounts, as in the server markup, and updates right after.
  * @returns Signal that returns true if back navigation is possible, false otherwise.
  */
 export function getCanGoBack() {
-  return toSignal(getInject(CanGoBack$))
+  const { $canGoBack } = getNavigation()
+  const $mounted = signal(false)
+
+  onMount(() => $mounted(true))
+
+  return computed(() => $canGoBack() && $mounted())
 }
 
 /**

@@ -20,6 +20,7 @@ export default defineConfig({
     'typescript/unified-signatures': 'off',
     'eslint/no-return-assign': 'off',
     'eslint/no-multi-assign': 'off',
+    'eslint/no-sequences': 'off',
     'typescript/consistent-return': 'off',
     'stylistic-js/indent': 'off',
     'import/export': 'off',

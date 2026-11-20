@@ -1,4 +1,5 @@
 import type {
+  Accessor,
   ReadableRecord,
   ReadableSignal,
   Mountable
@@ -35,9 +36,10 @@ export interface Navigation<R extends Routes = Routes> {
    */
   routes: R
   /**
-   * Number of entries in the history stack.
+   * Whether the history holds an entry of the app before the current one, so going back stays in the app.
+   * In a browser, this relies on the Navigation API and is false where it is missing.
    */
-  length: number
+  $canGoBack: Accessor<boolean>
   /**
    * Handle a transition between two locations.
    * You can redefine this method to perform custom actions like transition confirmation.

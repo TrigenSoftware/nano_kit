@@ -458,7 +458,7 @@ function UserLink({ id }: { id: string }) {
 
 ### `useCanGoBack`
 
-`useCanGoBack` subscribes to whether back navigation is currently possible.
+`useCanGoBack` subscribes to whether back navigation is currently possible, following [`navigation.$canGoBack`](/router/core-concepts#browser-navigation). With SSR it stays `false` on the server and until the component mounts, since the server knows no history and the markup has to match, and updates right after.
 
 ```tsx
 import { useCanGoBack, useNavigation } from '@nano_kit/preact-router'

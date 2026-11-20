@@ -626,6 +626,31 @@ describe('router', () => {
           back.mockRestore()
           forward.mockRestore()
         })
+
+        it('should not go back without the Navigation API', () => {
+          const [, navigation] = browserNavigation()
+
+          navigation.push('/a')
+
+          expect(navigation.$canGoBack()).toBe(false)
+        })
+
+        it('should go back as the Navigation API can', () => {
+          const navigationApi = {
+            canGoBack: false
+          }
+
+          vi.stubGlobal('navigation', navigationApi)
+
+          const [, navigation] = browserNavigation()
+
+          expect(navigation.$canGoBack()).toBe(false)
+
+          navigationApi.canGoBack = true
+          navigation.push('/a')
+
+          expect(navigation.$canGoBack()).toBe(true)
+        })
       })
 
       describe('virtualRouter', () => {
@@ -776,6 +801,21 @@ describe('router', () => {
 
           navigation.forward()
           expect($location.$href()).toBe('/b')
+        })
+
+        it('should go back from any entry but the first', () => {
+          const [, navigation] = virtualNavigation()
+
+          expect(navigation.$canGoBack()).toBe(false)
+
+          navigation.push('/a')
+          expect(navigation.$canGoBack()).toBe(true)
+
+          navigation.back()
+          expect(navigation.$canGoBack()).toBe(false)
+
+          navigation.forward()
+          expect(navigation.$canGoBack()).toBe(true)
         })
       })
     })

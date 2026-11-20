@@ -127,8 +127,12 @@ navigation.push('/users/123')    // Adds new history entry
 navigation.replace('/users/456') // Replaces current entry
 navigation.back()                // Go back
 navigation.forward()             // Go forward
-console.log(navigation.length)   // History length
+
+/* Whether going back stays in the app */
+console.log(navigation.$canGoBack())
 ```
+
+`navigation.$canGoBack` tracks whether the history holds an entry of the app before the current one, so that `navigation.back()` stays in the app. The browser navigation takes it from the Navigation API. Where the API is missing, it stays `false`, so a back button built on it never takes the user out of the app.
 
 Navigation actions are also available as constants for reuse:
 
@@ -912,26 +916,6 @@ function CustomLink({ href, children }) {
 }
 ```
 
-### `canGoBack`
-
-`canGoBack` returns an `Accessor<boolean>` that is `true` when back navigation is possible (i.e. the history stack has more than one entry).
-
-```ts
-import { inject } from '@nano_kit/store'
-import { canGoBack } from '@nano_kit/router'
-
-const [$location, navigation] = browserNavigation(routes)
-const $canGoBack = canGoBack($location, navigation)
-
-effect(() => {
-  console.log('Can go back:', $canGoBack())
-})
-/* Output: Can go back: false (initially) */
-
-navigation.push('/users')
-/* Output: Can go back: true */
-```
-
 ## Dependency Injection
 
 The router provides global injection tokens for navigation state. Use them in stores or components to access routing data without passing signals as props.
@@ -944,7 +928,6 @@ The router provides global injection tokens for navigation state. Use them in st
 - **`Page$`** - provides the current page reference from the router. Should be provided by the app.
 - **`Pages$`** - provides the array of page definitions passed to the router. Should be provided by the app.
 - **`Paths$`** - provides typed path builder functions derived from the navigation. Depends on `Navigation$`.
-- **`CanGoBack$`** - provides a boolean signal indicating if back navigation is possible. Depends on `Location$` and `Navigation$`.
 - **`Title$`** - provides a signal of the title of the current page, see [`pageTitle`](#pagetitle). Depends on `Page$`, and resolves the `Head$` factories in the injection context it is first injected in.
 
 Not every token needs to be provided — it depends on your app's needs. For example, if you don't use path builders, you can skip providing `Paths$`.
@@ -1629,7 +1612,7 @@ function UserLink({ id }: { id: string }) {
 
 ### `useCanGoBack`
 
-`useCanGoBack` subscribes to whether back navigation is currently possible.
+`useCanGoBack` subscribes to whether back navigation is currently possible, following `navigation.$canGoBack`. With SSR it stays `false` on the server and while the page hydrates, since the server knows no history and the markup has to match, and updates right after.
 
 ```tsx
 import { useCanGoBack, useNavigation } from '@nano_kit/react-router'

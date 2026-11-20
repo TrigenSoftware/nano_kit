@@ -21,10 +21,12 @@
   const navigation = getNavigation()
   const paths = getPaths()
   const canGoBack = getCanGoBack()
+  const canGoBackOnInit = canGoBack()
 </script>
 
 <div data-testid="pathname">{$location.pathname}</div>
 <div data-testid="route">{$location.route}</div>
 <div data-testid="about">{paths.about}</div>
 <div data-testid="can-go-back">{String($canGoBack)}</div>
+<div data-testid="can-go-back-on-init">{String(canGoBackOnInit)}</div>
 <button onclick={() => navigation.push(paths.about)}>Go</button>
