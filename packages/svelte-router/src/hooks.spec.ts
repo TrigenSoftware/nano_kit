@@ -98,6 +98,23 @@ describe('svelte-router', () => {
 
         expect(getByTestId('can-go-back').textContent).toBe('true')
       })
+
+      it('should stay false until the component mounts, as in the server markup', () => {
+        const locationNavigation = virtualNavigation<Routes>('/', routes)
+
+        locationNavigation[1].push('/about')
+
+        const { getByTestId } = render(HooksFixture, {
+          props: {
+            context: [
+              provide(LocationNavigation$, locationNavigation)
+            ]
+          }
+        })
+
+        expect(getByTestId('can-go-back-on-init').textContent).toBe('false')
+        expect(getByTestId('can-go-back').textContent).toBe('true')
+      })
     })
 
     describe('getTitle', () => {

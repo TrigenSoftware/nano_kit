@@ -20,6 +20,7 @@ export default defineConfig({
     'typescript/no-empty-object-type': 'off',
     'eslint/no-use-before-define': 'off',
     'eslint/no-multi-assign': 'off',
+    'eslint/no-sequences': 'off',
     'typescript/consistent-return': 'off',
     'import/export': 'off'
   }

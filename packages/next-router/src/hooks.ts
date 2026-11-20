@@ -134,9 +134,9 @@ export function useNextNavigation<const R extends Routes = Routes>(
     transition(fn, nextLocation) {
       fn(nextLocation)
     },
-    get length() {
-      return typeof history !== 'undefined' ? history.length : 1
-    },
+    // The Navigation API is not reactive: the location comes with every change of the history.
+    // It is read through `globalThis`, as the server reads it too and finds no API there
+    $canGoBack: computed(() => ($location(), Boolean(globalThis.navigation?.canGoBack))),
     back: action(() => {
       navigation.transition(nextRouter.back, null, $location())
     }),

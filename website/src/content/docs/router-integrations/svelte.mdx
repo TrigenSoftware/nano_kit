@@ -446,7 +446,7 @@ With DI, use `titleAnnouncer` and let it read `Page$` from the current injection
 
 ### `getCanGoBack`
 
-`getCanGoBack` returns whether back navigation is currently possible.
+`getCanGoBack` returns a signal of whether back navigation is currently possible, following [`navigation.$canGoBack`](/router/core-concepts#browser-navigation). With SSR it stays `false` on the server and until the component mounts, since the server knows no history and the markup has to match, and updates right after.
 
 ```svelte
 <script lang="ts">

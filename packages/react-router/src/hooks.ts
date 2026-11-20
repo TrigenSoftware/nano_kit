@@ -1,10 +1,12 @@
 'use client'
+import { useSyncExternalStore } from 'react'
+import { noop } from '@nano_kit/store'
 import {
+  useSignal,
   signalHook,
   injectHook
 } from '@nano_kit/react'
 import {
-  CanGoBack$,
   Location$,
   Navigation$,
   Paths$,
@@ -29,11 +31,22 @@ export const useNavigation = /* @__PURE__ */ injectHook(Navigation$)
  */
 export const usePaths = /* @__PURE__ */ injectHook(Paths$)
 
+// The snapshots below differ only between the server and the client, there is nothing to subscribe to
+function subscribeToNothing() {
+  return noop
+}
+
 /**
- * Subscribe to the "can go back" accessor from the injection context.
- * @returns Accessor that returns true if back navigation is possible, false otherwise.
+ * Subscribe to whether back navigation is possible from the injection context.
+ * The server knows no history, so it is false there and while the page hydrates, as in the server markup, and updates right after.
+ * @returns True if back navigation is possible, false otherwise.
  */
-export const useCanGoBack = /* @__PURE__ */ signalHook(injectHook(CanGoBack$))
+export function useCanGoBack() {
+  const canGoBack = useSignal(useNavigation().$canGoBack)
+  const hydrated = useSyncExternalStore(subscribeToNothing, () => true, () => false)
+
+  return canGoBack && hydrated
+}
 
 /**
  * Subscribe to the title of the current page from the injection context.

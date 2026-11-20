@@ -1,9 +1,13 @@
 import {
+  useLayoutEffect,
+  useState
+} from 'preact/hooks'
+import {
+  useSignal,
   signalHook,
   injectHook
 } from '@nano_kit/preact'
 import {
-  CanGoBack$,
   Location$,
   Navigation$,
   Paths$,
@@ -29,10 +33,19 @@ export const useNavigation = /* @__PURE__ */ injectHook(Navigation$)
 export const usePaths = /* @__PURE__ */ injectHook(Paths$)
 
 /**
- * Subscribe to the "can go back" accessor from the injection context.
- * @returns Accessor that returns true if back navigation is possible, false otherwise.
+ * Subscribe to whether back navigation is possible from the injection context.
+ * The server knows no history, so it is false there and until the component mounts, as in the server markup, and updates right after.
+ * @returns True if back navigation is possible, false otherwise.
  */
-export const useCanGoBack = /* @__PURE__ */ signalHook(injectHook(CanGoBack$))
+export function useCanGoBack() {
+  const canGoBack = useSignal(useNavigation().$canGoBack)
+  const [mounted, setMounted] = useState(false)
+
+  // Preact keeps the attributes of the server markup while it hydrates, so the first render has to match it
+  useLayoutEffect(() => setMounted(true), [])
+
+  return canGoBack && mounted
+}
 
 /**
  * Subscribe to the title of the current page from the injection context.

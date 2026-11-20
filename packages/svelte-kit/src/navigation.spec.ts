@@ -193,6 +193,25 @@ describe('svelte-kit', () => {
         expect(forward).toHaveBeenCalled()
       })
 
+      it('should go back as the Navigation API can', () => {
+        vi.stubGlobal('navigation', {
+          canGoBack: true
+        })
+        render(NavigationFixture)
+
+        const [, navigation] = getNavigationState()
+
+        expect(navigation.$canGoBack()).toBe(true)
+      })
+
+      it('should not go back without the Navigation API', () => {
+        render(NavigationFixture)
+
+        const [, navigation] = getNavigationState()
+
+        expect(navigation.$canGoBack()).toBe(false)
+      })
+
       it('should resolve route params from path in push', () => {
         render(NavigationFixture)
 

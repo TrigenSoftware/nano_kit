@@ -45,8 +45,12 @@ navigation.push('/users/123')    // Adds new history entry
 navigation.replace('/users/456') // Replaces current entry
 navigation.back()                // Go back
 navigation.forward()             // Go forward
-console.log(navigation.length)   // History length
+
+/* Whether going back stays in the app */
+console.log(navigation.$canGoBack())
 ```
+
+`navigation.$canGoBack` tracks whether the history holds an entry of the app before the current one, so that `navigation.back()` stays in the app. The browser navigation takes it from the Navigation API. Where the API is missing, it stays `false`, so a back button built on it never takes the user out of the app.
 
 Navigation actions are also available as constants for reuse:
 
