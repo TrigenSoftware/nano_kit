@@ -10,7 +10,7 @@ export type RichTag<T> = (chunks: RichChunks<T>, index: number) => T
 
 export type RichTags<T> = Record<string, RichTag<T>>
 
-export type RichPreformat<P> = Format<string | undefined, FnWithParams<P>>
+export type RichPreformat<P, I = string | undefined> = Format<I, FnWithParams<P>>
 
 /**
  * Creates a rich-text formatter.
@@ -33,50 +33,52 @@ export function rich<T>(
 ): Format<string | undefined, RichChunks<T>>
 
 /**
- * Creates a rich-text formatter that formats each text piece before the tag handlers get it.
- * Values filled in by the preformat are never parsed as tags.
+ * Creates a rich-text formatter that fills values into the message through a preformat.
+ * The preformat gets the whole message, so it can be `params`, `plural`, `match` or a composition of them.
+ * Only the tags of the message are mapped: values filled in by the preformat are never parsed as tags.
  * @param tags - Tag handlers used to map rich-text tags to output chunks.
- * @param preformat - Formatter of each text piece between the tags, like `params`.
+ * @param preformat - Formatter of the message, like `params`, `plural` or `match`.
  * @returns Formatter that returns a message function of the preformat parameters.
  */
-export function rich<T, P>(
+export function rich<T, P, I = string | undefined>(
   tags: RichTags<T>,
-  preformat: RichPreformat<P>
-): Format<string | undefined, (params: P) => RichChunks<T> | undefined>
+  preformat: RichPreformat<P, I>
+): Format<I, (params: P) => RichChunks<T> | undefined>
 
 /**
- * Creates a rich-text formatter with a fallback message that formats each text piece before the tag handlers get it.
- * Values filled in by the preformat are never parsed as tags.
+ * Creates a rich-text formatter with a fallback message that fills values into the message through a preformat.
+ * The preformat gets the whole message, so it can be `params`, `plural`, `match` or a composition of them.
+ * Only the tags of the message are mapped: values filled in by the preformat are never parsed as tags.
  * @param fallback - Message used when the input is `undefined` or `null`.
  * @param tags - Tag handlers used to map rich-text tags to output chunks.
- * @param preformat - Formatter of each text piece between the tags, like `params`.
+ * @param preformat - Formatter of the message, like `params`, `plural` or `match`.
  * @returns Formatter that returns a message function of the preformat parameters.
  */
-export function rich<T, P>(
+export function rich<T, P, I = string | undefined>(
   fallback: string,
   tags: RichTags<T>,
-  preformat: RichPreformat<P>
-): Format<string | undefined, (params: P) => RichChunks<T>>
+  preformat: RichPreformat<P, I>
+): Format<I, (params: P) => RichChunks<T>>
 
 /**
  * Creates a rich-text formatter.
  * @param fallbackOrTags - Fallback message or tag handlers.
  * @param tagsOrPreformat - Tag handlers used when fallback is provided, or the preformat.
- * @param maybePreformat - Formatter of each text piece used when fallback is provided.
+ * @param maybePreformat - Formatter of the message used when fallback is provided.
  * @returns Formatter that returns mapped chunks, a message function of them or `undefined`.
  */
-export function rich<T, P>(
+export function rich<T, P, I = string | undefined>(
   fallbackOrTags: string | RichTags<T> | undefined,
-  tagsOrPreformat?: RichTags<T> | RichPreformat<P>,
-  maybePreformat?: RichPreformat<P>
-): Format<string | undefined, RichChunks<T> | ((params: P) => RichChunks<T> | undefined) | undefined>
+  tagsOrPreformat?: RichTags<T> | RichPreformat<P, I>,
+  maybePreformat?: RichPreformat<P, I>
+): Format<I, RichChunks<T> | ((params: P) => RichChunks<T> | undefined) | undefined>
 
 /* @__NO_SIDE_EFFECTS__ */
-export function rich<T, P>(
+export function rich<T, P, I = string | undefined>(
   fallbackOrTags: string | RichTags<T> | undefined,
-  tagsOrPreformat?: RichTags<T> | RichPreformat<P>,
-  maybePreformat?: RichPreformat<P>
-): Format<string | undefined, RichChunks<T> | ((params: P) => RichChunks<T> | undefined) | undefined> {
+  tagsOrPreformat?: RichTags<T> | RichPreformat<P, I>,
+  maybePreformat?: RichPreformat<P, I>
+): Format<I, RichChunks<T> | ((params: P) => RichChunks<T> | undefined) | undefined> {
   let fallback: string | undefined
   let tags = fallbackOrTags as RichTags<T>
   let preformat = maybePreformat
@@ -89,21 +91,25 @@ export function rich<T, P>(
   }
 
   return (ctx, input) => {
-    const text = input ?? fallback
+    const text = markTags(input ?? fallback)
 
     if (preformat) {
-      return params => (
-        text === undefined
-          ? text
-          : mapTags(text, tags, piece => preformat(ctx, piece)(params) as string)
-      )
+      const message = preformat(ctx, text as I)
+
+      return (params) => {
+        const filled = message(params)
+
+        return filled === undefined ? filled : parseTags(filled, tags)
+      }
     }
 
-    return text === undefined ? text : mapTags(text, tags)
+    return text === undefined ? text : parseTags(text as string, tags)
   }
 }
 
-const tagRegex = /<(\/?)([A-Za-z][\w.-]*)\s*(\/?)>/g
+// Finds tags. `markTags` puts NUL before the tags of a message, so the message filled with values tells its own tags from the text of the values
+// oxlint-disable-next-line eslint/no-control-regex
+const tagRegex = /(\0?)<(\/?)([A-Za-z][\w.-]*)\s*(\/?)>/g
 
 interface RichFrame<T> {
   tag: string
@@ -111,17 +117,38 @@ interface RichFrame<T> {
 }
 
 /**
- * Maps rich-text tags in a string to chunks using provided tag handlers.
- * Each handler call receives an unique index, usable as a key for framework nodes.
- * Self-closing tags are mapped with empty chunks.
- * Unknown or malformed tags are ignored as markup and only their text content is kept.
- * @param input - Rich-text input string.
+ * Marks the tags of a message, nested in forms and cases at any depth, before values are filled into it.
+ * @param input - Message, or forms and cases of messages.
+ * @returns Message with marked tags.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+function markTags(input: unknown): unknown {
+  if (typeof input === 'string') {
+    return input.replace(tagRegex, '\0$&')
+  }
+
+  if (input && typeof input === 'object') {
+    const marked: Record<string, unknown> = {}
+
+    for (const key in input as Record<string, unknown>) {
+      marked[key] = markTags((input as Record<string, unknown>)[key])
+    }
+
+    return marked
+  }
+
+  return input
+}
+
+/**
+ * Maps the marked tags of a message to chunks. Other tags stay text.
+ * @param input - Message with marked tags.
  * @param tags - Tag handlers used to map known tags.
  * @param formatText - Formatter of each text piece between the tags, applied before the tag handlers get it.
  * @returns Mapped chunks.
  */
 /* @__NO_SIDE_EFFECTS__ */
-export function mapTags<T>(
+function parseTags<T>(
   input: string,
   tags: RichTags<T>,
   formatText: (text: string) => string = String
@@ -139,7 +166,13 @@ export function mapTags<T>(
   tagRegex.lastIndex = 0
 
   while (match = tagRegex.exec(input)) {
-    const [, closing, tag, selfClosing] = match
+    const [, marked, closing, tag, selfClosing] = match
+
+    // A tag in a filled in value is its text
+    if (!marked) {
+      continue
+    }
+
     const current = stack[stack.length - 1]
 
     if (match.index > lastIndex) {
@@ -181,4 +214,23 @@ export function mapTags<T>(
   }
 
   return root.chunks
+}
+
+/**
+ * Maps rich-text tags in a string to chunks using provided tag handlers.
+ * Each handler call receives an unique index, usable as a key for framework nodes.
+ * Self-closing tags are mapped with empty chunks.
+ * Unknown or malformed tags are ignored as markup and only their text content is kept.
+ * @param input - Rich-text input string.
+ * @param tags - Tag handlers used to map known tags.
+ * @param formatText - Formatter of each text piece between the tags, applied before the tag handlers get it.
+ * @returns Mapped chunks.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function mapTags<T>(
+  input: string,
+  tags: RichTags<T>,
+  formatText?: (text: string) => string
+): RichChunks<T> {
+  return parseTags(markTags(input) as string, tags, formatText)
 }

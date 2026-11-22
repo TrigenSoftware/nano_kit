@@ -4,7 +4,10 @@ import {
   it
 } from 'vitest'
 import type { FormatContext } from '../types.js'
-import { text } from './text.js'
+import {
+  text,
+  uppercase
+} from './text.js'
 import {
   match,
   cases
@@ -233,6 +236,20 @@ describe('intl', () => {
         expect(format(ctx, '{count} going')({
           count: 1
         })).toBe('1 going')
+      })
+
+      it('should fill in the value of forms with transformed case', () => {
+        const format = plural('count', forms({
+          one: uppercase(text()),
+          other: uppercase(text())
+        }))
+
+        expect(format(ctx, {
+          one: '{count} item',
+          other: '{count} items'
+        })({
+          count: 3
+        })).toBe('3 ITEMS')
       })
     })
   })

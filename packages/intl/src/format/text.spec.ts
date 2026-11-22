@@ -10,6 +10,9 @@ import {
   text,
   uppercase
 } from './text.js'
+import { number } from './number.js'
+import { params } from './params.js'
+import { plural } from './plural.js'
 
 const ctx: FormatContext = {
   $locale: () => 'en-US'
@@ -58,6 +61,41 @@ describe('intl', () => {
         const format = capitalize(text())
 
         expect(format(ctx)).toBeUndefined()
+      })
+
+      it('should transform the text of a message function', () => {
+        const upper = uppercase(params({
+          name: text()
+        }))
+        const lower = lowercase(params({
+          count: number()
+        }, plural('count')))
+        const capital = capitalize(params({
+          name: text()
+        }))
+
+        expect(upper(ctx, 'Hello {name}')({
+          name: 'Ada'
+        })).toBe('HELLO ADA')
+        expect(lower(ctx, {
+          one: '{count} ITEM',
+          other: '{count} ITEMS'
+        })({
+          count: 1284
+        })).toBe('1,284 items')
+        expect(capital(ctx, '{name} joined')({
+          name: 'ada'
+        })).toBe('Ada joined')
+      })
+
+      it('should preserve undefined text of a message function', () => {
+        const format = capitalize(params({
+          name: text()
+        }))
+
+        expect(format(ctx)({
+          name: 'Ada'
+        })).toBeUndefined()
       })
     })
   })

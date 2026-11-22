@@ -14,8 +14,14 @@ import {
   forms,
   plural
 } from './plural.js'
-import { text } from './text.js'
+import {
+  lowercase,
+  text,
+  uppercase
+} from './text.js'
+import { markup } from './markup.js'
 import { params } from './params.js'
+import { wrap } from './wrap.js'
 
 const ctx: FormatContext = {
   $locale: () => 'en-US'
@@ -203,6 +209,50 @@ describe('intl', () => {
           gender: 'female',
           count: 1284
         })).toBe('She has 1,284 items')
+      })
+
+      it('should fill in the param of a plural formatter inside wrap', () => {
+        const format = params({
+          count: number()
+        }, wrap(plural('count'), (message, values) => message(values)))
+
+        expect(format(ctx, {
+          one: '{count} item',
+          other: '{count} items'
+        })({
+          count: 1284
+        })).toBe('1,284 items')
+      })
+
+      it('should fill in the param of a plural formatter inside markup', () => {
+        const format = params({
+          count: number()
+        }, markup({
+          strong: chunks => `<strong>${chunks}</strong>`
+        }, plural('count')))
+
+        expect(format(ctx, {
+          one: '<strong>{count}</strong> item',
+          other: '<strong>{count}</strong> items'
+        })({
+          count: 1284
+        })).toBe('<strong>1,284</strong> items')
+      })
+
+      it('should replace placeholders of a translation with transformed case', () => {
+        const upper = params({
+          name: text()
+        }, uppercase(text()))
+        const lower = params({
+          userName: text()
+        }, lowercase(text()))
+
+        expect(upper(ctx, 'Hello {name}')({
+          name: 'Ada'
+        })).toBe('HELLO Ada')
+        expect(lower(ctx, 'Hello {userName}')({
+          userName: 'Ada'
+        })).toBe('hello Ada')
       })
 
       it('should fill in the param of a match formatter', () => {

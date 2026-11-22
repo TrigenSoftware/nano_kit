@@ -73,6 +73,10 @@ export type UnionToIntersection<U> = (
 
 export interface FormatContext {
   $locale: Accessor<string>
+  /**
+   * Formats of the params a surrounding `params` replaces itself: `match` and `plural` inside it leave their placeholders.
+   */
+  f?: Record<string, unknown>
 }
 
 export type Bound<T, K extends keyof T> = Omit<T, K> & {
