@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.1.0](https://github.com/TrigenSoftware/nano_kit/compare/v4.0.0...v4.1.0) (2026-11-22)
+
+### Features
+
+* let `rich` and `markup` take `plural` and `match` as the preformat ([#398](https://github.com/TrigenSoftware/nano_kit/issues/398)) ([af500ff](https://github.com/TrigenSoftware/nano_kit/commit/af500ffbd5f77d866e8de0b469bc40f387c0bbeb))
+
 ## [4.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v3.2.1...v4.0.0) (2026-11-20)
 
 Version bump to keep in sync with breaking changes in other packages.
