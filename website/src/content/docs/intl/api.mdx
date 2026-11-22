@@ -75,6 +75,27 @@ $t().title
 // 'Hello'
 ```
 
+A message function, like one of `params` or `plural`, is transformed as it renders, values included.
+
+```ts
+const translations = {
+  home: {
+    greeting: 'Hello, {name}'
+  }
+}
+
+const [$t] = messages('home', {
+  greeting: uppercase(params({
+    name: text()
+  }))
+})
+
+$t().greeting({
+  name: 'Ada'
+})
+// 'HELLO, ADA'
+```
+
 ## Parameterized Messages
 
 ### `params(params, preformat?)`
@@ -526,7 +547,7 @@ $t().message
 // ['Read ', <a href='/docs'>the docs</a>, <br />, 'today']
 ```
 
-With a preformat, like `params`, `rich` fills values into the message. It formats each text piece between the tags before the tag handlers get it, so a value is never read as a tag: `<b>` in a name stays text.
+With a preformat, like `params`, `rich` fills values into the message. Tags are read from the message before the values go in, so a value is never read as a tag: `<b>` in a name stays text.
 
 ```ts
 const translations = {
@@ -549,7 +570,33 @@ $t().welcome({
 // ['Welcome back, ', <b>Ada</b>, '!']
 ```
 
-The preformat sees one piece at a time, so `plural` and `match`, which choose from the whole message, do not fit there.
+The preformat gets the whole message, so plural forms and cases fit there too: `plural`, `match` or `params` around them.
+
+```ts
+const translations = {
+  garden: {
+    plants: {
+      one: '<b>{count}</b> plant',
+      other: '<b>{count}</b> plants'
+    }
+  }
+}
+
+const [$t] = messages('garden', {
+  plants: rich({
+    b: (chunks, i) => <b key={i}>{chunks}</b>
+  }, params({
+    count: number()
+  }, plural('count')))
+})
+
+$t().plants({
+  count: 1284
+})
+// [<b>1,284</b>, ' plants']
+```
+
+Tags map around the whole message, so `forms(...)` and `cases(...)` hold text formats and `rich` stays outside them.
 
 ### `markup(tags)` / `markup(fallback, tags)`
 

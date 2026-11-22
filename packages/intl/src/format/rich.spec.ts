@@ -8,10 +8,18 @@ import {
   mapTags,
   rich
 } from './rich.js'
+import {
+  cases,
+  match
+} from './match.js'
+import { number } from './number.js'
 import { params } from './params.js'
+import { plural } from './plural.js'
 import { text } from './text.js'
 
-const ctx = {} as FormatContext
+const ctx: FormatContext = {
+  $locale: () => 'en-US'
+}
 
 interface Node {
   type: string
@@ -214,7 +222,7 @@ describe('intl', () => {
         ])
       })
 
-      it('should format each text piece with the preformat', () => {
+      it('should fill values into the message with the preformat', () => {
         const format = rich(tags, params({
           name: text(),
           count: text()
@@ -272,6 +280,134 @@ describe('intl', () => {
         expect(format(ctx)({
           name: 'Ada'
         })).toBeUndefined()
+      })
+
+      it('should choose a plural form with the preformat', () => {
+        const format = rich(tags, plural('count'))
+        const message = format(ctx, {
+          one: '<strong>{count}</strong> plant',
+          other: '<strong>{count}</strong> plants'
+        })
+        const plants = [
+          {
+            type: 'strong',
+            children: ['3']
+          },
+          ' plants'
+        ]
+
+        expect(message({
+          count: 3
+        })).toEqual(plants)
+        expect(message(3)).toEqual(plants)
+      })
+
+      it('should format the value of a plural form with params', () => {
+        const format = rich(tags, params({
+          count: number()
+        }, plural('count')))
+
+        expect(format(ctx, {
+          one: '<strong>{count}</strong> plant',
+          other: '<strong>{count}</strong> plants'
+        })({
+          count: 1284
+        })).toEqual([
+          {
+            type: 'strong',
+            children: ['1,284']
+          },
+          ' plants'
+        ])
+      })
+
+      it('should choose a case with the preformat', () => {
+        const format = rich(tags, params({
+          name: text()
+        }, match('role')))
+
+        expect(format(ctx, {
+          admin: '<strong>{name}</strong> runs the garden',
+          member: '<strong>{name}</strong> tends the garden'
+        })({
+          name: 'Ada',
+          role: 'member'
+        })).toEqual([
+          {
+            type: 'strong',
+            children: ['Ada']
+          },
+          ' tends the garden'
+        ])
+      })
+
+      it('should choose nested cases and plural forms with the preformat', () => {
+        const format = rich(tags, match('role', cases({
+          admin: plural('count'),
+          member: plural('count')
+        })))
+
+        expect(format(ctx, {
+          admin: {
+            one: '<strong>Admin</strong> of {count} garden',
+            other: '<strong>Admin</strong> of {count} gardens'
+          },
+          member: {
+            one: '<strong>Member</strong> of {count} garden',
+            other: '<strong>Member</strong> of {count} gardens'
+          }
+        })({
+          role: 'member',
+          count: 2
+        })).toEqual([
+          {
+            type: 'strong',
+            children: ['Member']
+          },
+          ' of 2 gardens'
+        ])
+      })
+
+      it('should keep tags in values of a plural form as text', () => {
+        const format = rich(tags, params({
+          name: text()
+        }, plural('count')))
+
+        expect(format(ctx, {
+          one: '<strong>{name}</strong> has {count} plant',
+          other: '<strong>{name}</strong> has {count} plants'
+        })({
+          name: 'Tom <link>Jerry</link>',
+          count: 2
+        })).toEqual([
+          {
+            type: 'strong',
+            children: ['Tom <link>Jerry</link>']
+          },
+          ' has 2 plants'
+        ])
+      })
+
+      it('should choose a plural form of a fallback message', () => {
+        const format = rich('<strong>{count}</strong> items', tags, plural('count'))
+
+        expect(format(ctx)({
+          count: 2
+        })).toEqual([
+          {
+            type: 'strong',
+            children: ['2']
+          },
+          ' items'
+        ])
+      })
+
+      it('should return undefined from the message of a missing plural form', () => {
+        const format = rich(tags, plural('count'))
+
+        expect(format(ctx, {
+          one: '<strong>{count}</strong> plant'
+        })(2)).toBeUndefined()
       })
     })
   })

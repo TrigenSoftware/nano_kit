@@ -5,10 +5,14 @@ import {
 } from 'vitest'
 import type { FormatContext } from '../types.js'
 import { markup } from './markup.js'
+import { number } from './number.js'
 import { params } from './params.js'
+import { plural } from './plural.js'
 import { text } from './text.js'
 
-const ctx = {} as FormatContext
+const ctx: FormatContext = {
+  $locale: () => 'en-US'
+}
 const tags = {
   link: (chunks: string) => `<a>${chunks}</a>`,
   strong: (chunks: string) => `<strong>${chunks}</strong>`
@@ -59,7 +63,7 @@ describe('intl', () => {
         expect(format(ctx, 'Read <link>guidelines.')).toBe('Read guidelines.')
       })
 
-      it('should format each text piece with the preformat', () => {
+      it('should fill values into the message with the preformat', () => {
         const format = markup(tags, params({
           name: text()
         }))
@@ -87,6 +91,19 @@ describe('intl', () => {
         expect(format(ctx)({
           name: 'Ada'
         })).toBe('By <strong>Ada</strong>')
+      })
+
+      it('should choose a plural form with the preformat', () => {
+        const format = markup(tags, params({
+          count: number()
+        }, plural('count')))
+
+        expect(format(ctx, {
+          one: '<strong>{count}</strong> plant',
+          other: '<strong>{count}</strong> plants'
+        })({
+          count: 1284
+        })).toBe('<strong>1,284</strong> plants')
       })
     })
   })

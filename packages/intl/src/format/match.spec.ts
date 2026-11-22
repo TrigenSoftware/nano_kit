@@ -1,6 +1,7 @@
 import {
   describe,
   expect,
+  expectTypeOf,
   it
 } from 'vitest'
 import type { FormatContext } from '../types.js'
@@ -14,6 +15,7 @@ import {
   other,
   match
 } from './match.js'
+import { rich } from './rich.js'
 
 const ctx: FormatContext = {
   $locale: () => 'en-US'
@@ -246,6 +248,18 @@ describe('intl', () => {
         expect(format(ctx, 'Area of {role}')({
           role: 'guest'
         })).toBe('Area of guest')
+      })
+
+      it('should take only cases that render text', () => {
+        const tags = {
+          strong: (chunks: unknown[]) => chunks
+        }
+
+        expectTypeOf(cases({
+          admin: text(),
+          // @ts-expect-error tags of a rich message map around the whole message, `rich(tags, match(...))`
+          member: rich(tags)
+        })).toBeFunction()
       })
     })
   })

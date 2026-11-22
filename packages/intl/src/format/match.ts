@@ -7,7 +7,6 @@ import {
 import type { FormatContext } from '../types.js'
 import type {
   AnyFormat,
-  FnWithAnyParams,
   FnWithParams,
   Format,
   FormatsInput,
@@ -42,6 +41,9 @@ export type CasesFn<
   s: true
 }
 
+// A case renders text: tags of a rich message are mapped around the whole message, `rich(tags, match(...))`
+type CaseFormat = AnyFormat<string | undefined | FnWithParams<any>>
+
 type GetKey = (
   param: any,
   locale: string,
@@ -56,7 +58,7 @@ type GetKey = (
 /* @__NO_SIDE_EFFECTS__ */
 export function cases<
   const K extends string,
-  const B extends Partial<Record<string, AnyFormat>>
+  const B extends Partial<Record<string, CaseFormat>>
 >(
   cases: B
 ): CasesFn<K, B> {
@@ -139,7 +141,7 @@ export function match<
   FormatsInput<B> | string,
   MatchFn<K, B>
 > {
-  const valuePattern = new RegExp(`{${param}}`, 'g')
+  const valuePattern = new RegExp(`{${param}}`, 'gi')
   let cases: CasesFn<K, B> | undefined
   let getKey: GetKey
 
@@ -153,8 +155,10 @@ export function match<
   return (ctx, input: FormatsInput<B> | string | undefined) => {
     const locale = ctx.$locale()
     const isString = typeof input === 'string'
+    // A surrounding `params` that lists the param replaces its placeholder itself
+    const filled = ctx.f?.[param]
     // A string never reaches the lookups below, so it is stored as is.
-    let resolvedCases = (input ?? {}) as Record<string, string | undefined | FnWithAnyParams>
+    let resolvedCases = (input ?? {}) as Record<string, string | undefined | FnWithParams<unknown>>
 
     if (cases && !isString) {
       resolvedCases = {
@@ -164,12 +168,12 @@ export function match<
       cases(ctx, input, resolvedCases)
     }
 
-    return (params, formats?: Record<string, unknown>) => {
+    return (params) => {
       const value = $get(typeof params === 'object' ? params[param] : params)
       const resolvedCase = isString ? input : resolvedCases[getKey(value, locale, resolvedCases)]
-      const message = isFunction(resolvedCase) ? resolvedCase(params, formats) : resolvedCase
+      const message = isFunction(resolvedCase) ? resolvedCase(params) : resolvedCase
 
-      return formats && param in formats
+      return filled
         ? message
         : message?.replace(valuePattern, value as string)
     }

@@ -5,7 +5,6 @@ import {
 } from '@nano_kit/store'
 import type { FormatContext } from '../types.js'
 import type {
-  FnWithAnyParams,
   Format,
   FormatInput,
   FormatOutput,
@@ -32,7 +31,7 @@ export type ParamsValues<P extends ParamsFormats> = {
 
 export type ParamsFn<P extends ParamsFormats> = FnWithParams<ParamsValues<P>>
 
-type PreformatOutput = string | undefined | FnWithAnyParams
+type PreformatOutput = string | undefined | FnWithParams<any>
 
 type ComposedParamsFn<P extends ParamsFormats, O> = FnWithParams<ParamsValues<P> & UnionToIntersection<ParamsOf<O>>>
 
@@ -50,7 +49,7 @@ export function params<const P extends ParamsFormats>(
 /**
  * Creates a parameter interpolation formatter that first applies another formatter.
  * @param params - Parameter formatters keyed by placeholder name.
- * @param preformat - Formatter applied before replacing placeholders. `match` and `plural` leave the placeholders of the parameters listed here to be replaced by these formatters.
+ * @param preformat - Formatter applied before replacing placeholders. `match` and `plural` inside it leave the placeholders of the parameters listed here to be replaced by these formatters.
  * @returns Formatter that replaces `{key}` placeholders using provided parameter values.
  */
 export function params<
@@ -88,7 +87,7 @@ export function params<
       }
     }
 
-    const re = new RegExp(`{${key}}`, 'g')
+    const re = new RegExp(`{${key}}`, 'gi')
     const replace: Replace = (ctx, text, params) => text.replace(re, () => format(ctx, $get(params[key])) as string)
 
     if (replaceAll) {
@@ -101,11 +100,18 @@ export function params<
   }
 
   return (ctx: FormatContext, input?: F) => {
-    const preformatted = (preformat ? preformat(ctx, input) : input) as PreformatOutput
+    const preformatted = (
+      preformat
+        ? preformat({
+          ...ctx,
+          f: params
+        }, input)
+        : input
+    ) as PreformatOutput
 
     if (isFunction(preformatted)) {
       return (values) => {
-        const text = preformatted(values, params)
+        const text = preformatted(values)
 
         if (text === undefined || !replaceAll) {
           return text

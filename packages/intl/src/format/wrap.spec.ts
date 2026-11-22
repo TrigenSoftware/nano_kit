@@ -7,6 +7,7 @@ import {
 import type { FormatContext } from '../types.js'
 import { datetime } from './datetime.js'
 import { format } from './format.js'
+import { number } from './number.js'
 import {
   forms,
   plural
@@ -105,6 +106,23 @@ describe('intl', () => {
             name: 'Ada',
             count: 2
           })).toBe('Ada has 2 plants')
+        })
+
+        it('should pass back the values of a param formatted for plural', () => {
+          const format = wrap(params({
+            count: number()
+          }, plural('count')), (message, values) => (values.count === 0 ? 'No plants' : message(values)))
+          const message = format(ctx, {
+            one: '{count} plant',
+            other: '{count} plants'
+          })
+
+          expect(message({
+            count: 1284
+          })).toBe('1,284 plants')
+          expect(message({
+            count: 0
+          })).toBe('No plants')
         })
 
         it('should pass a date of a call made with the value itself as is', () => {
