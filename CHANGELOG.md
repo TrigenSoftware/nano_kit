@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.2.0](https://github.com/TrigenSoftware/nano_kit/compare/v4.1.0...v4.2.0) (2026-11-23)
+
+### Features
+
+* **intl:** pass the values of the call to the tag handlers of `rich` and `markup` ([#400](https://github.com/TrigenSoftware/nano_kit/issues/400)) ([9c1f3be](https://github.com/TrigenSoftware/nano_kit/commit/9c1f3be6055594a423b0c27d128b00d2722be0a2))
+
 ## [4.1.0](https://github.com/TrigenSoftware/nano_kit/compare/v4.0.0...v4.1.0) (2026-11-22)
 
 ### Features
