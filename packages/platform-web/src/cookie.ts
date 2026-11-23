@@ -17,8 +17,8 @@ interface MaybeVirtualCookieStore {
   peek?(name: string): string | null
 }
 
-/* Values are percent-encoded on write, so every read path decodes. A value an older version
-   wrote raw may hold a stray `%`, so it comes back as it is */
+// Values are percent-encoded on write, so every read path decodes. A value an older version
+// wrote raw may hold a stray `%`, so it comes back as it is
 function decode(value: string | null) {
   try {
     return value && decodeURIComponent(value)

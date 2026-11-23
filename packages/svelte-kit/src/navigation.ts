@@ -26,8 +26,8 @@ import {
 } from '$app/navigation'
 import { page } from '$app/state'
 
-/* SvelteKit 3 renamed the `replaceState` option of `goto` to `replace`, and rejects a URL
-   that does not resolve to a route, so fall back to a full page load like its links do */
+// SvelteKit 3 renamed the `replaceState` option of `goto` to `replace`, and rejects a URL
+// that does not resolve to a route, so fall back to a full page load like its links do
 function kitGoto(href: string, replace?: boolean) {
   const options = VERSION < '3'
     ? {

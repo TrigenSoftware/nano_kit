@@ -1,9 +1,9 @@
 import type { Cookies } from '@sveltejs/kit'
 import { identity } from '@nano_kit/store'
 
-/* Like the native `CookieStore`, values go in and out as they are: SvelteKit would encode
-   them on write and decode them on read, and the cookie storage of `@nano_kit/platform-web`
-   does that itself */
+// Like the native `CookieStore`, values go in and out as they are: SvelteKit would encode
+// them on write and decode them on read, and the cookie storage of `@nano_kit/platform-web`
+// does that itself
 const raw = {
   decode: identity
 }
