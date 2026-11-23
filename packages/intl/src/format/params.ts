@@ -6,6 +6,7 @@ import {
 import type { FormatContext } from '../types.js'
 import type {
   Format,
+  MessageFormat,
   FormatInput,
   FormatOutput,
   FnWithParams,
@@ -44,7 +45,7 @@ type Replace = (ctx: FormatContext, text: string, params: Record<string, Signali
  */
 export function params<const P extends ParamsFormats>(
   params: P
-): Format<string | undefined, ParamsFn<P>>
+): MessageFormat<string | undefined, ParamsFn<P>>
 
 /**
  * Creates a parameter interpolation formatter that first applies another formatter.
@@ -59,7 +60,7 @@ export function params<
 >(
   params: P,
   preformat: Format<F, O>
-): Format<F, ComposedParamsFn<P, O>>
+): MessageFormat<F, ComposedParamsFn<P, O>>
 
 /* @__NO_SIDE_EFFECTS__ */
 export function params<

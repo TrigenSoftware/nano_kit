@@ -9,6 +9,7 @@ import type {
   AnyFormat,
   FnWithParams,
   Format,
+  MessageFormat,
   FormatsInput,
   UnionToIntersection,
   ParamsOf
@@ -96,7 +97,7 @@ export function match<
 >(
   param: K,
   getKey?: GetKey
-): Format<
+): MessageFormat<
   FormatsInput<B> | string,
   MatchFn<K, B>
 >
@@ -115,7 +116,7 @@ export function match<
   param: K,
   cases?: CasesFn<K, B>,
   getKey?: GetKey
-): Format<
+): MessageFormat<
   FormatsInput<B> | string,
   MatchFn<K, B>
 >

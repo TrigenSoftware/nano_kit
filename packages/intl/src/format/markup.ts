@@ -1,14 +1,17 @@
 import { isFunction } from '@nano_kit/store'
-import type { Format } from './types.js'
+import type {
+  Format,
+  ReadValues
+} from './types.js'
 import {
   type RichPreformat,
   type RichTags,
   rich
 } from './rich.js'
 
-export type MarkupTag = (chunks: string) => string
+export type MarkupTag<V = undefined> = (chunks: string, values: V) => string
 
-export type MarkupTags = Record<string, MarkupTag>
+export type MarkupTags<V = undefined> = Record<string, MarkupTag<V>>
 
 /**
  * Creates a markup formatter.
@@ -34,12 +37,12 @@ export function markup(
  * Creates a markup formatter that fills values into the message through a preformat.
  * The preformat gets the whole message, so it can be `params`, `plural`, `match` or a composition of them.
  * Only the tags of the message are mapped: values filled in by the preformat are never parsed as tags.
- * @param tags - Tag handlers used to map markup tags to strings.
+ * @param tags - Tag handlers used to map markup tags to strings. Each gets the values of the call, read from signals and accessors, as its second argument.
  * @param preformat - Formatter of the message, like `params`, `plural` or `match`.
  * @returns Formatter that returns a message function of the preformat parameters.
  */
 export function markup<P, I = string | undefined>(
-  tags: MarkupTags,
+  tags: MarkupTags<ReadValues<P>>,
   preformat: RichPreformat<P, I>
 ): Format<I, (params: P) => string | undefined>
 
@@ -48,24 +51,24 @@ export function markup<P, I = string | undefined>(
  * The preformat gets the whole message, so it can be `params`, `plural`, `match` or a composition of them.
  * Only the tags of the message are mapped: values filled in by the preformat are never parsed as tags.
  * @param fallback - Message used when the input is `undefined` or `null`.
- * @param tags - Tag handlers used to map markup tags to strings.
+ * @param tags - Tag handlers used to map markup tags to strings. Each gets the values of the call, read from signals and accessors, as its second argument.
  * @param preformat - Formatter of the message, like `params`, `plural` or `match`.
  * @returns Formatter that returns a message function of the preformat parameters.
  */
 export function markup<P, I = string | undefined>(
   fallback: string,
-  tags: MarkupTags,
+  tags: MarkupTags<ReadValues<P>>,
   preformat: RichPreformat<P, I>
 ): Format<I, (params: P) => string>
 
 /* @__NO_SIDE_EFFECTS__ */
 export function markup<P, I = string | undefined>(
-  fallbackOrTags: string | MarkupTags,
-  tagsOrPreformat?: MarkupTags | RichPreformat<P, I>,
+  fallbackOrTags: string | MarkupTags<ReadValues<P>>,
+  tagsOrPreformat?: MarkupTags<ReadValues<P>> | RichPreformat<P, I>,
   maybePreformat?: RichPreformat<P, I>
 ): Format<I, string | ((params: P) => string | undefined) | undefined> {
   let fallback: string | undefined
-  let tags = fallbackOrTags as MarkupTags
+  let tags = fallbackOrTags as MarkupTags<ReadValues<P>>
   let preformat = maybePreformat
 
   if (isFunction(tagsOrPreformat)) {
@@ -75,10 +78,10 @@ export function markup<P, I = string | undefined>(
     tags = tagsOrPreformat
   }
 
-  const richTags: RichTags<string> = {}
+  const richTags: RichTags<string, ReadValues<P>> = {}
 
   for (const [tag, format] of Object.entries(tags)) {
-    richTags[tag] = chunks => format(chunks.join(''))
+    richTags[tag] = (chunks, _, values) => format(chunks.join(''), values)
   }
 
   const richFormat = rich(fallback, richTags, preformat)

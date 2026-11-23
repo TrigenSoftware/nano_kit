@@ -3,6 +3,7 @@ import { memo } from '../utils.js'
 import type {
   AnyFormat,
   Format,
+  MessageFormat,
   FormatsInput
 } from './types.js'
 import {
@@ -30,7 +31,7 @@ export function plural<
 >(
   param: K,
   forms?: CasesFn<K, B>
-): Format<
+): MessageFormat<
   FormatsInput<B> | string,
   MatchFn<K, B>
 >
@@ -49,7 +50,7 @@ export function plural<
   param: K,
   options: Intl.PluralRulesOptions,
   forms?: CasesFn<K, B>
-): Format<
+): MessageFormat<
   FormatsInput<B> | string,
   MatchFn<K, B>
 >

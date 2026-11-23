@@ -1,14 +1,16 @@
 import { isFunction } from '@nano_kit/store'
+import { read } from '../utils.js'
 import type {
   FnWithParams,
-  Format
+  Format,
+  ReadValues
 } from './types.js'
 
 export type RichChunks<T> = (string | T)[]
 
-export type RichTag<T> = (chunks: RichChunks<T>, index: number) => T
+export type RichTag<T, V = undefined> = (chunks: RichChunks<T>, index: number, values: V) => T
 
-export type RichTags<T> = Record<string, RichTag<T>>
+export type RichTags<T, V = undefined> = Record<string, RichTag<T, V>>
 
 export type RichPreformat<P, I = string | undefined> = Format<I, FnWithParams<P>>
 
@@ -36,12 +38,12 @@ export function rich<T>(
  * Creates a rich-text formatter that fills values into the message through a preformat.
  * The preformat gets the whole message, so it can be `params`, `plural`, `match` or a composition of them.
  * Only the tags of the message are mapped: values filled in by the preformat are never parsed as tags.
- * @param tags - Tag handlers used to map rich-text tags to output chunks.
+ * @param tags - Tag handlers used to map rich-text tags to output chunks. Each gets the values of the call, read from signals and accessors, as its third argument.
  * @param preformat - Formatter of the message, like `params`, `plural` or `match`.
  * @returns Formatter that returns a message function of the preformat parameters.
  */
 export function rich<T, P, I = string | undefined>(
-  tags: RichTags<T>,
+  tags: RichTags<T, ReadValues<P>>,
   preformat: RichPreformat<P, I>
 ): Format<I, (params: P) => RichChunks<T> | undefined>
 
@@ -50,13 +52,13 @@ export function rich<T, P, I = string | undefined>(
  * The preformat gets the whole message, so it can be `params`, `plural`, `match` or a composition of them.
  * Only the tags of the message are mapped: values filled in by the preformat are never parsed as tags.
  * @param fallback - Message used when the input is `undefined` or `null`.
- * @param tags - Tag handlers used to map rich-text tags to output chunks.
+ * @param tags - Tag handlers used to map rich-text tags to output chunks. Each gets the values of the call, read from signals and accessors, as its third argument.
  * @param preformat - Formatter of the message, like `params`, `plural` or `match`.
  * @returns Formatter that returns a message function of the preformat parameters.
  */
 export function rich<T, P, I = string | undefined>(
   fallback: string,
-  tags: RichTags<T>,
+  tags: RichTags<T, ReadValues<P>>,
   preformat: RichPreformat<P, I>
 ): Format<I, (params: P) => RichChunks<T>>
 
@@ -68,19 +70,19 @@ export function rich<T, P, I = string | undefined>(
  * @returns Formatter that returns mapped chunks, a message function of them or `undefined`.
  */
 export function rich<T, P, I = string | undefined>(
-  fallbackOrTags: string | RichTags<T> | undefined,
-  tagsOrPreformat?: RichTags<T> | RichPreformat<P, I>,
+  fallbackOrTags: string | RichTags<T, ReadValues<P>> | undefined,
+  tagsOrPreformat?: RichTags<T, ReadValues<P>> | RichPreformat<P, I>,
   maybePreformat?: RichPreformat<P, I>
 ): Format<I, RichChunks<T> | ((params: P) => RichChunks<T> | undefined) | undefined>
 
 /* @__NO_SIDE_EFFECTS__ */
 export function rich<T, P, I = string | undefined>(
-  fallbackOrTags: string | RichTags<T> | undefined,
-  tagsOrPreformat?: RichTags<T> | RichPreformat<P, I>,
+  fallbackOrTags: string | RichTags<T, ReadValues<P>> | undefined,
+  tagsOrPreformat?: RichTags<T, ReadValues<P>> | RichPreformat<P, I>,
   maybePreformat?: RichPreformat<P, I>
 ): Format<I, RichChunks<T> | ((params: P) => RichChunks<T> | undefined) | undefined> {
   let fallback: string | undefined
-  let tags = fallbackOrTags as RichTags<T>
+  let tags = fallbackOrTags as RichTags<T, ReadValues<P>>
   let preformat = maybePreformat
 
   if (isFunction(tagsOrPreformat)) {
@@ -99,7 +101,7 @@ export function rich<T, P, I = string | undefined>(
       return (params) => {
         const filled = message(params)
 
-        return filled === undefined ? filled : parseTags(filled, tags)
+        return filled === undefined ? filled : parseTags(filled, tags, read(params) as ReadValues<P>)
       }
     }
 
@@ -144,13 +146,15 @@ function markTags(input: unknown): unknown {
  * Maps the marked tags of a message to chunks. Other tags stay text.
  * @param input - Message with marked tags.
  * @param tags - Tag handlers used to map known tags.
+ * @param values - Values of the call, passed to the tag handlers.
  * @param formatText - Formatter of each text piece between the tags, applied before the tag handlers get it.
  * @returns Mapped chunks.
  */
 /* @__NO_SIDE_EFFECTS__ */
-function parseTags<T>(
+function parseTags<T, V>(
   input: string,
-  tags: RichTags<T>,
+  tags: RichTags<T, V>,
+  values?: V,
   formatText: (text: string) => string = String
 ): RichChunks<T> {
   const root: RichFrame<T> = {
@@ -186,11 +190,11 @@ function parseTags<T>(
         if (current.tag === tag) {
           stack.pop()
           stack[stack.length - 1].chunks.push(
-            tags[tag](current.chunks, index++)
+            tags[tag](current.chunks, index++, values as V)
           )
         }
       } else if (selfClosing) {
-        current.chunks.push(tags[tag]([], index++))
+        current.chunks.push(tags[tag]([], index++, values as V))
       } else {
         stack.push({
           tag,
@@ -232,5 +236,5 @@ export function mapTags<T>(
   tags: RichTags<T>,
   formatText?: (text: string) => string
 ): RichChunks<T> {
-  return parseTags(markTags(input) as string, tags, formatText)
+  return parseTags(markTags(input) as string, tags, undefined, formatText)
 }
