@@ -1,23 +1,12 @@
-import {
-  type Accessor,
-  isFunction
-} from '@nano_kit/store'
+import { isFunction } from '@nano_kit/store'
 import { read } from '../utils.js'
 import type {
   AnyFormat,
-  Format
+  Format,
+  ReadValues
 } from './types.js'
 
-// A value read from a signal or an accessor. Unlike `SignalishValue`, it keeps a param typed by both `params` and `plural` as their common type
-type ReadValue<T> = Exclude<T, Accessor<any>>
-
-export type WrapValues<A> = A extends Accessor<infer V>
-  ? V
-  : A extends Record<string, unknown>
-    ? {
-      [K in keyof A]: ReadValue<A[K]>
-    }
-    : A
+export type WrapValues<A> = ReadValues<A>
 
 export type WrapArgs<R> = [R] extends [(arg: infer A) => unknown]
   ? [message: R, values: WrapValues<A>, locale: string]

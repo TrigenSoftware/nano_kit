@@ -1,8 +1,10 @@
 import {
   describe,
   expect,
+  expectTypeOf,
   it
 } from 'vitest'
+import { signal } from '@nano_kit/store'
 import type { FormatContext } from '../types.js'
 import {
   mapTags,
@@ -408,6 +410,195 @@ describe('intl', () => {
         expect(format(ctx, {
           one: '<strong>{count}</strong> plant'
         })(2)).toBeUndefined()
+      })
+
+      it('should pass the values of the call to the tag handlers', () => {
+        const format = rich({
+          time: (chunks: (string | Node)[], _, values) => {
+            expectTypeOf(values).toEqualTypeOf<{
+              when: string | undefined
+              date: string | undefined
+            }>()
+
+            return {
+              type: 'time',
+              dateTime: values.date,
+              children: chunks
+            }
+          }
+        }, params({
+          when: text(),
+          date: text()
+        }))
+
+        expect(format(ctx, 'Last update <time>{when}</time>')({
+          when: '14 days ago',
+          date: '2026-11-08'
+        })).toEqual([
+          'Last update ',
+          {
+            type: 'time',
+            dateTime: '2026-11-08',
+            children: ['14 days ago']
+          }
+        ])
+      })
+
+      it('should pass the values read from signals', () => {
+        const format = rich({
+          time: (chunks: (string | Node)[], _, { date }) => ({
+            type: 'time',
+            dateTime: date,
+            children: chunks
+          })
+        }, params({
+          when: text(),
+          date: text()
+        }))
+
+        expect(format(ctx, '<time>{when}</time>')({
+          when: signal('14 days ago'),
+          date: () => '2026-11-08'
+        })).toEqual([
+          {
+            type: 'time',
+            dateTime: '2026-11-08',
+            children: ['14 days ago']
+          }
+        ])
+      })
+
+      it('should pass the values as they are, not formatted, to the tags of a plural form', () => {
+        const format = rich({
+          strong: (chunks: (string | Node)[], _, { count }) => ({
+            type: 'strong',
+            count,
+            children: chunks
+          })
+        }, params({
+          count: number()
+        }, plural('count')))
+
+        expect(format(ctx, {
+          one: '<strong>{count}</strong> plant',
+          other: '<strong>{count}</strong> plants'
+        })({
+          count: 1284
+        })).toEqual([
+          {
+            type: 'strong',
+            count: 1284,
+            children: ['1,284']
+          },
+          ' plants'
+        ])
+      })
+
+      it('should pass the values to the tag handlers of a case', () => {
+        const format = rich({
+          strong: (chunks: (string | Node)[], _, { role }) => ({
+            type: 'strong',
+            role,
+            children: chunks
+          })
+        }, params({
+          name: text()
+        }, match('role')))
+
+        expect(format(ctx, {
+          admin: '<strong>{name}</strong> runs the garden',
+          member: '<strong>{name}</strong> tends the garden'
+        })({
+          name: 'Ada',
+          role: 'member'
+        })).toEqual([
+          {
+            type: 'strong',
+            role: 'member',
+            children: ['Ada']
+          },
+          ' tends the garden'
+        ])
+      })
+
+      it('should pass the value of a call made with the value itself', () => {
+        const format = rich({
+          strong: (chunks: (string | Node)[], _, values) => ({
+            type: 'strong',
+            values,
+            children: chunks
+          })
+        }, plural('count'))
+
+        expect(format(ctx, {
+          one: '<strong>{count}</strong> plant',
+          other: '<strong>{count}</strong> plants'
+        })(3)).toEqual([
+          {
+            type: 'strong',
+            values: 3,
+            children: ['3']
+          },
+          ' plants'
+        ])
+      })
+
+      it('should pass the values to nested tags', () => {
+        const format = rich({
+          link: (chunks: (string | Node)[], _, { href }) => ({
+            type: 'link',
+            href,
+            children: chunks
+          }),
+          strong: (chunks: (string | Node)[], _, { href }) => ({
+            type: 'strong',
+            href,
+            children: chunks
+          })
+        }, params({
+          name: text(),
+          href: text()
+        }))
+
+        expect(format(ctx, '<link>By <strong>{name}</strong></link>')({
+          name: 'Ada',
+          href: '/ada'
+        })).toEqual([
+          {
+            type: 'link',
+            href: '/ada',
+            children: [
+              'By ',
+              {
+                type: 'strong',
+                href: '/ada',
+                children: ['Ada']
+              }
+            ]
+          }
+        ])
+      })
+
+      it('should pass no values to the tag handlers without a preformat', () => {
+        const format = rich({
+          strong: (chunks: (string | Node)[], _, values) => {
+            expectTypeOf(values).toEqualTypeOf<undefined>()
+
+            return {
+              type: 'strong',
+              values,
+              children: chunks
+            }
+          }
+        })
+
+        expect(format(ctx, '<strong>Ada</strong>')).toEqual([
+          {
+            type: 'strong',
+            values: undefined,
+            children: ['Ada']
+          }
+        ])
       })
     })
   })

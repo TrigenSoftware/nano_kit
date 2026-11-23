@@ -598,6 +598,33 @@ $t().plants({
 
 Tags map around the whole message, so `forms(...)` and `cases(...)` hold text formats and `rich` stays outside them.
 
+Each tag handler also gets the values of the call as its third argument, read from signals and not formatted, so a tag can take an attribute from a value the text does not show.
+
+```ts
+const translations = {
+  garden: {
+    lastUpdate: 'Last update <time>{when}</time>'
+  }
+}
+
+const [$t] = messages('garden', {
+  lastUpdate: rich({
+    time: (chunks, i, { date }) => <time key={i} dateTime={date}>{chunks}</time>
+  }, params({
+    when: text(),
+    date: text()
+  }))
+})
+
+$t().lastUpdate({
+  when: '14 days ago',
+  date: '2026-11-08'
+})
+// ['Last update ', <time dateTime='2026-11-08'>14 days ago</time>]
+```
+
+A message of `plural` or `match` alone also takes the value itself, and then its tag handlers get that value. With `params` around them, they always get an object.
+
 ### `markup(tags)` / `markup(fallback, tags)`
 
 Maps lightweight tags to strings.
@@ -613,7 +640,7 @@ $t().message
 // 'Read <strong>the docs</strong>'
 ```
 
-`markup` takes a preformat the same way. The values land in the string as they are, so escape them in their formats when the string goes into HTML.
+`markup` takes a preformat the same way, and its tag handlers get the values of the call as their second argument. The values land in the string as they are: when the string goes into HTML, escape them in their formats, and in a handler that puts one into an attribute.
 
 ```ts
 const [$t] = messages('home', {

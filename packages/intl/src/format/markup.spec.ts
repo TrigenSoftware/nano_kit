@@ -93,6 +93,20 @@ describe('intl', () => {
         })).toBe('By <strong>Ada</strong>')
       })
 
+      it('should pass the values of the call to the tag handlers', () => {
+        const format = markup({
+          link: (chunks, { href }) => `<a href="${href}">${chunks}</a>`
+        }, params({
+          name: text(),
+          href: text()
+        }))
+
+        expect(format(ctx, 'By <link>{name}</link>')({
+          name: 'Ada',
+          href: '/ada'
+        })).toBe('By <a href="/ada">Ada</a>')
+      })
+
       it('should choose a plural form with the preformat', () => {
         const format = markup(tags, params({
           count: number()
