@@ -34,106 +34,106 @@ The main SvelteKit integration point is store dehydration in `+page.server.ts` a
 
 <Steps>
 
-1. **Set up the root layout**
+1.  **Set up the root layout**
 
-   Create a request-scoped dehydration context in the root server layout and pass its reference to the root layout component.
+    Create a request-scoped dehydration context in the root server layout and pass its reference to the root layout component.
 
-   ```ts
-   // src/routes/+layout.server.ts
-   import {
-     setDehydrationContext
-   } from '@nano_kit/svelte-kit'
-   import type { LayoutServerLoad } from './$types'
+    ```ts
+    // src/routes/+layout.server.ts
+    import {
+      setDehydrationContext
+    } from '@nano_kit/svelte-kit'
+    import type { LayoutServerLoad } from './$types'
 
-   export const load: LayoutServerLoad = () => {
-     const contextRef = setDehydrationContext()
+    export const load: LayoutServerLoad = () => {
+      const contextRef = setDehydrationContext()
 
-     return {
-       contextRef
-     }
-   }
-   ```
+      return {
+        contextRef
+      }
+    }
+    ```
 
-   ```svelte
-   <!-- src/routes/+layout.svelte -->
-   <script lang="ts">
-     import { setHydrationContext } from '@nano_kit/svelte-kit'
+    ```svelte
+    <!-- src/routes/+layout.svelte -->
+    <script lang="ts">
+      import { setHydrationContext } from '@nano_kit/svelte-kit'
 
-     let { data, children } = $props()
+      let { data, children } = $props()
 
-     setHydrationContext({
-       fromRef: () => data.contextRef
-     })
-   </script>
+      setHydrationContext({
+        fromRef: () => data.contextRef
+      })
+    </script>
 
-   {@render children()}
-   ```
+    {@render children()}
+    ```
 
-2. **Dehydrate page stores**
+2.  **Dehydrate page stores**
 
-   Choose whether SvelteKit should dehydrate stores during client-side navigations.
+    Choose whether SvelteKit should dehydrate stores during client-side navigations.
 
-   <Tabs syncKey='svelte-kit-dehydration'>
-     <TabItem label='No flight dehydration'>
+    <Tabs syncKey='svelte-kit-dehydration'>
+      <TabItem label='No flight dehydration'>
 
-       ```ts
-       // src/routes/characters/+page.server.ts
-       import {
-         dehydrate,
-         isFlight
-       } from '@nano_kit/svelte-kit'
-       import { Stores$ } from '#lib/pages/Characters.svelte'
-       import type { PageServerLoad } from './$types'
+        ```ts
+        // src/routes/characters/+page.server.ts
+        import {
+          dehydrate,
+          isFlight
+        } from '@nano_kit/svelte-kit'
+        import { Stores$ } from '#lib/pages/Characters.svelte'
+        import type { PageServerLoad } from './$types'
 
-       export const load: PageServerLoad = async () => ({
-         dehydrated: !isFlight() && await dehydrate(Stores$)
-       })
-       ```
+        export const load: PageServerLoad = async () => ({
+          dehydrated: !isFlight() && await dehydrate(Stores$)
+        })
+        ```
 
-       `isFlight()` skips server dehydration during browser navigation. Stores still work, but navigation-time data is fetched in the browser instead of being prepared by the SvelteKit server load.
+        `isFlight()` skips server dehydration during browser navigation. Stores still work, but navigation-time data is fetched in the browser instead of being prepared by the SvelteKit server load.
 
-     </TabItem>
-     <TabItem label='Flight dehydration'>
+      </TabItem>
+      <TabItem label='Flight dehydration'>
 
-       ```ts
-       // src/routes/characters/+page.server.ts
-       import { dehydrate } from '@nano_kit/svelte-kit'
-       import { Stores$ } from '#lib/pages/Characters.svelte'
-       import type { PageServerLoad } from './$types'
+        ```ts
+        // src/routes/characters/+page.server.ts
+        import { dehydrate } from '@nano_kit/svelte-kit'
+        import { Stores$ } from '#lib/pages/Characters.svelte'
+        import type { PageServerLoad } from './$types'
 
-       export const load: PageServerLoad = async ({ parent }) => {
-         await parent()
+        export const load: PageServerLoad = async ({ parent }) => {
+          await parent()
 
-         return {
-           dehydrated: await dehydrate(Stores$)
-         }
-       }
-       ```
+          return {
+            dehydrated: await dehydrate(Stores$)
+          }
+        }
+        ```
 
-       Use this mode when you want server data preparation during browser navigation too. `await parent()` is needed when those stores rely on providers installed by a parent layout, such as router navigation or cookies.
+        Use this mode when you want server data preparation during browser navigation too. `await parent()` is needed when those stores rely on providers installed by a parent layout, such as router navigation or cookies.
 
-     </TabItem>
-   </Tabs>
+      </TabItem>
+    </Tabs>
 
-3. **Hydrate page stores**
+3.  **Hydrate page stores**
 
-   Pass the dehydrated page data to `setHydrationContext` in the page component.
+    Pass the dehydrated page data to `setHydrationContext` in the page component.
 
-   ```svelte
-   <!-- src/routes/characters/+page.svelte -->
-   <script lang="ts">
-     import { setHydrationContext } from '@nano_kit/svelte-kit'
-     import CharactersPage from '#lib/pages/Characters.svelte'
+    ```svelte
+    <!-- src/routes/characters/+page.svelte -->
+    <script lang="ts">
+      import { setHydrationContext } from '@nano_kit/svelte-kit'
+      import CharactersPage from '#lib/pages/Characters.svelte'
 
-     let { data } = $props()
+      let { data } = $props()
 
-     setHydrationContext({
-       dehydrated: () => data.dehydrated
-     })
-   </script>
+      setHydrationContext({
+        dehydrated: () => data.dehydrated
+      })
+    </script>
 
-   <CharactersPage />
-   ```
+    <CharactersPage />
+    ```
 
 </Steps>
 

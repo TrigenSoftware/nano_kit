@@ -62,115 +62,115 @@ An adapter consists of three parts: a **renderer**, a **client entry**, and a **
 
 <Steps>
 
-1. **Extend the Renderer**
+1.  **Extend the Renderer**
 
-   Subclass `Renderer` from `@nano_kit/ssr/renderer` and implement the abstract `renderToString` method. Inject the framework-specific `compose` function from your router integration by passing it to `super()`.
+    Subclass `Renderer` from `@nano_kit/ssr/renderer` and implement the abstract `renderToString` method. Inject the framework-specific `compose` function from your router integration by passing it to `super()`.
 
-   ```js
-   // src/renderer/index.js
-   import { Renderer, escapeHtml, headDescriptorToHtml, ROOT_ID } from '@nano_kit/ssr/renderer'
-   import { compose } from 'your-framework-router'
-   import { get } from '@nano_kit/store'
+    ```js
+    // src/renderer/index.js
+    import { Renderer, escapeHtml, headDescriptorToHtml, ROOT_ID } from '@nano_kit/ssr/renderer'
+    import { compose } from 'your-framework-router'
+    import { get } from '@nano_kit/store'
 
-   export class FrameworkRenderer extends Renderer {
-     constructor(options) {
-       super({ ...options, compose })
-     }
+    export class FrameworkRenderer extends Renderer {
+      constructor(options) {
+        super({ ...options, compose })
+      }
 
-     renderToString(data) {
-       let lang, dir, title, head = ''
+      renderToString(data) {
+        let lang, dir, title, head = ''
 
-       data.head.forEach((descriptor) => {
-         if (descriptor.tag === 'lang') lang = get(descriptor.value) || undefined
-         else if (descriptor.tag === 'dir') dir = get(descriptor.value) || undefined
-         else if (descriptor.tag === 'title') title = get(descriptor.value) || undefined
-         else head += headDescriptorToHtml(descriptor)
-       })
+        data.head.forEach((descriptor) => {
+          if (descriptor.tag === 'lang') lang = get(descriptor.value) || undefined
+          else if (descriptor.tag === 'dir') dir = get(descriptor.value) || undefined
+          else if (descriptor.tag === 'title') title = get(descriptor.value) || undefined
+          else head += headDescriptorToHtml(descriptor)
+        })
 
-       if (title) head = `<title>${escapeHtml(title)}</title>${head}`
+        if (title) head = `<title>${escapeHtml(title)}</title>${head}`
 
-       const body = yourFrameworkRenderToString(data.context)
+        const body = yourFrameworkRenderToString(data.context)
 
-       return `<html${lang ? ` lang="${escapeHtml(lang)}"` : ''}${dir ? ` dir="${escapeHtml(dir)}"` : ''}><head>${head}</head><body><div id="${ROOT_ID}">${body}</div><script>${this.dehydratedScript(data.dehydrated)}</script></body></html>`
-     }
-   }
-   ```
+        return `<html${lang ? ` lang="${escapeHtml(lang)}"` : ''}${dir ? ` dir="${escapeHtml(dir)}"` : ''}><head>${head}</head><body><div id="${ROOT_ID}">${body}</div><script>${this.dehydratedScript(data.dehydrated)}</script></body></html>`
+      }
+    }
+    ```
 
-   `headDescriptorToHtml` escapes the attribute values of the tags it renders and `dehydratedScript` escapes the snapshot, so `escapeHtml` is needed only for the values the renderer interpolates itself: `title`, `lang` and `dir`.
+    `headDescriptorToHtml` escapes the attribute values of the tags it renders and `dehydratedScript` escapes the snapshot, so `escapeHtml` is needed only for the values the renderer interpolates itself: `title`, `lang` and `dir`.
 
-   Also provide a **default renderer template** that the Vite plugin uses when the user does not supply a custom one:
+    Also provide a **default renderer template** that the Vite plugin uses when the user does not supply a custom one:
 
-   ```js
-   // src/renderer.js
-   import { FrameworkRenderer } from 'your-framework-ssr/renderer'
-   import { routes, pages } from 'virtual:app-index'
+    ```js
+    // src/renderer.js
+    import { FrameworkRenderer } from 'your-framework-ssr/renderer'
+    import { routes, pages } from 'virtual:app-index'
 
-   export const renderer = new FrameworkRenderer({
-     base: import.meta.env.BASE_URL,
-     manifestPath: import.meta.env.MANIFEST,
-     inject: import.meta.env.SSR_INJECT,
-     routes,
-     pages
-   })
-   ```
+    export const renderer = new FrameworkRenderer({
+      base: import.meta.env.BASE_URL,
+      manifestPath: import.meta.env.MANIFEST,
+      inject: import.meta.env.SSR_INJECT,
+      routes,
+      pages
+    })
+    ```
 
-2. **Create the Client Entry**
+2.  **Create the Client Entry**
 
-   Wrap the base `ready` function from `@nano_kit/ssr/client`, injecting the framework-specific `router`:
+    Wrap the base `ready` function from `@nano_kit/ssr/client`, injecting the framework-specific `router`:
 
-   ```js
-   // src/client/index.js
-   import { router } from 'your-framework-router'
-   import { ready as baseReady } from '@nano_kit/ssr/client'
+    ```js
+    // src/client/index.js
+    import { router } from 'your-framework-router'
+    import { ready as baseReady } from '@nano_kit/ssr/client'
 
-   export * from '@nano_kit/ssr/client'
+    export * from '@nano_kit/ssr/client'
 
-   export function ready(options) {
-     return baseReady({ ...options, router })
-   }
-   ```
+    export function ready(options) {
+      return baseReady({ ...options, router })
+    }
+    ```
 
-   Also provide a **default client template** that the Vite plugin uses when the user does not supply a custom one:
+    Also provide a **default client template** that the Vite plugin uses when the user does not supply a custom one:
 
-   ```js
-   // src/client.js
-   import { ROOT_ID, ready } from 'your-framework-ssr/client'
-   import { routes, pages } from 'virtual:app-index'
+    ```js
+    // src/client.js
+    import { ROOT_ID, ready } from 'your-framework-ssr/client'
+    import { routes, pages } from 'virtual:app-index'
 
-   ready({ routes, pages }).then((context) => {
-     // hydrate the app — framework-specific
-     yourFrameworkHydrate(document.getElementById(ROOT_ID), context)
-   })
-   ```
+    ready({ routes, pages }).then((context) => {
+      // hydrate the app — framework-specific
+      yourFrameworkHydrate(document.getElementById(ROOT_ID), context)
+    })
+    ```
 
-3. **Create the Vite Plugin**
+3.  **Create the Vite Plugin**
 
-   Pass a `SsrPluginAdapter` to the base `SsrPlugin` from `@nano_kit/ssr/vite-plugin`. The adapter tells the plugin how to load the default client and renderer templates:
+    Pass a `SsrPluginAdapter` to the base `SsrPlugin` from `@nano_kit/ssr/vite-plugin`. The adapter tells the plugin how to load the default client and renderer templates:
 
-   ```js
-   // src/vite-plugin/index.js
-   import path from 'node:path'
-   import fs from 'node:fs/promises'
-   import SsrPlugin from '@nano_kit/ssr/vite-plugin'
+    ```js
+    // src/vite-plugin/index.js
+    import path from 'node:path'
+    import fs from 'node:fs/promises'
+    import SsrPlugin from '@nano_kit/ssr/vite-plugin'
 
-   const adapter = {
-     clientPath: 'virtual-client.js',
-     rendererPath: 'virtual-renderer.js',
+    const adapter = {
+      clientPath: 'virtual-client.js',
+      rendererPath: 'virtual-renderer.js',
 
-     loadClient() {
-       return fs.readFile(path.join(import.meta.dirname, '..', 'client.js'), 'utf-8')
-     },
-     loadRenderer() {
-       return fs.readFile(path.join(import.meta.dirname, '..', 'renderer.js'), 'utf-8')
-     }
-   }
+      loadClient() {
+        return fs.readFile(path.join(import.meta.dirname, '..', 'client.js'), 'utf-8')
+      },
+      loadRenderer() {
+        return fs.readFile(path.join(import.meta.dirname, '..', 'renderer.js'), 'utf-8')
+      }
+    }
 
-   export default function FrameworkSsrPlugin(options) {
-     return SsrPlugin(options, adapter)
-   }
-   ```
+    export default function FrameworkSsrPlugin(options) {
+      return SsrPlugin(options, adapter)
+    }
+    ```
 
-   The plugin automatically handles building both the **client bundle** and the **SSR renderer bundle**. It also removes the [server-only exports](/router/ssr#server-only-exports) of page modules from the client bundle.
+    The plugin automatically handles building both the **client bundle** and the **SSR renderer bundle**. It also removes the [server-only exports](/router/ssr#server-only-exports) of page modules from the client bundle.
 
 </Steps>
 
