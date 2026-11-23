@@ -1,5 +1,7 @@
-/* Half out of the window, the way a desktop window takes a resize: an edge is easy to catch, and a scrollbar
-   along it keeps most of its width */
+/**
+ * Half out of the window, the way a desktop window takes a resize: an edge is easy to catch, and a scrollbar
+ * along it keeps most of its width
+ */
 .root {
   --sizeWindowEdge: 8px;
   --sizeWindowCorner: 16px;

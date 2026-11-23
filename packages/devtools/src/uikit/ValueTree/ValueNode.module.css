@@ -67,8 +67,10 @@
   padding-left: calc(var(--sizeIcon) - 2px + var(--sizeSpaceXs));
 }
 
-/* A level where nothing opens has no chevron to line its names up with: the gap after an empty spacer
-   stands for the room before the chevron above, so the names stand under its text */
+/**
+ * A level where nothing opens has no chevron to line its names up with: the gap after an empty spacer
+ * stands for the room before the chevron above, so the names stand under its text
+ */
 .group:not(:has(> .expandable)) > .root > .row > .spacer {
   width: 0;
 }
