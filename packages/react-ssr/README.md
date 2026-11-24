@@ -84,7 +84,7 @@ The plugin produces a `renderer` export from the renderer bundle. Call `renderer
 import { renderer } from './dist/renderer/index.js'
 
 // Express example
-app.get('*', async (req, res) => {
+app.get('/{*splat}', async (req, res) => {
   const result = await renderer.render(req.url)
 
   if (result.redirect) {

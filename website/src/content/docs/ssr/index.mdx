@@ -230,7 +230,8 @@ For production, you need to write your own HTTP server that imports the renderer
 ```js title="server.js"
 import { renderer } from './dist/renderer/index.js'
 
-app.get('*', async (req, res) => {
+// Express example
+app.get('/{*splat}', async (req, res) => {
   const result = await renderer.render(req.url, {
     cookie: req.headers.cookie,
     acceptLanguage: req.headers['accept-language'],

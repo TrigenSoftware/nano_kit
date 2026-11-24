@@ -72,7 +72,7 @@ pnpm add @nano_kit/store @nano_kit/router @nano_kit/react @nano_kit/react-router
     import { renderer } from './dist/renderer/index.js'
 
     // Express example
-    app.get('*', async (req, res) => {
+    app.get('/{*splat}', async (req, res) => {
       const result = await renderer.render(req.url, {
         cookie: req.headers.cookie,
         acceptLanguage: req.headers['accept-language'],
@@ -379,7 +379,8 @@ Pass the incoming `Cookie` header to `renderer.render(url, { cookie })`, and for
 ```js title="server.js"
 import { renderer } from './dist/renderer/index.js'
 
-app.get('*', async (req, res) => {
+// Express example
+app.get('/{*splat}', async (req, res) => {
   const result = await renderer.render(req.url, {
     cookie: req.headers.cookie
   })
@@ -540,7 +541,8 @@ Pass the incoming `Accept-Language` header to `renderer.render(url, { acceptLang
 ```js title="server.js"
 import { renderer } from './dist/renderer/index.js'
 
-app.get('*', async (req, res) => {
+// Express example
+app.get('/{*splat}', async (req, res) => {
   const result = await renderer.render(req.url, {
     acceptLanguage: req.headers['accept-language']
   })

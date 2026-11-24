@@ -92,6 +92,19 @@ describe('router', () => {
         })
       })
 
+      it('should keep a parameter with a broken escape as it is', () => {
+        const [$location] = virtualNavigation('/discounts/100%', {
+          discount: '/discounts/:value'
+        })
+
+        expect($location()).toMatchObject({
+          route: 'discount',
+          params: {
+            value: '100%'
+          }
+        })
+      })
+
       it('should match routes with optional parameters', () => {
         const [$location, navigation] = virtualNavigation('/', {
           blog: '/blog/:page?',
@@ -816,6 +829,51 @@ describe('router', () => {
 
           navigation.forward()
           expect(navigation.$canGoBack()).toBe(true)
+        })
+
+        it('should keep a path that the URL parser reads as a host as a path', () => {
+          const [$location] = virtualNavigation('///', {
+            home: '/'
+          })
+
+          expect($location()).toMatchObject({
+            pathname: '///',
+            route: null
+          })
+        })
+
+        it('should read a broken absolute url as a path that no route has', () => {
+          const [$location] = virtualNavigation('http://x:99999/', {
+            home: '/'
+          })
+
+          expect($location()).toMatchObject({
+            pathname: '//x:99999/',
+            route: null
+          })
+        })
+
+        it('should not take the start of a path with two slashes for a host', () => {
+          const [$location] = virtualNavigation('//evil.example/admin', {
+            admin: '/admin'
+          })
+
+          expect($location()).toMatchObject({
+            pathname: '//evil.example/admin',
+            route: null
+          })
+        })
+
+        it('should keep the trailing slash in the pathname, as the browser does', () => {
+          const [$location] = virtualNavigation('/about/', {
+            about: '/about'
+          })
+
+          expect($location()).toMatchObject({
+            pathname: '/about/',
+            href: '/about',
+            route: 'about'
+          })
         })
       })
     })

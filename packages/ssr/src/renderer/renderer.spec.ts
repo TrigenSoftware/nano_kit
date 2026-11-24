@@ -23,7 +23,7 @@ class PlainRenderer extends Renderer {
   }
 }
 
-// Pages outside of layouts, without `Stores$` and `Head$`
+// Pages outside of layouts, without `Stores$` and `Head$`, and the cookie store that reads the request url too
 const plainRenderer = new PlainRenderer({
   routes: {
     home: '/'
@@ -34,7 +34,10 @@ const plainRenderer = new PlainRenderer({
     }),
     notFound(() => 'not found')
   ],
-  compose: () => () => ''
+  compose: () => () => '',
+  inject: {
+    cookieStore: true
+  }
 })
 
 renderer.manifest = {
@@ -97,6 +100,13 @@ describe('ssr', () => {
 
     it('should respond with 404 when no page matches', async () => {
       expect((await renderer.render('/nowhere')).statusCode).toBe(404)
+    })
+
+    it('should render the not found page for a path that the URL parser reads as a host', async () => {
+      expect(await plainRenderer.render('///')).toMatchObject({
+        statusCode: 404,
+        html: '<!doctype html>page'
+      })
     })
 
     it('should render a page without Stores$ and Head$', async () => {

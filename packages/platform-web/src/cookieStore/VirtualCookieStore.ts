@@ -40,9 +40,15 @@ export class VirtualCookieStore implements CookieStore {
     this.#cookieHeader = cookieHeader
 
     if (requestUrl) {
-      this.#requestUrl = requestUrl.startsWith('http')
-        ? new URL(requestUrl)
-        : new URL(requestUrl, 'http://localhost')
+      try {
+        this.#requestUrl = requestUrl.startsWith('http')
+          ? new URL(requestUrl)
+          : new URL(requestUrl, 'http://localhost')
+      } catch {
+        // The URL parser takes a request path like `///` for a host and fails on it: the path is read
+        // after a host of its own, and a broken absolute URL ends up in a path, the way the router reads them
+        this.#requestUrl = new URL(`http://localhost${requestUrl}`)
+      }
     }
   }
 

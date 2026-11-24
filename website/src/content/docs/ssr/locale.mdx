@@ -87,7 +87,8 @@ Pass the incoming `Accept-Language` header to `renderer.render(url, { acceptLang
 ```js title="server.js"
 import { renderer } from './dist/renderer/index.js'
 
-app.get('*', async (req, res) => {
+// Express example
+app.get('/{*splat}', async (req, res) => {
   const result = await renderer.render(req.url, {
     acceptLanguage: req.headers['accept-language']
   })
