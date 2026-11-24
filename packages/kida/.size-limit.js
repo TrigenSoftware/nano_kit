@@ -15,14 +15,14 @@ export default [
     gzip: true,
     path: 'dist/index.production.js',
     import: '*',
-    limit: '5.6 kB',
+    limit: '5.65 kB',
     modifyRolldownConfig
   },
   {
     name: 'All publics (Brotli)',
     path: 'dist/index.production.js',
     import: '*',
-    limit: '5.15 kB',
+    limit: '5.2 kB',
     modifyRolldownConfig
   },
   {
@@ -45,14 +45,14 @@ export default [
     gzip: true,
     path: 'dist/index.production.js',
     import: '{ signal, record, computed, effect, mountable, onMount }',
-    limit: '2.4 kB',
+    limit: '2.45 kB',
     modifyRolldownConfig
   },
   {
     name: 'Popular set (Brotli)',
     path: 'dist/index.production.js',
     import: '{ signal, record, computed, effect, mountable, onMount }',
-    limit: '2.25 kB',
+    limit: '2.3 kB',
     modifyRolldownConfig
   }
 ]

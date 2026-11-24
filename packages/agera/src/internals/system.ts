@@ -1728,11 +1728,12 @@ export function boundDeferScope() {
 // Nothing counts subscribers. The authoritative answer is a question asked
 // of the graph itself: does this node have a live path upward to an
 // effect? `present` walks the node's subs, short-circuiting on the first
-// live effect and relaying through mountable computeds (contagion marks
-// every computed that ever linked a mountable dep, as well as every
-// computed already reading a computed it marks). A state that is never
-// stored cannot go stale, whenever the links were made; the walk itself is
-// memoized (`lcs`/`lcv`), and the memo dies with any edge edit (`stamp`).
+// live effect that counts for every node and relaying through mountable
+// computeds (contagion marks every computed that ever linked a mountable
+// dep, as well as every computed already reading a computed it marks). A
+// state that is never stored cannot go stale, whenever the links were
+// made; the walk itself is memoized (`lcs`/`lcv`), and the memo dies with
+// any edge edit (`stamp`).
 //
 // LEVEL - mount and unmount are one event, a level change.
 // Graph edits only enqueue the touched node, and any computed they mark,
@@ -1747,11 +1748,12 @@ export function boundDeferScope() {
 // The drain runs when the core is quiescent (no running subscriber, no
 // open batch, no active flush). Listener code runs untracked and unowned,
 // and whatever it creates is exempted from mounting the node that fired
-// it, so a mount handler cannot keep its own node alive through a direct
-// subscription (a path relayed through a computed is not exempted, as
-// before this redesign; the exemption is captured at creation and does
-// not travel to effects created by later re-runs). Delivery is best-effort under a throwing
-// listener: the processed queue prefix is dropped, the tail survives.
+// it, so a mount handler cannot keep its own node alive, whether it reads
+// the node directly or through computeds: a relay answers with the node
+// its live paths are exempted from. The exemption is captured at creation
+// and does not travel to effects created by later re-runs. Delivery is
+// best-effort under a throwing listener: the processed queue prefix is
+// dropped, the tail survives.
 // Registration from inside an `untracked` window of a running body counts
 // as quiescent and delivers immediately.
 
@@ -1798,30 +1800,37 @@ function onEdge(dep: ReactiveNode, sub?: ReactiveNode): void {
   }
 }
 
-function present(node: ReadableNode): boolean {
+// The answer is `true` for a live path that counts for every node, the node
+// every live path is exempted from, which counts for every node but that
+// one, and `false` for no live path. It does not depend on who asks, so the
+// memo serves every walk of the stamp
+function present(node: ReadableNode): ReactiveNode | boolean {
   if (node.lcs !== stamp) {
+    let found: ReactiveNode | boolean = false
+
     node.lcs = stamp
-    node.lcv = false
 
-    for (let link = node.subs; link; link = link.nextSub) {
+    for (let link = node.subs; link && found !== true; link = link.nextSub) {
       const sub = link.sub
+      // A relay never counts as a reader, whatever its flags say: the walk
+      // asks its subs instead - a mountable computed's readers, a tracker's
+      // keys. Anything else answers iff it is a live effect, with the node
+      // it is exempted from, if any
+      const live = (
+        sub.modes & MountableMode
+          ? present(sub)
+          : sub.flags & WatchingFlag && (sub.lcx || true)
+      ) as ReactiveNode | boolean
 
-      if (
-        sub.lcx !== node
-        && (
-          // A relay never counts as a reader, whatever its flags say: the
-          // walk asks its subs instead - a mountable computed's readers, a
-          // tracker's keys. Anything else settles the question iff it is a
-          // live effect
-          sub.modes & MountableMode
-            ? present(sub)
-            : sub.flags & WatchingFlag
-        )
-      ) {
-        node.lcv = true
-        break
+      // What the listeners of this node created does not keep it alive,
+      // read directly or through computeds. Paths exempted from two
+      // different nodes count for every node
+      if (live && live !== node) {
+        found = found && found !== live || live
       }
     }
+
+    node.lcv = found
   }
 
   return node.lcv!
@@ -1836,7 +1845,7 @@ function walkDeps(node: ReadableNode): void {
 }
 
 function evaluate(node: ReadableNode): void {
-  const mounted = present(node)
+  const mounted = present(node) !== false
   const listeners = node.lcl
   const changed = !node.lcd === mounted
   // The delivered watermark doubles as the fire cursor. An unchanged level
