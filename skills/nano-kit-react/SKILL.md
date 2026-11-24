@@ -44,9 +44,9 @@ metadata:
 ## Components
 
 - `useSignal($accessor)` subscribes the component; writing is a plain call of the signal, no hook needed.
-- Pass stable accessors. A computed or arrow function created during render is a new subscription on every render: create derived accessors in the store, or `useMemo` them when they really depend on props.
+- Pass stable accessors. A computed or arrow function created anew on every render is a new subscription on every render: create derived accessors in the store, and keep one that really depends on props stable by its inputs. React Compiler does that by itself, memoizing the arrow or the `computed` call by the props and accessors it reads, so under the compiler write it plainly, with no `useMemo`; without the compiler, `useMemo` it.
 - Keep logic out of components: they read signals and call actions. Validation, derived values, loading and error states come from the store, usually through `@nano_kit/query`.
-- Per-row state (selected, expanded) comes from a `selector` in the store; give each row a memoized accessor for its key.
+- Per-row state (selected, expanded) comes from a `selector` in the store; each row's accessor for its key is kept stable as above.
 - Navigation and links come from `@nano_kit/react-router` hooks, not from `window.location`.
 
 ## Dependency injection
@@ -67,7 +67,7 @@ metadata:
 
 ## Pitfalls
 
-- `useSignal` with an inline arrow function re-subscribes on every render.
+- Without React Compiler, `useSignal` with an inline arrow function re-subscribes on every render; the compiler memoizes the arrow by what it reads.
 - Writing a signal during render causes extra renders or loops; write in event handlers, effects in stores or actions.
 - `useInject` outside `InjectionContextProvider`, `HydrationProvider` or `StaticHydrationProvider` throws; in tests always wrap the tree.
 - The server components and `dehydrate` are server-only; do not import them from client components.
