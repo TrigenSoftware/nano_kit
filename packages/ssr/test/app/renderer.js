@@ -1,11 +1,5 @@
-import {
-  Renderer,
-  headDescriptorToHtml
-} from '@nano_kit/ssr/renderer'
-import {
-  get,
-  run
-} from '@nano_kit/store'
+import { Renderer } from '@nano_kit/ssr/renderer'
+import { run } from '@nano_kit/store'
 import { Page$ } from '@nano_kit/router'
 import {
   routes,
@@ -25,24 +19,9 @@ class DumyRenderer extends Renderer {
   }
 
   renderToString(data) {
-    let title
-    let head = ''
-
-    data.head.forEach((descriptor) => {
-      if (descriptor.tag === 'title') {
-        title = get(descriptor.value)
-      } else if (descriptor.tag !== 'lang' && descriptor.tag !== 'dir') {
-        head += headDescriptorToHtml(descriptor)
-      }
-    })
-
-    if (title) {
-      head = `<title>${title}</title>${head}`
-    }
-
     const $page = data.context.get(Page$)
 
-    return `${head}<script>${this.dehydratedScript(data.dehydrated)}</script>${run(data.context, () => $page()?.default())}`
+    return this.document(data, run(data.context, () => $page()?.default()))
   }
 }
 

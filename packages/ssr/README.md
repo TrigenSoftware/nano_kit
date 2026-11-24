@@ -45,9 +45,8 @@ Subclass `Renderer` and implement the abstract `renderToString` method. The cons
 
 ```js
 // src/renderer/index.js
-import { Renderer, headDescriptorToHtml, escapeHtml, ROOT_ID } from '@nano_kit/ssr/renderer'
+import { Renderer } from '@nano_kit/ssr/renderer'
 import { compose } from 'your-framework-router'
-import { get } from '@nano_kit/store'
 
 export class FrameworkRenderer extends Renderer {
   constructor(options) {
@@ -55,24 +54,17 @@ export class FrameworkRenderer extends Renderer {
   }
 
   renderToString(data) {
-    let lang, dir, title, head = ''
-
-    data.head.forEach((descriptor) => {
-      if (descriptor.tag === 'lang') lang = get(descriptor.value) || undefined
-      else if (descriptor.tag === 'dir') dir = get(descriptor.value) || undefined
-      else if (descriptor.tag === 'title') title = get(descriptor.value) || undefined
-      else head += headDescriptorToHtml(descriptor)
-    })
-
-    if (title) head = `<title>${escapeHtml(title)}</title>${head}`
-
     // render to string using your framework, wrapping with data.context
-    const body = yourFrameworkRenderToString(data.context)
+    const app = yourFrameworkRenderToString(data.context)
 
-    return `<html${lang ? ` lang="${escapeHtml(lang)}"` : ''}${dir ? ` dir="${escapeHtml(dir)}"` : ''}><head>${head}</head><body><div id="${ROOT_ID}">${body}</div><script>${this.dehydratedScript(data.dehydrated)}</script></body></html>`
+    return this.document(data, app)
   }
 }
 ```
+
+`document` builds the HTML document around the app: `lang` and `dir` go to `<html>`, the title and the other head tags to `<head>`, the app to the root element, followed by the script with the dehydrated state. The title and attribute values are escaped. Pass the head tags that your framework collects while rendering as the third argument.
+
+Render only the app with your framework, since the client hydrates only the root element: a server tree with the document around the app would shift the ids built from the position in the tree, like the ones of React's `useId`.
 
 ### 2. Create the Client Entry
 

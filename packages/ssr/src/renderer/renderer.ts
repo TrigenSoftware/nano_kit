@@ -1,9 +1,11 @@
 import {
   type Accessor,
+  type EmptyValue,
   InjectionContext,
   provide,
   dehydrate,
-  run
+  run,
+  get
 } from '@nano_kit/store'
 import {
   type Routes,
@@ -19,6 +21,7 @@ import {
   precompose,
   sharedRouter
 } from '@nano_kit/router'
+import { ROOT_ID } from '../constants.js'
 import type {
   KnownHeaders,
   RendererOptions,
@@ -28,6 +31,8 @@ import type {
 import { NOT_FOUND_STATUS } from './constants.js'
 import { Manifest } from './manifest.js'
 import {
+  escapeHtml,
+  headDescriptorToHtml,
   responseRedirect,
   responseStatus
 } from './utils.js'
@@ -66,6 +71,39 @@ export abstract class Renderer extends Manifest {
    */
   dehydratedScript(dehydrated: [string, unknown][]) {
     return `window.__DEHYDRATED__=${JSON.stringify(dehydrated).replace(/</g, '\\u003c')}`
+  }
+
+  /**
+   * Builds the HTML document around the rendered app: `lang` and `dir` go to `<html>`, the title and the other head tags to `<head>`, the app to the root element, followed by the script with the dehydrated state.
+   * The title and attribute values are escaped, `app` and `head` are inserted as is.
+   * @param data - Render data.
+   * @param app - The rendered HTML of the app.
+   * @param head - HTML to put after the head tags, like the tags that the framework collected while rendering the app.
+   * @returns A string containing the HTML document without the doctype.
+   */
+  document(
+    data: RenderData,
+    app: string,
+    head = ''
+  ) {
+    let lang: string | EmptyValue
+    let dir: string | EmptyValue
+    let title: string | EmptyValue
+    let tags = ''
+
+    for (const descriptor of data.head) {
+      if (descriptor.tag === 'lang') {
+        lang = get(descriptor.value)
+      } else if (descriptor.tag === 'dir') {
+        dir = get(descriptor.value)
+      } else if (descriptor.tag === 'title') {
+        title = get(descriptor.value)
+      } else {
+        tags += headDescriptorToHtml(descriptor)
+      }
+    }
+
+    return `<html${lang ? ` lang="${escapeHtml(lang)}"` : ''}${dir ? ` dir="${escapeHtml(dir)}"` : ''}><head>${title ? `<title>${escapeHtml(title)}</title>` : ''}${tags}${head}</head><body><div id="${ROOT_ID}">${app}</div><script>${this.dehydratedScript(data.dehydrated)}</script></body></html>`
   }
 
   /**
