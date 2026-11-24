@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.2.1](https://github.com/TrigenSoftware/nano_kit/compare/v4.2.0...v4.2.1) (2026-11-24)
+
+### Bug Fixes
+
+* **ssr,react-ssr:** keep the ids of `useId` the same on the server and the client ([#404](https://github.com/TrigenSoftware/nano_kit/issues/404)) ([c8dff98](https://github.com/TrigenSoftware/nano_kit/commit/c8dff9846d673faacf99318d6460e2b456ccafdf))
+
 ## [4.2.0](https://github.com/TrigenSoftware/nano_kit/compare/v4.1.0...v4.2.0) (2026-11-23)
 
 ### Features
