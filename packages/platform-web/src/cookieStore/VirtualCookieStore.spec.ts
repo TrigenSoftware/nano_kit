@@ -137,6 +137,39 @@ describe('platform-web', () => {
         })).rejects.toThrow('single request URL')
       })
 
+      it('should reject a value that would add attributes to the cookie', async () => {
+        const store = new VirtualCookieStore()
+
+        await expect(store.set('locale', 'de; Domain=example.com')).rejects.toThrow(TypeError)
+        expect(store.getSetCookieHeaders()).toEqual([])
+      })
+
+      it('should reject a control character in a value', async () => {
+        const store = new VirtualCookieStore()
+
+        await expect(store.set('locale', 'de\r\nX-Injected: 1')).rejects.toThrow(TypeError)
+      })
+
+      it('should reject "=" in a name', async () => {
+        const store = new VirtualCookieStore()
+
+        await expect(store.set('a=b', 'c')).rejects.toThrow(TypeError)
+      })
+
+      it('should reject a name that would add attributes on delete', async () => {
+        const store = new VirtualCookieStore()
+
+        await expect(store.delete('a; Domain=example.com')).rejects.toThrow(TypeError)
+      })
+
+      it('should keep a tab in a value', async () => {
+        const store = new VirtualCookieStore()
+
+        await store.set('note', 'a\tb')
+
+        expect(store.getSetCookieHeaders()).toEqual(['note=a\tb; Path=/'])
+      })
+
       it('should take a request path that the URL parser reads as a host', async () => {
         const store = new VirtualCookieStore('theme=dark', '///')
 
