@@ -88,11 +88,14 @@ export function headDescriptorToHtml(descriptor: HeadDescriptor): string {
       }
     })
 
-    html += ' />'
-
-    if (tag === 'script') {
-      html += `${code}</${tag}>`
-    }
+    // `/>` does not close a `script`, which is not a void element, so it gets the end tag.
+    // In the code, `</script` would end the element early, and `<!--` would let a later
+    // `<script` hold it open past the end tag. Their `<` becomes `\u003c`, which reads the same
+    // in a JS or JSON string. The rest of the code goes as is, so the client still finds
+    // the element by its text
+    html += tag === 'script'
+      ? `>${code.replace(/<(?=\/script|!--)/gi, '\\u003c')}</script>`
+      : ' />'
   }
 
   return html
