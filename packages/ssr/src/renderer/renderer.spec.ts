@@ -3,9 +3,14 @@ import {
   it,
   expect
 } from 'vitest'
-import { InjectionContext } from '@nano_kit/store'
+import {
+  InjectionContext,
+  inject
+} from '@nano_kit/store'
 import {
   type HeadDescriptor,
+  Location$,
+  Navigation$,
   dir,
   lang,
   meta,
@@ -23,14 +28,30 @@ class PlainRenderer extends Renderer {
   }
 }
 
-// Pages outside of layouts, without `Stores$` and `Head$`, and the cookie store that reads the request url too
+// Pages outside of layouts, without `Stores$` and `Head$`, a page that moves its old urls to new ones,
+// and the cookie store that reads the request url too
 const plainRenderer = new PlainRenderer({
   routes: {
-    home: '/'
+    home: '/',
+    blog: '/blog/:slug'
   },
   pages: [
     page('home', {
       default: () => 'home'
+    }),
+    page('blog', {
+      default: () => 'blog',
+      Stores$() {
+        const $location = inject(Location$)
+        const navigation = inject(Navigation$)
+        const { slug } = $location().params as { slug: string }
+
+        navigation.replace({
+          pathname: `/posts/${slug}`
+        }, true)
+
+        return []
+      }
     }),
     notFound(() => 'not found')
   ],
@@ -121,6 +142,18 @@ describe('ssr', () => {
         statusCode: 404,
         html: '<!doctype html>page'
       })
+    })
+
+    it('should redirect to the path that the page builds from a parameter', async () => {
+      expect(await plainRenderer.render('/blog/hello')).toMatchObject({
+        statusCode: 301,
+        redirect: '/posts/hello',
+        html: null
+      })
+    })
+
+    it('should throw on a redirect that dot segments of a parameter lead to another host', async () => {
+      await expect(plainRenderer.render('/blog/..%2F%2Fevil.example')).rejects.toThrow('leads to another host')
     })
 
     it('should respond with the status that the page gives by its dehydrated stores', async () => {

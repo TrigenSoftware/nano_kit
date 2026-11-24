@@ -108,6 +108,12 @@ export function responseRedirect(
   const { action } = location
 
   if (action) {
+    // The router has no external redirects: a path starts with `//` only once its dot segments are resolved,
+    // like those of `/posts/..//evil.example` built from request data, and the browser reads it as a host
+    if (location.href.startsWith('//')) {
+      throw new Error(`The redirect to ${JSON.stringify(location.href)} leads to another host`)
+    }
+
     if (action === PermanentReplaceHistoryAction) {
       return [MOVED_PERMANENTLY_STATUS, location.href]
     }

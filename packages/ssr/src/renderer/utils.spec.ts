@@ -4,13 +4,15 @@ import {
   expect
 } from 'vitest'
 import {
+  ReplaceHistoryAction,
   link,
   meta,
   script
 } from '@nano_kit/router'
 import {
   escapeHtml,
-  headDescriptorToHtml
+  headDescriptorToHtml,
+  responseRedirect
 } from './utils.js'
 
 describe('ssr', () => {
@@ -82,6 +84,18 @@ describe('ssr', () => {
             async: false,
             defer: true
           }))).toBe('<script src="/app.js" defer="true"></script>')
+        })
+      })
+
+      describe('responseRedirect', () => {
+        it('should throw on a redirect to a path that the browser reads as another host', () => {
+          expect(() => responseRedirect({
+            pathname: '//evil.example',
+            search: '',
+            hash: '',
+            href: '//evil.example',
+            action: ReplaceHistoryAction
+          })).toThrow('leads to another host')
         })
       })
     })
