@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.2.2](https://github.com/TrigenSoftware/nano_kit/compare/v4.2.1...v4.2.2) (2026-11-24)
+
+### Bug Fixes
+
+* **agera:** unmount a signal whose own mount effect reads it through computeds ([#406](https://github.com/TrigenSoftware/nano_kit/issues/406)) ([d93ca12](https://github.com/TrigenSoftware/nano_kit/commit/d93ca12d0895db05627f1aa4dec1e5661d5db644))
+* **deps:** update dependency @astrojs/starlight to ^0.43.0 ([#372](https://github.com/TrigenSoftware/nano_kit/issues/372)) ([7044c13](https://github.com/TrigenSoftware/nano_kit/commit/7044c136c1887327226bdaff6747c34afaf5d30f))
+* **kida,router,ssr:** leave out a boolean head attribute that is `false` ([#409](https://github.com/TrigenSoftware/nano_kit/issues/409)) ([4462459](https://github.com/TrigenSoftware/nano_kit/commit/4462459b9e066d590701980c4657d5207dd02639))
+* **platform-web:** reject a cookie name or value that `cookieStore` rejects in the browser ([#415](https://github.com/TrigenSoftware/nano_kit/issues/415)) ([346eb06](https://github.com/TrigenSoftware/nano_kit/commit/346eb0650c18142be65a7396d5ca3b9fb307feb7))
+* **router,platform-web:** read the request path as the browser does and never fail on a malformed one ([#411](https://github.com/TrigenSoftware/nano_kit/issues/411)) ([93e9bd7](https://github.com/TrigenSoftware/nano_kit/commit/93e9bd7bc66dddfa799a68012e6a4954457f789d))
+* **router:** stop SSR from leaking memory on a lazy page outside of layouts and from failing on a page without `Stores$` or `Head$` ([#410](https://github.com/TrigenSoftware/nano_kit/issues/410)) ([a2e7eac](https://github.com/TrigenSoftware/nano_kit/commit/a2e7eac3507d0d3acb2b38f0f485b12d3242dc41))
+* **ssr:** close head scripts with an end tag and escape `</script` and `<!--` in their code ([#408](https://github.com/TrigenSoftware/nano_kit/issues/408)) ([731ba7f](https://github.com/TrigenSoftware/nano_kit/commit/731ba7fc41c089f4828ddbeda4211dc54d5d082e))
+* **ssr:** move the Vite manifest out of the files that a static server serves ([#414](https://github.com/TrigenSoftware/nano_kit/issues/414)) ([ddc62d0](https://github.com/TrigenSoftware/nano_kit/commit/ddc62d092a492fed6444b39a552c3949ffcb5f29))
+* **ssr:** read the dehydrated state with `JSON.parse`, so a `__proto__` key stays a key on the client ([#413](https://github.com/TrigenSoftware/nano_kit/issues/413)) ([43b925c](https://github.com/TrigenSoftware/nano_kit/commit/43b925cc05aa2eba7ef61563e07b2a2cf4539c34))
+* **ssr:** throw on a redirect that dot segments turn into a path to another host ([#412](https://github.com/TrigenSoftware/nano_kit/issues/412)) ([60decb4](https://github.com/TrigenSoftware/nano_kit/commit/60decb433171618d9da9f4ba4a160a8e9dfd9d33))
+
 ## [4.2.1](https://github.com/TrigenSoftware/nano_kit/compare/v4.2.0...v4.2.1) (2026-11-24)
 
 ### Bug Fixes

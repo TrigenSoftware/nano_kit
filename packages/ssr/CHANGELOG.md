@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.2.2](https://github.com/TrigenSoftware/nano_kit/compare/v4.2.1...v4.2.2) (2026-11-24)
+
+### Bug Fixes
+
+* close head scripts with an end tag and escape `</script` and `<!--` in their code ([#408](https://github.com/TrigenSoftware/nano_kit/issues/408)) ([731ba7f](https://github.com/TrigenSoftware/nano_kit/commit/731ba7fc41c089f4828ddbeda4211dc54d5d082e))
+* leave out a boolean head attribute that is `false` ([#409](https://github.com/TrigenSoftware/nano_kit/issues/409)) ([4462459](https://github.com/TrigenSoftware/nano_kit/commit/4462459b9e066d590701980c4657d5207dd02639))
+* move the Vite manifest out of the files that a static server serves ([#414](https://github.com/TrigenSoftware/nano_kit/issues/414)) ([ddc62d0](https://github.com/TrigenSoftware/nano_kit/commit/ddc62d092a492fed6444b39a552c3949ffcb5f29))
+* read the dehydrated state with `JSON.parse`, so a `__proto__` key stays a key on the client ([#413](https://github.com/TrigenSoftware/nano_kit/issues/413)) ([43b925c](https://github.com/TrigenSoftware/nano_kit/commit/43b925cc05aa2eba7ef61563e07b2a2cf4539c34))
+* throw on a redirect that dot segments turn into a path to another host ([#412](https://github.com/TrigenSoftware/nano_kit/issues/412)) ([60decb4](https://github.com/TrigenSoftware/nano_kit/commit/60decb433171618d9da9f4ba4a160a8e9dfd9d33))
+
 ## [4.2.1](https://github.com/TrigenSoftware/nano_kit/compare/v4.0.0...v4.2.1) (2026-11-24)
 
 ### Bug Fixes

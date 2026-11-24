@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.2.2](https://github.com/TrigenSoftware/nano_kit/compare/v4.0.0...v4.2.2) (2026-11-24)
+
+### Bug Fixes
+
+* read the request path as the browser does and never fail on a malformed one ([#411](https://github.com/TrigenSoftware/nano_kit/issues/411)) ([93e9bd7](https://github.com/TrigenSoftware/nano_kit/commit/93e9bd7bc66dddfa799a68012e6a4954457f789d))
+* reject a cookie name or value that `cookieStore` rejects in the browser ([#415](https://github.com/TrigenSoftware/nano_kit/issues/415)) ([346eb06](https://github.com/TrigenSoftware/nano_kit/commit/346eb0650c18142be65a7396d5ca3b9fb307feb7))
+
 ## [4.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v3.2.1...v4.0.0) (2026-11-20)
 
 Version bump to keep in sync with breaking changes in other packages.

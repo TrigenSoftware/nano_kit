@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.2.2](https://github.com/TrigenSoftware/nano_kit/compare/v4.0.0...v4.2.2) (2026-11-24)
+
+### Bug Fixes
+
+* leave out a boolean head attribute that is `false` ([#409](https://github.com/TrigenSoftware/nano_kit/issues/409)) ([4462459](https://github.com/TrigenSoftware/nano_kit/commit/4462459b9e066d590701980c4657d5207dd02639))
+* read the request path as the browser does and never fail on a malformed one ([#411](https://github.com/TrigenSoftware/nano_kit/issues/411)) ([93e9bd7](https://github.com/TrigenSoftware/nano_kit/commit/93e9bd7bc66dddfa799a68012e6a4954457f789d))
+* stop SSR from leaking memory on a lazy page outside of layouts and from failing on a page without `Stores$` or `Head$` ([#410](https://github.com/TrigenSoftware/nano_kit/issues/410)) ([a2e7eac](https://github.com/TrigenSoftware/nano_kit/commit/a2e7eac3507d0d3acb2b38f0f485b12d3242dc41))
+
 ## [4.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v3.2.5...v4.0.0) (2026-11-20)
 
 ### ⚠ BREAKING CHANGES

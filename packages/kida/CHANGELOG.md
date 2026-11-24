@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.2.2](https://github.com/TrigenSoftware/nano_kit/compare/v4.0.0...v4.2.2) (2026-11-24)
+
+### Bug Fixes
+
+* leave out a boolean head attribute that is `false` ([#409](https://github.com/TrigenSoftware/nano_kit/issues/409)) ([4462459](https://github.com/TrigenSoftware/nano_kit/commit/4462459b9e066d590701980c4657d5207dd02639))
+
 ## [4.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v3.2.1...v4.0.0) (2026-11-20)
 
 Version bump to keep in sync with breaking changes in other packages.

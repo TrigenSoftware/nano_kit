@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [4.2.2](https://github.com/TrigenSoftware/nano_kit/compare/v4.0.0...v4.2.2) (2026-11-24)
+
+### Bug Fixes
+
+* unmount a signal whose own mount effect reads it through computeds ([#406](https://github.com/TrigenSoftware/nano_kit/issues/406)) ([d93ca12](https://github.com/TrigenSoftware/nano_kit/commit/d93ca12d0895db05627f1aa4dec1e5661d5db644))
+
 ## [4.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v3.2.1...v4.0.0) (2026-11-20)
 
 Version bump to keep in sync with breaking changes in other packages.
