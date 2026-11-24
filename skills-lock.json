@@ -1,89 +1,110 @@
 {
-  "version": 1,
+  "version": 2,
   "skills": {
     "codex": {
       "source": "TrigenSoftware/scripts",
       "sourceType": "github",
       "skillPath": "skills/codex/SKILL.md",
-      "computedHash": "6474fc9e9caca36d2236f933e20ab1b7a80c3f4e5ba2a9bf347c9edc4c323e91"
+      "computedHash": "c5ce4227ce2716a8bc70aa169597b032e96290585330331eedf47fc121bb98ed",
+      "commit": "559d33c555e44129d2ecac2059f7f19e27981fef"
     },
     "conventional-commit-message": {
       "source": "conventional-changelog/conventional-changelog",
       "sourceType": "github",
       "skillPath": "skills/conventional-commit-message/SKILL.md",
-      "computedHash": "6ae250d67edc757e2e54163dae2d32f7b44bd8827231cbab2895db8fc0331ac3"
+      "computedHash": "ca7c5705c61159b955cd3022f035c839bdded58e06b8641dd875df34e3919a44",
+      "commit": "0cdedf882b7d2c86ea8e03ce0c4fafc597fa2108"
     },
     "css-mixin": {
       "source": "TrigenSoftware/scripts",
       "sourceType": "github",
       "skillPath": "skills/css-mixin/SKILL.md",
-      "computedHash": "27649cb12ce5f4b41f0ee747c3e5ec11f0688d13b014136c3fe1cc5b451d0468"
+      "computedHash": "b7bfad2083b09e0b69ec50da32f63e1bfd6a81c6819b5f55aded8c8a8a5877b5",
+      "commit": "559d33c555e44129d2ecac2059f7f19e27981fef"
     },
     "flat-layers-design": {
       "source": "TrigenSoftware/scripts",
       "sourceType": "github",
       "skillPath": "skills/flat-layers-design/SKILL.md",
-      "computedHash": "99c945a9a8309a551749ed934d8c4204aa3b2af3fcbbe99a260a4b1ab3126dc3"
+      "computedHash": "df5f7431d82db1178d51843ddd813f0b1c8b90537b82837f1709888b3a055ac7",
+      "commit": "559d33c555e44129d2ecac2059f7f19e27981fef"
+    },
+    "item-by-item": {
+      "source": "TrigenSoftware/scripts",
+      "commit": "f5ea8d68aab50e62d8e044a99b36a280deac15e2",
+      "sourceType": "github",
+      "skillPath": "skills/item-by-item/SKILL.md",
+      "computedHash": "d77c18e1ff8942cea5b99f87545e41b3de618c84421feb9a0730af3338aeaf07"
     },
     "nanoviews": {
       "source": "TrigenSoftware/nanoviews",
       "sourceType": "github",
       "skillPath": "skills/nanoviews/SKILL.md",
-      "computedHash": "a8b5f4fbf913cf355938f87ed35ef49d48567d55cd8a2af028a589546084e8bb"
+      "computedHash": "dc8eae65f2221e827274e5fd44837dd5ad74df00be1ec2e362605b086f7cc9e8",
+      "commit": "05cab060d8b126ab4a1eacb82db987ba1487b3e8"
     },
     "nanoviews-component": {
       "source": "TrigenSoftware/scripts",
       "sourceType": "github",
       "skillPath": "skills/nanoviews-component/SKILL.md",
-      "computedHash": "4d052065b130fbe3b3d0f1a265557c0ec17369733457876c5f66cddb9e9ff22f"
+      "computedHash": "1793a01a887e7edb49647655bd867e3eda2651222e762cbcec82775966765a7d",
+      "commit": "559d33c555e44129d2ecac2059f7f19e27981fef"
     },
     "nanoviews-storybook": {
       "source": "TrigenSoftware/nanoviews",
       "sourceType": "github",
       "skillPath": "skills/nanoviews-storybook/SKILL.md",
-      "computedHash": "b5133e0763fe66c6ecbc72f26d19c136d875f094409a60b9df250ea1ad9f45b9"
+      "computedHash": "627ec695732e3fa84e8338f6c3f96956439e18f1e42e1d050dd3994ad67ee511",
+      "commit": "05cab060d8b126ab4a1eacb82db987ba1487b3e8"
     },
     "nanoviews-testing": {
       "source": "TrigenSoftware/nanoviews",
       "sourceType": "github",
       "skillPath": "skills/nanoviews-testing/SKILL.md",
-      "computedHash": "27a3797b5aff831a74218c4d56f8e85cd927730b2881c5a458da4b6781915cb3"
+      "computedHash": "ec673c128ce15927cda51fe5bb958f6d71c7bcebc25592aa40b1e13e5bd665c4",
+      "commit": "05cab060d8b126ab4a1eacb82db987ba1487b3e8"
     },
     "simple-release-action": {
       "source": "TrigenSoftware/simple-release",
       "sourceType": "github",
       "skillPath": "skills/simple-release-action/SKILL.md",
-      "computedHash": "172a623973cd6c66fd971b8c69680d67212f04023ae1428cf1c673170cd62007"
+      "computedHash": "e30793cc93aa7e2ba0a31c31a5e9eee343c20b9caeba05d0a45c1f60567b3942",
+      "commit": "ee2e70fe09c2b18644c6afc3935de07adb9de7d3"
     },
     "size-limit": {
       "source": "TrigenSoftware/scripts",
       "sourceType": "github",
       "skillPath": "skills/size-limit/SKILL.md",
-      "computedHash": "eff8783cbf63b1ec2f7de5427dcc9c07628c8f67e482d8cec7de5673a33a52c0"
+      "computedHash": "22becd50615fcf8a0bec36c78d1b11c461faae6e7537c4b785b8524df4e40863",
+      "commit": "559d33c555e44129d2ecac2059f7f19e27981fef"
     },
     "svg-sprite-icons": {
       "source": "TrigenSoftware/scripts",
       "sourceType": "github",
       "skillPath": "skills/svg-sprite-icons/SKILL.md",
-      "computedHash": "eba24473df281084a821bef23c994f3f6ca3dc2ca7ce1b708a4f3cac31ee8a73"
+      "computedHash": "1384186e3b322070ab7ef9b8d81f38fdb843390cdf2dde430d43f51e46f77b69",
+      "commit": "559d33c555e44129d2ecac2059f7f19e27981fef"
     },
     "tree-shaking": {
       "source": "TrigenSoftware/scripts",
       "sourceType": "github",
       "skillPath": "skills/tree-shaking/SKILL.md",
-      "computedHash": "058d048ec51f904a7107cef2ee95095d6f533faf887cb9e885f9fb188c9da635"
+      "computedHash": "7d951c1098d6145c42158e1a00cb864c08eb882baff1ef7172c3b9fab0caee0f",
+      "commit": "559d33c555e44129d2ecac2059f7f19e27981fef"
     },
     "ui-component": {
       "source": "TrigenSoftware/scripts",
       "sourceType": "github",
       "skillPath": "skills/ui-component/SKILL.md",
-      "computedHash": "b41a69853e29928cd1a80cc67a245dc6ce9ab3968c1f9a29c757d6c6e7a00279"
+      "computedHash": "d9eafab1af4620a937925d7c3560384917b7abbc795e99473c4f726918f00dc2",
+      "commit": "559d33c555e44129d2ecac2059f7f19e27981fef"
     },
     "unit-tests": {
       "source": "TrigenSoftware/scripts",
       "sourceType": "github",
       "skillPath": "skills/unit-tests/SKILL.md",
-      "computedHash": "8c7d478c49514dc67b24929ee3ee0605983bbb67a8726d19ac8f92c45eaac349"
+      "computedHash": "7e47e16f5e5976124f5c67295215121ab66ac5f4e9cea5711c9a6d629df32137",
+      "commit": "559d33c555e44129d2ecac2059f7f19e27981fef"
     }
   }
 }
