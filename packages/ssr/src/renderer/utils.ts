@@ -7,7 +7,7 @@ import {
 import {
   type EmptyValue,
   get,
-  isEmpty
+  isEmptyOrFalse
 } from '@nano_kit/store'
 import type { ResponseStatusCode } from './renderer.types.js'
 import {
@@ -79,7 +79,8 @@ export function headDescriptorToHtml(descriptor: HeadDescriptor): string {
     Object.entries(descriptor.props).forEach(([key, value]) => {
       const resolvedValue = get(value) as string | boolean | EmptyValue
 
-      if (!isEmpty(resolvedValue)) {
+      // `false` leaves a boolean attribute out: the browser reads any value of it as on
+      if (!isEmptyOrFalse(resolvedValue)) {
         if (key === 'code') {
           code = String(resolvedValue)
         } else {

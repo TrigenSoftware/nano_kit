@@ -75,6 +75,14 @@ describe('ssr', () => {
             code: '{"a":"<!--<script>"}'
           }))).toBe('<script type="application/ld+json">{"a":"\\u003c!--<script>"}</script>')
         })
+
+        it('should skip false attribute values', () => {
+          expect(headDescriptorToHtml(script({
+            src: '/app.js',
+            async: false,
+            defer: true
+          }))).toBe('<script src="/app.js" defer="true"></script>')
+        })
       })
     })
   })
