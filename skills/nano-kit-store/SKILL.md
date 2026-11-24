@@ -88,13 +88,14 @@ export class Api$ extends Injectable$ {
 - Inject stores into stores and components; provide services (transport, cookies, navigation) at the root, so a test replaces them with `provide(Token$, mock)` instead of module mocking.
 - Swap an implementation for stories and tests with `provideAs(Api$, MockApi$)`: the mock is an injectable like any store and injects what it needs.
 - A store nobody provides is shared as widely as its inputs allow: it lives in the deepest context that provides something it reads. For an instance per subtree (an editor per list item), provide the item's token in a nested context: the stores that read it get their own instance there, everything else stays shared.
+- A token is one instance in its context. A second view of the same data with state of its own in the same context, such as a dialog's list with a search apart from the page's list under it, is a second factory, a token of its own, that builds the store the same way, through a builder both call. Its queries meet the first view's in the query cache by key, so neither copies the other's data.
 - A token without a sensible default should throw `DependencyNotFound`, so misconfiguration is loud.
 - Keep `inject()` inside factories, `run(context, fn)` or framework hooks; outside a context it throws.
 
 ## SSR
 
 - Register the signals the server must ship with `hydratable`; pass a codec only for values that do not survive JSON.
-- The server waits for the tasks of the signals a page returns and of everything they depend on, and for nothing else: a request that no returned signal leads to is not awaited and renders in its loading state.
+- The server waits for the tasks of the signals a page returns and of everything they depend on, and for nothing else: a request that no returned signal leads to is not started at all, and renders as before any request, with no data and nothing loading.
 - `isHydrated` is cleared by the signal's own next change and knows nothing about parameters. A guard that skips a fetch after hydration must remember which input the hydrated value belongs to, otherwise the first parameter change after hydration fetches nothing.
 - Hydration ids are global to the snapshot, not per store: prefix them with the store name (`user.profile`), two signals with one id overwrite each other.
 

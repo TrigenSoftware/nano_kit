@@ -89,4 +89,7 @@ metadata:
 - Entities normalize only what the mapper captures; nested records that are not captured stay plain copies.
 - Update an entity by its own key: a query that maps its data to the entity shows the entity, so a write to the key of that query is not shown.
 - When an item is deleted, invalidate its entity too: a query that takes the entity id from its parameters keeps showing it, even after its own request fails.
+- The mapper of `entities()` runs both ways: on a write, where `capture` stores each entity under its own key, and each time the query's data is computed, where `capture` puts the stored entity back in its place. Keep it a pure function of the data it is given: a cache read inside it subscribes the query's data to that entry, and a side effect repeats on every read.
+- A write with `$data` or an entity is not an answer: it opens no dedupe window, so a query that mounts on the key still sends its request, showing what was written until the answer comes.
+- What a mutation needs from the server after its write, such as the record read back, is awaited inside its fetcher. `onSuccess` is called without waiting for what it returns, after `$loading` has gone false, so work started there is covered neither by `$loading` nor by the `mutate` promise.
 - `$loading` and `$error` of `infinite` cover a refetch of the loaded pages too. Drive the load-more control with `$nextLoading` and pick the retry by `$nextError`: `fetchNext` when it is set, `revalidate` otherwise.

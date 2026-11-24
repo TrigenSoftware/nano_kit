@@ -82,5 +82,7 @@ metadata:
 ## Pitfalls
 
 - `Stores$` must cover the data the page needs for its first paint; a missing accessor renders empty on the server and refetches on the client.
+- A query no returned signal leads to is never started on the server: reading its signals during the render subscribes nothing, so it has no data, no error, and `$loading` is false. A component whose data the server does not load draws its waiting state from "no data and no error", not from `$loading`, or the server renders it as if it had loaded nothing and the browser replaces that as the request starts.
+- Return from `Stores$` the stores of what the module renders and nothing else: the server waits for every request they lead to and ships its data. A `loadable` fallback is not rendered on the server or at hydration, as the server loads every page before it renders and the browser loads its page before it hydrates; it shows only while a later navigation waits for a page's code, so the stores it reads belong in no `Stores$`.
 - Async work the server cannot see (a bare promise in `onMount`) is not awaited: use `resolved`, `@nano_kit/query` or the task helpers from the Working with Tasks section of the `nano-kit-store` skill's `DOCS.md`.
 - `Set-Cookie` values are returned as an array; append each one instead of joining them.
