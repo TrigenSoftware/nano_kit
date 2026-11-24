@@ -3,6 +3,7 @@ import {
   it,
   expect
 } from 'vitest'
+import { renderToString } from 'react-dom/server'
 import {
   InjectionContext,
   provide
@@ -11,6 +12,8 @@ import {
   Page$,
   title
 } from '@nano_kit/router'
+import { InjectionContextProvider } from '@nano_kit/react'
+import { App } from '@nano_kit/react-router'
 import type { RenderData } from '@nano_kit/react-ssr/renderer'
 import { renderer } from '../../test/app/renderer.jsx'
 
@@ -59,7 +62,18 @@ describe('react-ssr', () => {
     it('should render html', async () => {
       expect((await renderer.render('/')).html).toBe('<!doctype html><html><head><title>Home Page</title><meta charset="utf-8" /><script type="module" src="/assets/client-Dfg_FsOr.js" /></script></head><body><div id="app"><main><div>Home <!-- -->John Doe</div></main></div><script>window.__DEHYDRATED__=[["data",{"user":"John Doe"}]]</script></body></html>')
 
-      expect((await renderer.render('/about')).html).toBe('<!doctype html><html><head><title>About Page</title><meta charset="utf-8" /><script type="module" src="/assets/client-Dfg_FsOr.js" /></script></head><body><div id="app"><main><div>About <!-- -->Miguel loves cheese</div></main></div><script>window.__DEHYDRATED__=[["data",{"info":"Miguel loves cheese"}]]</script></body></html>')
+      expect((await renderer.render('/about')).html).toBe('<!doctype html><html><head><title>About Page</title><meta charset="utf-8" /><script type="module" src="/assets/client-Dfg_FsOr.js" /></script></head><body><div id="app"><main><div id="_R_0_">About <!-- -->Miguel loves cheese</div></main></div><script>window.__DEHYDRATED__=[["data",{"info":"Miguel loves cheese"}]]</script></body></html>')
+    })
+
+    it('should render the app as the same root that the client hydrates', async () => {
+      const data = await renderer.data('/about')
+      const app = renderToString(
+        <InjectionContextProvider context={data.context}>
+          <App />
+        </InjectionContextProvider>
+      )
+
+      expect(renderer.renderToString(data)).toContain(`<div id="app">${app}</div>`)
     })
 
     it('should escape the title', () => {

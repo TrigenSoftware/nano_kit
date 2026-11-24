@@ -1,5 +1,4 @@
 import { renderToString } from 'react-dom/server'
-import { get } from '@nano_kit/store'
 import { InjectionContextProvider } from '@nano_kit/react'
 import {
   App,
@@ -8,10 +7,7 @@ import {
 import {
   type RendererOptions,
   type RenderData,
-  ROOT_ID,
-  Renderer,
-  escapeHtml,
-  headDescriptorToHtml
+  Renderer
 } from '@nano_kit/ssr/renderer'
 
 export * from '@nano_kit/ssr/renderer'
@@ -19,7 +15,7 @@ export * from '@nano_kit/ssr/renderer'
 export interface ReactRendererOptions extends Omit<RendererOptions, 'compose'> {}
 
 /**
- * Base renderer for React applications. Extend this class and implement the `view` method to create an app renderer.
+ * Renderer for React applications. Extend it and override `renderToString` to customize the HTML output.
  */
 export class ReactRenderer extends Renderer {
   declare public readonly options: ReactRendererOptions & RendererOptions
@@ -32,50 +28,12 @@ export class ReactRenderer extends Renderer {
   }
 
   renderToString(data: RenderData) {
-    let title: string | undefined
-    let lang: string | undefined
-    let dir: string | undefined
-    let head = ''
-
-    data.head.forEach((descriptor) => {
-      if (descriptor.tag === 'lang') {
-        lang = get(descriptor.value) || undefined
-      } else if (descriptor.tag === 'dir') {
-        dir = get(descriptor.value) || undefined
-      } else if (descriptor.tag === 'title') {
-        title = get(descriptor.value) || undefined
-      } else {
-        head += headDescriptorToHtml(descriptor)
-      }
-    })
-
-    if (title) {
-      head = `<title>${escapeHtml(title)}</title>${head}`
-    }
-
-    return renderToString(
-      <html
-        lang={lang}
-        dir={dir}
-      >
-        <head
-          dangerouslySetInnerHTML={{
-            __html: head
-          }}
-        />
-        <body>
-          <div id={ROOT_ID}>
-            <InjectionContextProvider context={data.context}>
-              <App />
-            </InjectionContextProvider>
-          </div>
-          <script
-            dangerouslySetInnerHTML={{
-              __html: this.dehydratedScript(data.dehydrated)
-            }}
-          />
-        </body>
-      </html>
-    )
+    // Only the root that the client hydrates goes through React:
+    // `useId` builds ids from the path in the tree, and the document around the app would change them.
+    return this.document(data, renderToString(
+      <InjectionContextProvider context={data.context}>
+        <App />
+      </InjectionContextProvider>
+    ))
   }
 }

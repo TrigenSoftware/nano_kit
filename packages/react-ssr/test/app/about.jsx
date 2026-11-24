@@ -1,3 +1,4 @@
+import { useId } from 'react'
 import {
   hydratable,
   inject,
@@ -46,8 +47,9 @@ export function Head$() {
 }
 
 export default function About() {
+  const id = useId()
   const $data = useInject(Data$)
   const data = useSignal($data)
 
-  return <div>About {data?.info}</div>
+  return <div id={id}>About {data?.info}</div>
 }
