@@ -59,7 +59,21 @@ describe('ssr', () => {
           expect(headDescriptorToHtml(script({
             type: 'application/ld+json',
             code: '{"a":"<b>"}'
-          }))).toBe('<script type="application/ld+json" />{"a":"<b>"}</script>')
+          }))).toBe('<script type="application/ld+json">{"a":"<b>"}</script>')
+        })
+
+        it('should escape script end tags of any case in the code', () => {
+          expect(headDescriptorToHtml(script({
+            type: 'application/ld+json',
+            code: '{"a":"</script><img>","b":"</SCRIPT>"}'
+          }))).toBe('<script type="application/ld+json">{"a":"\\u003c/script><img>","b":"\\u003c/SCRIPT>"}</script>')
+        })
+
+        it('should escape comment openings in the code', () => {
+          expect(headDescriptorToHtml(script({
+            type: 'application/ld+json',
+            code: '{"a":"<!--<script>"}'
+          }))).toBe('<script type="application/ld+json">{"a":"\\u003c!--<script>"}</script>')
         })
       })
     })
