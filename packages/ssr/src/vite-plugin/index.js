@@ -1,4 +1,8 @@
 import path from 'node:path'
+import {
+  mkdir,
+  rename
+} from 'node:fs/promises'
 import { build } from 'vite'
 import * as Chunkname from './chunkname.js'
 import {
@@ -32,6 +36,8 @@ export default function SsrPlugin(options, adapter) {
   let sourceConfig = {}
   let isSsrBuild
   let isForeignBuild
+  let writtenManifestPath
+  let movedManifestPath
 
   return [
     {
@@ -260,13 +266,20 @@ export default function SsrPlugin(options, adapter) {
         const outRendererDir = path.join(outDir, rendererDir)
         const outServerDir = serverPath && path.join(outDir, serverDir)
         const manifestOption = config.build?.manifest || true
-        const manifestPath = typeof manifestOption === 'string'
-          ? path.join(outClientDir, manifestOption)
-          : path.join(outClientDir, '.vite', 'manifest.json')
+        const manifestFile = typeof manifestOption === 'string'
+          ? manifestOption
+          : path.join('.vite', 'manifest.json')
+        // Vite writes the manifest among the files of the client build, which a static server serves,
+        // so after the client build it moves to the root of the output, which no build empties
+        const manifestPath = path.join(outDir, manifestFile)
+        const root = path.resolve(config.root || '')
         const define = {
           'import.meta.env.MANIFEST': JSON.stringify(manifestPath),
           'import.meta.env.SSR_INJECT': JSON.stringify(inject)
         }
+
+        writtenManifestPath = path.resolve(root, outClientDir, manifestFile)
+        movedManifestPath = path.resolve(root, manifestPath)
 
         if (isSsrBuild) {
           const bundlerOptions = {
@@ -303,15 +316,22 @@ export default function SsrPlugin(options, adapter) {
       },
 
       async closeBundle(error) {
-        if (!error && !isForeignBuild && !isSsrBuild && sourceConfig.build?.ssr !== false) {
-          await build({
-            ...sourceConfig,
-            configFile: false,
-            build: {
-              ...sourceConfig.build,
-              ssr: true
-            }
+        if (!error && !isForeignBuild && !isSsrBuild) {
+          await mkdir(path.dirname(movedManifestPath), {
+            recursive: true
           })
+          await rename(writtenManifestPath, movedManifestPath)
+
+          if (sourceConfig.build?.ssr !== false) {
+            await build({
+              ...sourceConfig,
+              configFile: false,
+              build: {
+                ...sourceConfig.build,
+                ssr: true
+              }
+            })
+          }
         }
       }
     }

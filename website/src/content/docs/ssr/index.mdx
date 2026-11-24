@@ -223,7 +223,7 @@ ssr({
 ### Build and Serve
 
 - **`vite dev`** — starts the development server with SSR rendering handled in-process via Vite's dev middleware.
-- **`vite build`** — produces `dist/client/` (browser assets) and `dist/renderer/` (SSR renderer bundle). With the [`server` option](#bundled-server-entry), the renderer is bundled into a `dist/server/` app instead.
+- **`vite build`** — produces `dist/client/` (browser assets) and `dist/renderer/` (SSR renderer bundle). With the [`server` option](#bundled-server-entry), the renderer is bundled into a `dist/server/` app instead. The Vite manifest that the renderer reads goes to `dist/.vite/manifest.json`, outside of `dist/client/`, so a static server for `dist/client/` does not expose it. Deploy `dist/` as a whole.
 
 For production, you need to write your own HTTP server that imports the renderer bundle and serves the HTML:
 

@@ -1,5 +1,6 @@
 import path from 'node:path'
 import {
+  access,
   rm,
   readFile
 } from 'node:fs/promises'
@@ -247,6 +248,26 @@ describe('ssr', () => {
       expect(serverPageChunk).toBeDefined()
       expect(serverPageChunk.code).toContain('"Home Page"')
       expect(serverPageChunk.code).toContain('Stores$')
+    })
+
+    it('should move the manifest out of the files of the client build', async () => {
+      await build({
+        root: testAppDir,
+        logLevel: 'silent',
+        plugins: plugin,
+        build: {
+          minify: false
+        }
+      })
+
+      const manifest = JSON.parse(await readFile(path.join(outDir, '.vite', 'manifest.json'), 'utf-8')) as Record<string, {
+        isEntry?: boolean
+      }>
+      const renderer = await readFile(path.join(outDir, 'renderer', 'index.js'), 'utf-8')
+
+      await expect(access(path.join(outDir, 'client', '.vite', 'manifest.json'))).rejects.toThrow()
+      expect(Object.values(manifest).some(chunk => chunk.isEntry)).toBe(true)
+      expect(renderer).toContain(JSON.stringify(path.join('dist', '.vite', 'manifest.json')))
     })
 
     it('should leave alone a build whose input another tool has chosen', async () => {
