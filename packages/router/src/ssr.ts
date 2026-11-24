@@ -50,17 +50,20 @@ export function precompose(
   for (const ref of pages) {
     if ('expected' in ref) {
       const pageRef = ref.page()
+      // The getter is constant: the getter of a lazy page reads its signal, and the router made for each request
+      // would stay subscribed to it for good. A page outside of layouts gets the no-op factories that layouts give
+      const composed = parentLayouts
+        ? composeWithLayouts(pageRef, parentLayouts, compose)
+        : {
+          ...pageRef,
+          Stores$: pageRef.Stores$ || noopArray,
+          Head$: pageRef.Head$ || noopArray
+        }
 
-      if (!parentLayouts) {
-        result.push(ref)
-      } else {
-        const composed = composeWithLayouts(pageRef, parentLayouts, compose)
-
-        result.push({
-          expected: ref.expected,
-          page: () => composed
-        })
-      }
+      result.push({
+        expected: ref.expected,
+        page: () => composed
+      })
     } else {
       const layoutRef = ref.layout()
 

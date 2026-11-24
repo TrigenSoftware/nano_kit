@@ -9,10 +9,33 @@ import {
   dir,
   lang,
   meta,
+  notFound,
+  page,
   title
 } from '@nano_kit/router'
 import type { RenderData } from './renderer.types.js'
 import { renderer } from '../../test/app/renderer.js'
+import { Renderer } from './renderer.js'
+
+class PlainRenderer extends Renderer {
+  renderToString() {
+    return 'page'
+  }
+}
+
+// Pages outside of layouts, without `Stores$` and `Head$`
+const plainRenderer = new PlainRenderer({
+  routes: {
+    home: '/'
+  },
+  pages: [
+    page('home', {
+      default: () => 'home'
+    }),
+    notFound(() => 'not found')
+  ],
+  compose: () => () => ''
+})
 
 renderer.manifest = {
   '_head-D2ODF_fA.js': {
@@ -54,6 +77,8 @@ renderer.manifest = {
   }
 }
 
+plainRenderer.manifest = renderer.manifest
+
 describe('ssr', () => {
   describe('renderer', () => {
     it('should render html', async () => {
@@ -72,6 +97,20 @@ describe('ssr', () => {
 
     it('should respond with 404 when no page matches', async () => {
       expect((await renderer.render('/nowhere')).statusCode).toBe(404)
+    })
+
+    it('should render a page without Stores$ and Head$', async () => {
+      expect(await plainRenderer.render('/')).toMatchObject({
+        statusCode: 200,
+        html: '<!doctype html>page'
+      })
+    })
+
+    it('should render a not found page that is a plain component', async () => {
+      expect(await plainRenderer.render('/nowhere')).toMatchObject({
+        statusCode: 404,
+        html: '<!doctype html>page'
+      })
     })
 
     it('should respond with the status that the page gives by its dehydrated stores', async () => {
