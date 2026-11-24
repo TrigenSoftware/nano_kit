@@ -43,12 +43,12 @@
     "gzip": true,
     "path": "dist/index.production.js",
     "import": "{ signal, computed, effect, mountable, onMounted }",
-    "limit": "2.1 kB"
+    "limit": "2.15 kB"
   },
   {
     "name": "Popular set (Brotli)",
     "path": "dist/index.production.js",
     "import": "{ signal, computed, effect, mountable, onMounted }",
-    "limit": "1.95 kB"
+    "limit": "2 kB"
   }
 ]

@@ -1107,6 +1107,63 @@ describe('agera', () => {
         expect(events).toEqual([])
         expect(isMounted($value)).toBe(false)
       })
+
+      it('should not dead lock signal mounted state through computeds', () => {
+        const $value = mountable(signal(0))
+        const $double = computed(() => $value() * 2)
+        const $label = computed(() => `${$double()}`)
+        const events: string[] = []
+        let destroy: (() => void) | undefined
+        const stop = onMounted($value, (mounted) => {
+          destroy?.()
+          destroy = mounted
+            ? effect(() => {
+              events.push(`mount effect ${$label()}`)
+            })
+            : undefined
+        })
+        const stopEffect = effect(() => {
+          $value()
+        })
+
+        expect(events).toEqual(['mount effect 0'])
+        expect(isMounted($value)).toBe(true)
+        expect(isMounted($label)).toBe(true)
+
+        stopEffect()
+
+        expect(destroy).toBeUndefined()
+        expect(isMounted($value)).toBe(false)
+        expect(isMounted($label)).toBe(false)
+
+        stop()
+      })
+
+      it('should keep a source mounted by the mount effect of another signal through a computed', () => {
+        const $source = mountable(signal(0))
+        const $double = computed(() => $source() * 2)
+        const $other = mountable(signal(0))
+        let destroy: (() => void) | undefined
+        const stop = onMounted($other, (mounted) => {
+          destroy?.()
+          destroy = mounted
+            ? effect(() => {
+              $double()
+            })
+            : undefined
+        })
+        const stopEffect = effect(() => {
+          $other()
+        })
+
+        expect(isMounted($source)).toBe(true)
+
+        stopEffect()
+
+        expect(isMounted($source)).toBe(false)
+
+        stop()
+      })
     })
   })
 })

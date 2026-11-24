@@ -114,10 +114,10 @@ export interface ReadableNode extends ReactiveNode, DefineVirtualFlags<'writable
    */
   lcs?: number
   /**
-   * Lifecycle: presence memo value.
+   * Lifecycle: presence memo value: `true`, the node every live path is exempted from, or `false`.
    * @internal
    */
-  lcv?: boolean
+  lcv?: ReactiveNode | boolean
 }
 
 export interface WritableNode extends EnableVirtualFlags<ReadableNode, 'writable'> {}
