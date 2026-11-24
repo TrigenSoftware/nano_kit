@@ -137,3 +137,13 @@ export function toAccessorOrSignal(source: unknown) {
 export function isEmpty(value: unknown): value is EmptyValue {
   return value === undefined || value === null
 }
+
+/**
+ * Check if value is empty or `false`
+ * @param value - Value to check
+ * @returns True if value is empty or `false`
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function isEmptyOrFalse(value: unknown): value is EmptyValue | false {
+  return isEmpty(value) || value === false
+}

@@ -11,7 +11,7 @@ import {
   $get,
   get,
   subscribeAny,
-  isEmpty
+  isEmptyOrFalse
 } from '@nano_kit/store'
 import type {
   ComposedPageRef,
@@ -127,7 +127,8 @@ function buildPredicate(tag: string, attributes: [string, AnySignalish][]) {
   for (const [key, value] of attributes) {
     const resolvedValue = get(value) as string | boolean | EmptyValue
 
-    if (!isEmpty(resolvedValue)) {
+    // `false` leaves a boolean attribute out: the browser reads any value of it as on
+    if (!isEmptyOrFalse(resolvedValue)) {
       if (key === 'code') {
         code = String(resolvedValue)
       } else {
@@ -190,7 +191,7 @@ function startElement(
     element = document.createElement(this.tag)
 
     for (const [key, value] of attributes) {
-      if (!reactiveAttributes.has(key) && !isEmpty(value)) {
+      if (!reactiveAttributes.has(key) && !isEmptyOrFalse(value)) {
         const stringValue = String(value)
 
         if (key === 'code') {
@@ -205,7 +206,7 @@ function startElement(
   for (const [key, $value] of attributes) {
     if (reactiveAttributes.has(key)) {
       subscribeAny($value, (value) => {
-        if (isEmpty(value)) {
+        if (isEmptyOrFalse(value)) {
           element.removeAttribute(key)
         } else {
           const stringValue = String(value)

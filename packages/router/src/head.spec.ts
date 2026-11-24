@@ -478,6 +478,26 @@ describe('router', () => {
 
           stop()
         })
+
+        it('should remove link attribute on signal change to false', () => {
+          const $disabled = signal(true)
+          const stop = syncHead(() => ({
+            default: null,
+            Head$: () => [link({
+              rel: 'stylesheet',
+              href: 'dark.css',
+              disabled: $disabled
+            })]
+          }))
+
+          expect(document.head.innerHTML).toBe('<link rel="stylesheet" href="dark.css" disabled="true">')
+
+          $disabled(false)
+
+          expect(document.head.innerHTML).toBe('<link rel="stylesheet" href="dark.css">')
+
+          stop()
+        })
       })
 
       describe('meta', () => {
@@ -744,6 +764,37 @@ describe('router', () => {
           })
 
           expect(document.head.innerHTML).toBe('<script src="vendor.js"></script>')
+
+          stop()
+        })
+
+        it('should skip attributes that are false', () => {
+          const stop = syncHead(() => ({
+            default: null,
+            Head$: () => [script({
+              src: 'app.js',
+              async: false,
+              defer: true
+            })]
+          }))
+
+          expect(document.head.innerHTML).toBe('<script src="app.js" defer="true"></script>')
+
+          stop()
+        })
+
+        it('should hydrate existing script tag without attributes that are false', () => {
+          document.head.innerHTML = '<script src="app.js"></script>'
+
+          const stop = syncHead(() => ({
+            default: null,
+            Head$: () => [script({
+              src: 'app.js',
+              async: false
+            })]
+          }))
+
+          expect(document.head.innerHTML).toBe('<script src="app.js"></script>')
 
           stop()
         })

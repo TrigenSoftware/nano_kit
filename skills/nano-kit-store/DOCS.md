@@ -1363,6 +1363,17 @@ isEmpty(0)         /* false */
 isEmpty('')        /* false */
 ```
 
+**`isEmptyOrFalse`** checks if a value is `null`, `undefined` or `false`, for a flag where `false` means the same as no value, like a boolean HTML attribute.
+
+```ts
+import { isEmptyOrFalse } from '@nano_kit/store'
+
+isEmptyOrFalse(null)  /* true */
+isEmptyOrFalse(false) /* true */
+isEmptyOrFalse(0)     /* false */
+isEmptyOrFalse('')    /* false */
+```
+
 ### Value Extraction
 
 **`$get`** extracts a value from either a plain value or an accessor. Tracks dependencies when called inside an effect.
