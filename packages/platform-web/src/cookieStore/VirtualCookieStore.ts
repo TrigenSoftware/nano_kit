@@ -21,6 +21,10 @@ export type {
   VirtualCookieListItem
 }
 
+// `;`, and the control characters but the tab, which are what it matches on purpose
+// oxlint-disable-next-line eslint/no-control-regex
+const FORBIDDEN_COOKIE_CHAR_RE = /[;\x00-\x08\x0A-\x1F\x7F]/
+
 export class VirtualCookieStore implements CookieStore {
   readonly #cookieHeader: string
   readonly #requestUrl?: URL
@@ -187,6 +191,7 @@ export class VirtualCookieStore implements CookieStore {
     const expired = isExpired(entry.expires, entry.maxAge)
     const entries = this.#getEntries()
 
+    assertCookiePair(entry.name, entry.value)
     this.#removeMatchingEntries(entry)
 
     if (!expired) {
@@ -219,6 +224,7 @@ export class VirtualCookieStore implements CookieStore {
     const entry = entryFromDeleteOptions(nameOrOptions)
     const key = cookieIdentity(entry)
 
+    assertCookiePair(entry.name)
     this.#removeMatchingEntries(entry)
 
     this.#setCookieHeaders.set(key, serializeDeleteCookie(entry))
@@ -346,6 +352,14 @@ function entryFromDeleteOptions(
 
 function cookieIdentity(entry: CookieEntry) {
   return `${entry.name};${entry.domain ?? ''};${entry.path ?? ''};${entry.partitioned ? '1' : '0'}`
+}
+
+// A browser `cookieStore` rejects the same: `;` or a control character ends the pair,
+// so a name or a value made of request data could add attributes of its own
+function assertCookiePair(name: string, value = '') {
+  if (FORBIDDEN_COOKIE_CHAR_RE.test(name + value) || name.includes('=')) {
+    throw new TypeError('Invalid cookie name or value')
+  }
 }
 
 function toCookieListItem(entry: CookieEntry): VirtualCookieListItem {
