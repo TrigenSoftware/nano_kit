@@ -30,7 +30,7 @@ import {
   composeMatchers,
   createLocation,
   getHref,
-  parseHref,
+  parseInitialHref,
   removeTrailingSlash,
   updateLocation
 } from './utils.js'
@@ -64,7 +64,12 @@ function patternMatcher(this: RegExp, route: string, path: string) {
     Object.entries(matches.groups).forEach(([key, value]) => {
       // An optional parameter missing from the path stays undefined
       if (value) {
-        params[key] = decodeURIComponent(value)
+        // A broken escape, like the lone `%` of `100%`, keeps the value as it is instead of throwing
+        try {
+          params[key] = decodeURIComponent(value)
+        } catch {
+          params[key] = value
+        }
       }
     })
   }
@@ -243,7 +248,7 @@ export function virtualNavigation<const R extends Routes = {}>(
     ...match(location.pathname)
   }) as RouteLocation<R>
   const $history = signal(
-    [routerLocation(createLocation(parseHref(initialPath)))]
+    [routerLocation(createLocation(parseInitialHref(initialPath)))]
   )
   const $activeIndex = signal(0)
   const $location = mountable(atIndex($history, $activeIndex) as WritableSignal<RouteLocation<R>>)

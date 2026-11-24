@@ -4,20 +4,20 @@
     "gzip": true,
     "path": "dist/index.production.js",
     "import": "*",
-    "limit": "4.7 kB"
+    "limit": "4.75 kB"
   },
   {
     "name": "All publics (Brotli)",
     "path": "dist/index.production.js",
     "import": "*",
-    "limit": "4.25 kB"
+    "limit": "4.3 kB"
   },
   {
     "name": "Minimal set (Gzip)",
     "gzip": true,
     "path": "dist/index.production.js",
     "import": "{ browserNavigation, listenLinks, router, buildPaths }",
-    "limit": "1.7 kB"
+    "limit": "1.75 kB"
   },
   {
     "name": "Minimal set (Brotli)",

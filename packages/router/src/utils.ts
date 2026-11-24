@@ -27,6 +27,23 @@ export function parseHref(href: string) {
 }
 
 /**
+ * Parses the initial href of a navigation, such as the URL of a request, into a URL object.
+ * The path comes out as the browser keeps it in `location.pathname`: it is read after a host of its own,
+ * so `//x` or `///` stays a path and never fails, and it keeps its trailing slash.
+ * A full URL is parsed as it is, and a broken one ends up in a path that no route has.
+ * @param href - The href string to parse.
+ * @returns URL object representing the parsed href.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function parseInitialHref(href: string) {
+  try {
+    return new URL(href.startsWith('/') ? `http://a${href}` : href, 'http://a')
+  } catch {
+    return new URL(`http://a${href}`)
+  }
+}
+
+/**
  * Generates a href string from a URL object.
  * @param location - The URL object containing pathname, search, and hash.
  * @returns The generated href string.

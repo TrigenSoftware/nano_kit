@@ -86,7 +86,7 @@ import { Steps, Tabs, TabItem, Code, Aside } from '@astrojs/starlight/components
     import { renderer } from './dist/renderer/index.js'
 
     // Express example
-    app.get('*', async (req, res) => {
+    app.get('/{*splat}', async (req, res) => {
       const result = await renderer.render(req.url, {
         cookie: req.headers.cookie,
         acceptLanguage: req.headers['accept-language'],

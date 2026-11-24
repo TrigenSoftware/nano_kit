@@ -6,6 +6,7 @@ import {
 import {
   removeTrailingSlash,
   parseHref,
+  parseInitialHref,
   getHref,
   updateHrefObject,
   updateHref
@@ -58,6 +59,34 @@ describe('router', () => {
         expect(result.pathname).toBe('/simple/path')
         expect(result.search).toBe('')
         expect(result.hash).toBe('')
+      })
+    })
+
+    describe('parseInitialHref', () => {
+      it('should parse a full url', () => {
+        const result = parseInitialHref('https://example.com/path?query=value#section')
+
+        expect(result.pathname).toBe('/path')
+        expect(result.search).toBe('?query=value')
+        expect(result.hash).toBe('#section')
+      })
+
+      it('should keep the trailing slash of a path, as the browser does', () => {
+        expect(parseInitialHref('/about/').pathname).toBe('/about/')
+        expect(parseInitialHref('https://example.com/about/').pathname).toBe('/about/')
+      })
+
+      it('should read a path that starts with two slashes as a path, not a host', () => {
+        const result = parseInitialHref('//evil.example/admin')
+
+        expect(result.host).toBe('a')
+        expect(result.pathname).toBe('//evil.example/admin')
+        expect(parseInitialHref('///').pathname).toBe('///')
+        expect(parseInitialHref('//%').pathname).toBe('//%')
+      })
+
+      it('should read a broken absolute url into a path', () => {
+        expect(parseInitialHref('http://x:99999/').pathname).toBe('//x:99999/')
       })
     })
 

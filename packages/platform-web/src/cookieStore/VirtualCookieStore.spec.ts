@@ -137,6 +137,18 @@ describe('platform-web', () => {
         })).rejects.toThrow('single request URL')
       })
 
+      it('should take a request path that the URL parser reads as a host', async () => {
+        const store = new VirtualCookieStore('theme=dark', '///')
+
+        await expect(store.get({
+          name: 'theme',
+          url: 'http://localhost///'
+        })).resolves.toEqual({
+          name: 'theme',
+          value: 'dark'
+        })
+      })
+
       it('should keep only the latest pending header per cookie identity', async () => {
         const store = new VirtualCookieStore()
 
