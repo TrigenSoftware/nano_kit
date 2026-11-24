@@ -4,7 +4,10 @@ import {
   expect,
   vi
 } from 'vitest'
-import type { Accessor } from '@nano_kit/store'
+import {
+  type Accessor,
+  computed
+} from '@nano_kit/store'
 import { virtualNavigation } from './navigation.js'
 import {
   loadable,
@@ -202,6 +205,36 @@ describe('router', () => {
             }
           ]
         ])
+      })
+
+      it('should give a page outside of layouts no-op Stores$ and Head$', () => {
+        const pages = [
+          page('home', (): string => 'Home')
+        ]
+
+        precompose(pages, () => () => '')
+
+        const pageRef = pages[0].page()
+
+        expect(pageRef.Stores$?.()).toEqual([])
+        expect(pageRef.Head$?.()).toEqual([])
+      })
+
+      it('should not subscribe a reader of a lazy page outside of layouts to its module', async () => {
+        const pages = [
+          page('home', loadable(() => Promise.resolve({
+            default: (): string => 'Home'
+          })))
+        ]
+
+        await loadPages(pages)
+        precompose(pages, () => () => '')
+
+        const $page = computed(() => pages[0].page())
+
+        $page()
+
+        expect($page.node.deps).toBeUndefined()
       })
 
       describe('StatusCode$', () => {
