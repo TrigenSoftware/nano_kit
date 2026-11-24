@@ -23,8 +23,8 @@ export interface RelativeTimeOptions extends Intl.RelativeTimeFormatOptions {
 }
 
 const units: RelativeTimeUnit[] = ['year', 'month', 'week', 'day', 'hour', 'minute', 'second']
-/* Unit lengths in milliseconds. A month is 30 days and a year 365: the distance picks the unit,
-   not the calendar */
+// Unit lengths in milliseconds. A month is 30 days and a year 365: the distance picks the unit,
+// not the calendar
 // oxlint-disable-next-line eslint/no-magic-numbers
 const lengths = [31_536_000_000, 2_592_000_000, 604_800_000, 86_400_000, 3_600_000, 60_000, 1_000]
 

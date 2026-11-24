@@ -2,8 +2,8 @@ import type { Context } from 'hono'
 import type { ContentfulStatusCode } from 'hono/utils/http-status'
 import type { Behavior } from './fetch.types.js'
 
-/* What `offline()` rejects with. Hono hands on what is not an `Error`, so it reaches the
-   fetch, which rejects with a network error in its place */
+// What `offline()` rejects with. Hono hands on what is not an `Error`, so it reaches the
+// fetch, which rejects with a network error in its place
 export const offlineSignal = /* @__PURE__ */ Symbol('offline')
 
 /**

@@ -11,8 +11,8 @@ interface CodingOptions {
   encode?(value: string): string
 }
 
-/* SvelteKit's `cookies` encode values on write and decode them on read, unless the options
-   bring their own `encode` and `decode` */
+// SvelteKit's `cookies` encode values on write and decode them on read, unless the options
+// bring their own `encode` and `decode`
 function createCookies() {
   const headers = new Map<string, string>()
   const cookies = {

@@ -23,8 +23,8 @@ interface AnyModule {
   routes?: (app: App, db: never) => void
 }
 
-/* A module that works with the database of all the schemas. Fields rather than methods,
-   so that a module that needs a collection missing from the list does not fit */
+// A module that works with the database of all the schemas. Fields rather than methods,
+// so that a module that needs a collection missing from the list does not fit
 interface Fitting<S extends Schema> {
   schema?: Schema
   seed?: Recipe<S>
