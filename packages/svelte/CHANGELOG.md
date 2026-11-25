@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v4.0.0...v5.0.0) (2026-11-25)
+
+### Bug Fixes
+
+* give a store its value once on the server instead of mounting it ([#428](https://github.com/TrigenSoftware/nano_kit/issues/428)) ([35cb5a4](https://github.com/TrigenSoftware/nano_kit/commit/35cb5a4ee61f9f76ffa2cb7b7137a63b779f5c3b))
+
 ## [4.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v3.2.1...v4.0.0) (2026-11-20)
 
 Version bump to keep in sync with breaking changes in other packages.

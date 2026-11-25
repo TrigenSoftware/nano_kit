@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v4.0.0...v5.0.0) (2026-11-25)
+
+### ⚠ BREAKING CHANGES
+
+* `@sveltejs/kit` 2.27 or later is required. `setDehydrationContext` returns
+  nothing and `setHydrationContext` has no `fromRef` option: the root layout load no longer
+  returns a context reference, and `setHydrationContext()` in the root layout takes the context
+  its loads filled.
+
+### Bug Fixes
+
+* keep the context of a request in its locals, so nothing of the request outlives it ([#421](https://github.com/TrigenSoftware/nano_kit/issues/421)) ([2fd4c21](https://github.com/TrigenSoftware/nano_kit/commit/2fd4c21bcb1bbb666d5bcdc89db06a6a259ca156))
+
 ## [4.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v3.2.5...v4.0.0) (2026-11-20)
 
 ### ⚠ BREAKING CHANGES

@@ -1,7 +1,7 @@
 {
   "name": "kida",
   "type": "module",
-  "version": "4.2.2",
+  "version": "5.0.0",
   "description": "A small state management library inspired by Nano Stores.",
   "author": "dangreen",
   "license": "MIT",

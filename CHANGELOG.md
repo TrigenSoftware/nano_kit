@@ -3,6 +3,31 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v4.2.2...v5.0.0) (2026-11-25)
+
+### ⚠ BREAKING CHANGES
+
+* **svelte-kit:** `@sveltejs/kit` 2.27 or later is required. `setDehydrationContext` returns
+  nothing and `setHydrationContext` has no `fromRef` option: the root layout load no longer
+  returns a context reference, and `setHydrationContext()` in the root layout takes the context
+  its loads filled.
+
+### Features
+
+* **platform-web:** add `localeCodec` and `selectLocale` to keep a locale from a request to the supported ones ([#429](https://github.com/TrigenSoftware/nano_kit/issues/429)) ([34236ed](https://github.com/TrigenSoftware/nano_kit/commit/34236ed8b3f93918da356db01837bbdf02bd7e58))
+
+### Bug Fixes
+
+* **intl:** fill every placeholder of `params` in one pass, so a value is never filled again ([#425](https://github.com/TrigenSoftware/nano_kit/issues/425)) ([39487e0](https://github.com/TrigenSoftware/nano_kit/commit/39487e0018e0387c1ea534a3b657b0663f440129))
+* **intl:** find the tags of a `rich` message before its values go in ([#426](https://github.com/TrigenSoftware/nano_kit/issues/426)) ([234ae88](https://github.com/TrigenSoftware/nano_kit/commit/234ae8837bd1379323d558c4f92cafabb2826451))
+* **intl:** take no inherited property for a case of `match` or `plural` ([#431](https://github.com/TrigenSoftware/nano_kit/issues/431)) ([e234969](https://github.com/TrigenSoftware/nano_kit/commit/e234969b740e202a19cd5a04a7358d499d13e5e7))
+* **platform-web:** keep storage and broadcast helpers inert on the server ([#424](https://github.com/TrigenSoftware/nano_kit/issues/424)) ([a76f77f](https://github.com/TrigenSoftware/nano_kit/commit/a76f77fcf0f1d7d5a9923969feb96641c62a77a6))
+* **platform-web:** throw at the call of `VirtualCookieStore` `set` and `delete`, so a rejected cookie fails its request, not the process ([#423](https://github.com/TrigenSoftware/nano_kit/issues/423)) ([3822bdb](https://github.com/TrigenSoftware/nano_kit/commit/3822bdbb19ebe3e1d0b4e2c7be8c3fef1bcb84d0))
+* **query:** stop `abortable` from leaving a rejection nobody handles ([#427](https://github.com/TrigenSoftware/nano_kit/issues/427)) ([d8dcc57](https://github.com/TrigenSoftware/nano_kit/commit/d8dcc57cfba9541e6ab9b433826e0b3670350e58))
+* **router,ssr:** keep a href built from a location a path of the current site ([#422](https://github.com/TrigenSoftware/nano_kit/issues/422)) ([87eb914](https://github.com/TrigenSoftware/nano_kit/commit/87eb9145368fa2eb12c16867d5f97e3afbc4b074))
+* **svelte-kit:** keep the context of a request in its locals, so nothing of the request outlives it ([#421](https://github.com/TrigenSoftware/nano_kit/issues/421)) ([2fd4c21](https://github.com/TrigenSoftware/nano_kit/commit/2fd4c21bcb1bbb666d5bcdc89db06a6a259ca156))
+* **svelte:** give a store its value once on the server instead of mounting it ([#428](https://github.com/TrigenSoftware/nano_kit/issues/428)) ([35cb5a4](https://github.com/TrigenSoftware/nano_kit/commit/35cb5a4ee61f9f76ffa2cb7b7137a63b779f5c3b))
+
 ## [4.2.2](https://github.com/TrigenSoftware/nano_kit/compare/v4.2.1...v4.2.2) (2026-11-24)
 
 ### Bug Fixes
