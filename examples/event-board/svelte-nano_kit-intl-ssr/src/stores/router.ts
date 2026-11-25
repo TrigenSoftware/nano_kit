@@ -23,10 +23,18 @@ export const publicRoutes = new Set<string>([
   'event'
 ])
 
+// The slug goes into the path of an API request, and the router decodes `%2F` in it to `/`:
+// a slug of anything but letters, digits and dashes is no slug at all
+function parseSlug(slug: string | undefined) {
+  return slug && /^[\w-]+$/.test(slug)
+    ? slug
+    : ''
+}
+
 export function Params$() {
   const $location = inject(Location$)
   const $searchParams = searchParams($location)
-  const $slug = param($location, 'slug')
+  const $slug = param($location, 'slug', parseSlug)
   const $q = searchParam($searchParams, 'q', value => value || '')
   const $category = searchParam($searchParams, 'category', (value): EventCategory | null => (
     eventCategories.includes(value as EventCategory)

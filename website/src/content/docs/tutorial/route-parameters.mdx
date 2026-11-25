@@ -17,10 +17,18 @@ export const routes = {
   event: '/events/:slug'
 } as const
 
-export const $slug = param($location, 'slug')
+function parseSlug(slug: string | undefined) {
+  return slug && /^[\w-]+$/.test(slug)
+    ? slug
+    : ''
+}
+
+export const $slug = param($location, 'slug', parseSlug)
 ```
 
 [`param`](/router/core-concepts#route-parameters) reads the dynamic part of the current route. For `/events/react-ssr-workshop`, `$slug()` returns `'react-ssr-workshop'`.
+
+The third argument parses the value. The slug will go into the path of an API request, and the router decodes the parameter, so `/events/..%2F..%2Fadmin` gives `'../../admin'`. `parseSlug` keeps a slug of letters, digits and dashes and turns anything else into an empty string, which no event has.
 
 The router can now include that page:
 
