@@ -173,16 +173,20 @@ export class VirtualCookieStore implements CookieStore {
    * Sets or replaces a cookie by name and value.
    * @param name - Cookie name.
    * @param value - Cookie value.
+   * @throws {TypeError} At the call, when the name or the value would add attributes to the cookie.
    */
   set(name: string, value: string): Promise<void>
   /**
    * Sets or replaces a cookie using full initialization options.
    * @param options - Cookie initialization options.
+   * @throws {TypeError} At the call, when the name or the value would add attributes to the cookie.
    */
   set(options: VirtualCookieInit): Promise<void>
   set(nameOrOptions: string | VirtualCookieInit, value?: string): Promise<void>
 
-  async set(
+  // Not `async`, unlike the `cookieStore` of a browser: the check throws while the request runs the call,
+  // so a bad name or value fails that request rather than ends the process through a rejection nobody handles
+  set(
     nameOrOptions: string | VirtualCookieInit,
     maybeValue?: string
   ): Promise<void> {
@@ -204,21 +208,26 @@ export class VirtualCookieStore implements CookieStore {
         ? serializeDeleteCookie(entry)
         : serializeSetCookie(entry)
     )
+
+    return Promise.resolve()
   }
 
   /**
    * Deletes a cookie by name and records an expired `Set-Cookie` header value.
    * @param name - Cookie name.
+   * @throws {TypeError} At the call, when the name would add attributes to the cookie.
    */
   delete(name: string): Promise<void>
   /**
    * Deletes a cookie using deletion options and records an expired `Set-Cookie` header value.
    * @param options - Cookie deletion options.
+   * @throws {TypeError} At the call, when the name would add attributes to the cookie.
    */
   delete(options: CookieStoreDeleteOptions): Promise<void>
   delete(nameOrOptions: string | CookieStoreDeleteOptions): Promise<void>
 
-  async delete(
+  // Not `async` for the same reason as `set`
+  delete(
     nameOrOptions: string | CookieStoreDeleteOptions
   ): Promise<void> {
     const entry = entryFromDeleteOptions(nameOrOptions)
@@ -228,6 +237,8 @@ export class VirtualCookieStore implements CookieStore {
     this.#removeMatchingEntries(entry)
 
     this.#setCookieHeaders.set(key, serializeDeleteCookie(entry))
+
+    return Promise.resolve()
   }
 
   /**

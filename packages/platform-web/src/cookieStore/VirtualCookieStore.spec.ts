@@ -137,29 +137,36 @@ describe('platform-web', () => {
         })).rejects.toThrow('single request URL')
       })
 
-      it('should reject a value that would add attributes to the cookie', async () => {
+      it('should throw at the call on a value that would add attributes to the cookie', () => {
         const store = new VirtualCookieStore()
 
-        await expect(store.set('locale', 'de; Domain=example.com')).rejects.toThrow(TypeError)
+        expect(() => store.set('locale', 'de; Domain=example.com')).toThrow(TypeError)
         expect(store.getSetCookieHeaders()).toEqual([])
       })
 
-      it('should reject a control character in a value', async () => {
+      it('should throw at the call on a control character in a value', () => {
         const store = new VirtualCookieStore()
 
-        await expect(store.set('locale', 'de\r\nX-Injected: 1')).rejects.toThrow(TypeError)
+        expect(() => store.set('locale', 'de\r\nX-Injected: 1')).toThrow(TypeError)
       })
 
-      it('should reject "=" in a name', async () => {
+      it('should throw at the call on "=" in a name', () => {
         const store = new VirtualCookieStore()
 
-        await expect(store.set('a=b', 'c')).rejects.toThrow(TypeError)
+        expect(() => store.set('a=b', 'c')).toThrow(TypeError)
       })
 
-      it('should reject a name that would add attributes on delete', async () => {
+      it('should throw at the call on a name that would add attributes on delete', () => {
         const store = new VirtualCookieStore()
 
-        await expect(store.delete('a; Domain=example.com')).rejects.toThrow(TypeError)
+        expect(() => store.delete('a; Domain=example.com')).toThrow(TypeError)
+      })
+
+      it('should resolve the promise of a write', async () => {
+        const store = new VirtualCookieStore()
+
+        await expect(store.set('locale', 'de')).resolves.toBeUndefined()
+        await expect(store.delete('locale')).resolves.toBeUndefined()
       })
 
       it('should keep a tab in a value', async () => {
