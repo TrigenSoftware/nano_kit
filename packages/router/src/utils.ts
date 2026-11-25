@@ -45,12 +45,16 @@ export function parseInitialHref(href: string) {
 
 /**
  * Generates a href string from a URL object.
+ * The href is always a path of the current origin, so navigation to it never leaves the app.
  * @param location - The URL object containing pathname, search, and hash.
  * @returns The generated href string.
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function getHref(location: UrlObject): string {
-  return removeTrailingSlash(location.pathname + location.search + location.hash)
+  // The URL parser gives a pathname like `//host` for dot segments (`/posts/..//host`)
+  // and like `https://host` for a scheme of the input (`x:https://host`), and a browser
+  // reads such a href, or one that starts with `/\`, as another host: one slash keeps it a path
+  return removeTrailingSlash(location.pathname.replace(/^[/\\]*/, '/') + location.search + location.hash)
 }
 
 /**

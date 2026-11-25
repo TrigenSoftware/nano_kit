@@ -120,6 +120,34 @@ describe('router', () => {
 
         expect(getHref(location)).toBe('/path?query=value')
       })
+
+      it('should keep a pathname that the browser reads as another host a path of the current origin', () => {
+        expect(getHref({
+          pathname: '//evil.example/page',
+          search: '?query=value',
+          hash: ''
+        })).toBe('/evil.example/page?query=value')
+        expect(getHref({
+          pathname: '/\\evil.example/page',
+          search: '',
+          hash: ''
+        })).toBe('/evil.example/page')
+      })
+
+      it('should keep a pathname that is a url of its own scheme a path of the current origin', () => {
+        expect(getHref({
+          pathname: 'https://evil.example/page',
+          search: '',
+          hash: ''
+        })).toBe('/https://evil.example/page')
+        expect(getHref({
+          // The URL parser gives such a pathname for `x:javascript:alert(1)`
+          // oxlint-disable-next-line eslint/no-script-url
+          pathname: 'javascript:alert(1)',
+          search: '',
+          hash: ''
+        })).toBe('/javascript:alert(1)')
+      })
     })
 
     describe('updateHrefObject', () => {
@@ -187,6 +215,21 @@ describe('router', () => {
         expect(result.search).toBe('?new=param')
         expect(result.hash).toBe('#new')
         expect(result.href).toBe('/new?new=param#new')
+      })
+
+      it('should keep the href on the current origin whatever the update string resolves to', () => {
+        expect(updateHrefObject(baseHref, '/.//x//evil.example/page').href).toBe('/evil.example/page')
+        expect(updateHrefObject(baseHref, 'x:x:https://evil.example/page').href).toBe('/https://evil.example/page')
+        expect(updateHrefObject(baseHref, 'a:b:javascript:alert(1)').href).toBe('/javascript:alert(1)')
+      })
+
+      it('should keep the href on the current origin whatever the pathname resolves to', () => {
+        expect(updateHrefObject(baseHref, {
+          pathname: '/posts/..//evil.example'
+        }).href).toBe('/evil.example?original=value#original')
+        expect(updateHrefObject(baseHref, {
+          pathname: 'x:https://evil.example'
+        }).href).toBe('/https://evil.example?original=value#original')
       })
     })
 
