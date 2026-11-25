@@ -14,7 +14,9 @@ let sessionStorageAdapter: Storage<string> = noopStorage
 let syncedSessionStorageAdapter: SyncedStorage<string> = noopStorage
 
 try {
-  if (typeof sessionStorage !== 'undefined') {
+  // Node has a `sessionStorage` of its own since 25, one for the whole process,
+  // so on the server the storage stays inert and no request reads what another wrote
+  if (typeof window !== 'undefined' && typeof sessionStorage !== 'undefined') {
     sessionStorageAdapter = {
       get(key) {
         return sessionStorage[key] as string | null

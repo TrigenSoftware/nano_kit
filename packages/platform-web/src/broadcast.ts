@@ -11,7 +11,9 @@ class BroadcastChannelStorage<T> implements SyncedStorage<T> {
   #channel: BroadcastChannel | null = null
 
   #open(key: string) {
-    return this.#channel ??= typeof BroadcastChannel === 'undefined'
+    // Node has `BroadcastChannel` too, where a message of one request reaches the others
+    // and a channel that only writes stays open, so on the server there is no channel
+    return this.#channel ??= typeof window === 'undefined' || typeof BroadcastChannel === 'undefined'
       ? null
       : new BroadcastChannel(key)
   }
