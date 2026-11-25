@@ -57,6 +57,19 @@ describe('intl', () => {
         })).toBe('Invited $&$\'.')
       })
 
+      it('should leave its placeholder and hand its fill over to a surrounding rich', () => {
+        const fills: ((text: string) => string)[] = []
+        const format = match('gender')
+
+        expect(format({
+          ...ctx,
+          d: fills
+        }, 'Invited {gender}.')({
+          gender: 'female'
+        })).toBe('Invited {gender}.')
+        expect(fills.map(fill => fill('Met {gender}.'))).toEqual(['Met female.'])
+      })
+
       it('should select case by argument value', () => {
         const format = match('gender', cases({
           male: text(),

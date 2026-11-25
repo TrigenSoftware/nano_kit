@@ -93,15 +93,30 @@ export function rich<T, P, I = string | undefined>(
   }
 
   return (ctx, input) => {
-    const text = markTags(input ?? fallback)
+    const text = input ?? fallback
 
     if (preformat) {
-      const message = preformat(ctx, text as I)
+      // The preformat chooses the message, while `params`, `match` and `plural` in it leave their placeholders
+      // and hand over their fills: the tags are found in the text of the message alone, and the values go in after
+      const fills: ((text: string) => string)[] = []
+      const message = preformat({
+        ...ctx,
+        d: fills
+      }, text as I)
 
       return (params) => {
-        const filled = message(params)
+        const chosen = message(params)
+        // The fills of this call alone, as a tag handler may call the message again
+        const callFills = fills.splice(0)
 
-        return filled === undefined ? filled : parseTags(filled, tags, read(params) as ReadValues<P>)
+        return chosen === undefined
+          ? chosen
+          : parseTags(
+            chosen,
+            tags,
+            read(params) as ReadValues<P>,
+            piece => callFills.reduce((filled, fill) => fill(filled), piece)
+          )
       }
     }
 
@@ -109,9 +124,7 @@ export function rich<T, P, I = string | undefined>(
   }
 }
 
-// Finds tags. `markTags` puts NUL before the tags of a message, so the message filled with values tells its own tags from the text of the values
-// oxlint-disable-next-line eslint/no-control-regex
-const tagRegex = /(\0?)<(\/?)([A-Za-z][\w.-]*)\s*(\/?)>/g
+const tagRegex = /<(\/?)([A-Za-z][\w.-]*)\s*(\/?)>/g
 
 interface RichFrame<T> {
   tag: string
@@ -119,32 +132,8 @@ interface RichFrame<T> {
 }
 
 /**
- * Marks the tags of a message, nested in forms and cases at any depth, before values are filled into it.
- * @param input - Message, or forms and cases of messages.
- * @returns Message with marked tags.
- */
-/* @__NO_SIDE_EFFECTS__ */
-function markTags(input: unknown): unknown {
-  if (typeof input === 'string') {
-    return input.replace(tagRegex, '\0$&')
-  }
-
-  if (input && typeof input === 'object') {
-    const marked: Record<string, unknown> = {}
-
-    for (const key in input as Record<string, unknown>) {
-      marked[key] = markTags((input as Record<string, unknown>)[key])
-    }
-
-    return marked
-  }
-
-  return input
-}
-
-/**
- * Maps the marked tags of a message to chunks. Other tags stay text.
- * @param input - Message with marked tags.
+ * Maps the tags of a message to chunks.
+ * @param input - Message.
  * @param tags - Tag handlers used to map known tags.
  * @param values - Values of the call, passed to the tag handlers.
  * @param formatText - Formatter of each text piece between the tags, applied before the tag handlers get it.
@@ -170,13 +159,7 @@ function parseTags<T, V>(
   tagRegex.lastIndex = 0
 
   while (match = tagRegex.exec(input)) {
-    const [, marked, closing, tag, selfClosing] = match
-
-    // A tag in a filled in value is its text
-    if (!marked) {
-      continue
-    }
-
+    const [, closing, tag, selfClosing] = match
     const current = stack[stack.length - 1]
 
     if (match.index > lastIndex) {
@@ -185,7 +168,8 @@ function parseTags<T, V>(
 
     lastIndex = tagRegex.lastIndex
 
-    if (tag in tags) {
+    // An own handler only, not a method like `valueOf` that every object has
+    if (Object.hasOwn(tags, tag)) {
       if (closing) {
         if (current.tag === tag) {
           stack.pop()
@@ -211,10 +195,10 @@ function parseTags<T, V>(
     stack[stack.length - 1].chunks.push(formatText(input.slice(lastIndex)))
   }
 
-  for (let i = stack.length - 1; i > 0; i--) {
-    const frame = stack[i]
-
-    stack[i - 1].chunks.push(...frame.chunks)
+  // The chunks of a tag left open follow the chunks of its parent, so they go to the root in one pass,
+  // not through each parent, which copies them again for every level
+  for (let i = 1; i < stack.length; i++) {
+    root.chunks.push(...stack[i].chunks)
   }
 
   return root.chunks
@@ -236,5 +220,5 @@ export function mapTags<T>(
   tags: RichTags<T>,
   formatText?: (text: string) => string
 ): RichChunks<T> {
-  return parseTags(markTags(input) as string, tags, undefined, formatText)
+  return parseTags(input, tags, undefined, formatText)
 }

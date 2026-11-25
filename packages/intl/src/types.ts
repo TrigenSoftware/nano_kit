@@ -77,6 +77,11 @@ export interface FormatContext {
    * Formats of the params a surrounding `params` replaces itself: `match` and `plural` inside it leave their placeholders.
    */
   f?: Record<string, unknown>
+  /**
+   * Fills of the values that a surrounding `rich` puts into the text between the tags of the message, once it has found the tags:
+   * `params`, `match` and `plural` inside it leave their placeholders and add their fills here.
+   */
+  d?: ((text: string) => string)[]
 }
 
 export type Bound<T, K extends keyof T> = Omit<T, K> & {

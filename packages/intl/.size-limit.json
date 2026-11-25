@@ -30,12 +30,12 @@
     "gzip": true,
     "path": "dist/index.production.js",
     "import": "{ intl, text, number, datetime, params, plural, match, cases }",
-    "limit": "1.15 kB"
+    "limit": "1.20 kB"
   },
   {
     "name": "Basic set (Brotli)",
     "path": "dist/index.production.js",
     "import": "{ intl, text, number, datetime, params, plural, match, cases }",
-    "limit": "1.05 kB"
+    "limit": "1.10 kB"
   }
 ]
