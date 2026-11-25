@@ -14,10 +14,6 @@ import {
 
 export interface HydrationContextParams {
   /**
-   * Create hydration context from an existing dehydration context reference.
-   */
-  fromRef?: Signalish<number>
-  /**
    * Dehydrated data as an array of key-value pairs.
    * Pass a falsy value to skip hydration.
    */

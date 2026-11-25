@@ -1,5 +1,5 @@
 interface RequestEvent {
-  request: Request
+  isDataRequest: boolean
   url: URL
   locals: Record<string, unknown>
 }
@@ -7,27 +7,21 @@ interface RequestEvent {
 let requestEvent = createRequestEvent()
 
 export function createRequestEvent(
-  accept = 'text/html',
-  url = '/'
+  url = '/',
+  isDataRequest = false
 ): RequestEvent {
-  const requestUrl = new URL(url, 'https://example.com')
-
   return {
-    request: new Request(requestUrl, {
-      headers: {
-        accept
-      }
-    }),
-    url: requestUrl,
+    isDataRequest,
+    url: new URL(url, 'https://example.com'),
     locals: {}
   }
 }
 
 export function resetRequestEvent(
-  accept?: string,
-  url?: string
+  url?: string,
+  isDataRequest?: boolean
 ) {
-  return requestEvent = createRequestEvent(accept, url)
+  return requestEvent = createRequestEvent(url, isDataRequest)
 }
 
 export function setRequestEvent(event: RequestEvent) {

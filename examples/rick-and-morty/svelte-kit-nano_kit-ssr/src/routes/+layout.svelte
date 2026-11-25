@@ -10,10 +10,9 @@
   import { routes } from '#src/stores/router'
   import '../app.css'
 
-  let { data, children } = $props()
+  let { children } = $props()
 
   setHydrationContext({
-    fromRef: () => data.contextRef,
     context: [
       provide(LocationNavigation$, getKitNavigation(routes))
     ]
