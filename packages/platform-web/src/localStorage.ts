@@ -14,7 +14,9 @@ let localStorageAdapter: Storage<string> = noopStorage
 let syncedLocalStorageAdapter: SyncedStorage<string> = noopStorage
 
 try {
-  if (typeof localStorage !== 'undefined') {
+  // Node has a `localStorage` of its own with `--localstorage-file`, one for the whole process,
+  // so on the server the storage stays inert and no request reads what another wrote
+  if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
     localStorageAdapter = {
       get(key) {
         return localStorage[key] as string | null
