@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+# The token of a run only reads: code that a pull request runs cannot push or start a release with it
+permissions:
+  contents: read
 jobs:
   types:
     runs-on: ubuntu-latest

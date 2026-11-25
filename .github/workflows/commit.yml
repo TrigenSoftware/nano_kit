@@ -1,6 +1,9 @@
 name: Commit
 on:
   push:
+# The token of a run only reads: code that a commit runs cannot push or start a release with it
+permissions:
+  contents: read
 jobs:
   commitlint:
     runs-on: ubuntu-latest
