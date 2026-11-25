@@ -27,7 +27,15 @@ declare module '@nano_kit/store' {
 function subscribe<T>(
   this: ReadableSignal<T>,
   subscription: ObserverCallback<T>
-) {
+): Destroy {
+  // On the server Svelte unsubscribes at the end of the render of a component, which a throw skips,
+  // so there the store is not mounted: the value comes once, as `useSyncExternalStore` gives it in React
+  if (typeof window === 'undefined') {
+    subscription(this())
+
+    return () => { /* no-op */ }
+  }
+
   return storeSubscribe(this, subscription)
 }
 
