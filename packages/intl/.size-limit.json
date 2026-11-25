@@ -4,7 +4,7 @@
     "gzip": true,
     "path": "dist/index.production.js",
     "import": "*",
-    "limit": "2.55 kB"
+    "limit": "2.60 kB"
   },
   {
     "name": "All publics (Brotli)",
@@ -17,20 +17,20 @@
     "gzip": true,
     "path": "dist/index.production.js",
     "import": "{ intl, text, params }",
-    "limit": "650 B"
+    "limit": "700 B"
   },
   {
     "name": "Minimal set (Brotli)",
     "path": "dist/index.production.js",
     "import": "{ intl, text, params }",
-    "limit": "600 B"
+    "limit": "650 B"
   },
   {
     "name": "Basic set (Gzip)",
     "gzip": true,
     "path": "dist/index.production.js",
     "import": "{ intl, text, number, datetime, params, plural, match, cases }",
-    "limit": "1.10 kB"
+    "limit": "1.15 kB"
   },
   {
     "name": "Basic set (Brotli)",

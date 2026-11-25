@@ -71,34 +71,23 @@ export function params<
   params: P,
   preformat?: Format<F, O>
 ): Format<F, ComposedParamsFn<P, O>> {
-  let replaceAll: Replace | undefined
+  const keys = Object.keys(params)
+  // All placeholders are filled in one pass, so the text of a value is never read for placeholders again
+  // and a value with `{key}` in it does not multiply the message. A group per key tells which key matched,
+  // in any case of the placeholder
+  const placeholder = new RegExp(`{(?:(${keys.join(')|(')}))}`, 'gi')
+  const replaceAll: Replace | undefined = keys.length
+    ? (ctx, text, values) => text.replace(placeholder, (_, ...groups: unknown[]) => {
+      const key = keys[groups.findIndex(Boolean)]
+      const formatted = params[key](ctx, $get(values[key]))
 
-  for (let [key, format] of Object.entries(params)) {
-    if (import.meta.env.DEV) {
-      const originalFormat = format
-
-      format = (ctx, value) => {
-        const formatted = originalFormat(ctx, value)
-
-        if (formatted === undefined) {
-          console.warn(`[nano_kit/intl] Parameter "${key}" has no value: the message renders "undefined" in its place`)
-        }
-
-        return formatted
+      if (import.meta.env.DEV && formatted === undefined) {
+        console.warn(`[nano_kit/intl] Parameter "${key}" has no value: the message renders "undefined" in its place`)
       }
-    }
 
-    const re = new RegExp(`{${key}}`, 'gi')
-    const replace: Replace = (ctx, text, params) => text.replace(re, () => format(ctx, $get(params[key])) as string)
-
-    if (replaceAll) {
-      const prevReplace = replaceAll
-
-      replaceAll = (ctx, text, params) => replace(ctx, prevReplace(ctx, text, params), params)
-    } else {
-      replaceAll = replace
-    }
-  }
+      return formatted as string
+    })
+    : undefined
 
   return (ctx: FormatContext, input?: F) => {
     const preformatted = (

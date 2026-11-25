@@ -174,9 +174,10 @@ export function match<
       const resolvedCase = isString ? input : resolvedCases[getKey(value, locale, resolvedCases)]
       const message = isFunction(resolvedCase) ? resolvedCase(params) : resolvedCase
 
+      // A function puts the value in as it is: a string would read `$&` or `$'` in it as patterns
       return filled
         ? message
-        : message?.replace(valuePattern, value as string)
+        : message?.replace(valuePattern, () => value as string)
     }
   }
 }
