@@ -35,7 +35,7 @@ describe('svelte-kit', () => {
       })
 
       it('should match route with params from pathname', () => {
-        resetRequestEvent('text/html', '/user/42?tab=info#bio')
+        resetRequestEvent('/user/42?tab=info#bio')
 
         const [location] = serverNavigation(routes)
 

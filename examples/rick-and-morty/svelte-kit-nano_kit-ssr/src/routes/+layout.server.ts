@@ -8,11 +8,7 @@ import { routes } from '#src/stores/router'
 import type { LayoutServerLoad } from './$types'
 
 export const load: LayoutServerLoad = () => {
-  const contextRef = setDehydrationContext([
+  setDehydrationContext([
     provide(LocationNavigation$, serverNavigation(routes))
   ])
-
-  return {
-    contextRef
-  }
 }

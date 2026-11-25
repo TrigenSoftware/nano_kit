@@ -3,8 +3,7 @@ import {
   type AnyFn,
   type InjectionProvider,
   InjectionContext,
-  dehydrate as storeDehydrate,
-  $get
+  dehydrate as storeDehydrate
 } from '@nano_kit/store'
 import {
   getInjectionContext,
@@ -14,39 +13,21 @@ import { getRequestEvent } from '$app/server'
 import type { HydrationContextParams } from './hydration.js'
 
 export interface ServerContext {
-  flight: boolean
   context: InjectionContext
   seen: WeakSet<AnyFn>
-  id: number
 }
 
-interface RequestEvent {
-  request: Request
-  locals: {
-    nanokitDehydrationContext?: ServerContext
-  }
+interface Locals {
+  nanokitDehydrationContext?: ServerContext
 }
 
-const sharedContexts = new Map<number, InjectionContext>()
-let contextId = 0
-
+// The context lives in the locals of the request, which the loads and the render of the page share,
+// so nothing of the request outlives it, whether the page renders or not
 /* @__NO_SIDE_EFFECTS__ */
 export function getServerContext(): ServerContext {
-  const { locals, request } = getRequestEvent() as RequestEvent
-
-  if (locals.nanokitDehydrationContext) {
-    return locals.nanokitDehydrationContext
-  }
-
-  const flight = !request.headers.get('accept')?.includes('text/html')
-  const seen = new WeakSet<AnyFn>()
-  const context = new InjectionContext()
-
-  return locals.nanokitDehydrationContext = {
-    flight,
-    context,
-    seen,
-    id: -1
+  return (getRequestEvent().locals as Locals).nanokitDehydrationContext ??= {
+    context: new InjectionContext(),
+    seen: new WeakSet()
   }
 }
 
@@ -56,7 +37,7 @@ export function getServerContext(): ServerContext {
  */
 /* @__NO_SIDE_EFFECTS__ */
 export function isFlight() {
-  return getServerContext().flight
+  return getRequestEvent().isDataRequest
 }
 
 /**
@@ -72,30 +53,13 @@ export function getDehydrationContext() {
  * Merges providers into the request-scoped dehydration context.
  * Existing providers are preserved.
  * @param context - Providers to merge into the dehydration context.
- * @returns The unique ID of the shared context.
  */
-export function setDehydrationContext(context?: InjectionProvider[]) {
-  const ctx = getServerContext()
-  const {
-    context: dehydrationContext,
-    flight
-  } = ctx
+export function setDehydrationContext(context: InjectionProvider[] = []) {
+  const dehydrationContext = getDehydrationContext()
 
-  if (context) {
-    for (const [token, value] of context) {
-      dehydrationContext.deps.set(token, value)
-    }
+  for (const [token, value] of context) {
+    dehydrationContext.deps.set(token, value)
   }
-
-  if (!flight) {
-    const id = ctx.id = ++contextId
-
-    sharedContexts.set(id, dehydrationContext)
-
-    return id
-  }
-
-  return 0
 }
 
 /**
@@ -122,19 +86,11 @@ export async function dehydrate(Stores$: () => AnyAccessor[]) {
  */
 export function setHydrationContext(
   {
-    fromRef,
     context = [],
     reuse = true
   }: HydrationContextParams = {}
 ) {
-  const currentContext = getInjectionContext()
-  const dehydrationContextRef = $get(fromRef)!
-
-  if (!currentContext && !dehydrationContextRef) {
-    throw new Error('Server context reference is required for root hydration context')
-  }
-
-  if (currentContext) {
+  if (getInjectionContext()) {
     if (!reuse) {
       setInjectionContext(context)
     }
@@ -142,13 +98,7 @@ export function setHydrationContext(
     return
   }
 
-  const dehydrationContext = sharedContexts.get(dehydrationContextRef)!
-
-  sharedContexts.delete(dehydrationContextRef)
-
-  for (const [token, value] of context) {
-    dehydrationContext.deps.set(token, value)
-  }
-
-  setInjectionContext(dehydrationContext)
+  // SvelteKit renders the page inside its request since 2.27, so the root takes the context its loads filled
+  setDehydrationContext(context)
+  setInjectionContext(getDehydrationContext())
 }

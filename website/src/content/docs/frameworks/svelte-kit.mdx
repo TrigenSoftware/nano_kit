@@ -36,34 +36,16 @@ The main SvelteKit integration point is store dehydration in `+page.server.ts` a
 
 1.  **Set up the root layout**
 
-    Create a request-scoped dehydration context in the root server layout and pass its reference to the root layout component.
-
-    ```ts
-    // src/routes/+layout.server.ts
-    import {
-      setDehydrationContext
-    } from '@nano_kit/svelte-kit'
-    import type { LayoutServerLoad } from './$types'
-
-    export const load: LayoutServerLoad = () => {
-      const contextRef = setDehydrationContext()
-
-      return {
-        contextRef
-      }
-    }
-    ```
+    Set the hydration context in the root layout component, so every page shares it. On the server the page renders in the context of its request, the one the `load` functions filled with stores. In the browser the stores live in it between navigations.
 
     ```svelte
     <!-- src/routes/+layout.svelte -->
     <script lang="ts">
       import { setHydrationContext } from '@nano_kit/svelte-kit'
 
-      let { data, children } = $props()
+      let { children } = $props()
 
-      setHydrationContext({
-        fromRef: () => data.contextRef
-      })
+      setHydrationContext()
     </script>
 
     {@render children()}
@@ -156,13 +138,9 @@ import { routes } from '#lib/stores/router.js'
 import type { LayoutServerLoad } from './$types'
 
 export const load: LayoutServerLoad = () => {
-  const contextRef = setDehydrationContext([
+  setDehydrationContext([
     provide(LocationNavigation$, serverNavigation(routes))
   ])
-
-  return {
-    contextRef
-  }
 }
 ```
 
@@ -181,10 +159,9 @@ In the root layout component, provide browser navigation.
   } from '@nano_kit/svelte-kit'
   import { routes } from '#lib/stores/router.js'
 
-  let { data, children } = $props()
+  let { children } = $props()
 
   setHydrationContext({
-    fromRef: () => data.contextRef,
     context: [
       provide(LocationNavigation$, getKitNavigation(routes))
     ]
@@ -213,13 +190,9 @@ import { CookieStore$ } from '@nano_kit/platform-web'
 import type { LayoutServerLoad } from './$types'
 
 export const load: LayoutServerLoad = ({ cookies }) => {
-  const contextRef = setDehydrationContext([
+  setDehydrationContext([
     provide(CookieStore$, new CookieStore(cookies))
   ])
-
-  return {
-    contextRef
-  }
 }
 ```
 

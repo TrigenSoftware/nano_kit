@@ -1,9 +1,14 @@
 import {
+  afterEach,
   beforeEach,
   describe,
   expect,
   it
 } from 'vitest'
+import {
+  cleanup,
+  render
+} from '@testing-library/svelte'
 import {
   hydratable,
   inject,
@@ -12,19 +17,16 @@ import {
 } from '@nano_kit/store'
 import { resetRequestEvent } from '../test/app-server.js'
 import {
+  OtherValue$,
+  Value$
+} from '../test/request-values.js'
+import ServerHydrationFixture from '../test/ServerHydrationFixture.svelte'
+import {
   dehydrate,
   getDehydrationContext,
   isFlight,
   setDehydrationContext
 } from './dehydration.js'
-
-function Value$() {
-  return 'default'
-}
-
-function OtherValue$() {
-  return 'other'
-}
 
 function Count$() {
   return signal(1)
@@ -93,11 +95,54 @@ describe('svelte-kit', () => {
         expect(first).toEqual([['count', 1]])
         expect(second).toEqual([])
       })
+    })
 
-      it('should detect data requests as flight requests', () => {
-        resetRequestEvent('application/json')
+    describe('isFlight', () => {
+      it('should detect a data request as a flight request', () => {
+        resetRequestEvent('/', true)
 
         expect(isFlight()).toBe(true)
+      })
+
+      it('should not treat a document request as a flight request', () => {
+        expect(isFlight()).toBe(false)
+      })
+    })
+
+    describe('setHydrationContext', () => {
+      afterEach(cleanup)
+
+      it('should render the root in the context of the request', () => {
+        setDehydrationContext([
+          provide(Value$, 'from the load')
+        ])
+
+        const { container } = render(ServerHydrationFixture)
+
+        expect(container.textContent).toBe('from the load other')
+      })
+
+      it('should merge the given providers into the context of the request', () => {
+        render(ServerHydrationFixture, {
+          props: {
+            providers: [
+              provide(OtherValue$, 'from the layout')
+            ]
+          }
+        })
+
+        expect(getDehydrationContext().get(OtherValue$)).toBe('from the layout')
+      })
+
+      it('should not carry the context of a request into the next one', () => {
+        setDehydrationContext([
+          provide(Value$, 'from the previous request')
+        ])
+        resetRequestEvent()
+
+        const { container } = render(ServerHydrationFixture)
+
+        expect(container.textContent).toBe('default other')
       })
     })
   })
