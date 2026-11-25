@@ -103,6 +103,27 @@ describe('intl', () => {
         ])
       })
 
+      it('should ignore tags named like the methods every object has', () => {
+        expect(mapTags('Read <valueOf/><toString>guidelines</toString>.', tags)).toEqual([
+          'Read ',
+          'guidelines',
+          '.'
+        ])
+      })
+
+      it('should keep the chunks of nested tags left open in order', () => {
+        expect(mapTags('Read <link>the <strong>guide</strong> <strong>now', tags)).toEqual([
+          'Read ',
+          'the ',
+          {
+            type: 'strong',
+            children: ['guide']
+          },
+          ' ',
+          'now'
+        ])
+      })
+
       it('should ignore malformed known tags and keep text content', () => {
         expect(mapTags('Read <link>guidelines.', tags)).toEqual([
           'Read ',
@@ -255,6 +276,62 @@ describe('intl', () => {
             type: 'strong',
             children: ['Tom <link>Jerry</link>']
           }
+        ])
+      })
+
+      it('should keep tags in preformatted values as text whatever characters are around them', () => {
+        const format = rich(tags, params({
+          name: text()
+        }))
+
+        expect(format(ctx, 'By <strong>{name}</strong>')({
+          name: 'Tom \0<link>Jerry\0</link><strong>'
+        })).toEqual([
+          'By ',
+          {
+            type: 'strong',
+            children: ['Tom \0<link>Jerry\0</link><strong>']
+          }
+        ])
+      })
+
+      it('should fill the values of a message whose tag handler calls it again', () => {
+        let nested = false
+        const message = rich({
+          link: (chunks: (string | Node)[]): Node => {
+            const children = nested
+              ? chunks
+              : (nested = true, [
+                ...chunks,
+                ...message({
+                  name: 'Jerry'
+                })!
+              ])
+
+            return {
+              type: 'link',
+              children
+            }
+          }
+        }, params({
+          name: text()
+        }))(ctx, '<link>{name}</link> and {name}')
+
+        expect(message({
+          name: 'Tom'
+        })).toEqual([
+          {
+            type: 'link',
+            children: [
+              'Tom',
+              {
+                type: 'link',
+                children: ['Jerry']
+              },
+              ' and Jerry'
+            ]
+          },
+          ' and Tom'
         ])
       })
 

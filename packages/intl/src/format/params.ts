@@ -76,17 +76,27 @@ export function params<
   // and a value with `{key}` in it does not multiply the message. A group per key tells which key matched,
   // in any case of the placeholder
   const placeholder = new RegExp(`{(?:(${keys.join(')|(')}))}`, 'gi')
-  const replaceAll: Replace | undefined = keys.length
-    ? (ctx, text, values) => text.replace(placeholder, (_, ...groups: unknown[]) => {
-      const key = keys[groups.findIndex(Boolean)]
-      const formatted = params[key](ctx, $get(values[key]))
+  const fill: Replace = (ctx, text, values) => text.replace(placeholder, (_, ...groups: unknown[]) => {
+    const key = keys[groups.findIndex(Boolean)]
+    const formatted = params[key](ctx, $get(values[key]))
 
-      if (import.meta.env.DEV && formatted === undefined) {
-        console.warn(`[nano_kit/intl] Parameter "${key}" has no value: the message renders "undefined" in its place`)
+    if (import.meta.env.DEV && formatted === undefined) {
+      console.warn(`[nano_kit/intl] Parameter "${key}" has no value: the message renders "undefined" in its place`)
+    }
+
+    return formatted as string
+  })
+  // Inside `rich` the values go in only after the tags of the message are found, so they are never read as tags
+  const replaceAll: Replace | undefined = keys.length
+    ? (ctx, text, values) => {
+      if (ctx.d) {
+        ctx.d.push(piece => fill(ctx, piece, values))
+
+        return text
       }
 
-      return formatted as string
-    })
+      return fill(ctx, text, values)
+    }
     : undefined
 
   return (ctx: FormatContext, input?: F) => {

@@ -77,6 +77,21 @@ describe('intl', () => {
         })).toBe('{country}{COUNTRY}, Japan')
       })
 
+      it('should leave its placeholders and hand its fill over to a surrounding rich', () => {
+        const fills: ((text: string) => string)[] = []
+        const format = params({
+          name: text()
+        })
+
+        expect(format({
+          ...ctx,
+          d: fills
+        }, 'Hello {name}')({
+          name: 'Ada'
+        })).toBe('Hello {name}')
+        expect(fills.map(fill => fill('Bye {name}'))).toEqual(['Bye Ada'])
+      })
+
       it('should use param formatter fallbacks', () => {
         const format = params({
           name: text('Guest')

@@ -143,6 +143,8 @@ export function match<
   MatchFn<K, B>
 > {
   const valuePattern = new RegExp(`{${param}}`, 'gi')
+  // A function puts the value in as it is: a string would read `$&` or `$'` in it as patterns
+  const fill = (text: string, value: unknown) => text.replace(valuePattern, () => value as string)
   let cases: CasesFn<K, B> | undefined
   let getKey: GetKey
 
@@ -174,10 +176,18 @@ export function match<
       const resolvedCase = isString ? input : resolvedCases[getKey(value, locale, resolvedCases)]
       const message = isFunction(resolvedCase) ? resolvedCase(params) : resolvedCase
 
-      // A function puts the value in as it is: a string would read `$&` or `$'` in it as patterns
-      return filled
-        ? message
-        : message?.replace(valuePattern, () => value as string)
+      if (filled) {
+        return message
+      }
+
+      // Inside `rich` the value goes in only after the tags of the message are found, so it is never read as a tag
+      if (ctx.d) {
+        ctx.d.push(piece => fill(piece, value))
+
+        return message
+      }
+
+      return message && fill(message, value)
     }
   }
 }
