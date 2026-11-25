@@ -46,6 +46,7 @@ metadata:
 - Session and preferences shared with the server: `cookieStored` on the `CookieStore$` token, never `document.cookie`.
 - Transient cross-tab events (logout, refresh): `broadcasted`, which carries structured clones, so plain objects need no codec.
 - Locale negotiation: `browserLocale` on the `Locales$` token; `UserAgent$` for the user agent. Both resolve to `navigator` in the browser.
+- A locale kept in a cookie or a storage: `cookieStored(cookieStore, 'locale', browserLocale(...), localeCodec(supportedLocales))`. The cookie comes with the request and can hold anything; `localeCodec` turns an unsupported value into the default, so the locale never reaches a loader or a path unchecked. For a locale read another way (a cookie read straight from the store) use `selectLocale(locale, supportedLocales, fallback)`.
 - Storage and cookie values are strings unless a codec is given; use `JsonCodec` or `BooleanCodec` for anything else, and the rate limiter overloads for chatty writers.
 
 ## Universal code

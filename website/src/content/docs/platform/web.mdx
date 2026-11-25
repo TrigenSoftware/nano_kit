@@ -351,6 +351,42 @@ const context = [
 
 The header and `navigator.languages` may list different tags for the same browser: Safari sends `en-US,en;q=0.9` while listing only `en-US`. `browserLocale` matches by language, so the server and the browser resolve to the same locale.
 
+To remember the chosen locale in a cookie or a storage, give the stored signal `localeCodec` with the supported locales. The cookie comes with every request and can hold anything, and the codec lets only the supported locales through: any other value gives the default.
+
+```ts
+import { inject } from '@nano_kit/store'
+import {
+  CookieStore$,
+  Locales$,
+  browserLocale,
+  cookieStored,
+  localeCodec
+} from '@nano_kit/platform-web'
+
+const supportedLocales = ['en', 'ru'] as const
+
+export function Locale$() {
+  const locales = inject(Locales$)
+  const cookieStore = inject(CookieStore$)
+
+  return cookieStored(
+    cookieStore,
+    'locale',
+    browserLocale(locales, supportedLocales, 'en'),
+    localeCodec(supportedLocales)
+  )
+}
+```
+
+`selectLocale` makes the same check for a value read another way, such as a cookie read straight from the store: it gives the locale when it is supported and the fallback otherwise.
+
+```ts
+import { selectLocale } from '@nano_kit/platform-web'
+
+selectLocale('ru', ['en', 'ru'], 'en') // 'ru'
+selectLocale('../admin', ['en', 'ru'], 'en') // 'en'
+```
+
 ## User Agent
 
 Use `UserAgent$` when universal code needs the browser user agent string. In the browser it returns `navigator.userAgent`.

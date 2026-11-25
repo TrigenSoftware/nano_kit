@@ -17,6 +17,7 @@ import {
   cookieStored,
   syncedCookieStored
 } from './cookie.js'
+import { localeCodec } from './locale.js'
 
 const values = [
   '{"discount":"50%"}',
@@ -287,6 +288,13 @@ describe('platform-web', () => {
       }
 
       off()
+    })
+
+    it('should take the default value for a cookie locale that is not supported', () => {
+      const codec = localeCodec(['en', 'ru'])
+
+      expect(cookieStored(new VirtualCookieStore('locale=ru'), 'locale', 'en', codec)()).toBe('ru')
+      expect(cookieStored(new VirtualCookieStore('locale=..%2Finternal%2Fconfig'), 'locale', 'en', codec)()).toBe('en')
     })
 
     it('should round-trip values through a virtual cookie store', () => {

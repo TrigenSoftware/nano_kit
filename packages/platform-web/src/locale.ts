@@ -1,3 +1,8 @@
+import {
+  type Codec,
+  identity
+} from '@nano_kit/store'
+
 export interface LocalesContainer {
   languages?: readonly string[]
   language: string
@@ -111,6 +116,38 @@ export function browserLocale(
   }
 
   return languages[0]
+}
+
+/**
+ * Selects a locale when it is supported, such as a locale from a cookie, which a request can set to anything.
+ * @param locale - Locale to check.
+ * @param supported - List of supported locale codes.
+ * @param fallback - Value returned when the locale is not supported.
+ * @returns The locale when it is supported, otherwise the fallback.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function selectLocale<const T extends string, F>(
+  locale: string | null | undefined,
+  supported: readonly T[],
+  fallback: F
+): T | F {
+  return supported.includes(locale as T)
+    ? locale as T
+    : fallback
+}
+
+/**
+ * Creates a codec for a locale kept in a cookie or a storage, where a request or a script can put anything.
+ * A locale that is not supported decodes to `null`, so the stored signal takes its default value instead.
+ * @param supported - List of supported locale codes.
+ * @returns Codec that lets only the supported locales through.
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export function localeCodec<const T extends string>(supported: readonly T[]): Codec<T, string> {
+  return {
+    encode: identity,
+    decode: locale => selectLocale(locale, supported, null)
+  }
 }
 
 /**

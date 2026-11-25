@@ -5,7 +5,9 @@ import {
 } from 'vitest'
 import {
   browserLocale,
-  parseLocales
+  localeCodec,
+  parseLocales,
+  selectLocale
 } from './locale.js'
 
 describe('platform-web', () => {
@@ -120,6 +122,36 @@ describe('platform-web', () => {
           languages: ['ro-RO']
         }, supported)).toBe('ro')
         expect(browserLocale(parseLocales('ro-RO,ro;q=0.9'), supported)).toBe('ro')
+      })
+    })
+
+    describe('selectLocale', () => {
+      it('should select a supported locale', () => {
+        expect(selectLocale('ru', ['en', 'ru'], 'en')).toBe('ru')
+      })
+
+      it('should give the fallback for a locale that is not supported', () => {
+        expect(selectLocale('../internal/config', ['en', 'ru'], 'en')).toBe('en')
+        expect(selectLocale(undefined, ['en', 'ru'], 'en')).toBe('en')
+        expect(selectLocale(null, ['en', 'ru'], null)).toBeNull()
+      })
+    })
+
+    describe('localeCodec', () => {
+      it('should decode a supported locale as it is', () => {
+        expect(localeCodec(['en', 'ru']).decode('ru')).toBe('ru')
+      })
+
+      it('should decode a locale that is not supported to null', () => {
+        const codec = localeCodec(['en', 'ru'])
+
+        expect(codec.decode('de')).toBeNull()
+        expect(codec.decode('../internal/config')).toBeNull()
+        expect(codec.decode(null)).toBeNull()
+      })
+
+      it('should encode a locale as it is', () => {
+        expect(localeCodec(['en', 'ru']).encode('ru')).toBe('ru')
       })
     })
 

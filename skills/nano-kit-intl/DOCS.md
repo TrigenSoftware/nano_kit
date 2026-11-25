@@ -1124,7 +1124,8 @@ import {
   Locales$,
   CookieStore$,
   browserLocale,
-  cookieStored
+  cookieStored,
+  localeCodec
 } from '@nano_kit/platform-web'
 import { Client$ } from './query'
 import {
@@ -1140,11 +1141,12 @@ export function Intl$() {
   const locales = inject(Locales$)
   const cookieStore = inject(CookieStore$)
   const { query } = inject(Client$)
+  /* The cookie comes with the request: a locale the app does not support gives the browser locale */
   const $locale = cookieStored(cookieStore, {
     name: 'locale',
     path: '/',
     sameSite: 'lax'
-  }, browserLocale(locales, supportedLocales, 'en'))
+  }, browserLocale(locales, supportedLocales, 'en'), localeCodec(supportedLocales))
   const {
     messages,
     $loading

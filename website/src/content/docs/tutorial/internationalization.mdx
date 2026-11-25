@@ -68,25 +68,22 @@ export async function load(locale: SupportedLocale) {
 Which locale should a visitor get before they pick one? In the browser it comes from `navigator.languages`; during SSR — from the `Accept-Language` request header. `Locales$` from `@nano_kit/platform-web` abstracts both, and the service resolves it against the supported list:
 
 ```ts title="src/services/intl/intl.ts"
-import { CookieStore$, Locales$, browserLocale } from '@nano_kit/platform-web'
+import { CookieStore$, Locales$, browserLocale, selectLocale } from '@nano_kit/platform-web'
 import { Injectable$, inject } from '@nano_kit/store'
-import { type SupportedLocale, supportedLocales } from './translations'
+import { supportedLocales } from './translations'
 
 export class IntlService$ extends Injectable$ {
   locales = inject(Locales$)
   cookieStore = inject(CookieStore$)
-
-  getBrowserLocale() {
-    return browserLocale(this.locales, supportedLocales, 'en')
-  }
+  defaultLocale = browserLocale(this.locales, supportedLocales, 'en')
 
   async getServerLocale() {
-    const locale = (await this.cookieStore.get('locale'))?.value
-
-    return (locale || this.getBrowserLocale()) as SupportedLocale
+    return selectLocale((await this.cookieStore.get('locale'))?.value, supportedLocales, this.defaultLocale)
   }
 }
 ```
+
+The service lives as long as its context, a request on the server, so `defaultLocale` is resolved once. The cookie comes with the request, so [`selectLocale`](/platform/web/#locale) checks its value against the supported list too: a locale the app does not support gives the browser locale.
 
 `Locales$` needs the request headers during SSR, so the renderer must provide them. Enable it in the Vite config next to the cookie store, and pass the header through the server:
 
@@ -110,13 +107,13 @@ const result = await renderer.render(c.req.url, {
 
 ## The Intl Store
 
-The active locale is a writable signal backed by a cookie. When the cookie is missing, it falls back to the negotiated browser locale. Translations load through a regular query, so they are cached, deduplicated, and dehydrated by SSR like any other data:
+The active locale is a writable signal backed by a cookie. When the cookie is missing or holds a locale the app does not support, it falls back to the negotiated browser locale: [`localeCodec`](/platform/web/#locale) lets only the supported locales through. Translations load through a regular query, so they are cached, deduplicated, and dehydrated by SSR like any other data:
 
 ```ts title="src/stores/intl.ts"
 import { inject } from '@nano_kit/store'
 import { queryKey } from '@nano_kit/query'
 import { intl } from '@nano_kit/intl'
-import { CookieStore$, cookieStored } from '@nano_kit/platform-web'
+import { CookieStore$, cookieStored, localeCodec } from '@nano_kit/platform-web'
 import { type SupportedLocale, type Translations, IntlService$, load, supportedLocales } from '#src/services/intl'
 import { Client$ } from './query'
 
@@ -130,7 +127,7 @@ export function Intl$() {
     name: 'locale',
     path: '/',
     sameSite: 'lax'
-  }, intlService.getBrowserLocale())
+  }, intlService.defaultLocale, localeCodec(supportedLocales))
   const {
     messages,
     $loading
