@@ -153,8 +153,12 @@ describe('ssr', () => {
       })
     })
 
-    it('should throw on a redirect that dot segments of a parameter lead to another host', async () => {
-      await expect(plainRenderer.render('/blog/..%2F%2Fevil.example')).rejects.toThrow('leads to another host')
+    it('should keep a redirect on the site when dot segments of a parameter make its path look like another host', async () => {
+      expect(await plainRenderer.render('/blog/..%2F%2Fevil.example')).toMatchObject({
+        statusCode: 301,
+        redirect: '/evil.example',
+        html: null
+      })
     })
 
     it('should respond with the status that the page gives by its dehydrated stores', async () => {
