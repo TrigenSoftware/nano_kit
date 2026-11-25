@@ -299,6 +299,12 @@ describe('platform-web', () => {
       }
     })
 
+    it('should throw at the write on a name that the virtual cookie store rejects', () => {
+      const $seen = cookieStored(new VirtualCookieStore(), 'seen-a=b', '0')
+
+      expect(() => $seen('1')).toThrow(TypeError)
+    })
+
     it('should write valid Set-Cookie headers to a virtual cookie store', () => {
       const store = new VirtualCookieStore()
 
