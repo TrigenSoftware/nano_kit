@@ -55,6 +55,28 @@ describe('intl', () => {
         })).toBe('Ada, Ada!')
       })
 
+      it('should replace placeholders in any case', () => {
+        const format = params({
+          name: text()
+        })
+
+        expect(format(ctx, 'Hello {Name}, {NAME}')({
+          name: 'Ada'
+        })).toBe('Hello Ada, Ada')
+      })
+
+      it('should leave a placeholder in the value of another param as it is', () => {
+        const format = params({
+          city: text(),
+          country: text()
+        })
+
+        expect(format(ctx, '{city}, {country}')({
+          city: '{country}{COUNTRY}',
+          country: 'Japan'
+        })).toBe('{country}{COUNTRY}, Japan')
+      })
+
       it('should use param formatter fallbacks', () => {
         const format = params({
           name: text('Guest')

@@ -49,6 +49,14 @@ describe('intl', () => {
         })).toBe('She invited female.')
       })
 
+      it('should put a value with replacement patterns in as it is', () => {
+        const format = match('gender')
+
+        expect(format(ctx, 'Invited {gender}.')({
+          gender: '$&$\''
+        })).toBe('Invited $&$\'.')
+      })
+
       it('should select case by argument value', () => {
         const format = match('gender', cases({
           male: text(),
