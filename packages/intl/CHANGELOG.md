@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v4.2.0...v5.0.0) (2026-11-25)
+
+### Bug Fixes
+
+* fill every placeholder of `params` in one pass, so a value is never filled again ([#425](https://github.com/TrigenSoftware/nano_kit/issues/425)) ([39487e0](https://github.com/TrigenSoftware/nano_kit/commit/39487e0018e0387c1ea534a3b657b0663f440129))
+* find the tags of a `rich` message before its values go in ([#426](https://github.com/TrigenSoftware/nano_kit/issues/426)) ([234ae88](https://github.com/TrigenSoftware/nano_kit/commit/234ae8837bd1379323d558c4f92cafabb2826451))
+* take no inherited property for a case of `match` or `plural` ([#431](https://github.com/TrigenSoftware/nano_kit/issues/431)) ([e234969](https://github.com/TrigenSoftware/nano_kit/commit/e234969b740e202a19cd5a04a7358d499d13e5e7))
+
 ## [4.2.0](https://github.com/TrigenSoftware/nano_kit/compare/v4.1.0...v4.2.0) (2026-11-23)
 
 ### Features

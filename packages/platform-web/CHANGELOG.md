@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v4.2.2...v5.0.0) (2026-11-25)
+
+### Features
+
+* add `localeCodec` and `selectLocale` to keep a locale from a request to the supported ones ([#429](https://github.com/TrigenSoftware/nano_kit/issues/429)) ([34236ed](https://github.com/TrigenSoftware/nano_kit/commit/34236ed8b3f93918da356db01837bbdf02bd7e58))
+
+### Bug Fixes
+
+* keep storage and broadcast helpers inert on the server ([#424](https://github.com/TrigenSoftware/nano_kit/issues/424)) ([a76f77f](https://github.com/TrigenSoftware/nano_kit/commit/a76f77fcf0f1d7d5a9923969feb96641c62a77a6))
+* throw at the call of `VirtualCookieStore` `set` and `delete`, so a rejected cookie fails its request, not the process ([#423](https://github.com/TrigenSoftware/nano_kit/issues/423)) ([3822bdb](https://github.com/TrigenSoftware/nano_kit/commit/3822bdbb19ebe3e1d0b4e2c7be8c3fef1bcb84d0))
+
 ## [4.2.2](https://github.com/TrigenSoftware/nano_kit/compare/v4.0.0...v4.2.2) (2026-11-24)
 
 ### Bug Fixes

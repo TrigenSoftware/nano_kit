@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [5.0.0](https://github.com/TrigenSoftware/nano_kit/compare/v4.2.2...v5.0.0) (2026-11-25)
+
+### Bug Fixes
+
+* keep a href built from a location a path of the current site ([#422](https://github.com/TrigenSoftware/nano_kit/issues/422)) ([87eb914](https://github.com/TrigenSoftware/nano_kit/commit/87eb9145368fa2eb12c16867d5f97e3afbc4b074))
+
 ## [4.2.2](https://github.com/TrigenSoftware/nano_kit/compare/v4.0.0...v4.2.2) (2026-11-24)
 
 ### Bug Fixes
