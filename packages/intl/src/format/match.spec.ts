@@ -153,6 +153,59 @@ describe('intl', () => {
         })).toBe('Admin area')
       })
 
+      it('should return undefined for a value that names an inherited property', () => {
+        const format = match('role')(ctx, {
+          admin: 'Admin area',
+          user: 'User area'
+        })
+
+        expect(format({
+          role: 'constructor'
+        })).toBeUndefined()
+        expect(format({
+          role: '__proto__'
+        })).toBeUndefined()
+        expect(format({
+          role: 'valueOf'
+        })).toBeUndefined()
+      })
+
+      it('should fallback to default key for a value that names an inherited property', () => {
+        const format = match('role', cases({
+          admin: text(),
+          user: text()
+        }), other('user'))(ctx, {
+          admin: 'Admin area',
+          user: 'User area'
+        })
+
+        for (const role of [
+          'constructor',
+          'valueOf',
+          'hasOwnProperty',
+          'toString',
+          '__proto__'
+        ]) {
+          expect(format({
+            role
+          })).toBe('User area')
+        }
+      })
+
+      it('should select an own case named as an inherited property', () => {
+        const format = match('kind', other('other'))(ctx, {
+          constructor: 'A constructor',
+          other: 'Something else'
+        })
+
+        expect(format({
+          kind: 'constructor'
+        })).toBe('A constructor')
+        expect(format({
+          kind: 'valueOf'
+        })).toBe('Something else')
+      })
+
       it('should resolve case key with custom resolver', () => {
         const format = match(
           'role',

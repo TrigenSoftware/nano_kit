@@ -118,6 +118,17 @@ describe('intl', () => {
         })).toBe('No items')
       })
 
+      it('should take no inherited property for an exact form', () => {
+        const format = plural('count')(ctx, {
+          one: '{count} item',
+          other: '{count} items'
+        })
+
+        expect(format({
+          count: 'constructor'
+        })).toBe('constructor items')
+      })
+
       it('should fallback to other form when selected form is missing', () => {
         const format = plural('count', forms({
           other: text()

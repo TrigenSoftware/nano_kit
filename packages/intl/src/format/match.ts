@@ -160,14 +160,19 @@ export function match<
     const isString = typeof input === 'string'
     // A surrounding `params` that lists the param replaces its placeholder itself
     const filled = ctx.f?.[param]
-    // A string never reaches the lookups below, so it is stored as is.
-    let resolvedCases = (input ?? {}) as Record<string, string | undefined | FnWithParams<unknown>>
+    // The cases have no prototype, so a value that names an inherited property, as `constructor`
+    // or `__proto__` does, is no case. A string never reaches the lookups below, so it is stored as is
+    const resolvedCases = (
+      isString
+        ? input
+        : {
+          // oxlint-disable-next-line trigen/naming-convention
+          __proto__: null,
+          ...input
+        }
+    ) as unknown as Record<string, string | undefined | FnWithParams<unknown>>
 
     if (cases && !isString) {
-      resolvedCases = {
-        ...resolvedCases
-      }
-
       cases(ctx, input, resolvedCases)
     }
 
