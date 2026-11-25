@@ -68,8 +68,12 @@ export function abortable(): ClientSetting {
         )
 
         if (abortController = abortControllers.get(requestCtx)) {
+          const forget = () => abortControllers.delete(promise)
+
           abortControllers.set(promise, abortController)
-          void promise.finally(() => abortControllers.delete(promise))
+          // `finally` would pass a rejection of the request on to a promise nobody handles, which ends the process:
+          // with the same handler for both outcomes the promise of the cleanup always settles
+          void promise.then(forget, forget)
         }
 
         return promise

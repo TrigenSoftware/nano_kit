@@ -19,7 +19,10 @@ import {
   client,
   operations
 } from '../client.js'
-import { RequestContext } from '../RequestContext.js'
+import {
+  RequestContext,
+  onSuccess
+} from '../RequestContext.js'
 import {
   type Post,
   resetMockData,
@@ -116,6 +119,32 @@ describe('query', () => {
       })
 
       describe('abortable setting', () => {
+        it('should leave no unhandled rejection when the answer fails to apply', async () => {
+          const unhandled = vi.fn()
+          const { query } = client()
+          const [$data] = query(PostKey, [1], async (id, ctx) => {
+            abortSignal(ctx)
+            onSuccess(ctx, () => {
+              throw new Error('The answer has an unexpected shape')
+            })
+
+            return getPost(id)
+          }, [abortable()])
+
+          process.on('unhandledRejection', unhandled)
+
+          const off = effect(() => {
+            $data()
+          })
+
+          await new Promise(resolve => setTimeout(resolve, 50))
+
+          off()
+          process.off('unhandledRejection', unhandled)
+
+          expect(unhandled).not.toHaveBeenCalled()
+        })
+
         it('should abort previous request when new query starts', async () => {
           const { query } = client()
           const $id = signal(1)
